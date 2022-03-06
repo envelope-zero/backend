@@ -1,0 +1,11 @@
+{
+  "extends": ["group:monorepos", "group:recommended"],
+  "dependencyDashboard": true,
+  "pre-commit": {
+    "enabled": true
+  },
+  "labels": ["renovate"],
+  "rangeStrategy": "pin",
+  "rebaseWhen": "behind-base-branch",
+  "semanticCommits": "enabled"
+}
