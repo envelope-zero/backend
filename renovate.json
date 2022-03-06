@@ -7,5 +7,16 @@
   "labels": ["renovate"],
   "rangeStrategy": "pin",
   "rebaseWhen": "behind-base-branch",
-  "semanticCommits": "enabled"
+  "semanticCommits": "enabled",
+  "regexManagers": [
+    {
+      "description": "Upgrade go version in a GitHub workflow",
+      "fileMatch": ["(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$"],
+      "matchStrings": [
+        "# renovate: go-version\\s*go-version:\\s*\"?(?<currentValue>.*)\"?"
+      ],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go"
+    }
+  ]
 }
