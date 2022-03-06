@@ -2,10 +2,28 @@
 
 Contributions are welcome. Please note the [Code of Conduct](CODE_OF_CONDUCT.md) and set up pre-commit as described below.
 
-## Repository setup
+## Tool & Repository setup
 
-Please set up pre-commit after cloning the repository:
+CI pipelines check all code changes when you open a PR. To not have to go back and fix all issues manually, the following setup is recommended.
+
+You will need the following tools:
+
+- [go](https://go.dev/). For the specific version used, check the [pre-commit workflow](.github/workflows/pre-commit.yml) at the `go-version` configuration
+- [pre-commit](https://pre-commit.com/)
+
+Once this is done, run the following:
 
 ```sh
+# Linters used with pre-commit
+go install golang.org/x/lint/golint@latest
+go install golang.org/x/tools/cmd/goimports@latest
+go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+
+# Set up pre-commit hooks
 pre-commit install --hook-type commit-msg --hook-type pre-commit
 ```
+
+## Commit messages
+
+This project uses [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)
+to enable better overview over changes and enables automated tooling based on commit messages.
