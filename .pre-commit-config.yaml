@@ -12,6 +12,7 @@ repos:
     hooks:
       - id: go-fmt
       - id: go-vet
+        args: [./...]
       - id: go-mod-tidy
       - id: go-lint # requires golang.org/x/lint/golint
       - id: go-imports # requires golang.org/x/tools/cmd/goimports
