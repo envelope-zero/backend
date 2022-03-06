@@ -1,0 +1,3 @@
+[build]
+  cmd = "go build -o ./tmp/main cmd/backend.go"
+  delay = 3000

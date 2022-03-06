@@ -4,6 +4,8 @@ Contributions are welcome. Please note the [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ## Tool & Repository setup
 
+### Recommendations
+
 CI pipelines check all code changes when you open a PR. To not have to go back and fix all issues manually, the following setup is recommended.
 
 You will need the following tools:
@@ -22,6 +24,16 @@ go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 # Set up pre-commit hooks
 pre-commit install --hook-type commit-msg --hook-type pre-commit
 ```
+
+### Hot reload
+
+If you want to hot reload the server, using `air` is recommended. Get it with
+
+```sh
+go install github.com/cosmtrek/air@latest
+```
+
+You can then run `air` in the repository root, which will build and rebuild the project every time the code changes.
 
 ## Commit messages
 
