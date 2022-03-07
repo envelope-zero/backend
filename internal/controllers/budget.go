@@ -10,6 +10,29 @@ import (
 	"gorm.io/gorm"
 )
 
+// RegisterBudgetRoutes registers the routes for budgets with
+// the RouterGroup that is passed
+func RegisterBudgetRoutes(r *gin.RouterGroup) {
+	// Root group
+	{
+		r.OPTIONS("", func(c *gin.Context) {
+			c.Header("allow", "GET, POST")
+		})
+		r.GET("", GetBudgets)
+		r.POST("", CreateBudget)
+	}
+
+	// Transaction with ID
+	{
+		r.OPTIONS("/:id", func(c *gin.Context) {
+			c.Header("allow", "GET, PATCH, DELETE")
+		})
+		r.GET("/:id", GetBudget)
+		r.PATCH("/:id", UpdateBudget)
+		r.DELETE("/:id", DeleteBudget)
+	}
+}
+
 // CreateBudget creates a new budget
 func CreateBudget(c *gin.Context) {
 	var data models.CreateBudget
