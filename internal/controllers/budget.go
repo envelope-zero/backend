@@ -31,6 +31,10 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 		r.PATCH("/:budgetId", UpdateBudget)
 		r.DELETE("/:budgetId", DeleteBudget)
 	}
+
+	// Accounts
+	accounts := r.Group("/:budgetId/accounts")
+	RegisterAccountRoutes(accounts)
 }
 
 // CreateBudget creates a new budget
