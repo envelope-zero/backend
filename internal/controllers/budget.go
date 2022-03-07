@@ -24,12 +24,12 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:id", func(c *gin.Context) {
+		r.OPTIONS("/:budgetId", func(c *gin.Context) {
 			c.Header("allow", "GET, PATCH, DELETE")
 		})
-		r.GET("/:id", GetBudget)
-		r.PATCH("/:id", UpdateBudget)
-		r.DELETE("/:id", DeleteBudget)
+		r.GET("/:budgetId", GetBudget)
+		r.PATCH("/:budgetId", UpdateBudget)
+		r.DELETE("/:budgetId", DeleteBudget)
 	}
 }
 
@@ -59,7 +59,7 @@ func GetBudgets(c *gin.Context) {
 // GetBudget retrieves a budget by its ID
 func GetBudget(c *gin.Context) {
 	var budget models.Budget
-	err := database.DB.First(&budget, c.Param("id")).Error
+	err := database.DB.First(&budget, c.Param("budgetId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -78,7 +78,7 @@ func GetBudget(c *gin.Context) {
 func UpdateBudget(c *gin.Context) {
 	var budget models.Budget
 
-	err := database.DB.First(&budget, c.Param("id")).Error
+	err := database.DB.First(&budget, c.Param("budgetId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -104,7 +104,7 @@ func UpdateBudget(c *gin.Context) {
 // DeleteBudget removes a budget, identified by its ID
 func DeleteBudget(c *gin.Context) {
 	var budget models.Budget
-	err := database.DB.First(&budget, c.Param("id")).Error
+	err := database.DB.First(&budget, c.Param("budgetId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
