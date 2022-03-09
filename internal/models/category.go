@@ -5,7 +5,6 @@ type Category struct {
 	Model
 	Name     string `json:"name"`
 	BudgetID int    `json:"budgetId"`
-	Budget   Budget `json:"budget"`
 }
 
 // CreateCategory defines all values required to create a new category
