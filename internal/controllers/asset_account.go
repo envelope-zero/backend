@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// RegisterAssetAccountRoutes registers the routes for accounts with
+// RegisterAssetAccountRoutes registers the routes for assetAccounts with
 // the RouterGroup that is passed
 func RegisterAssetAccountRoutes(r *gin.RouterGroup) {
 	// Root group
@@ -25,16 +25,16 @@ func RegisterAssetAccountRoutes(r *gin.RouterGroup) {
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:accountId", func(c *gin.Context) {
+		r.OPTIONS("/:assetAccountId", func(c *gin.Context) {
 			c.Header("allow", "GET, PATCH, DELETE")
 		})
-		r.GET("/:accountId", GetAssetAccount)
-		r.PATCH("/:accountId", UpdateAssetAccount)
-		r.DELETE("/:accountId", DeleteAssetAccount)
+		r.GET("/:assetAccountId", GetAssetAccount)
+		r.PATCH("/:assetAccountId", UpdateAssetAccount)
+		r.DELETE("/:assetAccountId", DeleteAssetAccount)
 	}
 }
 
-// CreateAssetAccount creates a new account
+// CreateAssetAccount creates a new assetAccount
 func CreateAssetAccount(c *gin.Context) {
 	var data models.CreateAssetAccount
 
@@ -44,24 +44,24 @@ func CreateAssetAccount(c *gin.Context) {
 	}
 
 	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
-	account := models.AssetAccount{Name: data.Name, BudgetID: budgetID}
-	database.DB.Create(&account)
+	assetAccount := models.AssetAccount{Name: data.Name, BudgetID: budgetID}
+	database.DB.Create(&assetAccount)
 
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	c.JSON(http.StatusOK, gin.H{"data": assetAccount})
 }
 
-// GetAssetAccounts retrieves all accounts
+// GetAssetAccounts retrieves all assetAccounts
 func GetAssetAccounts(c *gin.Context) {
-	var accounts []models.AssetAccount
-	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
+	var assetAccounts []models.AssetAccount
+	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&assetAccounts)
 
-	c.JSON(http.StatusOK, gin.H{"data": accounts})
+	c.JSON(http.StatusOK, gin.H{"data": assetAccounts})
 }
 
-// GetAssetAccount retrieves a account by its ID
+// GetAssetAccount retrieves an assetAccount by its ID
 func GetAssetAccount(c *gin.Context) {
-	var account models.AssetAccount
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	var assetAccount models.AssetAccount
+	err := database.DB.First(&assetAccount, c.Param("assetAccountId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -73,14 +73,14 @@ func GetAssetAccount(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	c.JSON(http.StatusOK, gin.H{"data": assetAccount})
 }
 
-// UpdateAssetAccount updates a account, selected by the ID parameter
+// UpdateAssetAccount updates an assetAccount, selected by the ID parameter
 func UpdateAssetAccount(c *gin.Context) {
-	var account models.AssetAccount
+	var assetAccount models.AssetAccount
 
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	err := database.DB.First(&assetAccount, c.Param("assetAccountId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -99,14 +99,14 @@ func UpdateAssetAccount(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&account).Updates(data)
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	database.DB.Model(&assetAccount).Updates(data)
+	c.JSON(http.StatusOK, gin.H{"data": assetAccount})
 }
 
-// DeleteAssetAccount removes a account, identified by its ID
+// DeleteAssetAccount removes a assetAccount, identified by its ID
 func DeleteAssetAccount(c *gin.Context) {
-	var account models.AssetAccount
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	var assetAccount models.AssetAccount
+	err := database.DB.First(&assetAccount, c.Param("assetAccountId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -117,7 +117,7 @@ func DeleteAssetAccount(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&account)
+	database.DB.Delete(&assetAccount)
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

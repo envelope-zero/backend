@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// RegisterExpenseAccountRoutes registers the routes for accounts with
+// RegisterExpenseAccountRoutes registers the routes for expenseAccounts with
 // the RouterGroup that is passed
 func RegisterExpenseAccountRoutes(r *gin.RouterGroup) {
 	// Root group
@@ -25,16 +25,16 @@ func RegisterExpenseAccountRoutes(r *gin.RouterGroup) {
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:accountId", func(c *gin.Context) {
+		r.OPTIONS("/:expenseAccountId", func(c *gin.Context) {
 			c.Header("allow", "GET, PATCH, DELETE")
 		})
-		r.GET("/:accountId", GetExpenseAccount)
-		r.PATCH("/:accountId", UpdateExpenseAccount)
-		r.DELETE("/:accountId", DeleteExpenseAccount)
+		r.GET("/:expenseAccountId", GetExpenseAccount)
+		r.PATCH("/:expenseAccountId", UpdateExpenseAccount)
+		r.DELETE("/:expenseAccountId", DeleteExpenseAccount)
 	}
 }
 
-// CreateExpenseAccount creates a new account
+// CreateExpenseAccount creates a new expenseAccount
 func CreateExpenseAccount(c *gin.Context) {
 	var data models.CreateExpenseAccount
 
@@ -44,24 +44,24 @@ func CreateExpenseAccount(c *gin.Context) {
 	}
 
 	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
-	account := models.ExpenseAccount{Name: data.Name, BudgetID: budgetID}
-	database.DB.Create(&account)
+	expenseAccount := models.ExpenseAccount{Name: data.Name, BudgetID: budgetID}
+	database.DB.Create(&expenseAccount)
 
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	c.JSON(http.StatusOK, gin.H{"data": expenseAccount})
 }
 
-// GetExpenseAccounts retrieves all accounts
+// GetExpenseAccounts retrieves all expenseAccounts
 func GetExpenseAccounts(c *gin.Context) {
-	var accounts []models.ExpenseAccount
-	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
+	var expenseAccounts []models.ExpenseAccount
+	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&expenseAccounts)
 
-	c.JSON(http.StatusOK, gin.H{"data": accounts})
+	c.JSON(http.StatusOK, gin.H{"data": expenseAccounts})
 }
 
-// GetExpenseAccount retrieves a account by its ID
+// GetExpenseAccount retrieves an expenseAccount by its ID
 func GetExpenseAccount(c *gin.Context) {
-	var account models.ExpenseAccount
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	var expenseAccount models.ExpenseAccount
+	err := database.DB.First(&expenseAccount, c.Param("expenseAccountId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -73,14 +73,14 @@ func GetExpenseAccount(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	c.JSON(http.StatusOK, gin.H{"data": expenseAccount})
 }
 
-// UpdateExpenseAccount updates a account, selected by the ID parameter
+// UpdateExpenseAccount updates an expenseAccount, selected by the ID parameter
 func UpdateExpenseAccount(c *gin.Context) {
-	var account models.ExpenseAccount
+	var expenseAccount models.ExpenseAccount
 
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	err := database.DB.First(&expenseAccount, c.Param("expenseAccountId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -99,14 +99,14 @@ func UpdateExpenseAccount(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&account).Updates(data)
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	database.DB.Model(&expenseAccount).Updates(data)
+	c.JSON(http.StatusOK, gin.H{"data": expenseAccount})
 }
 
-// DeleteExpenseAccount removes a account, identified by its ID
+// DeleteExpenseAccount removes an expenseAccount, identified by its ID
 func DeleteExpenseAccount(c *gin.Context) {
-	var account models.ExpenseAccount
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	var expenseAccount models.ExpenseAccount
+	err := database.DB.First(&expenseAccount, c.Param("expenseAccountId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -117,7 +117,7 @@ func DeleteExpenseAccount(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&account)
+	database.DB.Delete(&expenseAccount)
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }
