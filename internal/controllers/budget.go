@@ -75,7 +75,10 @@ func GetBudget(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": budget})
+	c.JSON(http.StatusOK, gin.H{"data": budget, "links": map[string]string{
+		"asset-accounts":   "/asset-accounts",
+		"expense-accounts": "/expense-accounts",
+	}})
 }
 
 // UpdateBudget updates a budget, selected by the ID parameter
