@@ -35,6 +35,7 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 	// Register the routes for dependent resources
 	RegisterAssetAccountRoutes(r.Group("/:budgetId/asset-accounts"))
 	RegisterExpenseAccountRoutes(r.Group("/:budgetId/expense-accounts"))
+	RegisterCategoryRoutes(r.Group("/:budgetId/categories"))
 }
 
 // CreateBudget creates a new budget
@@ -78,6 +79,7 @@ func GetBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": budget, "links": map[string]string{
 		"asset-accounts":   "/asset-accounts",
 		"expense-accounts": "/expense-accounts",
+		"categories":       "/categories",
 	}})
 }
 
