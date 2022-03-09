@@ -5,8 +5,8 @@ package models
 type ExpenseAccount struct {
 	Model
 	Name     string `json:"name"`
-	BudgetID int
-	Budget   Budget
+	BudgetID int    `json:"budgetId"`
+	Budget   Budget `json:"budget"`
 }
 
 // CreateExpenseAccount defines all values required to create a new expense account
