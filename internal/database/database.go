@@ -19,7 +19,7 @@ func ConnectDatabase() {
 
 	db.AutoMigrate(&models.Budget{})
 	db.AutoMigrate(&models.AssetAccount{})
-	db.AutoMigrate(&models.ExpenseAccount{})
+	db.AutoMigrate(&models.ExternalAccount{})
 	db.AutoMigrate(&models.Category{})
 	db.AutoMigrate(&models.Envelope{})
 
