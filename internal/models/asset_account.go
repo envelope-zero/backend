@@ -8,7 +8,7 @@ type AssetAccount struct {
 	Budget   Budget
 }
 
-// CreateAssetAccount defines all values required to create an new account
+// CreateAssetAccount defines all values required to create a new asset account
 type CreateAssetAccount struct {
 	Name string `json:"name" binding:"required"`
 }
