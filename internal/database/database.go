@@ -21,6 +21,7 @@ func ConnectDatabase() {
 	db.AutoMigrate(&models.AssetAccount{})
 	db.AutoMigrate(&models.ExpenseAccount{})
 	db.AutoMigrate(&models.Category{})
+	db.AutoMigrate(&models.Envelope{})
 
 	DB = db
 }

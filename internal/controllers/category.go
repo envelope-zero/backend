@@ -32,6 +32,8 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 		r.PATCH("/:categoryId", UpdateCategory)
 		r.DELETE("/:categoryId", DeleteCategory)
 	}
+
+	RegisterEnvelopeRoutes(r.Group("/:categoryId/envelopes"))
 }
 
 // CreateCategory creates a new category
@@ -73,7 +75,9 @@ func GetCategory(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": category})
+	c.JSON(http.StatusOK, gin.H{"data": category, "links": map[string]string{
+		"envelopes": "/envelopes",
+	}})
 }
 
 // UpdateCategory updates a category, selected by the ID parameter
