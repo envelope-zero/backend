@@ -32,7 +32,9 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 		r.DELETE("/:budgetId", DeleteBudget)
 	}
 
+	// Register the routes for dependent resources
 	RegisterAssetAccountRoutes(r.Group("/:budgetId/asset-accounts"))
+	RegisterExpenseAccountRoutes(r.Group("/:budgetId/expense-accounts"))
 }
 
 // CreateBudget creates a new budget
