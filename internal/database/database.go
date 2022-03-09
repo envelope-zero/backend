@@ -18,7 +18,7 @@ func ConnectDatabase() {
 	}
 
 	db.AutoMigrate(&models.Budget{})
-	db.AutoMigrate(&models.Account{})
+	db.AutoMigrate(&models.AssetAccount{})
 
 	DB = db
 }

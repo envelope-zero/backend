@@ -11,16 +11,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// RegisterAccountRoutes registers the routes for accounts with
+// RegisterAssetAccountRoutes registers the routes for accounts with
 // the RouterGroup that is passed
-func RegisterAccountRoutes(r *gin.RouterGroup) {
+func RegisterAssetAccountRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
 		r.OPTIONS("", func(c *gin.Context) {
 			c.Header("allow", "GET, POST")
 		})
-		r.GET("", GetAccounts)
-		r.POST("", CreateAccount)
+		r.GET("", GetAssetAccounts)
+		r.POST("", CreateAssetAccount)
 	}
 
 	// Transaction with ID
@@ -28,15 +28,15 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 		r.OPTIONS("/:accountId", func(c *gin.Context) {
 			c.Header("allow", "GET, PATCH, DELETE")
 		})
-		r.GET("/:accountId", GetAccount)
-		r.PATCH("/:accountId", UpdateAccount)
-		r.DELETE("/:accountId", DeleteAccount)
+		r.GET("/:accountId", GetAssetAccount)
+		r.PATCH("/:accountId", UpdateAssetAccount)
+		r.DELETE("/:accountId", DeleteAssetAccount)
 	}
 }
 
-// CreateAccount creates a new account
-func CreateAccount(c *gin.Context) {
-	var data models.CreateAccount
+// CreateAssetAccount creates a new account
+func CreateAssetAccount(c *gin.Context) {
+	var data models.CreateAssetAccount
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -44,23 +44,23 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
-	account := models.Account{Name: data.Name, BudgetID: budgetID}
+	account := models.AssetAccount{Name: data.Name, BudgetID: budgetID}
 	database.DB.Create(&account)
 
 	c.JSON(http.StatusOK, gin.H{"data": account})
 }
 
-// GetAccounts retrieves all accounts
-func GetAccounts(c *gin.Context) {
-	var accounts []models.Account
+// GetAssetAccounts retrieves all accounts
+func GetAssetAccounts(c *gin.Context) {
+	var accounts []models.AssetAccount
 	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
 
 	c.JSON(http.StatusOK, gin.H{"data": accounts})
 }
 
-// GetAccount retrieves a account by its ID
-func GetAccount(c *gin.Context) {
-	var account models.Account
+// GetAssetAccount retrieves a account by its ID
+func GetAssetAccount(c *gin.Context) {
+	var account models.AssetAccount
 	err := database.DB.First(&account, c.Param("accountId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
@@ -76,9 +76,9 @@ func GetAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": account})
 }
 
-// UpdateAccount updates a account, selected by the ID parameter
-func UpdateAccount(c *gin.Context) {
-	var account models.Account
+// UpdateAssetAccount updates a account, selected by the ID parameter
+func UpdateAssetAccount(c *gin.Context) {
+	var account models.AssetAccount
 
 	err := database.DB.First(&account, c.Param("accountId")).Error
 
@@ -92,7 +92,7 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	var data models.Account
+	var data models.AssetAccount
 	err = c.ShouldBindJSON(&data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -103,9 +103,9 @@ func UpdateAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": account})
 }
 
-// DeleteAccount removes a account, identified by its ID
-func DeleteAccount(c *gin.Context) {
-	var account models.Account
+// DeleteAssetAccount removes a account, identified by its ID
+func DeleteAssetAccount(c *gin.Context) {
+	var account models.AssetAccount
 	err := database.DB.First(&account, c.Param("accountId")).Error
 
 	if err != nil {
