@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -73,10 +72,6 @@ func GetAccount(c *gin.Context) {
 		}
 		return
 	}
-
-	fmt.Println(account.CreatedAt)
-	fmt.Println(account.UpdatedAt)
-	fmt.Println(account.DeletedAt)
 
 	c.JSON(http.StatusOK, gin.H{"data": account})
 }
