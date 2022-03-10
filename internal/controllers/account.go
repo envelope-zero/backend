@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -45,7 +44,7 @@ func CreateAccount(c *gin.Context) {
 
 	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
 	account := models.Account{Name: data.Name, BudgetID: budgetID, OnBudget: data.OnBudget, Visible: data.Visible}
-	database.DB.Create(&account)
+	models.DB.Create(&account)
 
 	c.JSON(http.StatusOK, gin.H{"data": account})
 }
@@ -53,7 +52,7 @@ func CreateAccount(c *gin.Context) {
 // GetAccounts retrieves all accounts
 func GetAccounts(c *gin.Context) {
 	var accounts []models.Account
-	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
+	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
 
 	c.JSON(http.StatusOK, gin.H{"data": accounts})
 }
@@ -61,7 +60,7 @@ func GetAccounts(c *gin.Context) {
 // GetAccount retrieves an account by its ID
 func GetAccount(c *gin.Context) {
 	var account models.Account
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	err := models.DB.First(&account, c.Param("accountId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -80,7 +79,7 @@ func GetAccount(c *gin.Context) {
 func UpdateAccount(c *gin.Context) {
 	var account models.Account
 
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	err := models.DB.First(&account, c.Param("accountId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -99,14 +98,14 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&account).Updates(data)
+	models.DB.Model(&account).Updates(data)
 	c.JSON(http.StatusOK, gin.H{"data": account})
 }
 
 // DeleteAccount removes a account, identified by its ID
 func DeleteAccount(c *gin.Context) {
 	var account models.Account
-	err := database.DB.First(&account, c.Param("accountId")).Error
+	err := models.DB.First(&account, c.Param("accountId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -117,7 +116,7 @@ func DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&account)
+	models.DB.Delete(&account)
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

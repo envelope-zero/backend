@@ -1,7 +1,6 @@
-package database
+package models
 
 import (
-	"github.com/envelope-zero/backend/internal/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -17,11 +16,11 @@ func ConnectDatabase() {
 		panic("Failed to connect to database!")
 	}
 
-	db.AutoMigrate(&models.Budget{})
-	db.AutoMigrate(&models.Account{})
-	db.AutoMigrate(&models.Category{})
-	db.AutoMigrate(&models.Envelope{})
-	db.AutoMigrate(&models.Transaction{})
+	db.AutoMigrate(Budget{})
+	db.AutoMigrate(Account{})
+	db.AutoMigrate(Category{})
+	db.AutoMigrate(Envelope{})
+	db.AutoMigrate(Transaction{})
 
 	DB = db
 }

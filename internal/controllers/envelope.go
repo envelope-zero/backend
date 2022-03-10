@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -45,7 +44,7 @@ func CreateEnvelope(c *gin.Context) {
 
 	categoryID, _ := strconv.Atoi(c.Param("categoryId"))
 	envelope := models.Envelope{Name: data.Name, CategoryID: categoryID}
-	database.DB.Create(&envelope)
+	models.DB.Create(&envelope)
 
 	c.JSON(http.StatusOK, gin.H{"data": envelope})
 }
@@ -53,7 +52,7 @@ func CreateEnvelope(c *gin.Context) {
 // GetEnvelopes retrieves all envelopes
 func GetEnvelopes(c *gin.Context) {
 	var envelopes []models.Envelope
-	database.DB.Where("category_id = ?", c.Param("categoryId")).Find(&envelopes)
+	models.DB.Where("category_id = ?", c.Param("categoryId")).Find(&envelopes)
 
 	c.JSON(http.StatusOK, gin.H{"data": envelopes})
 }
@@ -61,7 +60,7 @@ func GetEnvelopes(c *gin.Context) {
 // GetEnvelope retrieves a envelope by its ID
 func GetEnvelope(c *gin.Context) {
 	var envelope models.Envelope
-	err := database.DB.First(&envelope, c.Param("envelopeId")).Error
+	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -80,7 +79,7 @@ func GetEnvelope(c *gin.Context) {
 func UpdateEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 
-	err := database.DB.First(&envelope, c.Param("envelopeId")).Error
+	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -99,14 +98,14 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&envelope).Updates(data)
+	models.DB.Model(&envelope).Updates(data)
 	c.JSON(http.StatusOK, gin.H{"data": envelope})
 }
 
 // DeleteEnvelope removes a envelope, identified by its ID
 func DeleteEnvelope(c *gin.Context) {
 	var envelope models.Envelope
-	err := database.DB.First(&envelope, c.Param("envelopeId")).Error
+	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -117,7 +116,7 @@ func DeleteEnvelope(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&envelope)
+	models.DB.Delete(&envelope)
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

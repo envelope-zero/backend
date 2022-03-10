@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -47,7 +46,7 @@ func CreateCategory(c *gin.Context) {
 
 	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
 	category := models.Category{Name: data.Name, BudgetID: budgetID}
-	database.DB.Create(&category)
+	models.DB.Create(&category)
 
 	c.JSON(http.StatusOK, gin.H{"data": category})
 }
@@ -55,7 +54,7 @@ func CreateCategory(c *gin.Context) {
 // GetCategories retrieves all categories
 func GetCategories(c *gin.Context) {
 	var categories []models.Category
-	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&categories)
+	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&categories)
 
 	c.JSON(http.StatusOK, gin.H{"data": categories})
 }
@@ -63,7 +62,7 @@ func GetCategories(c *gin.Context) {
 // GetCategory retrieves a category by its ID
 func GetCategory(c *gin.Context) {
 	var category models.Category
-	err := database.DB.First(&category, c.Param("categoryId")).Error
+	err := models.DB.First(&category, c.Param("categoryId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -84,7 +83,7 @@ func GetCategory(c *gin.Context) {
 func UpdateCategory(c *gin.Context) {
 	var category models.Category
 
-	err := database.DB.First(&category, c.Param("categoryId")).Error
+	err := models.DB.First(&category, c.Param("categoryId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -103,14 +102,14 @@ func UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&category).Updates(data)
+	models.DB.Model(&category).Updates(data)
 	c.JSON(http.StatusOK, gin.H{"data": category})
 }
 
 // DeleteCategory removes a category, identified by its ID
 func DeleteCategory(c *gin.Context) {
 	var category models.Category
-	err := database.DB.First(&category, c.Param("categoryId")).Error
+	err := models.DB.First(&category, c.Param("categoryId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -121,7 +120,7 @@ func DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&category)
+	models.DB.Delete(&category)
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

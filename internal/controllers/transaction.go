@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -59,7 +58,7 @@ func CreateTransaction(c *gin.Context) {
 		SourceAccountID:      data.SourceAccountID,
 		DestinationAccountID: data.DestinationAccountID,
 	}
-	database.DB.Create(&transaction)
+	models.DB.Create(&transaction)
 
 	c.JSON(http.StatusOK, gin.H{"data": transaction})
 }
@@ -67,7 +66,7 @@ func CreateTransaction(c *gin.Context) {
 // GetTransactions retrieves all transactions
 func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
-	database.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&transactions)
+	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&transactions)
 
 	c.JSON(http.StatusOK, gin.H{"data": transactions})
 }
@@ -75,7 +74,7 @@ func GetTransactions(c *gin.Context) {
 // GetTransaction retrieves an transaction by its ID
 func GetTransaction(c *gin.Context) {
 	var transaction models.Transaction
-	err := database.DB.First(&transaction, c.Param("transactionId")).Error
+	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -94,7 +93,7 @@ func GetTransaction(c *gin.Context) {
 func UpdateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 
-	err := database.DB.First(&transaction, c.Param("transactionId")).Error
+	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -118,14 +117,14 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&transaction).Updates(data)
+	models.DB.Model(&transaction).Updates(data)
 	c.JSON(http.StatusOK, gin.H{"data": transaction})
 }
 
 // DeleteTransaction removes a transaction, identified by its ID
 func DeleteTransaction(c *gin.Context) {
 	var transaction models.Transaction
-	err := database.DB.First(&transaction, c.Param("transactionId")).Error
+	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -136,7 +135,7 @@ func DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&transaction)
+	models.DB.Delete(&transaction)
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

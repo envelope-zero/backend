@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/controllers"
-	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +12,7 @@ import (
 func Router() *gin.Engine {
 	r := gin.Default()
 
-	database.ConnectDatabase()
+	models.ConnectDatabase()
 
 	// The root path lists the available versions
 	r.GET("", func(c *gin.Context) {

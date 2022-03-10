@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -48,7 +47,7 @@ func CreateBudget(c *gin.Context) {
 	}
 
 	budget := models.Budget{Name: data.Name}
-	database.DB.Create(&budget)
+	models.DB.Create(&budget)
 
 	c.JSON(http.StatusOK, gin.H{"data": budget})
 }
@@ -56,7 +55,7 @@ func CreateBudget(c *gin.Context) {
 // GetBudgets retrieves all budgets
 func GetBudgets(c *gin.Context) {
 	var budgets []models.Budget
-	database.DB.Find(&budgets)
+	models.DB.Find(&budgets)
 
 	c.JSON(http.StatusOK, gin.H{"data": budgets})
 }
@@ -64,7 +63,7 @@ func GetBudgets(c *gin.Context) {
 // GetBudget retrieves a budget by its ID
 func GetBudget(c *gin.Context) {
 	var budget models.Budget
-	err := database.DB.First(&budget, c.Param("budgetId")).Error
+	err := models.DB.First(&budget, c.Param("budgetId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -87,7 +86,7 @@ func GetBudget(c *gin.Context) {
 func UpdateBudget(c *gin.Context) {
 	var budget models.Budget
 
-	err := database.DB.First(&budget, c.Param("budgetId")).Error
+	err := models.DB.First(&budget, c.Param("budgetId")).Error
 
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
@@ -106,14 +105,14 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&budget).Updates(data)
+	models.DB.Model(&budget).Updates(data)
 	c.JSON(http.StatusOK, gin.H{"data": budget})
 }
 
 // DeleteBudget removes a budget, identified by its ID
 func DeleteBudget(c *gin.Context) {
 	var budget models.Budget
-	err := database.DB.First(&budget, c.Param("budgetId")).Error
+	err := models.DB.First(&budget, c.Param("budgetId")).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -124,7 +123,7 @@ func DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&budget)
+	models.DB.Delete(&budget)
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }
