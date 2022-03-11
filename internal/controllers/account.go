@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
-	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -76,10 +76,18 @@ func CreateAccount(c *gin.Context) {
 
 // GetAccounts retrieves all accounts
 func GetAccounts(c *gin.Context) {
-	var accounts []models.Account
+	var (
+		accounts     []models.Account
+		apiResponses []models.AccountAPIResponse
+	)
 	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
 
-	c.JSON(http.StatusOK, gin.H{"data": accounts})
+	for _, account := range accounts {
+		response, _ := account.APIResponse()
+		apiResponses = append(apiResponses, response)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": apiResponses})
 }
 
 // GetAccount retrieves an account by its ID
@@ -96,21 +104,19 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
-	balance, err := account.Balance()
+	apiResponse, err := account.APIResponse()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get values for account, please check the server log"})
+		log.Println(err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": struct {
-		Account models.Account
-		Balance decimal.Decimal `json:"balance"`
-	}{
-		Account: account,
-		Balance: balance,
-	}, "links": map[string]string{
-		"transactions": "/transactions",
-	}})
+	c.JSON(http.StatusOK, gin.H{
+		"data": apiResponse,
+		"links": map[string]string{
+			"transactions": "/transactions",
+		},
+	})
 }
 
 // UpdateAccount updates an account, selected by the ID parameter
