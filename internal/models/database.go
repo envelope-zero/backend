@@ -9,18 +9,37 @@ import (
 var DB *gorm.DB
 
 // ConnectDatabase connects to the database DB
-func ConnectDatabase() {
+func ConnectDatabase() error {
 	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
-
 	if err != nil {
 		panic("Failed to connect to database!")
 	}
 
-	db.AutoMigrate(Budget{})
-	db.AutoMigrate(Account{})
-	db.AutoMigrate(Category{})
-	db.AutoMigrate(Envelope{})
-	db.AutoMigrate(Transaction{})
+	err = db.AutoMigrate(Budget{})
+	if err != nil {
+		return err
+	}
+
+	err = db.AutoMigrate(Account{})
+	if err != nil {
+		return err
+	}
+
+	err = db.AutoMigrate(Category{})
+	if err != nil {
+		return err
+	}
+
+	err = db.AutoMigrate(Envelope{})
+	if err != nil {
+		return err
+	}
+
+	err = db.AutoMigrate(Transaction{})
+	if err != nil {
+		return err
+	}
 
 	DB = db
+	return nil
 }

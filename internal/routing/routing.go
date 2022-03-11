@@ -1,6 +1,7 @@
 package routing
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/controllers"
@@ -12,7 +13,10 @@ import (
 func Router() *gin.Engine {
 	r := gin.Default()
 
-	models.ConnectDatabase()
+	err := models.ConnectDatabase()
+	if err != nil {
+		log.Printf("Database migration failed with: %s", err.Error())
+	}
 
 	// The root path lists the available versions
 	r.GET("", func(c *gin.Context) {

@@ -64,7 +64,6 @@ func GetBudgets(c *gin.Context) {
 func GetBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -87,7 +86,6 @@ func UpdateBudget(c *gin.Context) {
 	var budget models.Budget
 
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -113,7 +111,6 @@ func UpdateBudget(c *gin.Context) {
 func DeleteBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
-
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})

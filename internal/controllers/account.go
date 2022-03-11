@@ -46,7 +46,6 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 func GetAccountTransactions(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
-
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "No record found"})
@@ -87,7 +86,6 @@ func GetAccounts(c *gin.Context) {
 func GetAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -98,12 +96,18 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
+	balance, err := account.Balance()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"data": struct {
 		Account models.Account
 		Balance decimal.Decimal `json:"balance"`
 	}{
 		Account: account,
-		Balance: account.Balance(),
+		Balance: balance,
 	}, "links": map[string]string{
 		"transactions": "/transactions",
 	}})
@@ -114,7 +118,6 @@ func UpdateAccount(c *gin.Context) {
 	var account models.Account
 
 	err := models.DB.First(&account, c.Param("accountId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -140,7 +143,6 @@ func UpdateAccount(c *gin.Context) {
 func DeleteAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
-
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})

@@ -10,10 +10,14 @@
   "semanticCommits": "enabled",
   "regexManagers": [
     {
-      "description": "Upgrade go version in a GitHub workflow",
-      "fileMatch": ["(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$"],
+      "description": "Upgrade go version",
+      "fileMatch": [
+        "(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$",
+        ".golangci.yml"
+      ],
       "matchStrings": [
-        "# renovate: go-version\\s*go-version:\\s*\"?(?<currentValue>.*)\"?"
+        "# renovate: go-version\\s*go-version:\\s*\"?(?<currentValue>.*)\"?",
+        "lang-version: \"(?<currentValue>.*)\""
       ],
       "datasourceTemplate": "golang-version",
       "depNameTemplate": "go"
