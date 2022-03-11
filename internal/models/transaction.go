@@ -6,11 +6,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// Transaction represents a transaction
-//
-// A transaction is either a transfer from one asset account to another
-// asset account or a deposit (external account to asset account) or a
-// withdrawal (asset account to external account)
+// Transaction represents a transaction between two accounts
 type Transaction struct {
 	Model
 	Date                 time.Time       `json:"date"`
