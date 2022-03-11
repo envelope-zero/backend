@@ -46,7 +46,7 @@ func CreateBudget(c *gin.Context) {
 		return
 	}
 
-	budget := models.Budget{Name: data.Name}
+	budget := models.Budget{Name: data.Name, Note: data.Note}
 	models.DB.Create(&budget)
 
 	c.JSON(http.StatusOK, gin.H{"data": budget})

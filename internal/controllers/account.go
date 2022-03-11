@@ -68,7 +68,7 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
-	account := models.Account{Name: data.Name, BudgetID: budgetID, OnBudget: data.OnBudget, Visible: data.Visible}
+	account := models.Account{Name: data.Name, BudgetID: budgetID, OnBudget: data.OnBudget, Visible: data.Visible, Note: data.Note}
 	models.DB.Create(&account)
 
 	c.JSON(http.StatusOK, gin.H{"data": account})

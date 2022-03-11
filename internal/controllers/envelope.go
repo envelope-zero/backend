@@ -43,7 +43,7 @@ func CreateEnvelope(c *gin.Context) {
 	}
 
 	categoryID, _ := strconv.Atoi(c.Param("categoryId"))
-	envelope := models.Envelope{Name: data.Name, CategoryID: categoryID}
+	envelope := models.Envelope{Name: data.Name, CategoryID: categoryID, Note: data.Note}
 	models.DB.Create(&envelope)
 
 	c.JSON(http.StatusOK, gin.H{"data": envelope})

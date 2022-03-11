@@ -45,7 +45,7 @@ func CreateCategory(c *gin.Context) {
 	}
 
 	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
-	category := models.Category{Name: data.Name, BudgetID: budgetID}
+	category := models.Category{Name: data.Name, BudgetID: budgetID, Note: data.Note}
 	models.DB.Create(&category)
 
 	c.JSON(http.StatusOK, gin.H{"data": category})
