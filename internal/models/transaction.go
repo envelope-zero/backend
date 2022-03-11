@@ -14,7 +14,7 @@ import (
 type Transaction struct {
 	Model
 	Date                 time.Time       `json:"date"`
-	Amount               decimal.Decimal `json:"amount"`
+	Amount               decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8);"`
 	Note                 string          `json:"note,omitempty"`
 	BudgetID             int             `json:"budgetId"`
 	Budget               Budget          `json:"-"`

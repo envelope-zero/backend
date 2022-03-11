@@ -7,6 +7,7 @@ import (
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -22,7 +23,7 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 		r.POST("", CreateAccount)
 	}
 
-	// Transaction with ID
+	// Account with ID
 	{
 		r.OPTIONS("/:accountId", func(c *gin.Context) {
 			c.Header("allow", "GET, PATCH, DELETE")
@@ -31,6 +32,31 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 		r.PATCH("/:accountId", UpdateAccount)
 		r.DELETE("/:accountId", DeleteAccount)
 	}
+
+	// Transactions
+	{
+		r.OPTIONS("/:accountId/transactions", func(c *gin.Context) {
+			c.Header("allow", "GET")
+		})
+		r.GET("/:accountId/transactions", GetAccountTransactions)
+	}
+}
+
+// GetAccountTransactions returns all transactions for the account
+func GetAccountTransactions(c *gin.Context) {
+	var account models.Account
+	err := models.DB.First(&account, c.Param("accountId")).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "No record found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": account.Transactions()})
 }
 
 // CreateAccount creates a new account
@@ -72,7 +98,15 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	c.JSON(http.StatusOK, gin.H{"data": struct {
+		Account models.Account
+		Balance decimal.Decimal `json:"balance"`
+	}{
+		Account: account,
+		Balance: account.Balance(),
+	}, "links": map[string]string{
+		"transactions": "/transactions",
+	}})
 }
 
 // UpdateAccount updates an account, selected by the ID parameter
