@@ -1,0 +1,18 @@
+issues:
+  fix: true
+
+  exclude-rules:
+    - path: main.go
+      text: "Error return value of `r.Run` is not checked"
+
+linters:
+  enable:
+    - gocyclo
+    - gofumpt
+    - goimports
+    - govet
+    - revive
+
+linters-settings:
+  gofumpt:
+    lang-version: "1.17"

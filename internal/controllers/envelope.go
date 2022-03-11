@@ -61,7 +61,6 @@ func GetEnvelopes(c *gin.Context) {
 func GetEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -80,7 +79,6 @@ func UpdateEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -106,7 +104,6 @@ func UpdateEnvelope(c *gin.Context) {
 func DeleteEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
-
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})

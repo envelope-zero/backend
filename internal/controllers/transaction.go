@@ -75,7 +75,6 @@ func GetTransactions(c *gin.Context) {
 func GetTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -94,7 +93,6 @@ func UpdateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -125,7 +123,6 @@ func UpdateTransaction(c *gin.Context) {
 func DeleteTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
-
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})

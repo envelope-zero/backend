@@ -17,9 +17,7 @@ Once this is done, run the following:
 
 ```sh
 # Linters used with pre-commit
-go install golang.org/x/lint/golint@latest
-go install golang.org/x/tools/cmd/goimports@latest
-go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 # Set up pre-commit hooks
 pre-commit install --hook-type commit-msg --hook-type pre-commit

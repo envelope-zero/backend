@@ -63,7 +63,6 @@ func GetCategories(c *gin.Context) {
 func GetCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -84,7 +83,6 @@ func UpdateCategory(c *gin.Context) {
 	var category models.Category
 
 	err := models.DB.First(&category, c.Param("categoryId")).Error
-
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -110,7 +108,6 @@ func UpdateCategory(c *gin.Context) {
 func DeleteCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
-
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
