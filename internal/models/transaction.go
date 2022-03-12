@@ -19,12 +19,3 @@ type Transaction struct {
 	DestinationAccountID int             `json:"destinationAccountId"`
 	DestinationAccount   Account         `json:"-"`
 }
-
-// CreateTransaction defines all data needed to create a transaction
-type CreateTransaction struct {
-	Date                 time.Time       `json:"date" binding:"required"`
-	Amount               decimal.Decimal `json:"amount" binding:"required"`
-	Note                 string          `json:"note"`
-	SourceAccountID      int             `json:"sourceAccountId"`
-	DestinationAccountID int             `json:"destinationAccountId"`
-}

@@ -35,18 +35,17 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 
 // CreateEnvelope creates a new envelope
 func CreateEnvelope(c *gin.Context) {
-	var data models.CreateEnvelope
+	var data models.Envelope
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	categoryID, _ := strconv.Atoi(c.Param("categoryId"))
-	envelope := models.Envelope{Name: data.Name, CategoryID: categoryID, Note: data.Note}
-	models.DB.Create(&envelope)
+	data.CategoryID, _ = strconv.Atoi(c.Param("categoryId"))
+	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": envelope})
+	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
 // GetEnvelopes retrieves all envelopes

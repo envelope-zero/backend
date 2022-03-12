@@ -39,17 +39,15 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 
 // CreateBudget creates a new budget
 func CreateBudget(c *gin.Context) {
-	var data models.CreateBudget
+	var data models.Budget
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	budget := models.Budget{Name: data.Name, Note: data.Note}
-	models.DB.Create(&budget)
-
-	c.JSON(http.StatusOK, gin.H{"data": budget})
+	models.DB.Create(&data)
+	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
 // GetBudgets retrieves all budgets

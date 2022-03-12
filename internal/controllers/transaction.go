@@ -36,7 +36,7 @@ func RegisterTransactionRoutes(r *gin.RouterGroup) {
 
 // CreateTransaction creates a new transaction
 func CreateTransaction(c *gin.Context) {
-	var data models.CreateTransaction
+	var data models.Transaction
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -44,23 +44,15 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	// Convert and validate data
-	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
+	data.BudgetID, _ = strconv.Atoi(c.Param("budgetId"))
 	if !decimal.Decimal.IsPositive(data.Amount) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "The transaction amount must be positive"})
 		return
 	}
 
-	transaction := models.Transaction{
-		Date:                 data.Date,
-		Amount:               data.Amount,
-		Note:                 data.Note,
-		BudgetID:             budgetID,
-		SourceAccountID:      data.SourceAccountID,
-		DestinationAccountID: data.DestinationAccountID,
-	}
-	models.DB.Create(&transaction)
+	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": transaction})
+	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
 // GetTransactions retrieves all transactions

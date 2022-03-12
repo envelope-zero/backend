@@ -60,18 +60,17 @@ func GetAccountTransactions(c *gin.Context) {
 
 // CreateAccount creates a new account
 func CreateAccount(c *gin.Context) {
-	var data models.CreateAccount
+	var data models.Account
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
-	account := models.Account{Name: data.Name, BudgetID: budgetID, OnBudget: data.OnBudget, Visible: data.Visible, Note: data.Note}
-	models.DB.Create(&account)
+	data.BudgetID, _ = strconv.Atoi(c.Param("budgetId"))
+	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
 // GetAccounts retrieves all accounts

@@ -17,14 +17,6 @@ type Account struct {
 	Note     string `json:"note,omitempty"`
 }
 
-// CreateAccount defines all values required to create a new asset account
-type CreateAccount struct {
-	Name     string `json:"name" binding:"required"`
-	OnBudget bool   `json:"onBudget"`
-	Visible  bool   `json:"visible"`
-	Note     string `json:"note"`
-}
-
 // AccountAPIResponse is used for account objects in API responses
 type AccountAPIResponse struct {
 	Account

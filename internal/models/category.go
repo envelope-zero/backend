@@ -8,9 +8,3 @@ type Category struct {
 	Budget   Budget `json:"-"`
 	Note     string `json:"note,omitempty"`
 }
-
-// CreateCategory defines all values required to create a new category
-type CreateCategory struct {
-	Name string `json:"name" binding:"required"`
-	Note string `json:"note"`
-}

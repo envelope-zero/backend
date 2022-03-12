@@ -37,18 +37,17 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 
 // CreateCategory creates a new category
 func CreateCategory(c *gin.Context) {
-	var data models.CreateCategory
+	var data models.Category
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	budgetID, _ := strconv.Atoi(c.Param("budgetId"))
-	category := models.Category{Name: data.Name, BudgetID: budgetID, Note: data.Note}
-	models.DB.Create(&category)
+	data.BudgetID, _ = strconv.Atoi(c.Param("budgetId"))
+	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": category})
+	c.JSON(http.StatusOK, gin.H{"data": &data})
 }
 
 // GetCategories retrieves all categories
