@@ -9,30 +9,25 @@ import (
 // Account represents an asset account, e.g. a bank account
 type Account struct {
 	Model
-	Name     string `json:"name"`
-	BudgetID int    `json:"budgetId"`
-	Budget   Budget `json:"-"`
-	OnBudget bool   `json:"onBudget"`
-	Visible  bool   `json:"visible"`
-	Note     string `json:"note,omitempty"`
+	Name     string          `json:"name"`
+	BudgetID int             `json:"budgetId"`
+	Budget   Budget          `json:"-"`
+	OnBudget bool            `json:"onBudget"`
+	Visible  bool            `json:"visible"`
+	Note     string          `json:"note,omitempty"`
+	Balance  decimal.Decimal `json:"balance" gorm:"-"`
 }
 
-// AccountAPIResponse is used for account objects in API responses
-type AccountAPIResponse struct {
-	Account
-	Balance decimal.Decimal `json:"balance"`
-}
+// WithBalance returns a pointer to the account with the balance calculated
+func (a Account) WithBalance() (*Account, error) {
+	var err error
+	a.Balance, err = a.getBalance()
 
-func (a Account) APIResponse() (AccountAPIResponse, error) {
-	balance, err := a.Balance()
 	if err != nil {
-		return AccountAPIResponse{}, err
+		return nil, err
 	}
 
-	return AccountAPIResponse{
-		Account: a,
-		Balance: balance,
-	}, nil
+	return &a, nil
 }
 
 // Transactions returns all transactions for this account
@@ -47,11 +42,11 @@ func (a Account) Transactions() []Transaction {
 	return transactions
 }
 
-// Balance returns the Balance of the account, including all transactions.
+// GetBalance returns the balance of the account, including all transactions.
 //
 // Note that this will produce wrong results with sqlite as of now, see
 // https://github.com/go-gorm/gorm/issues/5153 for details.
-func (a Account) Balance() (decimal.Decimal, error) {
+func (a Account) getBalance() (decimal.Decimal, error) {
 	var sourceSum, destinationSum decimal.NullDecimal
 
 	err := DB.Table("transactions").Where("source_account_id = ?", a.ID).Select(

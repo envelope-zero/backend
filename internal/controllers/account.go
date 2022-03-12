@@ -75,15 +75,13 @@ func CreateAccount(c *gin.Context) {
 
 // GetAccounts retrieves all accounts
 func GetAccounts(c *gin.Context) {
-	var (
-		accounts     []models.Account
-		apiResponses []models.AccountAPIResponse
-	)
+	var accounts, apiResponses []models.Account
+
 	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
 
 	for _, account := range accounts {
-		response, _ := account.APIResponse()
-		apiResponses = append(apiResponses, response)
+		response, _ := account.WithBalance()
+		apiResponses = append(apiResponses, *response)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": apiResponses})
@@ -103,7 +101,7 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
-	apiResponse, err := account.APIResponse()
+	apiResponse, err := account.WithBalance()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get values for account, please check the server log"})
 		log.Println(err.Error())
