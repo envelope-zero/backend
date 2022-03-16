@@ -62,8 +62,8 @@ func GetAccountTransactions(c *gin.Context) {
 func CreateAccount(c *gin.Context) {
 	var data models.Account
 
-	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if status, err := bindData(c, data); err != nil {
+		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -132,9 +132,8 @@ func UpdateAccount(c *gin.Context) {
 	}
 
 	var data models.Account
-	err = c.ShouldBindJSON(&data)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if status, err := bindData(c, data); err != nil {
+		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 

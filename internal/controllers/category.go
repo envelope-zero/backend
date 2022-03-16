@@ -39,8 +39,8 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 func CreateCategory(c *gin.Context) {
 	var data models.Category
 
-	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if status, err := bindData(c, data); err != nil {
+		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -93,9 +93,8 @@ func UpdateCategory(c *gin.Context) {
 	}
 
 	var data models.Category
-	err = c.ShouldBindJSON(&data)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if status, err := bindData(c, data); err != nil {
+		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
