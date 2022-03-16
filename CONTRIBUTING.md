@@ -31,7 +31,7 @@ If you want to hot reload the server, using `air` is recommended. Get it with
 go install github.com/cosmtrek/air@latest
 ```
 
-You can then run `air` in the repository root, which will build and rebuild the project every time the code changes.
+You can then run `GIN_MODE=debug air` in the repository root, which will build and rebuild the project every time the code changes.
 
 ## Commit messages
 
