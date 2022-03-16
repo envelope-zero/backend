@@ -31,6 +31,8 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 		r.PATCH("/:envelopeId", UpdateEnvelope)
 		r.DELETE("/:envelopeId", DeleteEnvelope)
 	}
+
+	RegisterAllocationRoutes(r.Group("/:envelopeId/allocations"))
 }
 
 // CreateEnvelope creates a new envelope
@@ -70,7 +72,9 @@ func GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": envelope})
+	c.JSON(http.StatusOK, gin.H{"data": envelope, "links": map[string]string{
+		"allocations": "/allocations",
+	}})
 }
 
 // UpdateEnvelope updates a envelope, selected by the ID parameter

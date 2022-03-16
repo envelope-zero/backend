@@ -40,6 +40,11 @@ func ConnectDatabase() error {
 		return err
 	}
 
+	err = db.AutoMigrate(Allocation{})
+	if err != nil {
+		return err
+	}
+
 	DB = db
 	return nil
 }
