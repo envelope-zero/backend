@@ -9,7 +9,7 @@ import (
 // Account represents an asset account, e.g. a bank account
 type Account struct {
 	Model
-	Name     string          `json:"name"`
+	Name     string          `json:"name,omitempty"`
 	BudgetID int             `json:"budgetId"`
 	Budget   Budget          `json:"-"`
 	OnBudget bool            `json:"onBudget"`
