@@ -3,7 +3,7 @@ name: Validate renovate config
 on:
   push:
     paths:
-      - renovate.json
+      - "renovate.json"
 
 jobs:
   validate:
