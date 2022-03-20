@@ -8,6 +8,7 @@
   "rangeStrategy": "pin",
   "rebaseWhen": "behind-base-branch",
   "semanticCommits": "enabled",
+  "postUpdateOptions": ["gomodTidy"],
   "regexManagers": [
     {
       "description": "Upgrade go version",
