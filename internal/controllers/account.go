@@ -62,7 +62,7 @@ func GetAccountTransactions(c *gin.Context) {
 func CreateAccount(c *gin.Context) {
 	var data models.Account
 
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
@@ -132,7 +132,7 @@ func UpdateAccount(c *gin.Context) {
 	}
 
 	var data models.Account
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}

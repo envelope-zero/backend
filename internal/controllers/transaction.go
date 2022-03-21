@@ -38,7 +38,7 @@ func RegisterTransactionRoutes(r *gin.RouterGroup) {
 func CreateTransaction(c *gin.Context) {
 	var data models.Transaction
 
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
@@ -96,7 +96,7 @@ func UpdateTransaction(c *gin.Context) {
 	}
 
 	var data models.Transaction
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}

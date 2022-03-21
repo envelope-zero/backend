@@ -39,7 +39,7 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 func CreateEnvelope(c *gin.Context) {
 	var data models.Envelope
 
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
@@ -93,7 +93,7 @@ func UpdateEnvelope(c *gin.Context) {
 	}
 
 	var data models.Envelope
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}

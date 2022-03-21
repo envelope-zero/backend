@@ -38,7 +38,7 @@ func RegisterAllocationRoutes(r *gin.RouterGroup) {
 func CreateAllocation(c *gin.Context) {
 	var data models.Allocation
 
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
@@ -102,7 +102,7 @@ func UpdateAllocation(c *gin.Context) {
 	}
 
 	var data models.Allocation
-	if status, err := bindData(c, data); err != nil {
+	if status, err := bindData(c, &data); err != nil {
 		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
