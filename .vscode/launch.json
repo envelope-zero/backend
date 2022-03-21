@@ -12,6 +12,22 @@
         "LOG_LEVEL": "debug"
       },
       "console": "integratedTerminal"
+    },
+    {
+      "name": "Run API (postgresql in compose)",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/main.go",
+      "env": {
+        "LOG_LEVEL": "debug",
+        "DB_HOST": "localhost",
+        "DB_USER": "ez",
+        "DB_PASSWORD": "thisisunsafe",
+        "DB_NAME": "postgres"
+      },
+      "console": "integratedTerminal"
     }
   ]
 }
