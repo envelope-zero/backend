@@ -20,3 +20,17 @@ func bindData(c *gin.Context, data interface{}) (int, error) {
 	}
 	return http.StatusOK, nil
 }
+
+// requestURL returns the full request URL.
+//
+// The scheme defaults to https and only falls back to http
+// if the x-forwarded-proto header is set to "http"
+//
+func requestURL(c *gin.Context) string {
+	scheme := "http"
+	if c.Request.Header.Get("x-forwarded-proto") == "https" {
+		scheme = "https"
+	}
+
+	return scheme + "://" + c.Request.Host + c.Request.URL.Path
+}

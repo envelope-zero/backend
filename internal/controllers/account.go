@@ -111,7 +111,7 @@ func GetAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": apiResponse,
 		"links": map[string]string{
-			"transactions": "/transactions",
+			"transactions": requestURL(c) + "/transactions",
 		},
 	})
 }

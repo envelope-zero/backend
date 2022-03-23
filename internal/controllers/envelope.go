@@ -73,7 +73,7 @@ func GetEnvelope(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": envelope, "links": map[string]string{
-		"allocations": "/allocations",
+		"allocations": requestURL(c) + "/allocations",
 	}})
 }
 

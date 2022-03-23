@@ -73,7 +73,7 @@ func GetCategory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": category, "links": map[string]string{
-		"envelopes": "/envelopes",
+		"envelopes": requestURL(c) + "/envelopes",
 	}})
 }
 

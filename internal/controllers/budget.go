@@ -73,9 +73,9 @@ func GetBudget(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": budget, "links": map[string]string{
-		"accounts":     "/accounts",
-		"categories":   "/categories",
-		"transactions": "/transactions",
+		"accounts":     requestURL(c) + "/accounts",
+		"categories":   requestURL(c) + "/categories",
+		"transactions": requestURL(c) + "/transactions",
 	}})
 }
 
