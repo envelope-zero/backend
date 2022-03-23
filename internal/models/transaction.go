@@ -20,4 +20,6 @@ type Transaction struct {
 	DestinationAccount   Account         `json:"-"`
 	EnvelopeID           int             `json:"envelopeId,omitempty"`
 	Envelope             Envelope        `json:"-"`
+	Completed            bool            `json:"completed"` // a completed transaction is present on the actual account
+	Reconciled           bool            `json:"reconciled"`
 }
