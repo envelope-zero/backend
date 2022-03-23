@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 
 http post localhost:8080/v1/budgets name=Morre
-http post localhost:8080/v1/budgets/1/accounts name='Bank Account' visible:=true onBudget:=true
-http post localhost:8080/v1/budgets/1/accounts name=Cash visible:=true onBudget:=true
-http post localhost:8080/v1/budgets/1/accounts name=Netflix
+http post localhost:8080/v1/budgets/1/accounts name='Bank Account'
+http post localhost:8080/v1/budgets/1/accounts name=Cash
+http post localhost:8080/v1/budgets/1/accounts name=Netflix external:=true
 
 http post localhost:8080/v1/budgets/1/categories name='Laufende Kosten'
 http post localhost:8080/v1/budgets/1/categories/1/envelopes name='Abos'

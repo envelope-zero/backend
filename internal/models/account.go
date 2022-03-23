@@ -12,9 +12,8 @@ type Account struct {
 	Name     string          `json:"name,omitempty"`
 	BudgetID int             `json:"budgetId"`
 	Budget   Budget          `json:"-"`
-	OnBudget bool            `json:"onBudget"`
-	Visible  bool            `json:"visible"`
-	Note     string          `json:"note,omitempty"`
+	OnBudget bool            `json:"onBudget"` // Ignored when external: true
+	External bool            `json:"external"`
 	Balance  decimal.Decimal `json:"balance" gorm:"-"`
 }
 
