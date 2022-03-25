@@ -30,7 +30,7 @@ func ConnectDatabase() error {
 	}
 
 	if err != nil {
-		log.Fatalf("failed to connecto database: %v", err)
+		log.Fatalf("failed to connect to database: %v", err)
 	}
 
 	err = db.AutoMigrate(Budget{})
