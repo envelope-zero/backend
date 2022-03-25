@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -26,6 +27,12 @@ func ConnectDatabase() error {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	} else {
 		log.Println("DB_HOST is not set, using sqlite database")
+
+		dataDir := filepath.Join(".", "data")
+		err = os.MkdirAll(dataDir, os.ModePerm)
+		if err != nil {
+			panic("Could not create data directory")
+		}
 		db, err = gorm.Open(sqlite.Open("data/gorm.db"), &gorm.Config{})
 	}
 
