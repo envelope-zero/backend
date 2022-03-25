@@ -22,6 +22,15 @@ jobs:
       packages: write
 
     steps:
+      - name: Check if image should be pushed
+        id: push_check
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* || "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "::set-output name=push::true"
+          else
+            echo "::set-output name=push::false"
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -42,6 +51,6 @@ jobs:
         uses: docker/build-push-action@v2.10.0
         with:
           context: .
-          push: true
+          push: ${{ steps.push_check.outputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
