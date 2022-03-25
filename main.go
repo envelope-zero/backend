@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
 	"os"
 
-	"github.com/envelope-zero/backend/internal/routing"
 	"github.com/gin-gonic/gin"
+
+	"github.com/envelope-zero/backend/internal/routing"
 )
 
 func main() {
@@ -16,5 +18,7 @@ func main() {
 	}
 
 	r := routing.Router()
-	r.Run()
+	if err := r.Run(); err != nil {
+		log.Fatal(err)
+	}
 }
