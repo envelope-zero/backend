@@ -1,13 +1,8 @@
 issues:
   fix: true
 
-  exclude-rules:
-    - path: main.go
-      text: "Error return value of `r.Run` is not checked"
-
 linters:
   enable:
-    - depguard
     - gocyclo
     - godot
     - gofumpt
@@ -19,9 +14,3 @@ linters:
 linters-settings:
   gofumpt:
     lang-version: "1.17"
-
-  depguard:
-    list-type: denylist
-    include-go-root: true
-    packages-with-error-message:
-      - github.com/stretchr/testify/assert: "Use github.com/stretchr/testify/require instead of github.com/stretchr/testify/assert"
