@@ -14,11 +14,13 @@
       "description": "Upgrade go version",
       "fileMatch": [
         "(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$",
-        ".golangci.yml"
+        ".golangci.yml",
+        "go.mod"
       ],
       "matchStrings": [
         "# renovate: go-version\\s*go-version:\\s*\"?(?<currentValue>.*)\"?",
-        "lang-version: \"(?<currentValue>.*)\""
+        "^\\s*lang-version: \"(?<currentValue>.*)\"$",
+        "^go (?<currentValue>.*)$"
       ],
       "datasourceTemplate": "golang-version",
       "depNameTemplate": "go"
