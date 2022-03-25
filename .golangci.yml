@@ -14,3 +14,4 @@ linters:
 linters-settings:
   gofumpt:
     lang-version: "1.18"
+    extra-rules: true
