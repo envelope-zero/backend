@@ -1,6 +1,6 @@
 package models
 
-// Category represents a category of envelopes
+// Category represents a category of envelopes.
 type Category struct {
 	Model
 	Name     string `json:"name,omitempty"`

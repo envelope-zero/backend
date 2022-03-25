@@ -12,7 +12,7 @@ import (
 )
 
 // RegisterTransactionRoutes registers the routes for transactions with
-// the RouterGroup that is passed
+// the RouterGroup that is passed.
 func RegisterTransactionRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
@@ -34,7 +34,7 @@ func RegisterTransactionRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// CreateTransaction creates a new transaction
+// CreateTransaction creates a new transaction.
 func CreateTransaction(c *gin.Context) {
 	var data models.Transaction
 
@@ -55,7 +55,7 @@ func CreateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// GetTransactions retrieves all transactions
+// GetTransactions retrieves all transactions.
 func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
 	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&transactions)
@@ -63,7 +63,7 @@ func GetTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": transactions})
 }
 
-// GetTransaction retrieves an transaction by its ID
+// GetTransaction retrieves an transaction by its ID.
 func GetTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
@@ -80,7 +80,7 @@ func GetTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": transaction})
 }
 
-// UpdateTransaction updates an transaction, selected by the ID parameter
+// UpdateTransaction updates an transaction, selected by the ID parameter.
 func UpdateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 
@@ -110,7 +110,7 @@ func UpdateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": transaction})
 }
 
-// DeleteTransaction removes a transaction, identified by its ID
+// DeleteTransaction removes a transaction, identified by its ID.
 func DeleteTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error

@@ -11,7 +11,7 @@ import (
 )
 
 // RegisterCategoryRoutes registers the routes for categories with
-// the RouterGroup that is passed
+// the RouterGroup that is passed.
 func RegisterCategoryRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
@@ -35,7 +35,7 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 	RegisterEnvelopeRoutes(r.Group("/:categoryId/envelopes"))
 }
 
-// CreateCategory creates a new category
+// CreateCategory creates a new category.
 func CreateCategory(c *gin.Context) {
 	var data models.Category
 
@@ -50,7 +50,7 @@ func CreateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": &data})
 }
 
-// GetCategories retrieves all categories
+// GetCategories retrieves all categories.
 func GetCategories(c *gin.Context) {
 	var categories []models.Category
 	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&categories)
@@ -58,7 +58,7 @@ func GetCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": categories})
 }
 
-// GetCategory retrieves a category by its ID
+// GetCategory retrieves a category by its ID.
 func GetCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
@@ -77,7 +77,7 @@ func GetCategory(c *gin.Context) {
 	}})
 }
 
-// UpdateCategory updates a category, selected by the ID parameter
+// UpdateCategory updates a category, selected by the ID parameter.
 func UpdateCategory(c *gin.Context) {
 	var category models.Category
 
@@ -102,7 +102,7 @@ func UpdateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": category})
 }
 
-// DeleteCategory removes a category, identified by its ID
+// DeleteCategory removes a category, identified by its ID.
 func DeleteCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error

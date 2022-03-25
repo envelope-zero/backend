@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// bindData binds the data from the request to the struct passed in the interface
+// bindData binds the data from the request to the struct passed in the interface.
 func bindData(c *gin.Context, data interface{}) (int, error) {
 	if err := c.ShouldBindJSON(&data); err != nil {
 		if errors.Is(io.EOF, err) {
@@ -24,7 +24,7 @@ func bindData(c *gin.Context, data interface{}) (int, error) {
 // requestURL returns the full request URL.
 //
 // The scheme defaults to https and only falls back to http
-// if the x-forwarded-proto header is set to "http"
+// if the x-forwarded-proto header is set to "http".
 //
 func requestURL(c *gin.Context) string {
 	scheme := "http"

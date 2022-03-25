@@ -11,7 +11,7 @@ import (
 )
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
-// the RouterGroup that is passed
+// the RouterGroup that is passed.
 func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
@@ -35,7 +35,7 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 	RegisterAllocationRoutes(r.Group("/:envelopeId/allocations"))
 }
 
-// CreateEnvelope creates a new envelope
+// CreateEnvelope creates a new envelope.
 func CreateEnvelope(c *gin.Context) {
 	var data models.Envelope
 
@@ -50,7 +50,7 @@ func CreateEnvelope(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// GetEnvelopes retrieves all envelopes
+// GetEnvelopes retrieves all envelopes.
 func GetEnvelopes(c *gin.Context) {
 	var envelopes []models.Envelope
 	models.DB.Where("category_id = ?", c.Param("categoryId")).Find(&envelopes)
@@ -58,7 +58,7 @@ func GetEnvelopes(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": envelopes})
 }
 
-// GetEnvelope retrieves a envelope by its ID
+// GetEnvelope retrieves a envelope by its ID.
 func GetEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
@@ -77,7 +77,7 @@ func GetEnvelope(c *gin.Context) {
 	}})
 }
 
-// UpdateEnvelope updates a envelope, selected by the ID parameter
+// UpdateEnvelope updates a envelope, selected by the ID parameter.
 func UpdateEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 
@@ -102,7 +102,7 @@ func UpdateEnvelope(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": envelope})
 }
 
-// DeleteEnvelope removes a envelope, identified by its ID
+// DeleteEnvelope removes a envelope, identified by its ID.
 func DeleteEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error

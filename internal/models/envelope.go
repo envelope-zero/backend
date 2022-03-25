@@ -1,6 +1,6 @@
 package models
 
-// Envelope represents an envelope in your budget
+// Envelope represents an envelope in your budget.
 type Envelope struct {
 	Model
 	Name       string   `json:"name,omitempty"`

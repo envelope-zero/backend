@@ -12,7 +12,7 @@ import (
 )
 
 // RegisterAllocationRoutes registers the routes for allocations with
-// the RouterGroup that is passed
+// the RouterGroup that is passed.
 func RegisterAllocationRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
@@ -34,7 +34,7 @@ func RegisterAllocationRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// CreateAllocation creates a new allocation
+// CreateAllocation creates a new allocation.
 func CreateAllocation(c *gin.Context) {
 	var data models.Allocation
 
@@ -61,7 +61,7 @@ func CreateAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// GetAllocations retrieves all allocations
+// GetAllocations retrieves all allocations.
 func GetAllocations(c *gin.Context) {
 	var allocations []models.Allocation
 	models.DB.Where("envelope_id = ?", c.Param("envelopeId")).Find(&allocations)
@@ -69,7 +69,7 @@ func GetAllocations(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": allocations})
 }
 
-// GetAllocation retrieves a allocation by its ID
+// GetAllocation retrieves a allocation by its ID.
 func GetAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
@@ -86,7 +86,7 @@ func GetAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": allocation})
 }
 
-// UpdateAllocation updates a allocation, selected by the ID parameter
+// UpdateAllocation updates a allocation, selected by the ID parameter.
 func UpdateAllocation(c *gin.Context) {
 	var allocation models.Allocation
 
@@ -111,7 +111,7 @@ func UpdateAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": allocation})
 }
 
-// DeleteAllocation removes a allocation, identified by its ID
+// DeleteAllocation removes a allocation, identified by its ID.
 func DeleteAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error

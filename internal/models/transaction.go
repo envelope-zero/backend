@@ -6,7 +6,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// Transaction represents a transaction between two accounts
+// Transaction represents a transaction between two accounts.
 type Transaction struct {
 	Model
 	Date                 *time.Time      `json:"date,omitempty"`

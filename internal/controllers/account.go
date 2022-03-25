@@ -12,7 +12,7 @@ import (
 )
 
 // RegisterAccountRoutes registers the routes for accounts with
-// the RouterGroup that is passed
+// the RouterGroup that is passed.
 func RegisterAccountRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
@@ -42,7 +42,7 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// GetAccountTransactions returns all transactions for the account
+// GetAccountTransactions returns all transactions for the account.
 func GetAccountTransactions(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
@@ -58,7 +58,7 @@ func GetAccountTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": account.Transactions()})
 }
 
-// CreateAccount creates a new account
+// CreateAccount creates a new account.
 func CreateAccount(c *gin.Context) {
 	var data models.Account
 
@@ -73,7 +73,7 @@ func CreateAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// GetAccounts retrieves all accounts
+// GetAccounts retrieves all accounts.
 func GetAccounts(c *gin.Context) {
 	var accounts, apiResponses []models.Account
 
@@ -87,7 +87,7 @@ func GetAccounts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": apiResponses})
 }
 
-// GetAccount retrieves an account by its ID
+// GetAccount retrieves an account by its ID.
 func GetAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
@@ -116,7 +116,7 @@ func GetAccount(c *gin.Context) {
 	})
 }
 
-// UpdateAccount updates an account, selected by the ID parameter
+// UpdateAccount updates an account, selected by the ID parameter.
 func UpdateAccount(c *gin.Context) {
 	var account models.Account
 
@@ -141,7 +141,7 @@ func UpdateAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": account})
 }
 
-// DeleteAccount removes a account, identified by its ID
+// DeleteAccount removes a account, identified by its ID.
 func DeleteAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error

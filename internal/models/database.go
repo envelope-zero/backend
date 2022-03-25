@@ -10,10 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// DB is the database used by the backend
+// DB is the database used by the backend.
 var DB *gorm.DB
 
-// ConnectDatabase connects to the database DB
+// ConnectDatabase connects to the database DB.
 func ConnectDatabase() error {
 	var err error
 	var db *gorm.DB

@@ -6,7 +6,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// Account represents an asset account, e.g. a bank account
+// Account represents an asset account, e.g. a bank account.
 type Account struct {
 	Model
 	Name     string          `json:"name,omitempty"`
@@ -17,7 +17,7 @@ type Account struct {
 	Balance  decimal.Decimal `json:"balance" gorm:"-"`
 }
 
-// WithBalance returns a pointer to the account with the balance calculated
+// WithBalance returns a pointer to the account with the balance calculated.
 func (a Account) WithBalance() (*Account, error) {
 	var err error
 	a.Balance, err = a.getBalance()
@@ -29,7 +29,7 @@ func (a Account) WithBalance() (*Account, error) {
 	return &a, nil
 }
 
-// Transactions returns all transactions for this account
+// Transactions returns all transactions for this account.
 func (a Account) Transactions() []Transaction {
 	var transactions []Transaction
 

@@ -10,7 +10,7 @@ import (
 )
 
 // RegisterBudgetRoutes registers the routes for budgets with
-// the RouterGroup that is passed
+// the RouterGroup that is passed.
 func RegisterBudgetRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
@@ -37,7 +37,7 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 	RegisterTransactionRoutes(r.Group("/:budgetId/transactions"))
 }
 
-// CreateBudget creates a new budget
+// CreateBudget creates a new budget.
 func CreateBudget(c *gin.Context) {
 	var data models.Budget
 
@@ -50,7 +50,7 @@ func CreateBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// GetBudgets retrieves all budgets
+// GetBudgets retrieves all budgets.
 func GetBudgets(c *gin.Context) {
 	var budgets []models.Budget
 	models.DB.Find(&budgets)
@@ -58,7 +58,7 @@ func GetBudgets(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": budgets})
 }
 
-// GetBudget retrieves a budget by its ID
+// GetBudget retrieves a budget by its ID.
 func GetBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
@@ -79,7 +79,7 @@ func GetBudget(c *gin.Context) {
 	}})
 }
 
-// UpdateBudget updates a budget, selected by the ID parameter
+// UpdateBudget updates a budget, selected by the ID parameter.
 func UpdateBudget(c *gin.Context) {
 	var budget models.Budget
 
@@ -104,7 +104,7 @@ func UpdateBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": budget})
 }
 
-// DeleteBudget removes a budget, identified by its ID
+// DeleteBudget removes a budget, identified by its ID.
 func DeleteBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error

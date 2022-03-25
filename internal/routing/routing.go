@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Router controls the routes for the API
+// Router controls the routes for the API.
 func Router() *gin.Engine {
 	r := gin.Default()
 
