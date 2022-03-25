@@ -13,7 +13,7 @@ COPY main.go ./
 RUN go build -o /backend
 
 # Build final image
-FROM alpine:3.15.1
-WORKDIR /app
-COPY --from=builder /backend /app/backend
-ENTRYPOINT ["/app/backend"]
+FROM scratch
+WORKDIR /
+COPY --from=builder /backend /backend
+ENTRYPOINT ["/backend"]
