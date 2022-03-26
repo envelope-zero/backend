@@ -5,6 +5,12 @@ Envelope Zero is fundamentally rooted in two ideas:
 - Using the [envelope method](https://en.wikipedia.org/wiki/Envelope_system) to budget expenses into envelopes.
 - Zero Based Budeting, meaning that you assign all your money to an envelope. Saving for a vacation? Create an envelope and archive it after your vacation. Rent? Create an envelope that gets a fixed amount of money added every month.
 
+## Features
+
+For a high level view of planned complex features, check the [milestones](https://github.com/envelope-zero/backend/milestones).
+
+To see all planned features, check the [list of issues with the **enhancement** label](https://github.com/envelope-zero/backend/labels/enhancement).
+
 ## Usage
 
 The recommended and only supported way for production deployments is to run the backend with [the OCI image](https://github.com/envelope-zero/backend/pkgs/container/backend).
