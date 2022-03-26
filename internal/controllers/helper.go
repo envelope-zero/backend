@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // bindData binds the data from the request to the struct passed in the interface.
@@ -15,8 +17,9 @@ func bindData(c *gin.Context, data interface{}) (int, error) {
 		if errors.Is(io.EOF, err) {
 			return http.StatusBadRequest, errors.New("request body must not be emtpy")
 		}
+
 		log.Println(err)
-		return http.StatusInternalServerError, errors.New("there was an error processing your request, please contact your server administrator")
+		return http.StatusBadRequest, errors.New("the body of your reuqest contains invalid or un-parseable data. Please check and try again")
 	}
 	return http.StatusOK, nil
 }
@@ -33,4 +36,14 @@ func requestURL(c *gin.Context) string {
 	}
 
 	return scheme + "://" + c.Request.Host + c.Request.URL.Path
+}
+
+// fetchErrorHandler handles errors for fetching data from the database.
+func fetchErrorHandler(c *gin.Context, err error) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
+	} else {
+		log.Println(fmt.Sprintf("%T: %v", err, err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "An error occured on the server during your request, please contact your server administrator."})
+	}
 }

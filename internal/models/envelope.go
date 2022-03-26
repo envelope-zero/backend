@@ -4,7 +4,7 @@ package models
 type Envelope struct {
 	Model
 	Name       string   `json:"name,omitempty"`
-	CategoryID int      `json:"categoryId"`
+	CategoryID uint64   `json:"categoryId"`
 	Category   Category `json:"-"`
 	Note       string   `json:"note,omitempty"`
 }

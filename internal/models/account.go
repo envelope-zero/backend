@@ -4,17 +4,26 @@ import (
 	"fmt"
 
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 // Account represents an asset account, e.g. a bank account.
 type Account struct {
 	Model
 	Name     string          `json:"name,omitempty"`
-	BudgetID int             `json:"budgetId"`
+	BudgetID uint64          `json:"budgetId"`
 	Budget   Budget          `json:"-"`
-	OnBudget bool            `json:"onBudget"` // Ignored when external: true
+	OnBudget bool            `json:"onBudget"` // Always false when external: true
 	External bool            `json:"external"`
 	Balance  decimal.Decimal `json:"balance" gorm:"-"`
+}
+
+// BeforeSave sets OnBudget to false when External is true.
+func (a *Account) BeforeSave(tx *gorm.DB) (err error) {
+	if a.External {
+		a.OnBudget = false
+	}
+	return nil
 }
 
 // WithBalance returns a pointer to the account with the balance calculated.

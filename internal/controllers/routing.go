@@ -1,10 +1,9 @@
-package routing
+package controllers
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
@@ -45,7 +44,7 @@ func Router() (*gin.Engine, error) {
 	}
 
 	budgets := v1.Group("/budgets")
-	controllers.RegisterBudgetRoutes(budgets)
+	RegisterBudgetRoutes(budgets)
 
 	return r, nil
 }

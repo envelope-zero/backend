@@ -1,12 +1,10 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterBudgetRoutes registers the routes for budgets with
@@ -47,7 +45,7 @@ func CreateBudget(c *gin.Context) {
 	}
 
 	models.DB.Create(&data)
-	c.JSON(http.StatusOK, gin.H{"data": data})
+	c.JSON(http.StatusCreated, gin.H{"data": data})
 }
 
 // GetBudgets retrieves all budgets.
@@ -62,13 +60,8 @@ func GetBudgets(c *gin.Context) {
 func GetBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -86,11 +79,7 @@ func UpdateBudget(c *gin.Context) {
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -109,15 +98,11 @@ func DeleteBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&budget)
 
-	c.JSON(http.StatusOK, gin.H{"data": true})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

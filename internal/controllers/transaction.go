@@ -1,14 +1,12 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
-	"gorm.io/gorm"
 )
 
 // RegisterTransactionRoutes registers the routes for transactions with
@@ -44,7 +42,7 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	// Convert and validate data
-	data.BudgetID, _ = strconv.Atoi(c.Param("budgetId"))
+	data.BudgetID, _ = strconv.ParseUint(c.Param("budgetId"), 10, 0)
 	if !decimal.Decimal.IsPositive(data.Amount) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "The transaction amount must be positive"})
 		return
@@ -52,7 +50,7 @@ func CreateTransaction(c *gin.Context) {
 
 	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": data})
+	c.JSON(http.StatusCreated, gin.H{"data": data})
 }
 
 // GetTransactions retrieves all transactions.
@@ -67,13 +65,8 @@ func GetTransactions(c *gin.Context) {
 func GetTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -85,13 +78,8 @@ func UpdateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -115,15 +103,11 @@ func DeleteTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&transaction)
 
-	c.JSON(http.StatusOK, gin.H{"data": true})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

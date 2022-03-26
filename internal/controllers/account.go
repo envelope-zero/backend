@@ -1,14 +1,12 @@
 package controllers
 
 import (
-	"errors"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterAccountRoutes registers the routes for accounts with
@@ -47,11 +45,7 @@ func GetAccountTransactions(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "No record found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -67,10 +61,10 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	data.BudgetID, _ = strconv.Atoi(c.Param("budgetId"))
+	data.BudgetID, _ = strconv.ParseUint(c.Param("budgetId"), 10, 0)
 	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": data})
+	c.JSON(http.StatusCreated, gin.H{"data": data})
 }
 
 // GetAccounts retrieves all accounts.
@@ -91,20 +85,14 @@ func GetAccounts(c *gin.Context) {
 func GetAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
 	apiResponse, err := account.WithBalance()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get values for account, please check the server log"})
-		log.Println(err.Error())
+		fetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
 		return
 	}
 
@@ -121,13 +109,8 @@ func UpdateAccount(c *gin.Context) {
 	var account models.Account
 
 	err := models.DB.First(&account, c.Param("accountId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -146,15 +129,11 @@ func DeleteAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&account)
 
-	c.JSON(http.StatusOK, gin.H{"data": true})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

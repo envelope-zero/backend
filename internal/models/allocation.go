@@ -10,6 +10,6 @@ type Allocation struct {
 	Month      uint8           `json:"month" gorm:"uniqueIndex:year_month;check:month >= 1 AND month <= 12"`
 	Year       uint            `json:"year" gorm:"uniqueIndex:year_month"`
 	Amount     decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)"`
-	EnvelopeID int             `json:"envelopeId,omitempty"`
+	EnvelopeID uint64          `json:"envelopeId,omitempty"`
 	Envelope   Envelope        `json:"-"`
 }
