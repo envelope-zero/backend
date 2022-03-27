@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY internal ./internal
 COPY main.go ./
-RUN go build -o /backend
+RUN CGO_ENABLED=0 go build -o /backend
 
 # Build final image
 FROM scratch
