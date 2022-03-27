@@ -20,4 +20,18 @@ jobs:
       - name: go test
         run: |
           go test -v ./... -race -covermode=atomic -coverprofile=coverage.out
-          go tool cover -func=coverage.out
+
+      - name: set coverage as output
+        id: coverage
+        run: |
+          cover_percent="$(go tool cover -func=coverage.out | sed '/^total:/!d;s/[^0-9\.]*//g')"
+          echo "::set-output name=coverage::${cover_percent}"
+
+      - name: set coverage status
+        uses: Sibz/github-status-action@v1.1.6
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          context: "Test coverage"
+          description: "Test coverage is ${{ steps.coverage.outputs.coverage }}%"
+          state: "success"
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
