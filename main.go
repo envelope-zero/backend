@@ -17,7 +17,11 @@ func main() {
 		gin.SetMode("release")
 	}
 
-	r := routing.Router()
+	r, err := routing.Router()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if err := r.Run(); err != nil {
 		log.Fatal(err)
 	}

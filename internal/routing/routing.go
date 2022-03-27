@@ -1,7 +1,7 @@
 package routing
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/controllers"
@@ -10,12 +10,12 @@ import (
 )
 
 // Router controls the routes for the API.
-func Router() *gin.Engine {
+func Router() (*gin.Engine, error) {
 	r := gin.Default()
 
 	err := models.ConnectDatabase()
 	if err != nil {
-		log.Printf("Database migration failed with: %s", err.Error())
+		return nil, fmt.Errorf("Database connection failed with: %s", err.Error())
 	}
 
 	// The root path lists the available versions
@@ -47,5 +47,5 @@ func Router() *gin.Engine {
 	budgets := v1.Group("/budgets")
 	controllers.RegisterBudgetRoutes(budgets)
 
-	return r
+	return r, nil
 }

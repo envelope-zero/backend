@@ -10,7 +10,7 @@ import (
 
 // Request is a helper method to simplify making a HTTP request for tests.
 func Request(method, url string, body io.Reader) httptest.ResponseRecorder {
-	router := routing.Router()
+	router, _ := routing.Router()
 
 	recorder := httptest.NewRecorder()
 	req, _ := http.NewRequest(method, url, body)
