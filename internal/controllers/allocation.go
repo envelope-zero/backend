@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
@@ -50,9 +51,6 @@ func CreateAllocation(c *gin.Context) {
 		errMessage := "There was an error processing your request, please contact your server administrator"
 		status := http.StatusInternalServerError
 
-		log.Print(result.Error)
-		log.Print(result.Error.Error())
-
 		// Set helpful error messages for known errors
 		if strings.Contains(result.Error.Error(), "UNIQUE constraint failed: allocations.month, allocations.year") {
 			errMessage = "You can not create multiple allocations for the same month"
@@ -64,7 +62,7 @@ func CreateAllocation(c *gin.Context) {
 
 		// Print the error to the server log if it’s a server error
 		if status == http.StatusInternalServerError {
-			log.Println(result.Error)
+			log.Error().Msgf("%T: %v", result.Error, result.Error.Error())
 		}
 
 		c.JSON(status, gin.H{"error": errMessage})

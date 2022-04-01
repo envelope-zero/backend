@@ -15,6 +15,15 @@ To see all planned features, check the [list of issues with the **enhancement** 
 
 The recommended and only supported way for production deployments is to run the backend with [the OCI image](https://github.com/envelope-zero/backend/pkgs/container/backend).
 
+### Configuration
+
+The backend can be configured with the following environment variables
+
+| Name         | Values             | Default                                              | Description                                                                          |
+| ------------ | ------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `GIN_MODE`   | `release`, `debug` | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment! |
+| `LOG_FORMAT` | `json`, `human`    | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                  |
+
 ### Deployment methods
 
 If you want to deploy with a method not listed here, you are welcome to open a discussion to ask any questions needed so that this documentation can be improved.

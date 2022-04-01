@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"io"
-	"log"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -18,7 +18,7 @@ func bindData(c *gin.Context, data interface{}) (int, error) {
 			return http.StatusBadRequest, errors.New("request body must not be emtpy")
 		}
 
-		log.Println(err)
+		log.Error().Msgf("%T: %v", err, err.Error())
 		return http.StatusBadRequest, errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
 	}
 	return http.StatusOK, nil
@@ -43,7 +43,7 @@ func fetchErrorHandler(c *gin.Context, err error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
 	} else {
-		log.Println(fmt.Sprintf("%T: %v", err, err))
+		log.Error().Msgf("%T: %v", err, err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "An error occured on the server during your request, please contact your server administrator."})
 	}
 }
