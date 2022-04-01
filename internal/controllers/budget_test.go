@@ -46,12 +46,12 @@ func TestGetBudgets(t *testing.T) {
 func TestNoBudgetNotFound(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/2", "")
 
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestCreateBudget(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiBudget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&apiBudget)
@@ -67,17 +67,17 @@ func TestCreateBudget(t *testing.T) {
 
 func TestCreateBrokenBudget(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateBudgetNoBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", "")
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestGetBudget(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1", "")
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
@@ -93,7 +93,7 @@ func TestGetBudget(t *testing.T) {
 
 func TestUpdateBudget(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
@@ -103,7 +103,7 @@ func TestUpdateBudget(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new budget" }`)
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedBudget BudgetDetailResponse
 	err = json.NewDecoder(recorder.Body).Decode(&updatedBudget)
@@ -117,7 +117,7 @@ func TestUpdateBudget(t *testing.T) {
 
 func TestUpdateBudgetBroken(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
@@ -127,26 +127,27 @@ func TestUpdateBudgetBroken(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestUpdateNonExistingBudget(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/budgets/48902805", `{ "name": 2" }`)
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	recorder := test.Request(t, "PATCH", "/v1/budgets/48902805", `{ "name": "2" }`)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteBudget(t *testing.T) {
 	recorder := test.Request(t, "DELETE", "/v1/budgets/1", "")
-	assert.Equal(t, http.StatusNoContent, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 
 func TestDeleteNonExistingBudget(t *testing.T) {
 	recorder := test.Request(t, "DELETE", "/v1/budgets/48902805", "")
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteBudgetWithBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "Delete me now!" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
@@ -156,5 +157,5 @@ func TestDeleteBudgetWithBody(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
-	assert.Equal(t, http.StatusNoContent, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }

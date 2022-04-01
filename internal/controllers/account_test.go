@@ -54,7 +54,6 @@ func TestGetAccounts(t *testing.T) {
 	assert.Equal(t, true, externalAccount.External)
 
 	for _, account := range response.Data {
-		fmt.Println(account)
 		diff := time.Now().Sub(account.CreatedAt)
 		assert.LessOrEqual(t, diff, test.TOLERANCE)
 
@@ -70,12 +69,12 @@ func TestGetAccounts(t *testing.T) {
 func TestNoAccountNotFound(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/accounts/37", "")
 
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestCreateAccount(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "New Account", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiAccount AccountDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&apiAccount)
@@ -95,17 +94,17 @@ func TestCreateAccount(t *testing.T) {
 
 func TestCreateBrokenAccount(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "createdAt": "New Account", "note": "More tests for accounts to ensure less brokenness something" }`)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateAccountNoBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", "")
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestGetAccount(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/accounts/1", "")
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var account AccountDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&account)
@@ -155,7 +154,7 @@ func TestGetAccountTransactionsNonExistingAccount(t *testing.T) {
 
 func TestUpdateAccount(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "New Account", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var account AccountDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&account)
@@ -165,7 +164,7 @@ func TestUpdateAccount(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new account for testing" }`)
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedAccount AccountDetailResponse
 	err = json.NewDecoder(recorder.Body).Decode(&updatedAccount)
@@ -178,7 +177,7 @@ func TestUpdateAccount(t *testing.T) {
 
 func TestUpdateAccountBroken(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "New Account", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var account AccountDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&account)
@@ -188,26 +187,27 @@ func TestUpdateAccountBroken(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestUpdateNonExistingAccount(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/budgets/1/accounts/48902805", `{ "name": 2" }`)
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	recorder := test.Request(t, "PATCH", "/v1/budgets/1/accounts/48902805", `{ "name": "2" }`)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteAccount(t *testing.T) {
 	recorder := test.Request(t, "DELETE", "/v1/budgets/1/accounts/1", "")
-	assert.Equal(t, http.StatusNoContent, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 
 func TestDeleteNonExistingAccount(t *testing.T) {
 	recorder := test.Request(t, "DELETE", "/v1/budgets/1/accounts/48902805", "")
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteAccountWithBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "Delete me now!" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var account AccountDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&account)
@@ -217,5 +217,5 @@ func TestDeleteAccountWithBody(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
-	assert.Equal(t, http.StatusNoContent, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }

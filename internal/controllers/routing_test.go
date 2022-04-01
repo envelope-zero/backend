@@ -14,4 +14,5 @@ func TestDBConnectionErrorHandled(t *testing.T) {
 	_, err := controllers.Router()
 
 	assert.NotNil(t, err)
+	os.Unsetenv("DB_HOST")
 }

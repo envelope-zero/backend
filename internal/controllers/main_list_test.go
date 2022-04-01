@@ -12,15 +12,15 @@ var getOverviewTests = []struct {
 	path     string
 	expected string
 }{
-	{"/", `{ "v1": "/v1" }`},
-	{"/v1", `{ "budgets": "/budgets" }`},
+	{"/", `{ "links": { "v1": "http:///v1" }}`},
+	{"/v1", `{ "links": { "budgets": "http:///v1/budgets" }}`},
 }
 
 func TestGetOverview(t *testing.T) {
 	for _, tt := range getOverviewTests {
 		recorder := test.Request(t, "GET", tt.path, "")
 
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 		assert.JSONEq(t, tt.expected, recorder.Body.String())
 	}
 }

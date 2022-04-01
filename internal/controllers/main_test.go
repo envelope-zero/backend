@@ -16,7 +16,10 @@ func TestMain(m *testing.M) {
 	// Always remove the DB after running tests
 	defer os.Remove("data/gorm.db")
 
-	gin.SetMode("release")
+	ginMode := os.Getenv("GIN_MODE")
+	if ginMode == "" {
+		gin.SetMode("release")
+	}
 
 	err := models.ConnectDatabase()
 	if err != nil {
@@ -103,7 +106,7 @@ func TestMain(m *testing.M) {
 
 	waterBillTransactionFeb := models.Transaction{
 		Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
-		Amount:               decimal.NewFromFloat(10.0),
+		Amount:               decimal.NewFromFloat(5.0),
 		Note:                 "Water bill for February",
 		BudgetID:             budget.ID,
 		SourceAccountID:      bankAccount.ID,
@@ -115,7 +118,7 @@ func TestMain(m *testing.M) {
 
 	waterBillTransactionMar := models.Transaction{
 		Date:                 time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC),
-		Amount:               decimal.NewFromFloat(10.0),
+		Amount:               decimal.NewFromFloat(15.0),
 		Note:                 "Water bill for March",
 		BudgetID:             budget.ID,
 		SourceAccountID:      bankAccount.ID,

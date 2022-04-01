@@ -47,12 +47,12 @@ func TestGetCategories(t *testing.T) {
 func TestNoCategoryNotFound(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/2", "")
 
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestCreateCategory(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiCategory CategoryDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&apiCategory)
@@ -68,17 +68,17 @@ func TestCreateCategory(t *testing.T) {
 
 func TestCreateBrokenCategory(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "createdAt": "New Category", "note": "More tests for categories to ensure less brokenness something" }`)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateCategoryNoBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", "")
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestGetCategory(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/1", "")
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var category CategoryDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&category)
@@ -94,7 +94,7 @@ func TestGetCategory(t *testing.T) {
 
 func TestUpdateCategory(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category CategoryDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&category)
@@ -104,7 +104,7 @@ func TestUpdateCategory(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new category for testing" }`)
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedCategory CategoryDetailResponse
 	err = json.NewDecoder(recorder.Body).Decode(&updatedCategory)
@@ -118,7 +118,7 @@ func TestUpdateCategory(t *testing.T) {
 
 func TestUpdateCategoryBroken(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
-	assert.Equal(t, http.StatusCreated, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category CategoryDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&category)
@@ -128,26 +128,27 @@ func TestUpdateCategoryBroken(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
-	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestUpdateNonExistingCategory(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/budgets/1/categories/48902805", `{ "name": 2" }`)
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	recorder := test.Request(t, "PATCH", "/v1/budgets/1/categories/48902805", `{ "name": "2" }`)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteCategory(t *testing.T) {
 	recorder := test.Request(t, "DELETE", "/v1/budgets/1/categories/1", "")
-	assert.Equal(t, http.StatusNoContent, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 
 func TestDeleteNonExistingCategory(t *testing.T) {
 	recorder := test.Request(t, "DELETE", "/v1/budgets/1/categories/48902805", "")
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteCategoryWithBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "Delete me now!" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category CategoryDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&category)
@@ -157,5 +158,5 @@ func TestDeleteCategoryWithBody(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
-	assert.Equal(t, http.StatusNoContent, recorder.Code)
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }

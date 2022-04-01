@@ -30,6 +30,11 @@ type Transaction struct {
 // We already store them in UTC, but somehow reading
 // them from the database returns them as +0000.
 func (t *Transaction) AfterFind(tx *gorm.DB) (err error) {
+	err = t.Model.AfterFind(tx)
+	if err != nil {
+		return err
+	}
+
 	t.Date = t.Date.In(time.UTC)
 	return nil
 }

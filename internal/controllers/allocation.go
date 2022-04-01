@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
@@ -45,14 +46,28 @@ func CreateAllocation(c *gin.Context) {
 	result := models.DB.Create(&data)
 
 	if result.Error != nil {
-		log.Println(result.Error)
-
+		// By default, we assume a server error
 		errMessage := "There was an error processing your request, please contact your server administrator"
-		if result.Error.Error() == "UNIQUE constraint failed: allocations.month, allocations.year" {
+		status := http.StatusInternalServerError
+
+		log.Print(result.Error)
+		log.Print(result.Error.Error())
+
+		// Set helpful error messages for known errors
+		if strings.Contains(result.Error.Error(), "UNIQUE constraint failed: allocations.month, allocations.year") {
 			errMessage = "You can not create multiple allocations for the same month"
+			status = http.StatusBadRequest
+		} else if strings.Contains(result.Error.Error(), "CHECK constraint failed: month_valid") {
+			errMessage = "The month must be between 1 and 12"
+			status = http.StatusBadRequest
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": errMessage})
+		// Print the error to the server log if it’s a server error
+		if status == http.StatusInternalServerError {
+			log.Println(result.Error)
+		}
+
+		c.JSON(status, gin.H{"error": errMessage})
 		return
 	}
 

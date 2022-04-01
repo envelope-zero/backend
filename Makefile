@@ -10,7 +10,7 @@ devserver:
 
 .PHONY: test
 test:
-	go test ./... -covermode=count -coverprofile=coverage.out
+	go test ./... -covermode=count -coverprofile=coverage.out -count=1
 
 .PHONY: coverage
 coverage: test

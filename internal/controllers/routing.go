@@ -20,7 +20,9 @@ func Router() (*gin.Engine, error) {
 	// The root path lists the available versions
 	r.GET("", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"v1": "/v1",
+			"links": map[string]string{
+				"v1": requestURL(c) + "v1",
+			},
 		})
 	})
 
@@ -34,7 +36,9 @@ func Router() (*gin.Engine, error) {
 	{
 		v1.GET("", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
-				"budgets": "/budgets",
+				"links": map[string]string{
+					"budgets": requestURL(c) + "/budgets",
+				},
 			})
 		})
 

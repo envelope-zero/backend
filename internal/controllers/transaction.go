@@ -89,6 +89,12 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 
+	// If the amount set via the API request is not existant or
+	// is 0, we use the old amount
+	if data.Amount.IsZero() {
+		data.Amount = transaction.Amount
+	}
+
 	if !decimal.Decimal.IsPositive(data.Amount) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "The transaction amount must positive"})
 		return

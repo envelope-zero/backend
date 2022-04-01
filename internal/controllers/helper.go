@@ -19,7 +19,7 @@ func bindData(c *gin.Context, data interface{}) (int, error) {
 		}
 
 		log.Println(err)
-		return http.StatusBadRequest, errors.New("the body of your reuqest contains invalid or un-parseable data. Please check and try again")
+		return http.StatusBadRequest, errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
 	}
 	return http.StatusOK, nil
 }
