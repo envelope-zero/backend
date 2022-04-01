@@ -32,7 +32,7 @@ func TestGetEnvelopes(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, 1, len(response.Data))
+	assert.Len(t, response.Data, 1)
 	assert.Equal(t, uint64(1), response.Data[0].CategoryID)
 	assert.Equal(t, "Utilities", response.Data[0].Name)
 	assert.Equal(t, "Energy & Water", response.Data[0].Note)

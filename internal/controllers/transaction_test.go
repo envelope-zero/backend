@@ -33,7 +33,7 @@ func TestGetTransactions(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, 3, len(response.Data))
+	assert.Len(t, response.Data, 3)
 
 	januaryTransaction := response.Data[0]
 	assert.Equal(t, uint64(1), januaryTransaction.BudgetID)
