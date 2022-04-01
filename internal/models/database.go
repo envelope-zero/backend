@@ -2,10 +2,11 @@ package models
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
@@ -23,7 +24,7 @@ func ConnectDatabase() error {
 	// Check with database driver to use. If DB_HOST is set, assume postgresql
 	_, ok := os.LookupEnv("DB_HOST")
 	if ok {
-		log.Println("DB_HOST is set, using postgresql")
+		log.Debug().Msg("DB_HOST is set, using postgresql")
 		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s", os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 			// Set generated timestamps in UTC
@@ -32,7 +33,7 @@ func ConnectDatabase() error {
 			},
 		})
 	} else {
-		log.Println("DB_HOST is not set, using sqlite database")
+		log.Debug().Msg("DB_HOST is not set, using sqlite database")
 
 		dataDir := filepath.Join(".", "data")
 		err = os.MkdirAll(dataDir, os.ModePerm)
