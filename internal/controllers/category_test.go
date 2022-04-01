@@ -32,7 +32,7 @@ func TestGetCategories(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, 1, len(response.Data))
+	assert.Len(t, response.Data, 1)
 	assert.Equal(t, uint64(1), response.Data[0].BudgetID)
 	assert.Equal(t, "Running costs", response.Data[0].Name)
 	assert.Equal(t, "For e.g. groceries and energy bills", response.Data[0].Note)

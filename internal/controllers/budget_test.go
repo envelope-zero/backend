@@ -32,7 +32,7 @@ func TestGetBudgets(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, 1, len(response.Data))
+	assert.Len(t, response.Data, 1)
 	assert.Equal(t, "Testing Budget", response.Data[0].Name)
 	assert.Equal(t, "GNU: Terry Pratchett", response.Data[0].Note)
 

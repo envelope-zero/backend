@@ -33,7 +33,7 @@ func TestGetAccounts(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, 3, len(response.Data))
+	assert.Len(t, response.Data, 3)
 
 	bankAccount := response.Data[0]
 	assert.Equal(t, uint64(1), bankAccount.BudgetID)
@@ -136,7 +136,7 @@ func TestGetAccountTransactions(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, 3, len(response.Data))
+	assert.Len(t, response.Data, 3)
 }
 
 func TestGetAccountTransactionsNonExistingAccount(t *testing.T) {
@@ -149,7 +149,7 @@ func TestGetAccountTransactionsNonExistingAccount(t *testing.T) {
 	}
 
 	assert.Equal(t, 404, recorder.Code)
-	assert.Equal(t, 0, len(response.Data))
+	assert.Len(t, response.Data, 0)
 }
 
 func TestUpdateAccount(t *testing.T) {

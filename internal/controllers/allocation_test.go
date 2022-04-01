@@ -33,7 +33,7 @@ func TestGetAllocations(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, 3, len(response.Data))
+	assert.Len(t, response.Data, 3)
 	assert.Equal(t, uint64(1), response.Data[0].EnvelopeID)
 	assert.Equal(t, uint8(1), response.Data[0].Month)
 	assert.Equal(t, uint(2022), response.Data[0].Year)
