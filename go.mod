@@ -50,4 +50,4 @@ require (
 	modernc.org/sqlite v1.15.2 // indirect
 )
 
-replace github.com/envelope-zero/backend/internal/routing => ./internal/routing
+replace github.com/envelope-zero/backend/internal/controllers => ./internal/controllers

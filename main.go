@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/envelope-zero/backend/internal/routing"
+	"github.com/envelope-zero/backend/internal/controllers"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 		gin.SetMode("release")
 	}
 
-	r, err := routing.Router()
+	r, err := controllers.Router()
 	if err != nil {
 		log.Fatal(err)
 	}

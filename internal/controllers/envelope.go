@@ -1,13 +1,11 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -44,10 +42,10 @@ func CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	data.CategoryID, _ = strconv.Atoi(c.Param("categoryId"))
+	data.CategoryID, _ = strconv.ParseUint(c.Param("categoryId"), 10, 0)
 	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": data})
+	c.JSON(http.StatusCreated, gin.H{"data": data})
 }
 
 // GetEnvelopes retrieves all envelopes.
@@ -62,13 +60,8 @@ func GetEnvelopes(c *gin.Context) {
 func GetEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -82,13 +75,8 @@ func UpdateEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -107,15 +95,11 @@ func DeleteEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&envelope)
 
-	c.JSON(http.StatusOK, gin.H{"data": true})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

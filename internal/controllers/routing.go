@@ -1,10 +1,9 @@
-package routing
+package controllers
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +20,9 @@ func Router() (*gin.Engine, error) {
 	// The root path lists the available versions
 	r.GET("", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"v1": "/v1",
+			"links": map[string]string{
+				"v1": requestURL(c) + "v1",
+			},
 		})
 	})
 
@@ -35,7 +36,9 @@ func Router() (*gin.Engine, error) {
 	{
 		v1.GET("", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
-				"budgets": "/budgets",
+				"links": map[string]string{
+					"budgets": requestURL(c) + "/budgets",
+				},
 			})
 		})
 
@@ -45,7 +48,7 @@ func Router() (*gin.Engine, error) {
 	}
 
 	budgets := v1.Group("/budgets")
-	controllers.RegisterBudgetRoutes(budgets)
+	RegisterBudgetRoutes(budgets)
 
 	return r, nil
 }

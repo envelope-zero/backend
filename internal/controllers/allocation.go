@@ -1,14 +1,13 @@
 package controllers
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterAllocationRoutes registers the routes for allocations with
@@ -43,22 +42,36 @@ func CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	data.EnvelopeID, _ = strconv.Atoi(c.Param("envelopeId"))
+	data.EnvelopeID, _ = strconv.ParseUint(c.Param("envelopeId"), 10, 0)
 	result := models.DB.Create(&data)
 
 	if result.Error != nil {
-		log.Println(result.Error)
-
+		// By default, we assume a server error
 		errMessage := "There was an error processing your request, please contact your server administrator"
-		if result.Error.Error() == "UNIQUE constraint failed: allocations.month, allocations.year" {
+		status := http.StatusInternalServerError
+
+		log.Print(result.Error)
+		log.Print(result.Error.Error())
+
+		// Set helpful error messages for known errors
+		if strings.Contains(result.Error.Error(), "UNIQUE constraint failed: allocations.month, allocations.year") {
 			errMessage = "You can not create multiple allocations for the same month"
+			status = http.StatusBadRequest
+		} else if strings.Contains(result.Error.Error(), "CHECK constraint failed: month_valid") {
+			errMessage = "The month must be between 1 and 12"
+			status = http.StatusBadRequest
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": errMessage})
+		// Print the error to the server log if it’s a server error
+		if status == http.StatusInternalServerError {
+			log.Println(result.Error)
+		}
+
+		c.JSON(status, gin.H{"error": errMessage})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": data})
+	c.JSON(http.StatusCreated, gin.H{"data": data})
 }
 
 // GetAllocations retrieves all allocations.
@@ -73,13 +86,8 @@ func GetAllocations(c *gin.Context) {
 func GetAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -91,13 +99,8 @@ func UpdateAllocation(c *gin.Context) {
 	var allocation models.Allocation
 
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -116,15 +119,11 @@ func DeleteAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&allocation)
 
-	c.JSON(http.StatusOK, gin.H{"data": true})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

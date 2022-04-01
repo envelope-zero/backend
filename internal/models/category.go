@@ -4,7 +4,7 @@ package models
 type Category struct {
 	Model
 	Name     string `json:"name,omitempty"`
-	BudgetID int    `json:"budgetId"`
+	BudgetID uint64 `json:"budgetId"`
 	Budget   Budget `json:"-"`
 	Note     string `json:"note,omitempty"`
 }

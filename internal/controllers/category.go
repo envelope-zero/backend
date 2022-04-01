@@ -1,13 +1,11 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // RegisterCategoryRoutes registers the routes for categories with
@@ -44,10 +42,10 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	data.BudgetID, _ = strconv.Atoi(c.Param("budgetId"))
+	data.BudgetID, _ = strconv.ParseUint(c.Param("budgetId"), 10, 0)
 	models.DB.Create(&data)
 
-	c.JSON(http.StatusOK, gin.H{"data": &data})
+	c.JSON(http.StatusCreated, gin.H{"data": &data})
 }
 
 // GetCategories retrieves all categories.
@@ -62,13 +60,8 @@ func GetCategories(c *gin.Context) {
 func GetCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -82,13 +75,8 @@ func UpdateCategory(c *gin.Context) {
 	var category models.Category
 
 	err := models.DB.First(&category, c.Param("categoryId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
@@ -107,15 +95,11 @@ func DeleteCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+		fetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&category)
 
-	c.JSON(http.StatusOK, gin.H{"data": true})
+	c.JSON(http.StatusNoContent, gin.H{})
 }
