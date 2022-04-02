@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-contrib/requestid"
 	"github.com/rs/zerolog/log"
 
 	"github.com/envelope-zero/backend/internal/models"
@@ -62,7 +63,7 @@ func CreateAllocation(c *gin.Context) {
 
 		// Print the error to the server log if it’s a server error
 		if status == http.StatusInternalServerError {
-			log.Error().Msgf("%T: %v", result.Error, result.Error.Error())
+			log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", result.Error, result.Error.Error())
 		}
 
 		c.JSON(status, gin.H{"error": errMessage})
@@ -85,7 +86,7 @@ func GetAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -98,7 +99,7 @@ func UpdateAllocation(c *gin.Context) {
 
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -117,7 +118,7 @@ func DeleteAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 

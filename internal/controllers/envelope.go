@@ -61,7 +61,7 @@ func GetEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -76,7 +76,7 @@ func UpdateEnvelope(c *gin.Context) {
 
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func DeleteEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
