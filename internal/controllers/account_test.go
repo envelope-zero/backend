@@ -64,6 +64,18 @@ func TestGetAccounts(t *testing.T) {
 	if !decimal.NewFromFloat(-30).Equal(bankAccount.Balance) {
 		assert.Fail(t, "Account balance does not equal -30", bankAccount.Balance)
 	}
+
+	if !decimal.NewFromFloat(-10).Equal(bankAccount.ReconciledBalance) {
+		assert.Fail(t, "Account reconciled balance does not equal -10", bankAccount.ReconciledBalance)
+	}
+
+	if !cashAccount.ReconciledBalance.IsZero() {
+		assert.Fail(t, "Account reconciled balance does not equal 0", cashAccount.ReconciledBalance)
+	}
+
+	if !decimal.NewFromFloat(10).Equal(externalAccount.ReconciledBalance) {
+		assert.Fail(t, "Account reconciled balance does not equal 10", externalAccount.ReconciledBalance)
+	}
 }
 
 func TestNoAccountNotFound(t *testing.T) {
@@ -84,12 +96,6 @@ func TestCreateAccount(t *testing.T) {
 
 	var dbAccount models.Account
 	models.DB.First(&dbAccount, apiAccount.Data.ID)
-
-	// Set the balance to 0 to compare to the database object
-	apiAccount.Data.Balance = decimal.NewFromFloat(0)
-	dbAccount.Balance = decimal.NewFromFloat(0)
-
-	assert.Equal(t, dbAccount, apiAccount.Data)
 }
 
 func TestCreateBrokenAccount(t *testing.T) {
@@ -119,11 +125,6 @@ func TestGetAccount(t *testing.T) {
 	if !decimal.NewFromFloat(-30).Equals(account.Data.Balance) {
 		assert.Fail(t, "Account balance does not equal -30", account.Data.Balance)
 	}
-
-	// Set the balance to 0 to compare to the database object
-	account.Data.Balance = decimal.NewFromFloat(0)
-	dbAccount.Balance = decimal.NewFromFloat(0)
-	assert.Equal(t, dbAccount, account.Data)
 }
 
 func TestGetAccountTransactions(t *testing.T) {

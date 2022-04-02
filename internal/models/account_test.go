@@ -11,12 +11,24 @@ import (
 func TestAccountBalance(t *testing.T) {
 	account := models.Account{}
 
-	_, err := account.WithBalance()
+	_, err := account.WithCalculations()
 
 	assert.Nil(t, err)
 
 	if !decimal.NewFromFloat(0).Equal(account.Balance) {
 		assert.Fail(t, "Account balance is not 0", "Actual balance: %v", account.Balance)
+	}
+}
+
+func TestAccountReconciledBalance(t *testing.T) {
+	account := models.Account{}
+
+	_, err := account.WithCalculations()
+
+	assert.Nil(t, err)
+
+	if !decimal.NewFromFloat(0).Equal(account.ReconciledBalance) {
+		assert.Fail(t, "Account reconciled balance is not 0", "Actual balance: %v", account.ReconciledBalance)
 	}
 }
 

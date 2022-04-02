@@ -74,7 +74,12 @@ func GetAccounts(c *gin.Context) {
 	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
 
 	for _, account := range accounts {
-		response, _ := account.WithBalance()
+		response, err := account.WithCalculations()
+		if err != nil {
+			FetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
+			return
+		}
+
 		apiResponses = append(apiResponses, *response)
 	}
 
@@ -90,7 +95,7 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
-	apiResponse, err := account.WithBalance()
+	apiResponse, err := account.WithCalculations()
 	if err != nil {
 		FetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
 		return
