@@ -21,6 +21,11 @@ var version = "0.0.0"
 func Router() (*gin.Engine, error) {
 	// Set up the router and middlewares
 	r := gin.New()
+
+	// Don’t process X-Forwarded-For header as we do not do anything with
+	// client IPs
+	r.ForwardedByClientIP = false
+
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
 	r.Use(logger.SetLogger(
