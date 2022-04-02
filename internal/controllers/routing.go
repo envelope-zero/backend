@@ -8,6 +8,7 @@ import (
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-contrib/logger"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -18,18 +19,20 @@ func Router() (*gin.Engine, error) {
 	// Set up the router and middlewares
 	r := gin.New()
 	r.Use(gin.Recovery())
+	r.Use(requestid.New())
 	r.Use(logger.SetLogger(
 		logger.WithDefaultLevel(zerolog.InfoLevel),
 		logger.WithClientErrorLevel(zerolog.InfoLevel),
 		logger.WithServerErrorLevel(zerolog.ErrorLevel),
 		logger.WithLogger(func(c *gin.Context, out io.Writer, latency time.Duration) zerolog.Logger {
 			return log.Logger.With().
+				Str("request-id", requestid.Get(c)).
 				Dur("latency", latency).
 				Str("method", c.Request.Method).
 				Str("path", c.Request.URL.Path).
 				Int("status", c.Writer.Status()).
 				Int("size", c.Writer.Size()).
-				Str("userAgent", c.Request.UserAgent()).
+				Str("user-agent", c.Request.UserAgent()).
 				Logger()
 		})))
 
