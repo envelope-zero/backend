@@ -25,3 +25,23 @@ func TestGetOverview(t *testing.T) {
 		assert.JSONEq(t, tt.expected, recorder.Body.String())
 	}
 }
+
+var methodNotAllowedTests = []struct {
+	path   string
+	method string
+}{
+	{"/", "POST"},
+	{"/", "DELETE"},
+	{"/v1", "POST"},
+	{"/v1", "DELETE"},
+	{"/v1/budgets", "HEAD"},
+	{"/v1/budgets", "PUT"},
+}
+
+func TestMethodNotAllowed(t *testing.T) {
+	for _, tt := range methodNotAllowedTests {
+		recorder := test.Request(t, tt.method, tt.path, "")
+
+		test.AssertHTTPStatus(t, http.StatusMethodNotAllowed, &recorder, tt.path, tt.method)
+	}
+}

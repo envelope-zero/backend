@@ -26,6 +26,10 @@ func Router() (*gin.Engine, error) {
 	// client IPs
 	r.ForwardedByClientIP = false
 
+	// Send a HTTP 405 (Method not allowed) for all paths where there is
+	// a handler, but not for the specific method used
+	r.HandleMethodNotAllowed = true
+
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
 	r.Use(logger.SetLogger(

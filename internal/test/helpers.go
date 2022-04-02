@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -45,6 +46,6 @@ func Request(t *testing.T, method, url, body string, headers ...map[string]strin
 	return *recorder
 }
 
-func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder) {
-	assert.Equal(t, expected, r.Code, "Status is '%v', body is '%v'", r.Code, r.Body.String())
+func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder, args ...string) {
+	assert.Equal(t, expected, r.Code, "Status is '%v', body is '%v'. Additional context: %v", r.Code, r.Body.String(), strings.Join(args, " "))
 }
