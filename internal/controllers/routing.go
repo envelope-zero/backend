@@ -14,6 +14,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// This is set at build time, see Makefile.
+var version = "0.0.0"
+
 // Router controls the routes for the API.
 func Router() (*gin.Engine, error) {
 	// Set up the router and middlewares
@@ -36,8 +39,6 @@ func Router() (*gin.Engine, error) {
 				Logger()
 		})))
 
-	// 12:47AM INF Request ip=::1 latency=0.711125 method=GET path=/v1/budgets status=200 user_agent=HTTPie/3.1.0
-
 	err := models.ConnectDatabase()
 	if err != nil {
 		return nil, fmt.Errorf("Database connection failed with: %s", err.Error())
@@ -47,13 +48,26 @@ func Router() (*gin.Engine, error) {
 	r.GET("", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"links": map[string]string{
-				"v1": requestURL(c) + "v1",
+				"v1":      requestURL(c) + "v1",
+				"version": requestURL(c) + "version",
 			},
 		})
 	})
 
 	// Options lists the allowed HTTP verbs
 	r.OPTIONS("", func(c *gin.Context) {
+		c.Header("allow", "GET")
+	})
+
+	r.GET("/version", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"data": map[string]string{
+				"version": version,
+			},
+		})
+	})
+
+	r.OPTIONS("/version", func(c *gin.Context) {
 		c.Header("allow", "GET")
 	})
 

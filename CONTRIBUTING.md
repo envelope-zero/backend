@@ -11,9 +11,12 @@ You will need the following tools:
 
 Once those are installed, run `make setup` to perform the repository setup.
 
-## Development server
+## Development commands
 
-Run `make devserver` in the repository root, which will build and rebuild the project every time the code changes.
+- `make devserver` will start a development server on port 8080 and and rebuild the project every time the code changes.
+- `make test` runs all tests
+- `make coverage` runs all tests and opens the coverage report in your browser
+- `make build` builds the software with production configuration
 
 ## Commit messages
 
@@ -22,6 +25,4 @@ to enable better overview over changes and enables automated tooling based on co
 
 ## Tests & test coverage
 
-The test coverage goal is 100%. Please try to add tests for everything you add to the codebase. If in doubt, you’re always welcome to open an issue and ask for help.
-
-To run tests, run `make test`. To show the test coverage graphically in your browser, run `make coverage`.
+The test coverage goal is > 95%. Please try to add tests for everything you add to the codebase. If in doubt, you’re always welcome to open an issue and ask for help.
