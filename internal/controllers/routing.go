@@ -39,6 +39,10 @@ func Router() (*gin.Engine, error) {
 				Logger()
 		})))
 
+	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, numHandlers int) {
+		log.Debug().Str("method", httpMethod).Str("path", absolutePath).Str("handler", handlerName).Int("handlers", numHandlers).Msg("route")
+	}
+
 	err := models.ConnectDatabase()
 	if err != nil {
 		return nil, fmt.Errorf("Database connection failed with: %s", err.Error())
