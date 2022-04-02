@@ -12,7 +12,7 @@ var getOverviewTests = []struct {
 	path     string
 	expected string
 }{
-	{"/", `{ "links": { "v1": "http:///v1", "version": "http:///version }}`},
+	{"/", `{ "links": { "v1": "http:///v1", "version": "http:///version" }}`},
 	{"/v1", `{ "links": { "budgets": "http:///v1/budgets" }}`},
 	{"/version", `{"data": { "version": "0.0.0" }}`},
 }
