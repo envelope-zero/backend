@@ -66,7 +66,7 @@ func GetTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func UpdateTransaction(c *gin.Context) {
 
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -109,7 +109,7 @@ func DeleteTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 

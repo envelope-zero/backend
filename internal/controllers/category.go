@@ -61,7 +61,7 @@ func GetCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -76,7 +76,7 @@ func UpdateCategory(c *gin.Context) {
 
 	err := models.DB.First(&category, c.Param("categoryId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func DeleteCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 

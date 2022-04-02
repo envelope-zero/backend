@@ -40,8 +40,8 @@ func requestURL(c *gin.Context) string {
 	return scheme + "://" + c.Request.Host + c.Request.URL.Path
 }
 
-// fetchErrorHandler handles errors for fetching data from the database.
-func fetchErrorHandler(c *gin.Context, err error) {
+// FetchErrorHandler handles errors for fetching data from the database.
+func FetchErrorHandler(c *gin.Context, err error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
 	} else {

@@ -86,7 +86,7 @@ func GetAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -99,7 +99,7 @@ func UpdateAllocation(c *gin.Context) {
 
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -118,7 +118,7 @@ func DeleteAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 

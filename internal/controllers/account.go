@@ -45,7 +45,7 @@ func GetAccountTransactions(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -86,13 +86,13 @@ func GetAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
 	apiResponse, err := account.WithBalance()
 	if err != nil {
-		fetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
+		FetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
 		return
 	}
 
@@ -110,7 +110,7 @@ func UpdateAccount(c *gin.Context) {
 
 	err := models.DB.First(&account, c.Param("accountId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -129,7 +129,7 @@ func DeleteAccount(c *gin.Context) {
 	var account models.Account
 	err := models.DB.First(&account, c.Param("accountId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 

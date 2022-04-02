@@ -61,7 +61,7 @@ func GetBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func UpdateBudget(c *gin.Context) {
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
 	// Return the apporpriate error: 404 if not found, 500 on all others
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
@@ -98,7 +98,7 @@ func DeleteBudget(c *gin.Context) {
 	var budget models.Budget
 	err := models.DB.First(&budget, c.Param("budgetId")).Error
 	if err != nil {
-		fetchErrorHandler(c, err)
+		FetchErrorHandler(c, err)
 		return
 	}
 
