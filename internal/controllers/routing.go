@@ -43,6 +43,10 @@ func Router() (*gin.Engine, error) {
 		log.Debug().Str("method", httpMethod).Str("path", absolutePath).Str("handler", handlerName).Int("handlers", numHandlers).Msg("route")
 	}
 
+	// Don’t trust any proxy. We do not process any client IPs,
+	// therefore we don’t need to trust anyone here.
+	_ = r.SetTrustedProxies([]string{})
+
 	err := models.ConnectDatabase()
 	if err != nil {
 		return nil, fmt.Errorf("Database connection failed with: %s", err.Error())
