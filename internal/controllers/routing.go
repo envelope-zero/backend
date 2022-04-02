@@ -21,6 +21,11 @@ var version = "0.0.0"
 func Router() (*gin.Engine, error) {
 	// Set up the router and middlewares
 	r := gin.New()
+
+	// Don’t process X-Forwarded-For header as we do not do anything with
+	// client IPs
+	r.ForwardedByClientIP = false
+
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
 	r.Use(logger.SetLogger(
@@ -42,6 +47,10 @@ func Router() (*gin.Engine, error) {
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, numHandlers int) {
 		log.Debug().Str("method", httpMethod).Str("path", absolutePath).Str("handler", handlerName).Int("handlers", numHandlers).Msg("route")
 	}
+
+	// Don’t trust any proxy. We do not process any client IPs,
+	// therefore we don’t need to trust anyone here.
+	_ = r.SetTrustedProxies([]string{})
 
 	err := models.ConnectDatabase()
 	if err != nil {
