@@ -13,6 +13,7 @@ var optionsHeaderTests = []struct {
 	expected string
 }{
 	{"/", "GET"},
+	{"/version", "GET"},
 	{"/v1", "GET"},
 	{"/v1/budgets", "GET, POST"},
 	{"/v1/budgets/1", "GET, PATCH, DELETE"},

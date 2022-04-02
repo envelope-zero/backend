@@ -1,19 +1,19 @@
-# syntax=docker/dockerfile:1
 FROM golang:1.18-alpine as builder
 
-# needed for github.com/mattn/go-sqlite3
-RUN apk add --no-cache gcc g++
+RUN apk add --no-cache make
 
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY internal ./internal
-COPY main.go ./
-RUN CGO_ENABLED=0 go build -o /backend
+COPY main.go Makefile ./
+
+ARG VERSION=0.0.0
+RUN CGO_ENABLED=0 make build VERSION=${VERSION}
 
 # Build final image
 FROM scratch
 WORKDIR /
-COPY --from=builder /backend /backend
+COPY --from=builder /app/backend /backend
 ENTRYPOINT ["/backend"]
