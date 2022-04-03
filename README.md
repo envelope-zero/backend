@@ -17,12 +17,18 @@ The recommended and only supported way for production deployments is to run the 
 
 ### Configuration
 
-The backend can be configured with the following environment variables
+:warning: If you do not configure a postgresql database, sqlite will automatically be used. Mount a persistent volume to the `/data` directory - this is where the sqlite database is stored. If you do not do this, you will lose all data every time the container is deleted.
 
-| Name         | Values             | Default                                              | Description                                                                          |
-| ------------ | ------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `GIN_MODE`   | `release`, `debug` | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment! |
-| `LOG_FORMAT` | `json`, `human`    | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                  |
+The backend can be configured with the following environment variables. None are required.
+
+| Name          | Type                      | Default                                              | Description                                                                          |
+| ------------- | ------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `GIN_MODE`    | One of `release`, `debug` | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment! |
+| `LOG_FORMAT`  | One of `json`, `human`    | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                  |
+| `DB_HOST`     | `string`                  |                                                      | hostname or address of postgresql                                                    |
+| `DB_USER`     | `string`                  |                                                      | username for the postgresql connection                                               |
+| `DB_PASSWORD` | `string`                  |                                                      | password for `DB_USER`                                                               |
+| `DB_NAME`     | `string`                  |                                                      | name of the database to use                                                          |
 
 ### Deployment methods
 
@@ -58,23 +64,6 @@ ingress:
     - hosts:
         - envelope-zero.example.com
 ```
-
-### Database backends
-
-Envelope Zero currently supports sqlite and postgresql as database backends. While sqlite is supported, it is highly recommended to use postgresql for production purposes.
-
-#### sqlite
-
-No configuration is needed, but you need to mount a persistent volume to the `/app/data` directory or the backend won’t start.
-
-#### postgresql
-
-Set the following environment variables:
-
-- `DB_HOST`: The hostname for the postgresql instance
-- `DB_USER`: The username to connect with
-- `DB_PASSWORD`: The password for `DB_USER`
-- `DB_NAME`: The name of the database to use
 
 ## Supported Versions
 
