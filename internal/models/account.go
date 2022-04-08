@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
@@ -48,69 +46,28 @@ func (a Account) Transactions() []Transaction {
 	var transactions []Transaction
 
 	// Get all transactions where the account is either the source or the destination
-	DB.Where(
-		"source_account_id = ?", a.ID,
-	).Or("destination_account_id = ?", a.ID).Find(&transactions)
-
+	DB.Where(Transaction{SourceAccountID: a.ID}).Or(Transaction{DestinationAccountID: a.ID}).Find(&transactions)
 	return transactions
 }
 
 // Transactions returns all transactions for this account.
 func (a Account) SumReconciledTransactions() (decimal.Decimal, error) {
-	var sourceSum, destinationSum decimal.NullDecimal
-
-	err := DB.Table("transactions").
-		Where(&Transaction{
-			Reconciled:      true,
-			SourceAccountID: a.ID,
-		}).
-		Select("SUM(amount)").
-		Row().
-		Scan(&sourceSum)
-	if err != nil {
-		return decimal.NewFromFloat(0.0), fmt.Errorf("getting transactions for account with id %d (source) failed: %w", a.ID, err)
-	}
-
-	err = DB.Table("transactions").
-		Where(&Transaction{
+	return TransactionsSum(
+		Transaction{
 			Reconciled:           true,
 			DestinationAccountID: a.ID,
-		}).
-		Select("SUM(amount)").
-		Row().
-		Scan(&destinationSum)
-
-	if err != nil {
-		return decimal.NewFromFloat(0.0), fmt.Errorf("getting transactions for account with id %d (destination) failed: %w", a.ID, err)
-	}
-
-	return destinationSum.Decimal.Sub(sourceSum.Decimal), nil
+		},
+		Transaction{
+			Reconciled:      true,
+			SourceAccountID: a.ID,
+		},
+	)
 }
 
 // GetBalance returns the balance of the account, including all transactions.
-//
-// Note that this will produce wrong results with sqlite as of now, see
-// https://github.com/go-gorm/gorm/issues/5153 for details.
 func (a Account) getBalance() (decimal.Decimal, error) {
-	var sourceSum, destinationSum decimal.NullDecimal
-
-	err := DB.Table("transactions").
-		Where(&Transaction{SourceAccountID: a.ID}).
-		Select("SUM(amount)").
-		Row().
-		Scan(&sourceSum)
-	if err != nil {
-		return decimal.NewFromFloat(0.0), fmt.Errorf("getting transactions for account with id %d (source) failed: %w", a.ID, err)
-	}
-
-	err = DB.Table("transactions").
-		Where(&Transaction{DestinationAccountID: a.ID}).
-		Select("SUM(amount)").
-		Row().
-		Scan(&destinationSum)
-	if err != nil {
-		return decimal.NewFromFloat(0.0), fmt.Errorf("getting transactions for account with id %d (destination) failed: %w", a.ID, err)
-	}
-
-	return destinationSum.Decimal.Sub(sourceSum.Decimal), nil
+	return TransactionsSum(
+		Transaction{DestinationAccountID: a.ID},
+		Transaction{SourceAccountID: a.ID},
+	)
 }

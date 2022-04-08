@@ -20,7 +20,7 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 		r.POST("", CreateEnvelope)
 	}
 
-	// Transaction with ID
+	// Envelope with ID
 	{
 		r.OPTIONS("/:envelopeId", func(c *gin.Context) {
 			c.Header("allow", "GET, PATCH, DELETE")
@@ -72,9 +72,37 @@ func GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": envelope, "links": map[string]string{
-		"allocations": requestURL(c) + "/allocations",
-	}})
+	// Parse the month from the request
+	var month Month
+	if err := c.ShouldBind(&month); err != nil {
+		FetchErrorHandler(c, err)
+		return
+	}
+
+	// If a month is requested, return only month specfic data
+	if !month.Month.IsZero() {
+		spent, err := envelope.Spent(month.Month)
+		if err != nil {
+			FetchErrorHandler(c, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": map[string]interface{}{
+				"spent": spent,
+				"month": month.Month,
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": envelope,
+		"links": map[string]string{
+			"allocations": requestURL(c) + "/allocations",
+			"month":       requestURL(c) + "?month=YYYY-MM",
+		},
+	})
 }
 
 // UpdateEnvelope updates a envelope, selected by the ID parameter.
