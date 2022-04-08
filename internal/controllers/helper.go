@@ -37,7 +37,8 @@ func requestURL(c *gin.Context) string {
 		scheme = "https"
 	}
 
-	return scheme + "://" + c.Request.Host + c.Request.URL.Path
+	forwardedPrefix := c.Request.Header.Get("x-forwarded-prefix")
+	return scheme + "://" + c.Request.Host + forwardedPrefix + c.Request.URL.Path
 }
 
 // FetchErrorHandler handles errors for fetching data from the database.
