@@ -69,21 +69,21 @@ func CreateAccount(c *gin.Context) {
 
 // GetAccounts retrieves all accounts.
 func GetAccounts(c *gin.Context) {
-	var accounts, apiResponses []models.Account
+	var accounts []models.Account
 
 	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
 
-	for _, account := range accounts {
+	for i, account := range accounts {
 		response, err := account.WithCalculations()
 		if err != nil {
 			FetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
 			return
 		}
 
-		apiResponses = append(apiResponses, *response)
+		accounts[i] = *response
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": apiResponses})
+	c.JSON(http.StatusOK, gin.H{"data": accounts})
 }
 
 // GetAccount retrieves an account by its ID.
