@@ -196,9 +196,35 @@ func TestUpdateNonExistingAccount(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
-func TestDeleteAccount(t *testing.T) {
+func TestDeleteAccountsAndEmptyList(t *testing.T) {
 	recorder := test.Request(t, "DELETE", "/v1/budgets/1/accounts/1", "")
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+
+	recorder = test.Request(t, "DELETE", "/v1/budgets/1/accounts/2", "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+
+	recorder = test.Request(t, "DELETE", "/v1/budgets/1/accounts/3", "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+
+	recorder = test.Request(t, "DELETE", "/v1/budgets/1/accounts/4", "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+
+	recorder = test.Request(t, "DELETE", "/v1/budgets/1/accounts/5", "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+
+	recorder = test.Request(t, "DELETE", "/v1/budgets/1/accounts/6", "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+
+	recorder = test.Request(t, "GET", "/v1/budgets/1/accounts", "")
+	var apiResponse AccountListResponse
+	err := json.NewDecoder(recorder.Body).Decode(&apiResponse)
+	if err != nil {
+		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+	}
+
+	// Verify that the account list is an empty list, not null
+	assert.NotNil(t, apiResponse.Data)
+	assert.Empty(t, apiResponse.Data)
 }
 
 func TestDeleteNonExistingAccount(t *testing.T) {
