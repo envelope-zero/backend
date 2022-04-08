@@ -65,6 +65,8 @@ ingress:
         - envelope-zero.example.com
 ```
 
+If you do not use the root path `/`, but a prefix, make sure your reverse proxy writes the used prefix in the `x-forwarded-prefix` header. That header is used by the backend to generate the correct URLs for resources.
+
 ## Supported Versions
 
 This project is under heavy development. Therefore, only the latest release is supported.
