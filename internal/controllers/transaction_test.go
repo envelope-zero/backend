@@ -29,11 +29,13 @@ func TestGetTransactions(t *testing.T) {
 	var response TransactionListResponse
 	err := json.NewDecoder(recorder.Body).Decode(&response)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Len(t, response.Data, 3)
+	if !assert.Len(t, response.Data, 3) {
+		assert.FailNow(t, "Response does not have exactly 3 items")
+	}
 
 	januaryTransaction := response.Data[0]
 	assert.Equal(t, uint64(1), januaryTransaction.BudgetID)
@@ -90,7 +92,7 @@ func TestCreateTransaction(t *testing.T) {
 	var apiTransaction TransactionDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&apiTransaction)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	var dbTransaction models.Transaction
@@ -129,7 +131,7 @@ func TestGetTransaction(t *testing.T) {
 	var transaction TransactionDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&transaction)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	var dbTransaction models.Transaction
@@ -152,7 +154,7 @@ func TestUpdateTransaction(t *testing.T) {
 	var transaction TransactionDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&transaction)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
@@ -162,7 +164,7 @@ func TestUpdateTransaction(t *testing.T) {
 	var updatedTransaction TransactionDetailResponse
 	err = json.NewDecoder(recorder.Body).Decode(&updatedTransaction)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	assert.Equal(t, "Updated new transaction for testing", updatedTransaction.Data.Note)
@@ -175,7 +177,7 @@ func TestUpdateTransactionBroken(t *testing.T) {
 	var transaction TransactionDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&transaction)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
@@ -190,7 +192,7 @@ func TestUpdateTransactionNegativeAmount(t *testing.T) {
 	var transaction TransactionDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&transaction)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
@@ -220,7 +222,7 @@ func TestDeleteTransactionWithBody(t *testing.T) {
 	var transaction TransactionDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&transaction)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
