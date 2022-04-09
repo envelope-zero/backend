@@ -56,7 +56,16 @@ func CreateTransaction(c *gin.Context) {
 // GetTransactions retrieves all transactions.
 func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
-	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&transactions)
+
+	// Check if the budget exists at all
+	budgetID, err := checkBudgetExists(c, c.Param("budgetId"))
+	if err != nil {
+		return
+	}
+
+	models.DB.Where(&models.Category{
+		BudgetID: budgetID,
+	}).Find(&transactions)
 
 	c.JSON(http.StatusOK, gin.H{"data": transactions})
 }
