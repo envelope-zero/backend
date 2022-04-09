@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	golog "log"
 	"os"
 	"path/filepath"
 	"time"
@@ -10,9 +9,9 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/glebarez/sqlite"
+	gorm_zerolog "github.com/wei840222/gorm-zerolog"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 // DB is the database used by the backend.
@@ -28,16 +27,18 @@ func ConnectDatabase() error {
 		NowFunc: func() time.Time {
 			return time.Now().In(time.UTC)
 		},
-		Logger: logger.New(
-			golog.New(os.Stdout, "\r\n", golog.LstdFlags),
-			logger.Config{
-				SlowThreshold:             time.Millisecond,
-				LogLevel:                  logger.Error,
-				IgnoreRecordNotFoundError: true,
-				Colorful:                  true,
-			},
-		),
+		Logger: gorm_zerolog.New(),
 	}
+
+	// logger.New(
+	// 	golog.New(os.Stdout, "\r\n", golog.LstdFlags),
+	// 	logger.Config{
+	// 		SlowThreshold:             time.Millisecond,
+	// 		LogLevel:                  logger.Error,
+	// 		IgnoreRecordNotFoundError: true,
+	// 		Colorful:                  true,
+	// 	},
+	// ),
 
 	// Check with database driver to use. If DB_HOST is set, assume postgresql
 	_, ok := os.LookupEnv("DB_HOST")
