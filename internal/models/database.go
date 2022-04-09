@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	golog "log"
 	"os"
 	"path/filepath"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // DB is the database used by the backend.
@@ -21,17 +23,28 @@ func ConnectDatabase() error {
 	var err error
 	var db *gorm.DB
 
+	config := &gorm.Config{
+		// Set generated timestamps in UTC
+		NowFunc: func() time.Time {
+			return time.Now().In(time.UTC)
+		},
+		Logger: logger.New(
+			golog.New(os.Stdout, "\r\n", golog.LstdFlags),
+			logger.Config{
+				SlowThreshold:             time.Millisecond,
+				LogLevel:                  logger.Error,
+				IgnoreRecordNotFoundError: true,
+				Colorful:                  true,
+			},
+		),
+	}
+
 	// Check with database driver to use. If DB_HOST is set, assume postgresql
 	_, ok := os.LookupEnv("DB_HOST")
 	if ok {
 		log.Debug().Msg("DB_HOST is set, using postgresql")
 		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s", os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-			// Set generated timestamps in UTC
-			NowFunc: func() time.Time {
-				return time.Now().In(time.UTC)
-			},
-		})
+		db, err = gorm.Open(postgres.Open(dsn), config)
 	} else {
 		log.Debug().Msg("DB_HOST is not set, using sqlite database")
 
@@ -40,12 +53,7 @@ func ConnectDatabase() error {
 		if err != nil {
 			panic("Could not create data directory")
 		}
-		db, err = gorm.Open(sqlite.Open("data/gorm.db"), &gorm.Config{
-			// Set generated timestamps in UTC
-			NowFunc: func() time.Time {
-				return time.Now().In(time.UTC)
-			},
-		})
+		db, err = gorm.Open(sqlite.Open("data/gorm.db"), config)
 	}
 
 	if err != nil {
