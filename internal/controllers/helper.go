@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
+	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-contrib/requestid"
 	"github.com/rs/zerolog/log"
 
@@ -41,10 +43,29 @@ func requestURL(c *gin.Context) string {
 	return scheme + "://" + c.Request.Host + forwardedPrefix + c.Request.URL.Path
 }
 
+func checkBudgetExists(c *gin.Context, budgetIDString string) (uint64, error) {
+	var budget models.Budget
+
+	budgetID, _ := strconv.ParseUint(budgetIDString, 10, 64)
+
+	// Check that the budget exists. If not, return a 404
+	err := models.DB.Where(&models.Budget{
+		Model: models.Model{
+			ID: budgetID,
+		},
+	}).First(&budget).Error
+	if err != nil {
+		FetchErrorHandler(c, err)
+		return 0, err
+	}
+
+	return budgetID, nil
+}
+
 // FetchErrorHandler handles errors for fetching data from the database.
 func FetchErrorHandler(c *gin.Context, err error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
+		c.AbortWithStatus(http.StatusNotFound)
 	} else {
 		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{

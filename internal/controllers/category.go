@@ -20,7 +20,7 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 		r.POST("", CreateCategory)
 	}
 
-	// Transaction with ID
+	// Category with ID
 	{
 		r.OPTIONS("/:categoryId", func(c *gin.Context) {
 			c.Header("allow", "GET, PATCH, DELETE")
@@ -51,7 +51,16 @@ func CreateCategory(c *gin.Context) {
 // GetCategories retrieves all categories.
 func GetCategories(c *gin.Context) {
 	var categories []models.Category
-	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&categories)
+
+	// Check if the budget exists at all
+	budgetID, err := checkBudgetExists(c, c.Param("budgetId"))
+	if err != nil {
+		return
+	}
+
+	models.DB.Where(&models.Category{
+		BudgetID: budgetID,
+	}).Find(&categories)
 
 	c.JSON(http.StatusOK, gin.H{"data": categories})
 }

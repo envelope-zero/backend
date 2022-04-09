@@ -85,6 +85,15 @@ func TestNoTransactionNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestNonexistingBudgetTransactions404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
+//
+// It verifies that for a non-existing budget, the accounts endpoint raises a 404
+// instead of returning an empty list.
+func TestNonexistingBudgetTransactions404(t *testing.T) {
+	recorder := test.Request(t, "GET", "/v1/budgets/999/transactions", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
 func TestCreateTransaction(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/transactions", `{ "note": "More tests something something", "amount": 1253.17 }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)

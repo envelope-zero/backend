@@ -86,6 +86,15 @@ func TestNoAccountNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestNonexistingBudgetAccounts404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
+//
+// It verifies that for a non-existing budget, the accounts endpoint raises a 404
+// instead of returning an empty list.
+func TestNonexistingBudgetAccounts404(t *testing.T) {
+	recorder := test.Request(t, "GET", "/v1/budgets/999/accounts", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
 func TestCreateAccount(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "New Account", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
@@ -144,15 +153,7 @@ func TestGetAccountTransactions(t *testing.T) {
 
 func TestGetAccountTransactionsNonExistingAccount(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/accounts/57372/transactions", "")
-
-	var response TransactionListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
-
 	assert.Equal(t, 404, recorder.Code)
-	assert.Len(t, response.Data, 0)
 }
 
 func TestUpdateAccount(t *testing.T) {

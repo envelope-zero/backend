@@ -71,7 +71,15 @@ func CreateAccount(c *gin.Context) {
 func GetAccounts(c *gin.Context) {
 	var accounts []models.Account
 
-	models.DB.Where("budget_id = ?", c.Param("budgetId")).Find(&accounts)
+	// Check if the budget exists at all
+	budgetID, err := checkBudgetExists(c, c.Param("budgetId"))
+	if err != nil {
+		return
+	}
+
+	models.DB.Where(&models.Account{
+		BudgetID: budgetID,
+	}).Find(&accounts)
 
 	for i, account := range accounts {
 		response, err := account.WithCalculations()

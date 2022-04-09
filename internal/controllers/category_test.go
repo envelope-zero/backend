@@ -53,6 +53,15 @@ func TestNoCategoryNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestNonexistingBudgetCategories404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
+//
+// It verifies that for a non-existing budget, the accounts endpoint raises a 404
+// instead of returning an empty list.
+func TestNonexistingBudgetCategories404(t *testing.T) {
+	recorder := test.Request(t, "GET", "/v1/budgets/999/categories", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
 func TestCreateCategory(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
