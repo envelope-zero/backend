@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -27,10 +26,7 @@ func TestGetTransactions(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/transactions", "")
 
 	var response TransactionListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	if !assert.Len(t, response.Data, 3) {
@@ -99,10 +95,7 @@ func TestCreateTransaction(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiTransaction TransactionDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&apiTransaction)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &apiTransaction)
 
 	var dbTransaction models.Transaction
 	models.DB.First(&dbTransaction, apiTransaction.Data.ID)
@@ -138,10 +131,7 @@ func TestGetTransaction(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var transaction TransactionDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&transaction)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &transaction)
 
 	var dbTransaction models.Transaction
 	models.DB.First(&dbTransaction, transaction.Data.ID)
@@ -161,20 +151,14 @@ func TestUpdateTransaction(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction TransactionDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&transaction)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &transaction)
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "note": "Updated new transaction for testing" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedTransaction TransactionDetailResponse
-	err = json.NewDecoder(recorder.Body).Decode(&updatedTransaction)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &updatedTransaction)
 
 	assert.Equal(t, "Updated new transaction for testing", updatedTransaction.Data.Note)
 }
@@ -184,10 +168,7 @@ func TestUpdateTransactionBroken(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction TransactionDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&transaction)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &transaction)
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "note": 2" }`)
@@ -199,10 +180,7 @@ func TestUpdateTransactionNegativeAmount(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction TransactionDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&transaction)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &transaction)
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "amount": -58.23 }`)
@@ -229,10 +207,7 @@ func TestDeleteTransactionWithBody(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction TransactionDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&transaction)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &transaction)
 
 	path := fmt.Sprintf("/v1/budgets/1/transactions/%v", transaction.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)

@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -27,10 +26,7 @@ func TestGetAllocations(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1/allocations", "")
 
 	var response AllocationListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	if !assert.Len(t, response.Data, 3) {
@@ -63,10 +59,7 @@ func TestCreateAllocation(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiAllocation AllocationDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&apiAllocation)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &apiAllocation)
 
 	var dbAllocation models.Allocation
 	models.DB.First(&dbAllocation, apiAllocation.Data.ID)
@@ -107,10 +100,7 @@ func TestGetAllocation(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var allocation AllocationDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&allocation)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &allocation)
 
 	var dbAllocation models.Allocation
 	models.DB.First(&dbAllocation, allocation.Data.ID)
@@ -123,20 +113,14 @@ func TestUpdateAllocation(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var allocation AllocationDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&allocation)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &allocation)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/1/allocations/%v", allocation.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{  "year": 2022 }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedAllocation AllocationDetailResponse
-	err = json.NewDecoder(recorder.Body).Decode(&updatedAllocation)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &updatedAllocation)
 
 	assert.Equal(t, uint(2022), updatedAllocation.Data.Year)
 }
@@ -146,10 +130,7 @@ func TestUpdateAllocationBroken(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var allocation AllocationDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&allocation)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &allocation)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/1/allocations/%v", allocation.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
@@ -176,10 +157,7 @@ func TestDeleteAllocationWithBody(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var allocation AllocationDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&allocation)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &allocation)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/1/allocations/%v", allocation.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)

@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -26,10 +25,7 @@ func TestGetBudgets(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets", "")
 
 	var response BudgetListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	if !assert.Len(t, response.Data, 1) {
@@ -57,10 +53,7 @@ func TestCreateBudget(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiBudget BudgetDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&apiBudget)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &apiBudget)
 
 	var dbBudget models.Budget
 	models.DB.First(&dbBudget, apiBudget.Data.ID)
@@ -83,10 +76,7 @@ func TestGetBudget(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var budget BudgetDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&budget)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &budget)
 
 	var dbBudget models.Budget
 	models.DB.First(&dbBudget, budget.Data.ID)
@@ -99,20 +89,14 @@ func TestUpdateBudget(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget BudgetDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&budget)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &budget)
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new budget" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedBudget BudgetDetailResponse
-	err = json.NewDecoder(recorder.Body).Decode(&updatedBudget)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &updatedBudget)
 
 	assert.Equal(t, budget.Data.Note, updatedBudget.Data.Note)
 	assert.Equal(t, "Updated new budget", updatedBudget.Data.Name)
@@ -123,10 +107,7 @@ func TestUpdateBudgetBroken(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget BudgetDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&budget)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &budget)
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
@@ -143,10 +124,7 @@ func TestDeleteBudget(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget BudgetDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&budget)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &budget)
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
 	recorder = test.Request(t, "DELETE", path, "")
@@ -163,10 +141,7 @@ func TestDeleteBudgetWithBody(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget BudgetDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&budget)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &budget)
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
