@@ -28,11 +28,14 @@ func TestGetBudgets(t *testing.T) {
 	var response BudgetListResponse
 	err := json.NewDecoder(recorder.Body).Decode(&response)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Len(t, response.Data, 1)
+	if !assert.Len(t, response.Data, 1) {
+		assert.FailNow(t, "Response does not have exactly 1 item")
+	}
+
 	assert.Equal(t, "Testing Budget", response.Data[0].Name)
 	assert.Equal(t, "GNU: Terry Pratchett", response.Data[0].Note)
 
@@ -56,7 +59,7 @@ func TestCreateBudget(t *testing.T) {
 	var apiBudget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&apiBudget)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	var dbBudget models.Budget
@@ -82,7 +85,7 @@ func TestGetBudget(t *testing.T) {
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	var dbBudget models.Budget
@@ -98,7 +101,7 @@ func TestUpdateBudget(t *testing.T) {
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
@@ -108,7 +111,7 @@ func TestUpdateBudget(t *testing.T) {
 	var updatedBudget BudgetDetailResponse
 	err = json.NewDecoder(recorder.Body).Decode(&updatedBudget)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	assert.Equal(t, budget.Data.Note, updatedBudget.Data.Note)
@@ -122,7 +125,7 @@ func TestUpdateBudgetBroken(t *testing.T) {
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
@@ -136,7 +139,17 @@ func TestUpdateNonExistingBudget(t *testing.T) {
 }
 
 func TestDeleteBudget(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/budgets/1", "")
+	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "Delete me now!" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+
+	var budget BudgetDetailResponse
+	err := json.NewDecoder(recorder.Body).Decode(&budget)
+	if err != nil {
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+	}
+
+	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
+	recorder = test.Request(t, "DELETE", path, "")
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 
@@ -152,7 +165,7 @@ func TestDeleteBudgetWithBody(t *testing.T) {
 	var budget BudgetDetailResponse
 	err := json.NewDecoder(recorder.Body).Decode(&budget)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
 	}
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)

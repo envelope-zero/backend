@@ -14,7 +14,7 @@ func TestRequestURLHTTPS(t *testing.T) {
 	var apiResponse test.APIResponse
 	err := json.NewDecoder(recorder.Body).Decode(&apiResponse)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIResponse, '%v'", recorder.Body, err)
 	}
 
 	assert.Equal(t, "https:///v1/budgets", apiResponse.Links["budgets"])
@@ -26,7 +26,7 @@ func TestRequestForwardedPrefix(t *testing.T) {
 	var apiResponse test.APIResponse
 	err := json.NewDecoder(recorder.Body).Decode(&apiResponse)
 	if err != nil {
-		assert.Fail(t, "Unable to parse response from server %q into APIResponse, '%v'", recorder.Body, err)
+		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIResponse, '%v'", recorder.Body, err)
 	}
 
 	assert.Equal(t, "http:///api/v1/budgets", apiResponse.Links["budgets"])
