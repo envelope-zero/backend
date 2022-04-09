@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -27,10 +26,7 @@ func TestGetAccounts(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/accounts", "")
 
 	var response AccountListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	if !assert.Len(t, response.Data, 3) {
@@ -100,10 +96,7 @@ func TestCreateAccount(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiAccount AccountDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&apiAccount)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &apiAccount)
 
 	var dbAccount models.Account
 	models.DB.First(&dbAccount, apiAccount.Data.ID)
@@ -124,10 +117,7 @@ func TestGetAccount(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var account AccountDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&account)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &account)
 
 	var dbAccount models.Account
 	models.DB.First(&dbAccount, account.Data.ID)
@@ -142,10 +132,7 @@ func TestGetAccountTransactions(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/accounts/1/transactions", "")
 
 	var response TransactionListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	assert.Len(t, response.Data, 3)
@@ -161,20 +148,14 @@ func TestUpdateAccount(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var account AccountDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&account)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &account)
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new account for testing" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedAccount AccountDetailResponse
-	err = json.NewDecoder(recorder.Body).Decode(&updatedAccount)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &updatedAccount)
 
 	assert.Equal(t, "Updated new account for testing", updatedAccount.Data.Name)
 }
@@ -184,10 +165,7 @@ func TestUpdateAccountBroken(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var account AccountDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&account)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &account)
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
@@ -220,10 +198,7 @@ func TestDeleteAccountsAndEmptyList(t *testing.T) {
 
 	recorder = test.Request(t, "GET", "/v1/budgets/1/accounts", "")
 	var apiResponse AccountListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&apiResponse)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &apiResponse)
 
 	// Verify that the account list is an empty list, not null
 	assert.NotNil(t, apiResponse.Data)
@@ -240,10 +215,7 @@ func TestDeleteAccountWithBody(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var account AccountDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&account)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &account)
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)

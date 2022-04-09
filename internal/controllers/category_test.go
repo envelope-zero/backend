@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -26,10 +25,7 @@ func TestGetCategories(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/categories", "")
 
 	var response CategoryListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body.String(), err)
-	}
+	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	if !assert.Len(t, response.Data, 1) {
@@ -67,10 +63,7 @@ func TestCreateCategory(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiCategory CategoryDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&apiCategory)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &apiCategory)
 
 	var dbCategory models.Category
 	models.DB.First(&dbCategory, apiCategory.Data.ID)
@@ -93,10 +86,7 @@ func TestGetCategory(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var category CategoryDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&category)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &category)
 
 	var dbCategory models.Category
 	models.DB.First(&dbCategory, category.Data.ID)
@@ -109,20 +99,14 @@ func TestUpdateCategory(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category CategoryDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&category)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &category)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new category for testing" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedCategory CategoryDetailResponse
-	err = json.NewDecoder(recorder.Body).Decode(&updatedCategory)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &updatedCategory)
 
 	assert.Equal(t, category.Data.Note, updatedCategory.Data.Note)
 	assert.Equal(t, "Updated new category for testing", updatedCategory.Data.Name)
@@ -133,10 +117,7 @@ func TestUpdateCategoryBroken(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category CategoryDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&category)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &category)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
@@ -163,10 +144,7 @@ func TestDeleteCategoryWithBody(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category CategoryDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&category)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &category)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)

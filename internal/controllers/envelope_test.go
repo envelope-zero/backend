@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -26,10 +25,7 @@ func TestGetEnvelopes(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes", "")
 
 	var response EnvelopeListResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	if !assert.Len(t, response.Data, 1) {
@@ -58,10 +54,7 @@ func TestCreateEnvelope(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiEnvelope EnvelopeDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&apiEnvelope)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &apiEnvelope)
 
 	var dbEnvelope models.Envelope
 	models.DB.First(&dbEnvelope, apiEnvelope.Data.ID)
@@ -84,10 +77,7 @@ func TestGetEnvelope(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var envelope EnvelopeDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&envelope)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &envelope)
 
 	var dbEnvelope models.Envelope
 	models.DB.First(&dbEnvelope, envelope.Data.ID)
@@ -100,20 +90,14 @@ func TestUpdateEnvelope(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var envelope EnvelopeDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&envelope)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &envelope)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/%v", envelope.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new envelope for testing" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
 	var updatedEnvelope EnvelopeDetailResponse
-	err = json.NewDecoder(recorder.Body).Decode(&updatedEnvelope)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &updatedEnvelope)
 
 	assert.Equal(t, envelope.Data.Note, updatedEnvelope.Data.Note)
 	assert.Equal(t, "Updated new envelope for testing", updatedEnvelope.Data.Name)
@@ -124,10 +108,7 @@ func TestUpdateEnvelopeBroken(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var envelope EnvelopeDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&envelope)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &envelope)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/%v", envelope.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
@@ -154,10 +135,7 @@ func TestDeleteEnvelopeWithBody(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var envelope EnvelopeDetailResponse
-	err := json.NewDecoder(recorder.Body).Decode(&envelope)
-	if err != nil {
-		assert.Fail(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", recorder.Body, err)
-	}
+	test.DecodeResponse(t, &recorder, &envelope)
 
 	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/%v", envelope.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
