@@ -58,13 +58,13 @@ func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
 
 	// Check if the budget exists at all
-	budgetID, err := checkBudgetExists(c, c.Param("budgetId"))
+	budget, err := getBudget(c)
 	if err != nil {
 		return
 	}
 
 	models.DB.Where(&models.Category{
-		BudgetID: budgetID,
+		BudgetID: budget.ID,
 	}).Find(&transactions)
 
 	c.JSON(http.StatusOK, gin.H{"data": transactions})

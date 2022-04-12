@@ -51,17 +51,24 @@ func CreateEnvelope(c *gin.Context) {
 // GetEnvelopes retrieves all envelopes.
 func GetEnvelopes(c *gin.Context) {
 	var envelopes []models.Envelope
-	models.DB.Where("category_id = ?", c.Param("categoryId")).Find(&envelopes)
+
+	// Check if the category exists at all
+	category, err := getCategory(c)
+	if err != nil {
+		return
+	}
+
+	models.DB.Where(&models.Envelope{
+		CategoryID: category.ID,
+	}).Find(&envelopes)
 
 	c.JSON(http.StatusOK, gin.H{"data": envelopes})
 }
 
 // GetEnvelope retrieves a envelope by its ID.
 func GetEnvelope(c *gin.Context) {
-	var envelope models.Envelope
-	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
+	envelope, err := getEnvelope(c)
 	if err != nil {
-		FetchErrorHandler(c, err)
 		return
 	}
 

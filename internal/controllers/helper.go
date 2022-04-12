@@ -43,10 +43,11 @@ func requestURL(c *gin.Context) string {
 	return scheme + "://" + c.Request.Host + forwardedPrefix + c.Request.URL.Path
 }
 
-func checkBudgetExists(c *gin.Context, budgetIDString string) (uint64, error) {
+// getBudget verifies that the budget from the URL parameters exists and returns it.
+func getBudget(c *gin.Context) (models.Budget, error) {
 	var budget models.Budget
 
-	budgetID, _ := strconv.ParseUint(budgetIDString, 10, 64)
+	budgetID, _ := strconv.ParseUint(c.Param("budgetId"), 10, 64)
 
 	// Check that the budget exists. If not, return a 404
 	err := models.DB.Where(&models.Budget{
@@ -56,10 +57,62 @@ func checkBudgetExists(c *gin.Context, budgetIDString string) (uint64, error) {
 	}).First(&budget).Error
 	if err != nil {
 		FetchErrorHandler(c, err)
-		return 0, err
+		return models.Budget{}, err
 	}
 
-	return budgetID, nil
+	return budget, nil
+}
+
+// getCategory verifies that the category from the URL parameters exists and returns it
+//
+// It also verifies that the budget that is referred to exists.
+func getCategory(c *gin.Context) (models.Category, error) {
+	var category models.Category
+
+	categoryID, _ := strconv.ParseUint(c.Param("categoryId"), 10, 64)
+
+	_, err := getBudget(c)
+	if err != nil {
+		return models.Category{}, err
+	}
+
+	err = models.DB.Where(&models.Category{
+		Model: models.Model{
+			ID: categoryID,
+		},
+	}).First(&category).Error
+	if err != nil {
+		FetchErrorHandler(c, err)
+		return models.Category{}, err
+	}
+
+	return category, nil
+}
+
+// getEnvelope verifies that the envelope from the URL parameters exists and returns it
+//
+// It also verifies that the budget and the category that are referred to exist.
+func getEnvelope(c *gin.Context) (models.Envelope, error) {
+	var envelope models.Envelope
+
+	envelopeID, _ := strconv.ParseUint(c.Param("envelopeId"), 10, 64)
+
+	_, err := getCategory(c)
+	if err != nil {
+		return models.Envelope{}, err
+	}
+
+	err = models.DB.Where(&models.Envelope{
+		Model: models.Model{
+			ID: envelopeID,
+		},
+	}).First(&envelope).Error
+	if err != nil {
+		FetchErrorHandler(c, err)
+		return models.Envelope{}, err
+	}
+
+	return envelope, nil
 }
 
 // FetchErrorHandler handles errors for fetching data from the database.

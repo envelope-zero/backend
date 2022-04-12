@@ -130,7 +130,14 @@ func TestUpdateNonExistingCategory(t *testing.T) {
 }
 
 func TestDeleteCategory(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/budgets/1/categories/1", "")
+	recorder := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "Delete me now!" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+
+	var category CategoryDetailResponse
+	test.DecodeResponse(t, &recorder, &category)
+
+	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
+	recorder = test.Request(t, "DELETE", path, "")
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 

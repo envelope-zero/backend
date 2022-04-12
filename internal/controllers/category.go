@@ -53,13 +53,13 @@ func GetCategories(c *gin.Context) {
 	var categories []models.Category
 
 	// Check if the budget exists at all
-	budgetID, err := checkBudgetExists(c, c.Param("budgetId"))
+	budget, err := getBudget(c)
 	if err != nil {
 		return
 	}
 
 	models.DB.Where(&models.Category{
-		BudgetID: budgetID,
+		BudgetID: budget.ID,
 	}).Find(&categories)
 
 	c.JSON(http.StatusOK, gin.H{"data": categories})
@@ -67,10 +67,8 @@ func GetCategories(c *gin.Context) {
 
 // GetCategory retrieves a category by its ID.
 func GetCategory(c *gin.Context) {
-	var category models.Category
-	err := models.DB.First(&category, c.Param("categoryId")).Error
+	category, err := getCategory(c)
 	if err != nil {
-		FetchErrorHandler(c, err)
 		return
 	}
 
