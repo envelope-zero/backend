@@ -54,6 +54,33 @@ func TestNoAllocationNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestNonexistingEnvelopeAllocations404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
+//
+// It verifies that for a non-existing envelope, no matter if the category or budget exists,
+// the allocations endpoint raises a 404 instead of returning an empty list.
+func TestNonexistingEnvelopeAllocations404(t *testing.T) {
+	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/999/allocations", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
+// TestNonexistingCategoryAllocations404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
+//
+// It verifies that for a non-existing category, no matter if the envelope or budget exists,
+// the allocations endpoint raises a 404 instead of returning an empty list.
+func TestNonexistingCategoryAllocations404(t *testing.T) {
+	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/999/envelopes/1/allocations", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
+// TestNonexistingBudgetAllocations404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
+//
+// It verifies that for a non-existing budget, no matter if the envelope or category exists,
+// the allocations endpoint raises a 404 instead of returning an empty list.
+func TestNonexistingBudgetAllocations404(t *testing.T) {
+	recorder := test.Request(t, "GET", "/v1/budgets/999/categories/1/envelopes/1/allocations", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
 func TestCreateAllocation(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes/1/allocations", `{ "month": 10, "year": 2022, "amount": 15.42 }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)

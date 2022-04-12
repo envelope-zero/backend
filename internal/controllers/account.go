@@ -72,13 +72,13 @@ func GetAccounts(c *gin.Context) {
 	var accounts []models.Account
 
 	// Check if the budget exists at all
-	budgetID, err := checkBudgetExists(c, c.Param("budgetId"))
+	budget, err := getBudget(c)
 	if err != nil {
 		return
 	}
 
 	models.DB.Where(&models.Account{
-		BudgetID: budgetID,
+		BudgetID: budget.ID,
 	}).Find(&accounts)
 
 	for i, account := range accounts {

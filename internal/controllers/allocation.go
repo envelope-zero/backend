@@ -76,7 +76,16 @@ func CreateAllocation(c *gin.Context) {
 // GetAllocations retrieves all allocations.
 func GetAllocations(c *gin.Context) {
 	var allocations []models.Allocation
-	models.DB.Where("envelope_id = ?", c.Param("envelopeId")).Find(&allocations)
+
+	// Check if the envelope exists
+	envelope, err := getEnvelope(c)
+	if err != nil {
+		return
+	}
+
+	models.DB.Where(&models.Allocation{
+		EnvelopeID: envelope.ID,
+	}).Find(&allocations)
 
 	c.JSON(http.StatusOK, gin.H{"data": allocations})
 }

@@ -58,10 +58,8 @@ func GetBudgets(c *gin.Context) {
 
 // GetBudget retrieves a budget by its ID.
 func GetBudget(c *gin.Context) {
-	var budget models.Budget
-	err := models.DB.First(&budget, c.Param("budgetId")).Error
+	budget, err := getBudget(c)
 	if err != nil {
-		FetchErrorHandler(c, err)
 		return
 	}
 
