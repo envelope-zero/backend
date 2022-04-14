@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           # renovate: go-version
-          go-version: 1.18.0
+          go-version: 1.18.1
 
       - name: go test
         run: |
