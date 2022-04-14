@@ -61,32 +61,7 @@ func ConnectDatabase() error {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	err = db.AutoMigrate(Budget{})
-	if err != nil {
-		return err
-	}
-
-	err = db.AutoMigrate(Account{})
-	if err != nil {
-		return err
-	}
-
-	err = db.AutoMigrate(Category{})
-	if err != nil {
-		return err
-	}
-
-	err = db.AutoMigrate(Envelope{})
-	if err != nil {
-		return err
-	}
-
-	err = db.AutoMigrate(Transaction{})
-	if err != nil {
-		return err
-	}
-
-	err = db.AutoMigrate(Allocation{})
+	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{})
 	if err != nil {
 		return err
 	}
