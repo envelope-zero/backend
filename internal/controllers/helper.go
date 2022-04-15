@@ -165,6 +165,34 @@ func getEnvelope(c *gin.Context) (models.Envelope, error) {
 	return envelope, nil
 }
 
+// getTransaction verifies that the request URI is valid for the transaction and returns it.
+func getTransaction(c *gin.Context) (models.Transaction, error) {
+	var transaction models.Transaction
+
+	budget, err := getBudget(c)
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	accountID, err := parseID(c, "transactionId")
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	err = models.DB.First(&transaction, &models.Transaction{
+		BudgetID: budget.ID,
+		Model: models.Model{
+			ID: accountID,
+		},
+	}).Error
+	if err != nil {
+		FetchErrorHandler(c, err)
+		return models.Transaction{}, err
+	}
+
+	return transaction, nil
+}
+
 // FetchErrorHandler handles errors for fetching data from the database.
 func FetchErrorHandler(c *gin.Context, err error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {

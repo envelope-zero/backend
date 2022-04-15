@@ -72,10 +72,8 @@ func GetTransactions(c *gin.Context) {
 
 // GetTransaction retrieves an transaction by its ID.
 func GetTransaction(c *gin.Context) {
-	var transaction models.Transaction
-	err := models.DB.First(&transaction, c.Param("transactionId")).Error
+	transaction, err := getTransaction(c)
 	if err != nil {
-		FetchErrorHandler(c, err)
 		return
 	}
 
