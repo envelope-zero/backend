@@ -49,6 +49,16 @@ func TestNoCategoryNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestCategoryInvalidIDs verifies that on non-number requests for category IDs,
+// the API returs a Bad Request status code.
+func TestCategoryInvalidIDs(t *testing.T) {
+	r := test.Request(t, "GET", "/v1/budgets/1/categories/-557", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/HanShotFirst", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+}
+
 // TestNonexistingBudgetCategories404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
 //
 // It verifies that for a non-existing budget, the accounts endpoint raises a 404

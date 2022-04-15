@@ -48,6 +48,16 @@ func TestNoBudgetNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestBudgetInvalidIDs verifies that on non-number requests for budget IDs,
+// the API returs a Bad Request status code.
+func TestBudgetInvalidIDs(t *testing.T) {
+	r := test.Request(t, "GET", "/v1/budgets/-17", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/DefinitelyNotAUint64", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+}
+
 func TestCreateBudget(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)

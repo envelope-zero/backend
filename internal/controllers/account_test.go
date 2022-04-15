@@ -82,6 +82,22 @@ func TestNoAccountNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestAccountInvalidIDs verifies that on non-number requests for account IDs,
+// the API returs a Bad Request status code.
+func TestAccountInvalidIDs(t *testing.T) {
+	r := test.Request(t, "GET", "/v1/budgets/1/accounts/-56", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/accounts/notANumber", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/-61/accounts/56", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/RandomStringThatIsNotAUint64/accounts/1", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+}
+
 // TestNonexistingBudgetAccounts404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
 //
 // It verifies that for a non-existing budget, the accounts endpoint raises a 404
@@ -89,6 +105,25 @@ func TestNoAccountNotFound(t *testing.T) {
 func TestNonexistingBudgetAccounts404(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/999/accounts", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
+// TestAccountParentChecked is a regression test for https://github.com/envelope-zero/backend/issues/90.
+//
+// It verifies that the account details endpoint for a budget only returns accounts that belong to the
+// budget.
+func TestAccountParentChecked(t *testing.T) {
+	r := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var budget BudgetDetailResponse
+	test.DecodeResponse(t, &r, &budget)
+
+	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
+	r = test.Request(t, "GET", path+"/accounts/1", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
+
+	r = test.Request(t, "DELETE", path, "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
 }
 
 func TestCreateAccount(t *testing.T) {

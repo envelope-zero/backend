@@ -49,6 +49,16 @@ func TestNoEnvelopeNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestEnvelopeInvalidIDs verifies that on non-number requests for envelope IDs,
+// the API returs a Bad Request status code.
+func TestEnvelopeInvalidIDs(t *testing.T) {
+	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/-1985", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/OhNoOurTable", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+}
+
 // TestNonexistingCategoryEnvelopes404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
 //
 // It verifies that for a non-existing category, the envelopes endpoint raises a 404
