@@ -118,12 +118,13 @@ func getCategory(c *gin.Context) (models.Category, error) {
 		return models.Category{}, err
 	}
 
-	_, err = getBudget(c)
+	budget, err := getBudget(c)
 	if err != nil {
 		return models.Category{}, err
 	}
 
 	err = models.DB.Where(&models.Category{
+		BudgetID: budget.ID,
 		Model: models.Model{
 			ID: categoryID,
 		},
