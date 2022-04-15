@@ -32,7 +32,7 @@ func Request(t *testing.T, method, url, body string, headers ...map[string]strin
 	os.Setenv("LOG_FORMAT", "human")
 	router, err := controllers.Router()
 	if err != nil {
-		t.Fatal(err)
+		assert.FailNow(t, "Router could not be initialized")
 	}
 
 	recorder := httptest.NewRecorder()
