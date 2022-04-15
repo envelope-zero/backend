@@ -92,10 +92,8 @@ func GetAllocations(c *gin.Context) {
 
 // GetAllocation retrieves a allocation by its ID.
 func GetAllocation(c *gin.Context) {
-	var allocation models.Allocation
-	err := models.DB.First(&allocation, c.Param("allocationId")).Error
+	allocation, err := getAllocation(c)
 	if err != nil {
-		FetchErrorHandler(c, err)
 		return
 	}
 

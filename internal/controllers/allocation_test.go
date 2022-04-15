@@ -54,6 +54,22 @@ func TestNoAllocationNotFound(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestAllocationInvalidIDs verifies that on non-number requests for allocation IDs,
+// the API returs a Bad Request status code.
+func TestAllocationInvalidIDs(t *testing.T) {
+	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1/allocations/-2", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1/allocations/RoadWorkAhead", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/-755/allocations/1", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/WhatDoYourElfEyesSee/allocations/1", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+}
+
 // TestNonexistingEnvelopeAllocations404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
 //
 // It verifies that for a non-existing envelope, no matter if the category or budget exists,
@@ -79,6 +95,25 @@ func TestNonexistingCategoryAllocations404(t *testing.T) {
 func TestNonexistingBudgetAllocations404(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/999/categories/1/envelopes/1/allocations", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
+// TestAllocationParentChecked is a regression test for https://github.com/envelope-zero/backend/issues/90.
+//
+// It verifies that the allocations details endpoint for an envelope only returns allocations that belong to the
+// envelope.
+func TestAllocationParentChecked(t *testing.T) {
+	r := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", `{ "name": "Testing envelope" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var envelope EnvelopeDetailResponse
+	test.DecodeResponse(t, &r, &envelope)
+
+	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/%v", envelope.Data.ID)
+	r = test.Request(t, "GET", path+"/allocations/1", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
+
+	r = test.Request(t, "DELETE", path, "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
 }
 
 func TestCreateAllocation(t *testing.T) {
