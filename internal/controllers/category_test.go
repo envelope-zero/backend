@@ -55,7 +55,13 @@ func TestCategoryInvalidIDs(t *testing.T) {
 	r := test.Request(t, "GET", "/v1/budgets/1/categories/-557", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/budgets/1/categories/HanShotFirst", "")
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/NFTsAreAScam", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/-574/categories/56", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/NoReallyNFTsAreAScam/categories/1", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -66,6 +72,25 @@ func TestCategoryInvalidIDs(t *testing.T) {
 func TestNonexistingBudgetCategories404(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/999/categories", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
+// TestCategoryParentChecked is a regression test for https://github.com/envelope-zero/backend/issues/90.
+//
+// It verifies that the category details endpoint for a budget only returns categorys that belong to the
+// budget.
+func TestCategoryParentChecked(t *testing.T) {
+	r := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var budget BudgetDetailResponse
+	test.DecodeResponse(t, &r, &budget)
+
+	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
+	r = test.Request(t, "GET", path+"/categories/1", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
+
+	r = test.Request(t, "DELETE", path, "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
 }
 
 func TestCreateCategory(t *testing.T) {
