@@ -167,6 +167,34 @@ func getEnvelope(c *gin.Context) (models.Envelope, error) {
 	return envelope, nil
 }
 
+// getAllocation verifies that the request URI is valid for the transaction and returns it.
+func getAllocation(c *gin.Context) (models.Allocation, error) {
+	var allocation models.Allocation
+
+	envelope, err := getEnvelope(c)
+	if err != nil {
+		return models.Allocation{}, err
+	}
+
+	allocationID, err := parseID(c, "allocationId")
+	if err != nil {
+		return models.Allocation{}, err
+	}
+
+	err = models.DB.First(&allocation, &models.Allocation{
+		EnvelopeID: envelope.ID,
+		Model: models.Model{
+			ID: allocationID,
+		},
+	}).Error
+	if err != nil {
+		FetchErrorHandler(c, err)
+		return models.Allocation{}, err
+	}
+
+	return allocation, nil
+}
+
 // getTransaction verifies that the request URI is valid for the transaction and returns it.
 func getTransaction(c *gin.Context) (models.Transaction, error) {
 	var transaction models.Transaction
