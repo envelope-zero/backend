@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/envelope-zero/backend/internal/models"
@@ -19,6 +20,30 @@ var version = "0.0.0"
 
 // Router controls the routes for the API.
 func Router() (*gin.Engine, error) {
+	// gin uses debug as the default mode, we use release for
+	// security reasons
+	ginMode, ok := os.LookupEnv("GIN_MODE")
+	if !ok {
+		gin.SetMode("release")
+	} else {
+		gin.SetMode(ginMode)
+	}
+
+	// Log format can be explicitly set.
+	// If it is not set, it defaults to human readable for development
+	// and JSON for release
+	logFormat, ok := os.LookupEnv("LOG_FORMAT")
+	output := io.Writer(os.Stdout)
+	if (!ok && gin.IsDebugging()) || (ok && logFormat == "human") {
+		output = zerolog.ConsoleWriter{Out: os.Stdout}
+	}
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if gin.IsDebugging() {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+	log.Logger = log.Output(output).With().Timestamp().Logger()
+
 	// Set up the router and middlewares
 	r := gin.New()
 
