@@ -96,10 +96,8 @@ func GetAccounts(c *gin.Context) {
 
 // GetAccount retrieves an account by its ID.
 func GetAccount(c *gin.Context) {
-	var account models.Account
-	err := models.DB.First(&account, c.Param("accountId")).Error
+	account, err := getAccount(c)
 	if err != nil {
-		FetchErrorHandler(c, err)
 		return
 	}
 
