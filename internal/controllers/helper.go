@@ -148,12 +148,13 @@ func getEnvelope(c *gin.Context) (models.Envelope, error) {
 		return models.Envelope{}, err
 	}
 
-	_, err = getCategory(c)
+	category, err := getCategory(c)
 	if err != nil {
 		return models.Envelope{}, err
 	}
 
 	err = models.DB.Where(&models.Envelope{
+		CategoryID: category.ID,
 		Model: models.Model{
 			ID: envelopeID,
 		},

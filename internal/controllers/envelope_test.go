@@ -77,6 +77,25 @@ func TestNonexistingBudgetEnvelopes404(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
+// TestEnvelopeParentChecked is a regression test for https://github.com/envelope-zero/backend/issues/90.
+//
+// It verifies that the envelope details endpoint for a category only returns envelopes that belong to the
+// category.
+func TestEnvelopeParentChecked(t *testing.T) {
+	r := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "Testing category" }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var category CategoryDetailResponse
+	test.DecodeResponse(t, &r, &category)
+
+	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
+	r = test.Request(t, "GET", path+"/envelopes/1", "")
+	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
+
+	r = test.Request(t, "DELETE", path, "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
+}
+
 func TestCreateEnvelope(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", `{ "name": "New Envelope", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
