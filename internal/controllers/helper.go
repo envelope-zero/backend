@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-contrib/requestid"
@@ -231,6 +232,8 @@ func FetchErrorHandler(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "An ID specified in the query string was not a valid uint64",
 		})
+	} else if reflect.TypeOf(err) == reflect.TypeOf(&time.ParseError{}) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{

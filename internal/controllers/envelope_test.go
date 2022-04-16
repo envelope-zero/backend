@@ -8,6 +8,7 @@ import (
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/envelope-zero/backend/internal/test"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,6 +20,14 @@ type EnvelopeListResponse struct {
 type EnvelopeDetailResponse struct {
 	test.APIResponse
 	Data models.Envelope
+}
+
+type EnvelopeMonthResponse struct {
+	test.APIResponse
+	Data struct {
+		Month time.Time       `json:"month"`
+		Spent decimal.Decimal `json:"spent"`
+	}
 }
 
 func TestGetEnvelopes(t *testing.T) {
@@ -130,6 +139,32 @@ func TestGetEnvelope(t *testing.T) {
 	models.DB.First(&dbEnvelope, envelope.Data.ID)
 
 	assert.Equal(t, dbEnvelope, envelope.Data)
+}
+
+func TestEnvelopeMonth(t *testing.T) {
+	var envelopeMonth EnvelopeMonthResponse
+
+	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=2022-01", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	spent := decimal.NewFromFloat(-10)
+	test.DecodeResponse(t, &r, &envelopeMonth)
+	assert.True(t, envelopeMonth.Data.Spent.Equal(spent), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent, envelopeMonth.Data.Spent)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=2022-02", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	spent = decimal.NewFromFloat(-5)
+	test.DecodeResponse(t, &r, &envelopeMonth)
+	assert.True(t, envelopeMonth.Data.Spent.Equal(spent), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Data.Spent)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=2022-03", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	spent = decimal.NewFromFloat(-15)
+	test.DecodeResponse(t, &r, &envelopeMonth)
+	assert.True(t, envelopeMonth.Data.Spent.Equal(spent), "Month calculation for 2022-03 is wrong: should be %v, but is %v", spent, envelopeMonth.Data.Spent)
+
+	// Test that non-parseable requests produce an error
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=Stonks!", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestUpdateEnvelope(t *testing.T) {
