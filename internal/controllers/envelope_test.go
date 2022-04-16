@@ -161,6 +161,10 @@ func TestEnvelopeMonth(t *testing.T) {
 	spent = decimal.NewFromFloat(-15)
 	test.DecodeResponse(t, &r, &envelopeMonth)
 	assert.True(t, envelopeMonth.Data.Spent.Equal(spent), "Month calculation for 2022-03 is wrong: should be %v, but is %v", spent, envelopeMonth.Data.Spent)
+
+	// Test that non-parseable requests produce an error
+	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=Stonks!", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestUpdateEnvelope(t *testing.T) {
