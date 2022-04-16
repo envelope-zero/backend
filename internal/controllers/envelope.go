@@ -87,10 +87,19 @@ func GetEnvelope(c *gin.Context) {
 			return
 		}
 
+		var allocation models.Allocation
+		models.DB.First(&allocation, &models.Allocation{
+			Month: uint8(month.Month.UTC().Month()),
+			Year:  uint(month.Month.UTC().Year()),
+		})
+
+		balance := allocation.Amount.Add(spent)
+
 		c.JSON(http.StatusOK, gin.H{
 			"data": map[string]interface{}{
-				"spent": spent,
-				"month": month.Month,
+				"spent":   spent,
+				"balance": balance,
+				"month":   month.Month,
 			},
 		})
 		return

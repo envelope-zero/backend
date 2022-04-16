@@ -25,8 +25,9 @@ type EnvelopeDetailResponse struct {
 type EnvelopeMonthResponse struct {
 	test.APIResponse
 	Data struct {
-		Month time.Time       `json:"month"`
-		Spent decimal.Decimal `json:"spent"`
+		Month   time.Time       `json:"month"`
+		Spent   decimal.Decimal `json:"spent"`
+		Balance decimal.Decimal `json:"balance"`
 	}
 }
 
@@ -141,29 +142,44 @@ func TestGetEnvelope(t *testing.T) {
 	assert.Equal(t, dbEnvelope, envelope.Data)
 }
 
+// TestEnvelopeMonth verifies that the monthly calculations are correct.
 func TestEnvelopeMonth(t *testing.T) {
 	var envelopeMonth EnvelopeMonthResponse
 
-	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=2022-01", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	spent := decimal.NewFromFloat(-10)
-	test.DecodeResponse(t, &r, &envelopeMonth)
-	assert.True(t, envelopeMonth.Data.Spent.Equal(spent), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent, envelopeMonth.Data.Spent)
+	tests := []struct {
+		path    string
+		spent   decimal.Decimal
+		balance decimal.Decimal
+	}{
+		{
+			"/v1/budgets/1/categories/1/envelopes/1?month=2022-01",
+			decimal.NewFromFloat(-10),
+			decimal.NewFromFloat(10.99),
+		},
+		{
+			"/v1/budgets/1/categories/1/envelopes/1?month=2022-02",
+			decimal.NewFromFloat(-5),
+			decimal.NewFromFloat(42.12),
+		},
+		{
+			"/v1/budgets/1/categories/1/envelopes/1?month=2022-03",
+			decimal.NewFromFloat(-15),
+			decimal.NewFromFloat(16.17),
+		},
+	}
 
-	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=2022-02", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	spent = decimal.NewFromFloat(-5)
-	test.DecodeResponse(t, &r, &envelopeMonth)
-	assert.True(t, envelopeMonth.Data.Spent.Equal(spent), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Data.Spent)
+	for _, tt := range tests {
+		r := test.Request(t, "GET", tt.path, "")
+		test.AssertHTTPStatus(t, http.StatusOK, &r)
 
-	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=2022-03", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	spent = decimal.NewFromFloat(-15)
-	test.DecodeResponse(t, &r, &envelopeMonth)
-	assert.True(t, envelopeMonth.Data.Spent.Equal(spent), "Month calculation for 2022-03 is wrong: should be %v, but is %v", spent, envelopeMonth.Data.Spent)
+		test.DecodeResponse(t, &r, &envelopeMonth)
+		assert.True(t, envelopeMonth.Data.Spent.Equal(tt.spent), "Monthly spent calculation for 2022-01 is wrong: should be %v, but is %v", tt.spent, envelopeMonth.Data.Spent)
+	}
+}
 
+func TestEnvelopeMonthInvalid(t *testing.T) {
 	// Test that non-parseable requests produce an error
-	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=Stonks!", "")
+	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=Stonks!", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
