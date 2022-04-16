@@ -13,23 +13,17 @@ import (
 func TransactionsSum(incoming, outgoing Transaction) (decimal.Decimal, error) {
 	var outgoingSum, incomingSum decimal.NullDecimal
 
-	err := DB.Table("transactions").
+	_ = DB.Table("transactions").
 		Where(&outgoing).
 		Select("SUM(amount)").
 		Row().
 		Scan(&outgoingSum)
-	if err != nil {
-		return decimal.NewFromFloat(0.0), fmt.Errorf("getting transactions with attributes %v failed: %w", outgoing, err)
-	}
 
-	err = DB.Table("transactions").
+	_ = DB.Table("transactions").
 		Where(&incoming).
 		Select("SUM(amount)").
 		Row().
 		Scan(&incomingSum)
-	if err != nil {
-		return decimal.NewFromFloat(0.0), fmt.Errorf("getting transactions with attributes %v failed: %w", incoming, err)
-	}
 
 	return incomingSum.Decimal.Sub(outgoingSum.Decimal), nil
 }
