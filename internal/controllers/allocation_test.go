@@ -205,7 +205,15 @@ func TestUpdateNonExistingAllocation(t *testing.T) {
 }
 
 func TestDeleteAllocation(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/budgets/1/categories/1/envelopes/1/allocations/1", "")
+	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes/1/allocations", `{ "year": 2033, "month": 11 }`)
+	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+
+	var allocation AllocationDetailResponse
+	test.DecodeResponse(t, &recorder, &allocation)
+
+	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/1/allocations/%v", allocation.Data.ID)
+	recorder = test.Request(t, "DELETE", path, "")
+
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 

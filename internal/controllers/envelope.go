@@ -6,6 +6,7 @@ import (
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -94,12 +95,14 @@ func GetEnvelope(c *gin.Context) {
 		})
 
 		balance := allocation.Amount.Add(spent)
+		log.Info().Str("spent", spent.String()).Str("allocation", allocation.Amount.String()).Str("balance", balance.String()).Msg("GetEnvelope")
 
 		c.JSON(http.StatusOK, gin.H{
 			"data": map[string]interface{}{
-				"spent":   spent,
-				"balance": balance,
-				"month":   month.Month,
+				"allocation": allocation.Amount,
+				"spent":      spent,
+				"balance":    balance,
+				"month":      month.Month,
 			},
 		})
 		return

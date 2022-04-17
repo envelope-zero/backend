@@ -25,9 +25,10 @@ type EnvelopeDetailResponse struct {
 type EnvelopeMonthResponse struct {
 	test.APIResponse
 	Data struct {
-		Month   time.Time       `json:"month"`
-		Spent   decimal.Decimal `json:"spent"`
-		Balance decimal.Decimal `json:"balance"`
+		Month      time.Time       `json:"month"`
+		Spent      decimal.Decimal `json:"spent"`
+		Balance    decimal.Decimal `json:"balance"`
+		Allocation decimal.Decimal `json:"allocation"`
 	}
 }
 
@@ -147,24 +148,28 @@ func TestEnvelopeMonth(t *testing.T) {
 	var envelopeMonth EnvelopeMonthResponse
 
 	tests := []struct {
-		path    string
-		spent   decimal.Decimal
-		balance decimal.Decimal
+		path       string
+		spent      decimal.Decimal
+		balance    decimal.Decimal
+		allocation decimal.Decimal
 	}{
 		{
 			"/v1/budgets/1/categories/1/envelopes/1?month=2022-01",
 			decimal.NewFromFloat(-10),
 			decimal.NewFromFloat(10.99),
+			decimal.NewFromFloat(20.99),
 		},
 		{
 			"/v1/budgets/1/categories/1/envelopes/1?month=2022-02",
 			decimal.NewFromFloat(-5),
 			decimal.NewFromFloat(42.12),
+			decimal.NewFromFloat(47.12),
 		},
 		{
 			"/v1/budgets/1/categories/1/envelopes/1?month=2022-03",
 			decimal.NewFromFloat(-15),
 			decimal.NewFromFloat(16.17),
+			decimal.NewFromFloat(31.17),
 		},
 	}
 
@@ -173,7 +178,11 @@ func TestEnvelopeMonth(t *testing.T) {
 		test.AssertHTTPStatus(t, http.StatusOK, &r)
 
 		test.DecodeResponse(t, &r, &envelopeMonth)
-		assert.True(t, envelopeMonth.Data.Spent.Equal(tt.spent), "Monthly spent calculation for 2022-01 is wrong: should be %v, but is %v", tt.spent, envelopeMonth.Data.Spent)
+		assert.True(t, envelopeMonth.Data.Spent.Equal(tt.spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.spent, envelopeMonth.Data.Spent, envelopeMonth.Data)
+
+		assert.True(t, envelopeMonth.Data.Balance.Equal(tt.balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.balance, envelopeMonth.Data.Balance, envelopeMonth.Data)
+
+		assert.True(t, envelopeMonth.Data.Allocation.Equal(tt.allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.allocation, envelopeMonth.Data.Allocation, envelopeMonth.Data)
 	}
 }
 
