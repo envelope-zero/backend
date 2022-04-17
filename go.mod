@@ -10,7 +10,7 @@ require (
 	gorm.io/gorm v1.23.4
 )
 
-require github.com/gin-contrib/requestid v0.0.3
+require github.com/gin-contrib/requestid v0.0.4
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
