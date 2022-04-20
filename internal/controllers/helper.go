@@ -138,6 +138,22 @@ func getCategory(c *gin.Context) (models.Category, error) {
 	return category, nil
 }
 
+// getCategories returns all categories for the reuqested budget.
+func getCategories(c *gin.Context) ([]models.Category, error) {
+	var categories []models.Category
+
+	budget, err := getBudget(c)
+	if err != nil {
+		return []models.Category{}, err
+	}
+
+	models.DB.Where(&models.Category{
+		BudgetID: budget.ID,
+	}).Find(&categories)
+
+	return categories, nil
+}
+
 // getEnvelope verifies that the envelope from the URL parameters exists and returns it
 //
 // It also verifies that the budget and the category that are referred to exist.
@@ -166,6 +182,29 @@ func getEnvelope(c *gin.Context) (models.Envelope, error) {
 	}
 
 	return envelope, nil
+}
+
+// getEnvelopes returns all categories for the reuqested budget4.
+func getEnvelopes(c *gin.Context) ([]models.Envelope, error) {
+	var envelopes []models.Envelope
+
+	categories, err := getCategories(c)
+	if err != nil {
+		return []models.Envelope{}, err
+	}
+
+	// Get envelopes for all categories
+	for _, category := range categories {
+		var e []models.Envelope
+
+		models.DB.Where(&models.Envelope{
+			CategoryID: category.ID,
+		}).Find(&e)
+
+		envelopes = append(envelopes, e...)
+	}
+
+	return envelopes, nil
 }
 
 // getAllocation verifies that the request URI is valid for the transaction and returns it.

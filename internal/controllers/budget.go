@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
@@ -63,10 +64,38 @@ func GetBudget(c *gin.Context) {
 		return
 	}
 
+	// Parse month from the request
+	var month Month
+	if err := c.ShouldBind(&month); err != nil {
+		FetchErrorHandler(c, err)
+		return
+	}
+
+	if !month.Month.IsZero() {
+		envelopes, err := getEnvelopes(c)
+		if err != nil {
+			return
+		}
+
+		var envelopeMonths []models.EnvelopeMonth
+		for _, envelope := range envelopes {
+			envelopeMonths = append(envelopeMonths, envelope.Month(month.Month))
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": models.BudgetMonth{
+			ID:        budget.ID,
+			Name:      budget.Name,
+			Month:     time.Date(month.Month.UTC().Year(), month.Month.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
+			Envelopes: envelopeMonths,
+		}})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"data": budget, "links": map[string]string{
 		"accounts":     requestURL(c) + "/accounts",
 		"categories":   requestURL(c) + "/categories",
 		"transactions": requestURL(c) + "/transactions",
+		"month":        requestURL(c) + "?month=YYYY-MM",
 	}})
 }
 
