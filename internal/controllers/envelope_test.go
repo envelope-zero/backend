@@ -24,12 +24,7 @@ type EnvelopeDetailResponse struct {
 
 type EnvelopeMonthResponse struct {
 	test.APIResponse
-	Data struct {
-		Month      time.Time       `json:"month"`
-		Spent      decimal.Decimal `json:"spent"`
-		Balance    decimal.Decimal `json:"balance"`
-		Allocation decimal.Decimal `json:"allocation"`
-	}
+	Data models.EnvelopeMonth
 }
 
 func TestGetEnvelopes(t *testing.T) {
