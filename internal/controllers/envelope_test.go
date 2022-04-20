@@ -143,28 +143,41 @@ func TestEnvelopeMonth(t *testing.T) {
 	var envelopeMonth EnvelopeMonthResponse
 
 	tests := []struct {
-		path       string
-		spent      decimal.Decimal
-		balance    decimal.Decimal
-		allocation decimal.Decimal
+		path          string
+		envelopeMonth models.EnvelopeMonth
 	}{
 		{
 			"/v1/budgets/1/categories/1/envelopes/1?month=2022-01",
-			decimal.NewFromFloat(-10),
-			decimal.NewFromFloat(10.99),
-			decimal.NewFromFloat(20.99),
+			models.EnvelopeMonth{
+				ID:         1,
+				Name:       "Utilities",
+				Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+				Spent:      decimal.NewFromFloat(-10),
+				Balance:    decimal.NewFromFloat(10.99),
+				Allocation: decimal.NewFromFloat(20.99),
+			},
 		},
 		{
 			"/v1/budgets/1/categories/1/envelopes/1?month=2022-02",
-			decimal.NewFromFloat(-5),
-			decimal.NewFromFloat(42.12),
-			decimal.NewFromFloat(47.12),
+			models.EnvelopeMonth{
+				ID:         1,
+				Name:       "Utilities",
+				Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+				Spent:      decimal.NewFromFloat(-5),
+				Balance:    decimal.NewFromFloat(42.12),
+				Allocation: decimal.NewFromFloat(47.12),
+			},
 		},
 		{
 			"/v1/budgets/1/categories/1/envelopes/1?month=2022-03",
-			decimal.NewFromFloat(-15),
-			decimal.NewFromFloat(16.17),
-			decimal.NewFromFloat(31.17),
+			models.EnvelopeMonth{
+				ID:         1,
+				Name:       "Utilities",
+				Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+				Spent:      decimal.NewFromFloat(-15),
+				Balance:    decimal.NewFromFloat(16.17),
+				Allocation: decimal.NewFromFloat(31.17),
+			},
 		},
 	}
 
@@ -173,11 +186,12 @@ func TestEnvelopeMonth(t *testing.T) {
 		test.AssertHTTPStatus(t, http.StatusOK, &r)
 
 		test.DecodeResponse(t, &r, &envelopeMonth)
-		assert.True(t, envelopeMonth.Data.Spent.Equal(tt.spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.spent, envelopeMonth.Data.Spent, envelopeMonth.Data)
-
-		assert.True(t, envelopeMonth.Data.Balance.Equal(tt.balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.balance, envelopeMonth.Data.Balance, envelopeMonth.Data)
-
-		assert.True(t, envelopeMonth.Data.Allocation.Equal(tt.allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.allocation, envelopeMonth.Data.Allocation, envelopeMonth.Data)
+		assert.Equal(t, envelopeMonth.Data.ID, tt.envelopeMonth.ID)
+		assert.Equal(t, envelopeMonth.Data.Name, tt.envelopeMonth.Name)
+		assert.Equal(t, envelopeMonth.Data.Month, tt.envelopeMonth.Month)
+		assert.True(t, envelopeMonth.Data.Spent.Equal(tt.envelopeMonth.Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.envelopeMonth.Spent, envelopeMonth.Data.Spent, envelopeMonth.Data)
+		assert.True(t, envelopeMonth.Data.Balance.Equal(tt.envelopeMonth.Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.envelopeMonth.Balance, envelopeMonth.Data.Balance, envelopeMonth.Data)
+		assert.True(t, envelopeMonth.Data.Allocation.Equal(tt.envelopeMonth.Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.envelopeMonth.Allocation, envelopeMonth.Data.Allocation, envelopeMonth.Data)
 	}
 }
 

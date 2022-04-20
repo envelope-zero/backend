@@ -18,6 +18,8 @@ type Envelope struct {
 
 // EnvelopeMonth contains data about an Envelope for a specific month.
 type EnvelopeMonth struct {
+	ID         uint64          `json:"id"`
+	Name       string          `json:"name"`
 	Month      time.Time       `json:"month"`
 	Spent      decimal.Decimal `json:"spent"`
 	Balance    decimal.Decimal `json:"balance"`
@@ -68,7 +70,9 @@ func (e Envelope) Month(t time.Time) EnvelopeMonth {
 	balance := allocation.Amount.Add(spent)
 
 	return EnvelopeMonth{
-		Month:      t,
+		ID:         e.ID,
+		Name:       e.Name,
+		Month:      time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
 		Spent:      spent,
 		Balance:    balance,
 		Allocation: allocation.Amount,
