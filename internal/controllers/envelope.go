@@ -6,7 +6,6 @@ import (
 
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
 )
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -82,28 +81,8 @@ func GetEnvelope(c *gin.Context) {
 
 	// If a month is requested, return only month specfic data
 	if !month.Month.IsZero() {
-		spent, err := envelope.Spent(month.Month)
-		if err != nil {
-			FetchErrorHandler(c, err)
-			return
-		}
-
-		var allocation models.Allocation
-		models.DB.First(&allocation, &models.Allocation{
-			Month: uint8(month.Month.UTC().Month()),
-			Year:  uint(month.Month.UTC().Year()),
-		})
-
-		balance := allocation.Amount.Add(spent)
-		log.Info().Str("spent", spent.String()).Str("allocation", allocation.Amount.String()).Str("balance", balance.String()).Msg("GetEnvelope")
-
 		c.JSON(http.StatusOK, gin.H{
-			"data": map[string]interface{}{
-				"allocation": allocation.Amount,
-				"spent":      spent,
-				"balance":    balance,
-				"month":      month.Month,
-			},
+			"data": envelope.Month(month.Month),
 		})
 		return
 	}

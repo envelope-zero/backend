@@ -16,8 +16,16 @@ type Envelope struct {
 	Note       string   `json:"note,omitempty"`
 }
 
+// EnvelopeMonth contains data about an Envelope for a specific month.
+type EnvelopeMonth struct {
+	Month      time.Time       `json:"month"`
+	Spent      decimal.Decimal `json:"spent"`
+	Balance    decimal.Decimal `json:"balance"`
+	Allocation decimal.Decimal `json:"allocation"`
+}
+
 // Spent returns the amount spent for the month the time.Time instance is in.
-func (e Envelope) Spent(t time.Time) (decimal.Decimal, error) {
+func (e Envelope) Spent(t time.Time) decimal.Decimal {
 	// All transactions where the Envelope ID matches and that have an external account as source and an internal account as destination
 	incoming, _ := RawTransactions(
 		fmt.Sprintf("SELECT transactions.* FROM transactions, accounts AS source_accounts, accounts AS destination_accounts WHERE transactions.source_account_id = source_accounts.id AND source_accounts.external AND transactions.destination_account_id = destination_accounts.id AND NOT destination_accounts.external AND transactions.envelope_id = %v", e.ID),
@@ -44,5 +52,25 @@ func (e Envelope) Spent(t time.Time) (decimal.Decimal, error) {
 		}
 	}
 
-	return incomingSum.Sub(outgoingSum), nil
+	return incomingSum.Sub(outgoingSum)
+}
+
+// Month calculates the month specific values for an envelope and returns an EnvelopeMonth for them.
+func (e Envelope) Month(t time.Time) EnvelopeMonth {
+	spent := e.Spent(t)
+
+	var allocation Allocation
+	DB.First(&allocation, &Allocation{
+		Month: uint8(t.UTC().Month()),
+		Year:  uint(t.UTC().Year()),
+	})
+
+	balance := allocation.Amount.Add(spent)
+
+	return EnvelopeMonth{
+		Month:      t,
+		Spent:      spent,
+		Balance:    balance,
+		Allocation: allocation.Amount,
+	}
 }

@@ -45,11 +45,9 @@ func TestEnvelopeMonthSum(t *testing.T) {
 	}
 	models.DB.Create(&transactionIn)
 
-	envelopeSpent, err := envelope.Spent(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
-	assert.Nil(t, err)
-	assert.True(t, envelopeSpent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeSpent)
+	envelopeMonth := envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	assert.True(t, envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)
 
-	envelopeSpent, err = envelope.Spent(time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC))
-	assert.Nil(t, err)
-	assert.True(t, envelopeSpent.Equal(spent.Neg()), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeSpent)
+	envelopeMonth = envelope.Month(time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC))
+	assert.True(t, envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 }
