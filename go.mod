@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.7.7
-	github.com/glebarez/sqlite v1.4.1
+	github.com/glebarez/sqlite v1.4.3
 	github.com/shopspring/decimal v1.3.1
 	gorm.io/driver/postgres v1.3.4
 	gorm.io/gorm v1.23.4
@@ -16,7 +16,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/logger v0.2.2
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/glebarez/go-sqlite v1.15.1 // indirect
+	github.com/glebarez/go-sqlite v1.16.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
@@ -44,7 +44,7 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
-	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
+	golang.org/x/sys v0.0.0-20220405052023-b1e9470b6e64 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -52,7 +52,7 @@ require (
 	modernc.org/libc v1.14.12 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.0.7 // indirect
-	modernc.org/sqlite v1.15.2 // indirect
+	modernc.org/sqlite v1.16.0 // indirect
 )
 
 replace github.com/envelope-zero/backend/internal/controllers => ./internal/controllers
