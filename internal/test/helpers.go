@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -49,8 +48,8 @@ func Request(t *testing.T, method, url, body string, headers ...map[string]strin
 	return *recorder
 }
 
-func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder, args ...string) {
-	assert.Equal(t, expected, r.Code, "Status is '%v', body is '%v'. Additional context: %v", r.Code, r.Body.String(), strings.Join(args, " "))
+func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder, msgAndArgs ...interface{}) {
+	assert.Equal(t, expected, r.Code, msgAndArgs...)
 }
 
 // DecodeResponse decodes an HTTP response into a target struct.

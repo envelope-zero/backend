@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -14,22 +15,39 @@ import (
 func RegisterTransactionRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", func(c *gin.Context) {
-			c.Header("allow", "GET, POST")
-		})
+		r.OPTIONS("", OptionsTransactionList)
 		r.GET("", GetTransactions)
 		r.POST("", CreateTransaction)
 	}
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:transactionId", func(c *gin.Context) {
-			c.Header("allow", "GET, PATCH, DELETE")
-		})
+		r.OPTIONS("/:transactionId", OptionsTransactionDetail)
 		r.GET("/:transactionId", GetTransaction)
 		r.PATCH("/:transactionId", UpdateTransaction)
 		r.DELETE("/:transactionId", DeleteTransaction)
 	}
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Transactions
+// @Success      204
+// @Param        budgetId  path  uint64  true  "ID of the budget"
+// @Router       /v1/budgets/{budgetId}/transactions [options]
+func OptionsTransactionList(c *gin.Context) {
+	httputil.OptionsGetPost(c)
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Transactions
+// @Success      204
+// @Param        budgetId       path  uint64  true  "ID of the budget"
+// @Param        transactionId  path  uint64  true  "ID of the transaction"
+// @Router       /v1/budgets/{budgetId}/transactions/{transactionId} [options]
+func OptionsTransactionDetail(c *gin.Context) {
+	httputil.OptionsGetPatchDelete(c)
 }
 
 // CreateTransaction creates a new transaction.
@@ -86,7 +104,7 @@ func UpdateTransaction(c *gin.Context) {
 
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
@@ -116,7 +134,7 @@ func DeleteTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := models.DB.First(&transaction, c.Param("transactionId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 

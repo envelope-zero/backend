@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
@@ -13,24 +14,43 @@ import (
 func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", func(c *gin.Context) {
-			c.Header("allow", "GET, POST")
-		})
+		r.OPTIONS("", OptionsEnvelopeList)
 		r.GET("", GetEnvelopes)
 		r.POST("", CreateEnvelope)
 	}
 
 	// Envelope with ID
 	{
-		r.OPTIONS("/:envelopeId", func(c *gin.Context) {
-			c.Header("allow", "GET, PATCH, DELETE")
-		})
+		r.OPTIONS("/:envelopeId", OptionsEnvelopeDetail)
 		r.GET("/:envelopeId", GetEnvelope)
 		r.PATCH("/:envelopeId", UpdateEnvelope)
 		r.DELETE("/:envelopeId", DeleteEnvelope)
 	}
 
 	RegisterAllocationRoutes(r.Group("/:envelopeId/allocations"))
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Envelopes
+// @Success      204
+// @Param        budgetId    path  uint64  true  "ID of the budget"
+// @Param        categoryId  path  uint64  true  "ID of the category"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes [options]
+func OptionsEnvelopeList(c *gin.Context) {
+	httputil.OptionsGetPost(c)
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Envelopes
+// @Success      204
+// @Param        budgetId    path  uint64  true  "ID of the budget"
+// @Param        categoryId  path  uint64  true  "ID of the category"
+// @Param        envelopeId  path  uint64  true  "ID of the envelope"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId} [options]
+func OptionsEnvelopeDetail(c *gin.Context) {
+	httputil.OptionsGetPatchDelete(c)
 }
 
 // CreateEnvelope creates a new envelope.
@@ -75,7 +95,7 @@ func GetEnvelope(c *gin.Context) {
 	// Parse the month from the request
 	var month Month
 	if err := c.ShouldBind(&month); err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
@@ -102,7 +122,7 @@ func UpdateEnvelope(c *gin.Context) {
 
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
@@ -121,7 +141,7 @@ func DeleteEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 

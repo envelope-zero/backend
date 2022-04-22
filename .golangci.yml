@@ -15,3 +15,7 @@ linters-settings:
   gofumpt:
     lang-version: "1.18"
     extra-rules: true
+
+  godot:
+    exclude:
+      - "^ @[A-Za-z]+ "

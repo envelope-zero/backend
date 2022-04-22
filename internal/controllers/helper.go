@@ -2,19 +2,16 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 	"strconv"
-	"time"
 
+	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-contrib/requestid"
 	"github.com/rs/zerolog/log"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // bindData binds the data from the request to the struct passed in the interface.
@@ -50,7 +47,7 @@ func parseID(c *gin.Context, param string) (uint64, error) {
 
 	parsed, err := strconv.ParseUint(c.Param(param), 10, 64)
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return 0, err
 	}
 
@@ -73,7 +70,7 @@ func getBudget(c *gin.Context) (models.Budget, error) {
 		},
 	}).First(&budget).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return models.Budget{}, err
 	}
 
@@ -101,7 +98,7 @@ func getAccount(c *gin.Context) (models.Account, error) {
 		},
 	}).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return models.Account{}, err
 	}
 
@@ -131,7 +128,7 @@ func getCategory(c *gin.Context) (models.Category, error) {
 		},
 	}).First(&category).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return models.Category{}, err
 	}
 
@@ -177,7 +174,7 @@ func getEnvelope(c *gin.Context) (models.Envelope, error) {
 		},
 	}).First(&envelope).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return models.Envelope{}, err
 	}
 
@@ -228,7 +225,7 @@ func getAllocation(c *gin.Context) (models.Allocation, error) {
 		},
 	}).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return models.Allocation{}, err
 	}
 
@@ -256,29 +253,9 @@ func getTransaction(c *gin.Context) (models.Transaction, error) {
 		},
 	}).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return models.Transaction{}, err
 	}
 
 	return transaction, nil
-}
-
-// FetchErrorHandler handles errors for fetching data from the database.
-func FetchErrorHandler(c *gin.Context, err error) {
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		c.AbortWithStatus(http.StatusNotFound)
-	} else if reflect.TypeOf(err) == reflect.TypeOf(&strconv.NumError{}) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "An ID specified in the query string was not a valid uint64",
-		})
-	} else if reflect.TypeOf(err) == reflect.TypeOf(&time.ParseError{}) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	} else {
-		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf(
-				"An error occured on the server during your request, please contact your server administrator. The request id is '%v', send this to your server administrator to help them finding the problem.", requestid.Get(c),
-			),
-		})
-	}
 }

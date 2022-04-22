@@ -12,7 +12,7 @@ var getOverviewTests = []struct {
 	path     string
 	expected string
 }{
-	{"/", `{ "links": { "v1": "http:///v1", "version": "http:///version" }}`},
+	{"/", `{ "links": { "v1": "http:///v1", "version": "http:///version", "docs": "http:///docs/index.html" }}`},
 	{"/v1", `{ "links": { "budgets": "http:///v1/budgets" }}`},
 	{"/version", `{"data": { "version": "0.0.0" }}`},
 }
@@ -42,6 +42,6 @@ func TestMethodNotAllowed(t *testing.T) {
 	for _, tt := range methodNotAllowedTests {
 		recorder := test.Request(t, tt.method, tt.path, "")
 
-		test.AssertHTTPStatus(t, http.StatusMethodNotAllowed, &recorder, tt.path, tt.method)
+		test.AssertHTTPStatus(t, http.StatusMethodNotAllowed, &recorder)
 	}
 }

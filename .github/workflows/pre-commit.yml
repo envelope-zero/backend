@@ -19,6 +19,6 @@ jobs:
 
       - name: Install go tooling
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          make setup-pre-commit-ci
 
       - uses: pre-commit/action@v2.0.3
