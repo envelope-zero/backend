@@ -8,28 +8,51 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccountBalance(t *testing.T) {
-	account := models.Account{}
-
-	_, err := account.WithCalculations()
-
-	assert.Nil(t, err)
-
-	if !decimal.NewFromFloat(0).Equal(account.Balance) {
-		assert.Fail(t, "Account balance is not 0", "Actual balance: %v", account.Balance)
+func TestAccountCalculations(t *testing.T) {
+	account := models.Account{
+		AccountCreate: models.AccountCreate{
+			OnBudget: true,
+			External: false,
+		},
 	}
-}
+	models.DB.Save(&account)
 
-func TestAccountReconciledBalance(t *testing.T) {
-	account := models.Account{}
-
-	_, err := account.WithCalculations()
-
-	assert.Nil(t, err)
-
-	if !decimal.NewFromFloat(0).Equal(account.ReconciledBalance) {
-		assert.Fail(t, "Account reconciled balance is not 0", "Actual balance: %v", account.ReconciledBalance)
+	externalAccount := models.Account{
+		AccountCreate: models.AccountCreate{
+			External: true,
+		},
 	}
+	models.DB.Save(&externalAccount)
+
+	incomingTransaction := models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			SourceAccountID:      externalAccount.ID,
+			DestinationAccountID: account.ID,
+			Reconciled:           true,
+			Amount:               decimal.NewFromFloat(32.17),
+		},
+	}
+	models.DB.Save(&incomingTransaction)
+
+	outgoingTransaction := models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			SourceAccountID:      account.ID,
+			DestinationAccountID: externalAccount.ID,
+			Amount:               decimal.NewFromFloat(17.45),
+		},
+	}
+	models.DB.Save(&outgoingTransaction)
+
+	a := account.WithCalculations()
+
+	assert.True(t, a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
+
+	assert.True(t, a.ReconciledBalance.Equal(incomingTransaction.Amount), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
+
+	models.DB.Delete(&account)
+	models.DB.Delete(&externalAccount)
+	models.DB.Delete(&incomingTransaction)
+	models.DB.Delete(&outgoingTransaction)
 }
 
 func TestAccountTransactions(t *testing.T) {
@@ -41,8 +64,10 @@ func TestAccountTransactions(t *testing.T) {
 
 func TestAccountOnBudget(t *testing.T) {
 	account := models.Account{
-		OnBudget: true,
-		External: true,
+		AccountCreate: models.AccountCreate{
+			OnBudget: true,
+			External: true,
+		},
 	}
 
 	err := account.BeforeSave(models.DB)
@@ -53,8 +78,10 @@ func TestAccountOnBudget(t *testing.T) {
 	assert.False(t, account.OnBudget, "OnBudget is true even though the account is external")
 
 	account = models.Account{
-		OnBudget: true,
-		External: false,
+		AccountCreate: models.AccountCreate{
+			OnBudget: true,
+			External: false,
+		},
 	}
 
 	err = account.BeforeSave(models.DB)

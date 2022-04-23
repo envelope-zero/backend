@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-contrib/requestid"
@@ -12,6 +12,14 @@ import (
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
+
+type AllocationResponse struct {
+	Data models.Allocation `json:"data"`
+}
+
+type AllocationListResponse struct {
+	Data []models.Allocation `json:"data"`
+}
 
 // RegisterAllocationRoutes registers the routes for allocations with
 // the RouterGroup that is passed.
@@ -57,16 +65,32 @@ func OptionsAllocationDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// CreateAllocation creates a new allocation.
+// @Summary      Create allocations
+// @Description  Create a new allocation of funds to an envelope for a specific month
+// @Tags         Allocations
+// @Produce      json
+// @Success      201  {object}  AllocationResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500           {object}  httputil.HTTPError
+// @Param        budgetId      path      uint64                   true  "ID of the budget"
+// @Param        categoryId    path      uint64                   true  "ID of the category"
+// @Param        envelopeId    path      uint64                   true  "ID of the envelope"
+// @Param        allocation    body      models.AllocationCreate  true  "Allocation"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations [post]
 func CreateAllocation(c *gin.Context) {
 	var data models.Allocation
 
-	if status, err := bindData(c, &data); err != nil {
-		c.JSON(status, gin.H{"error": err.Error()})
+	status, err := httputil.BindData(c, &data)
+	if err != nil {
+		httputil.NewError(c, status, err)
 		return
 	}
 
-	data.EnvelopeID, _ = strconv.ParseUint(c.Param("envelopeId"), 10, 0)
+	data.EnvelopeID, err = httputil.ParseID(c, "envelopeId")
+	if err != nil {
+		return
+	}
 	result := models.DB.Create(&data)
 
 	if result.Error != nil {
@@ -88,70 +112,145 @@ func CreateAllocation(c *gin.Context) {
 			log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", result.Error, result.Error.Error())
 		}
 
-		c.JSON(status, gin.H{"error": errMessage})
+		httputil.NewError(c, status, errors.New(errMessage))
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": data})
+	c.JSON(http.StatusCreated, AllocationResponse{Data: data})
 }
 
-// GetAllocations retrieves all allocations.
+// @Summary      Get all allocations for an envelope
+// @Description  Returns all allocations for an envelope
+// @Tags         Allocations
+// @Produce      json
+// @Success      200  {object}  AllocationListResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500         {object}  httputil.HTTPError
+// @Param        budgetId    path      uint64  true  "ID of the budget"
+// @Param        categoryId  path      uint64  true  "ID of the category"
+// @Param        envelopeId  path      uint64  true  "ID of the envelope"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations [get]
 func GetAllocations(c *gin.Context) {
 	var allocations []models.Allocation
 
 	// Check if the envelope exists
-	envelope, err := getEnvelope(c)
+	envelope, err := getEnvelopeResource(c)
 	if err != nil {
 		return
 	}
 
 	models.DB.Where(&models.Allocation{
-		EnvelopeID: envelope.ID,
+		AllocationCreate: models.AllocationCreate{
+			EnvelopeID: envelope.ID,
+		},
 	}).Find(&allocations)
 
-	c.JSON(http.StatusOK, gin.H{"data": allocations})
+	c.JSON(http.StatusOK, AllocationListResponse{Data: allocations})
 }
 
-// GetAllocation retrieves a allocation by its ID.
+// @Summary      Get allocation
+// @Description  Returns an allocation by its ID
+// @Tags         Allocations
+// @Produce      json
+// @Success      200  {object}  AllocationResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500           {object}  httputil.HTTPError
+// @Param        budgetId      path      uint64  true  "ID of the budget"
+// @Param        categoryId    path      uint64  true  "ID of the category"
+// @Param        envelopeId  path      uint64                   true  "ID of the envelope"
+// @Param        allocationId  path      uint64  true  "ID of the allocation"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [get]
 func GetAllocation(c *gin.Context) {
-	allocation, err := getAllocation(c)
+	allocation, err := getAllocationResource(c)
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": allocation})
+	c.JSON(http.StatusOK, AllocationResponse{Data: allocation})
 }
 
-// UpdateAllocation updates a allocation, selected by the ID parameter.
+// @Summary      Update an allocation
+// @Description  Update an existing allocation. Only values to be updated need to be specified.
+// @Tags         Allocations
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  AllocationResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500           {object}  httputil.HTTPError
+// @Param        budgetId    path      uint64                   true  "ID of the budget"
+// @Param        categoryId  path      uint64                   true  "ID of the category"
+// @Param        envelopeId    path      uint64  true  "ID of the envelope"
+// @Param        allocationId  path      uint64                   true  "ID of the allocation"
+// @Param        allocation  body      models.AllocationCreate  true  "Allocation"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [patch]
 func UpdateAllocation(c *gin.Context) {
-	var allocation models.Allocation
-
-	err := models.DB.First(&allocation, c.Param("allocationId")).Error
+	allocation, err := getAllocationResource(c)
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
 	var data models.Allocation
-	if status, err := bindData(c, &data); err != nil {
-		c.JSON(status, gin.H{"error": err.Error()})
+	if status, err := httputil.BindData(c, &data); err != nil {
+		httputil.NewError(c, status, err)
 		return
 	}
 
 	models.DB.Model(&allocation).Updates(data)
-	c.JSON(http.StatusOK, gin.H{"data": allocation})
+	c.JSON(http.StatusOK, AllocationResponse{Data: allocation})
 }
 
-// DeleteAllocation removes a allocation, identified by its ID.
+// @Summary      Delete an allocation
+// @Description  Deletes an existing allocation
+// @Tags         Allocations
+// @Success      204
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500         {object}  httputil.HTTPError
+// @Param        budgetId      path      uint64  true  "ID of the budget"
+// @Param        categoryId    path      uint64  true  "ID of the category"
+// @Param        envelopeId    path      uint64  true  "ID of the envelope"
+// @Param        allocationId  path      uint64  true  "ID of the allocation"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [delete]
 func DeleteAllocation(c *gin.Context) {
-	var allocation models.Allocation
-	err := models.DB.First(&allocation, c.Param("allocationId")).Error
+	allocation, err := getAllocationResource(c)
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&allocation)
 
 	c.JSON(http.StatusNoContent, gin.H{})
+}
+
+// getAllocationResource verifies that the request URI is valid for the transaction and returns it.
+func getAllocationResource(c *gin.Context) (models.Allocation, error) {
+	var allocation models.Allocation
+
+	envelope, err := getEnvelopeResource(c)
+	if err != nil {
+		return models.Allocation{}, err
+	}
+
+	allocationID, err := httputil.ParseID(c, "allocationId")
+	if err != nil {
+		return models.Allocation{}, err
+	}
+
+	err = models.DB.First(&allocation, &models.Allocation{
+		AllocationCreate: models.AllocationCreate{
+			EnvelopeID: envelope.ID,
+		},
+		Model: models.Model{
+			ID: allocationID,
+		},
+	}).Error
+	if err != nil {
+		httputil.FetchErrorHandler(c, err)
+		return models.Allocation{}, err
+	}
+
+	return allocation, nil
 }

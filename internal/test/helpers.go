@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
@@ -48,14 +49,14 @@ func Request(t *testing.T, method, url, body string, headers ...map[string]strin
 	return *recorder
 }
 
-func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder, msgAndArgs ...interface{}) {
-	assert.Equal(t, expected, r.Code, msgAndArgs...)
+func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder) {
+	assert.Equal(t, expected, r.Code, "HTTP status is wrong. Response body: %s", r.Body.String())
 }
 
 // DecodeResponse decodes an HTTP response into a target struct.
 func DecodeResponse(t *testing.T, r *httptest.ResponseRecorder, target interface{}) {
 	err := json.NewDecoder(r.Body).Decode(target)
 	if err != nil {
-		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into APIListResponse, '%v'", r.Body, err)
+		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into %v, '%v'", r.Body, reflect.TypeOf(target), err)
 	}
 }

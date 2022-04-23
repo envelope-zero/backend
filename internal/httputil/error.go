@@ -47,7 +47,3 @@ func NewError(c *gin.Context, status int, err error) {
 type HTTPError struct {
 	Error string `json:"error" example:"An ID specified in the query string was not a valid uint64"`
 }
-
-type HTTPResponseLinks struct {
-	Links map[string]string `json:"links,omitempty"`
-}

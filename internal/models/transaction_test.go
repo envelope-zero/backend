@@ -12,7 +12,9 @@ func TestTransactionFindTimeUTC(t *testing.T) {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{
-		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
+		TransactionCreate: models.TransactionCreate{
+			Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
+		},
 	}
 
 	err := transaction.AfterFind(models.DB)
@@ -35,7 +37,9 @@ func TestTransactionSaveTimeUTC(t *testing.T) {
 	assert.Equal(t, time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
 
 	transaction = models.Transaction{
-		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
+		TransactionCreate: models.TransactionCreate{
+			Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
+		},
 	}
 	err = transaction.BeforeSave(models.DB)
 	if err != nil {

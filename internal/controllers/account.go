@@ -3,12 +3,24 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
+
+type AccountListResponse struct {
+	Data []models.Account `json:"data"`
+}
+
+type AccountResponse struct {
+	Data  models.Account `json:"data"`
+	Links AccountLinks   `json:"links"`
+}
+
+type AccountLinks struct {
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/budgets/3/accounts/17/transactions"`
+}
 
 // RegisterAccountRoutes registers the routes for accounts with
 // the RouterGroup that is passed.
@@ -39,8 +51,10 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Accounts
 // @Success      204
-// @Param        budgetId   path  uint64  true  "ID of the budget"
-// @Param        accountId  path  uint64  true  "ID of the account"
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Param        budgetId   path      uint64                true  "ID of the budget"
+// @Param        accountId  path      uint64                true  "ID of the account"
 // @Router       /v1/budgets/{budgetId}/accounts/{accountId}/transactions [options]
 func OptionsAccountTransactions(c *gin.Context) {
 	httputil.OptionsGet(c)
@@ -50,6 +64,8 @@ func OptionsAccountTransactions(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Accounts
 // @Success      204
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
 // @Param        budgetId  path  uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId}/accounts [options]
 func OptionsAccountList(c *gin.Context) {
@@ -60,118 +76,211 @@ func OptionsAccountList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Accounts
 // @Success      204
-// @Param        budgetId   path  uint64  true  "ID of the budget"
-// @Param        accountId  path  uint64  true  "ID of the account"
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Param        budgetId   path      uint64  true  "ID of the budget"
+// @Param        accountId  path      uint64  true  "ID of the account"
 // @Router       /v1/budgets/{budgetId}/accounts/{accountId} [options]
 func OptionsAccountDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// GetAccountTransactions returns all transactions for the account.
+// @Summary      List all transactions for an account
+// @Description  Returns a list of all transactions for the account requested
+// @Tags         Accounts
+// @Produce      json
+// @Success      200  {object}  TransactionListResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500        {object}  httputil.HTTPError
+// @Param        budgetId  path      uint64  true  "ID of the budget"
+// @Param        accountId  path      uint64  true  "ID of the account"
+// @Router       /v1/budgets/{budgetId}/accounts/{accountId}/transactions [get]
 func GetAccountTransactions(c *gin.Context) {
-	var account models.Account
-	err := models.DB.First(&account, c.Param("accountId")).Error
+	account, err := getAccountResource(c)
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": account.Transactions()})
+	c.JSON(http.StatusOK, TransactionListResponse{
+		Data: account.Transactions(),
+	})
 }
 
-// CreateAccount creates a new account.
+// @Summary      Create account
+// @Description  Create a new account for a specific budget
+// @Tags         Accounts
+// @Produce      json
+// @Success      201  {object}  AccountResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500       {object}  httputil.HTTPError
+// @Param        budgetId  path      uint64                true  "ID of the budget"
+// @Param        account   body      models.AccountCreate  true  "Account"
+// @Router       /v1/budgets/{budgetId}/accounts [post]
 func CreateAccount(c *gin.Context) {
 	var data models.Account
 
-	if status, err := bindData(c, &data); err != nil {
-		c.JSON(status, gin.H{"error": err.Error()})
+	if status, err := httputil.BindData(c, &data); err != nil {
+		httputil.NewError(c, status, err)
 		return
 	}
 
-	data.BudgetID, _ = strconv.ParseUint(c.Param("budgetId"), 10, 0)
+	budget, err := getBudgetResource(c)
+	if err != nil {
+		return
+	}
+
+	data.BudgetID = budget.ID
 	models.DB.Create(&data)
 
-	c.JSON(http.StatusCreated, gin.H{"data": data})
+	c.JSON(http.StatusCreated, AccountResponse{Data: data})
 }
 
-// GetAccounts retrieves all accounts.
+// @Summary      List accounts
+// @Description  Returns a list of all accounts for the budget
+// @Tags         Accounts
+// @Produce      json
+// @Success      200  {object}  AccountListResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500       {object}  httputil.HTTPError
+// @Param        budgetId   path      uint64  true  "ID of the budget"
+// @Router       /v1/budgets/{budgetId}/accounts [get]
 func GetAccounts(c *gin.Context) {
 	var accounts []models.Account
 
 	// Check if the budget exists at all
-	budget, err := getBudget(c)
+	budget, err := getBudgetResource(c)
 	if err != nil {
 		return
 	}
 
 	models.DB.Where(&models.Account{
-		BudgetID: budget.ID,
+		AccountCreate: models.AccountCreate{
+			BudgetID: budget.ID,
+		},
 	}).Find(&accounts)
 
 	for i, account := range accounts {
-		response, err := account.WithCalculations()
-		if err != nil {
-			httputil.FetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
-			return
-		}
-
-		accounts[i] = *response
+		accounts[i] = account.WithCalculations()
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": accounts})
+	c.JSON(http.StatusOK, AccountListResponse{Data: accounts})
 }
 
-// GetAccount retrieves an account by its ID.
+// @Summary      Get account
+// @Description  Returns a specific account
+// @Tags         Accounts
+// @Produce      json
+// @Success      200  {object}  AccountResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500        {object}  httputil.HTTPError
+// @Param        budgetId   path      uint64  true  "ID of the budget"
+// @Param        accountId  path      uint64  true  "ID of the account"
+// @Router       /v1/budgets/{budgetId}/accounts/{accountId} [get]
 func GetAccount(c *gin.Context) {
-	account, err := getAccount(c)
+	_, err := getAccountResource(c)
 	if err != nil {
 		return
 	}
 
-	apiResponse, err := account.WithCalculations()
-	if err != nil {
-		httputil.FetchErrorHandler(c, fmt.Errorf("could not get values for account %v: %v", account.Name, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"data": apiResponse,
-		"links": map[string]string{
-			"transactions": requestURL(c) + "/transactions",
-		},
-	})
+	c.JSON(http.StatusOK, newAccountResponse(c))
 }
 
-// UpdateAccount updates an account, selected by the ID parameter.
+// @Summary      Update account
+// @Description  Updates an account. Only values to be updated need to be specified.
+// @Tags         Accounts
+// @Produce      json
+// @Success      200  {object}  AccountResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500        {object}  httputil.HTTPError
+// @Param        budgetId   path  uint64  true  "ID of the budget"
+// @Param        accountId  path  uint64  true  "ID of the account"
+// @Param        account    body      models.AccountCreate  true  "Account"
+// @Router       /v1/budgets/{budgetId}/accounts/{accountId} [patch]
 func UpdateAccount(c *gin.Context) {
-	var account models.Account
-
-	err := models.DB.First(&account, c.Param("accountId")).Error
+	account, err := getAccountResource(c)
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
 	var data models.Account
-	if status, err := bindData(c, &data); err != nil {
-		c.JSON(status, gin.H{"error": err.Error()})
+	if status, err := httputil.BindData(c, &data); err != nil {
+		httputil.NewError(c, status, err)
 		return
 	}
 
 	models.DB.Model(&account).Updates(data)
-	c.JSON(http.StatusOK, gin.H{"data": account})
+	c.JSON(http.StatusOK, newAccountResponse(c))
 }
 
-// DeleteAccount removes a account, identified by its ID.
+// @Summary      Delete account
+// @Description  Deletes the specified account.
+// @Tags         Accounts
+// @Produce      json
+// @Success      204
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500        {object}  httputil.HTTPError
+// @Param        budgetId   path  uint64  true  "ID of the budget"
+// @Param        accountId  path  uint64  true  "ID of the account"
+// @Router       /v1/budgets/{budgetId}/accounts/{accountId} [delete]
 func DeleteAccount(c *gin.Context) {
-	var account models.Account
-	err := models.DB.First(&account, c.Param("accountId")).Error
+	account, err := getAccountResource(c)
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&account)
 
 	c.JSON(http.StatusNoContent, gin.H{})
+}
+
+// getAccountResource verifies that the request URI is valid for the account and returns it.
+func getAccountResource(c *gin.Context) (models.Account, error) {
+	var account models.Account
+
+	budget, err := getBudgetResource(c)
+	if err != nil {
+		return models.Account{}, err
+	}
+
+	accountID, err := httputil.ParseID(c, "accountId")
+	if err != nil {
+		return models.Account{}, err
+	}
+
+	err = models.DB.First(&account, &models.Account{
+		AccountCreate: models.AccountCreate{
+			BudgetID: budget.ID,
+		},
+		Model: models.Model{
+			ID: accountID,
+		},
+	}).Error
+	if err != nil {
+		httputil.FetchErrorHandler(c, err)
+		return models.Account{}, err
+	}
+
+	return account, nil
+}
+
+// newAccountResponse creates a response object for an account.
+func newAccountResponse(c *gin.Context) AccountResponse {
+	// When this function is called, all parent resources have already been validated
+	budget, _ := getBudgetResource(c)
+	account, _ := getAccountResource(c)
+
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d/accounts/%d", budget.ID, account.ID)
+
+	return AccountResponse{
+		Data: account.WithCalculations(),
+		Links: AccountLinks{
+			Transactions: url + "/transactions",
+		},
+	}
 }

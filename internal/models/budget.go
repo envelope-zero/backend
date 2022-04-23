@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // Budget represents a budget
 //
@@ -22,12 +24,4 @@ type BudgetMonth struct {
 	Name      string          `json:"name" example:"A test envelope"`
 	Month     time.Time       `json:"month" example:"2006-05-04T15:02:01.000000Z"`
 	Envelopes []EnvelopeMonth `json:"envelopes,omitempty"`
-}
-
-type BudgetListResponse struct {
-	Data []Budget `json:"data"`
-}
-
-type BudgetResponse struct {
-	Data Budget `json:"data"`
 }

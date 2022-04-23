@@ -10,10 +10,14 @@ import (
 // Envelope represents an envelope in your budget.
 type Envelope struct {
 	Model
-	Name       string   `json:"name,omitempty"`
-	CategoryID uint64   `json:"categoryId"`
-	Category   Category `json:"-"`
-	Note       string   `json:"note,omitempty"`
+	EnvelopeCreate
+	Category Category `json:"-"`
+}
+
+type EnvelopeCreate struct {
+	Name       string `json:"name,omitempty"`
+	CategoryID uint64 `json:"categoryId"`
+	Note       string `json:"note,omitempty"`
 }
 
 // EnvelopeMonth contains data about an Envelope for a specific month.
@@ -63,8 +67,10 @@ func (e Envelope) Month(t time.Time) EnvelopeMonth {
 
 	var allocation Allocation
 	DB.First(&allocation, &Allocation{
-		Month: uint8(t.UTC().Month()),
-		Year:  uint(t.UTC().Year()),
+		AllocationCreate: AllocationCreate{
+			Month: uint8(t.UTC().Month()),
+			Year:  uint(t.UTC().Year()),
+		},
 	})
 
 	balance := allocation.Amount.Add(spent)

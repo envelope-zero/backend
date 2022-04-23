@@ -6,26 +6,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/envelope-zero/backend/internal/test"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
-type AccountListResponse struct {
-	test.APIResponse
-	Data []models.Account
-}
-
-type AccountDetailResponse struct {
-	test.APIResponse
-	Data models.Account
-}
-
 func TestGetAccounts(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/accounts", "")
 
-	var response AccountListResponse
+	var response controllers.AccountListResponse
 	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
@@ -96,6 +87,12 @@ func TestAccountInvalidIDs(t *testing.T) {
 
 	r = test.Request(t, "GET", "/v1/budgets/RandomStringThatIsNotAUint64/accounts/1", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/NotANumber/accounts/1/transactions", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/1/accounts/-17/transactions", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 // TestNonexistingBudgetAccounts404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
@@ -130,11 +127,8 @@ func TestCreateAccount(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "New Account", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var apiAccount AccountDetailResponse
+	var apiAccount controllers.AccountResponse
 	test.DecodeResponse(t, &recorder, &apiAccount)
-
-	var dbAccount models.Account
-	models.DB.First(&dbAccount, apiAccount.Data.ID)
 }
 
 func TestCreateBrokenAccount(t *testing.T) {
@@ -151,7 +145,7 @@ func TestGetAccount(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets/1/accounts/1", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
-	var account AccountDetailResponse
+	var account controllers.AccountResponse
 	test.DecodeResponse(t, &recorder, &account)
 
 	var dbAccount models.Account
@@ -182,14 +176,14 @@ func TestUpdateAccount(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "New Account", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var account AccountDetailResponse
+	var account controllers.AccountResponse
 	test.DecodeResponse(t, &recorder, &account)
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new account for testing" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
-	var updatedAccount AccountDetailResponse
+	var updatedAccount controllers.AccountResponse
 	test.DecodeResponse(t, &recorder, &updatedAccount)
 
 	assert.Equal(t, "Updated new account for testing", updatedAccount.Data.Name)
@@ -199,7 +193,7 @@ func TestUpdateAccountBroken(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "New Account", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var account AccountDetailResponse
+	var account controllers.AccountResponse
 	test.DecodeResponse(t, &recorder, &account)
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
@@ -232,7 +226,7 @@ func TestDeleteAccountsAndEmptyList(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 
 	recorder = test.Request(t, "GET", "/v1/budgets/1/accounts", "")
-	var apiResponse AccountListResponse
+	var apiResponse controllers.AccountListResponse
 	test.DecodeResponse(t, &recorder, &apiResponse)
 
 	// Verify that the account list is an empty list, not null
@@ -249,7 +243,7 @@ func TestDeleteAccountWithBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets/1/accounts", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var account AccountDetailResponse
+	var account controllers.AccountResponse
 	test.DecodeResponse(t, &recorder, &account)
 
 	path := fmt.Sprintf("/v1/budgets/1/accounts/%v", account.Data.ID)
