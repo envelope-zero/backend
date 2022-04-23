@@ -24,6 +24,13 @@
       ],
       "datasourceTemplate": "golang-version",
       "depNameTemplate": "go"
+    },
+    {
+      "description": "Upgrade arbitrary go module versions in Makefiles",
+      "fileMatch": ["Makefile"],
+      "matchStrings": [
+        "^# renovate: datasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s.*@(?<currentValue>.*)"
+      ]
     }
   ]
 }

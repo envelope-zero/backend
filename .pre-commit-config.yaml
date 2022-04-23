@@ -19,3 +19,19 @@ repos:
     rev: v2.6.2
     hooks:
       - id: prettier
+
+  - repo: local
+    hooks:
+      - id: swag fmt
+        name: Format swag comments
+        language: system
+        pass_filenames: false
+        entry: swag fmt
+        files: ^internal/.*
+
+      - id: swag init
+        name: Create swagger docs.go
+        language: system
+        pass_filenames: false
+        entry: swag init --parseDependency
+        files: ^internal/.*

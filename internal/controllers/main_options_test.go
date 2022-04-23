@@ -34,7 +34,7 @@ func TestOptionsHeader(t *testing.T) {
 	for _, tt := range optionsHeaderTests {
 		recorder := test.Request(t, "OPTIONS", tt.path, "")
 
-		test.AssertHTTPStatus(t, http.StatusOK, &recorder)
+		assert.Equal(t, http.StatusNoContent, recorder.Code, "Status for %v is wrong, expected %d, got %d", tt.path, http.StatusNoContent, recorder.Code)
 		assert.Equal(t, recorder.Header().Get("allow"), tt.expected)
 	}
 }

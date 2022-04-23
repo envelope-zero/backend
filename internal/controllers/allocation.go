@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/requestid"
 	"github.com/rs/zerolog/log"
 
+	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
@@ -17,22 +18,43 @@ import (
 func RegisterAllocationRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", func(c *gin.Context) {
-			c.Header("allow", "GET, POST")
-		})
+		r.OPTIONS("", OptionsAllocationList)
 		r.GET("", GetAllocations)
 		r.POST("", CreateAllocation)
 	}
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:allocationId", func(c *gin.Context) {
-			c.Header("allow", "GET, PATCH, DELETE")
-		})
+		r.OPTIONS("/:allocationId", OptionsAllocationDetail)
 		r.GET("/:allocationId", GetAllocation)
 		r.PATCH("/:allocationId", UpdateAllocation)
 		r.DELETE("/:allocationId", DeleteAllocation)
 	}
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Allocations
+// @Success      204
+// @Param        budgetId    path  uint64  true  "ID of the budget"
+// @Param        categoryId    path  uint64  true  "ID of the category"
+// @Param        envelopeId    path  uint64  true  "ID of the envelope"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations [options]
+func OptionsAllocationList(c *gin.Context) {
+	httputil.OptionsGetPost(c)
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Allocations
+// @Success      204
+// @Param        budgetId      path  uint64  true  "ID of the budget"
+// @Param        categoryId  path  uint64  true  "ID of the category"
+// @Param        envelopeId  path  uint64  true  "ID of the envelope"
+// @Param        allocationId  path  uint64  true  "ID of the allocation"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [options]
+func OptionsAllocationDetail(c *gin.Context) {
+	httputil.OptionsGetPatchDelete(c)
 }
 
 // CreateAllocation creates a new allocation.
@@ -106,7 +128,7 @@ func UpdateAllocation(c *gin.Context) {
 
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
@@ -125,7 +147,7 @@ func DeleteAllocation(c *gin.Context) {
 	var allocation models.Allocation
 	err := models.DB.First(&allocation, c.Param("allocationId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 

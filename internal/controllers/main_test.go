@@ -27,8 +27,10 @@ func TestMain(m *testing.M) {
 	}
 
 	budget := models.Budget{
-		Name: "Testing Budget",
-		Note: "GNU: Terry Pratchett",
+		BudgetCreate: models.BudgetCreate{
+			Name: "Testing Budget",
+			Note: "GNU: Terry Pratchett",
+		},
 	}
 	models.DB.Create(&budget)
 

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
@@ -13,24 +14,41 @@ import (
 func RegisterCategoryRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", func(c *gin.Context) {
-			c.Header("allow", "GET, POST")
-		})
+		r.OPTIONS("", OptionsCategoryList)
 		r.GET("", GetCategories)
 		r.POST("", CreateCategory)
 	}
 
 	// Category with ID
 	{
-		r.OPTIONS("/:categoryId", func(c *gin.Context) {
-			c.Header("allow", "GET, PATCH, DELETE")
-		})
+		r.OPTIONS("/:categoryId", OptionsCategoryDetail)
 		r.GET("/:categoryId", GetCategory)
 		r.PATCH("/:categoryId", UpdateCategory)
 		r.DELETE("/:categoryId", DeleteCategory)
 	}
 
 	RegisterEnvelopeRoutes(r.Group("/:categoryId/envelopes"))
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Categories
+// @Success      204
+// @Param        budgetId  path  uint64  true  "ID of the budget"
+// @Router       /v1/budgets/{budgetId}/categories [options]
+func OptionsCategoryList(c *gin.Context) {
+	httputil.OptionsGetPost(c)
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         Categories
+// @Success      204
+// @Param        budgetId    path  uint64  true  "ID of the budget"
+// @Param        categoryId  path  uint64  true  "ID of the category"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId} [options]
+func OptionsCategoryDetail(c *gin.Context) {
+	httputil.OptionsGetPatchDelete(c)
 }
 
 // CreateCategory creates a new category.
@@ -83,7 +101,7 @@ func UpdateCategory(c *gin.Context) {
 
 	err := models.DB.First(&category, c.Param("categoryId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
@@ -102,7 +120,7 @@ func DeleteCategory(c *gin.Context) {
 	var category models.Category
 	err := models.DB.First(&category, c.Param("categoryId")).Error
 	if err != nil {
-		FetchErrorHandler(c, err)
+		httputil.FetchErrorHandler(c, err)
 		return
 	}
 

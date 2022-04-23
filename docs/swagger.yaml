@@ -1,0 +1,492 @@
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  httputil.HTTPError:
+    properties:
+      error:
+        example: An ID specified in the query string was not a valid uint64
+        type: string
+    type: object
+  models.Budget:
+    properties:
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        example: €
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      name:
+        example: My First Budget
+        type: string
+      note:
+        example: A description so I remember what this was for
+        type: string
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.BudgetCreate:
+    properties:
+      currency:
+        example: €
+        type: string
+      name:
+        example: My First Budget
+        type: string
+      note:
+        example: A description so I remember what this was for
+        type: string
+    type: object
+  models.BudgetListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Budget'
+        type: array
+    type: object
+  models.BudgetResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Budget'
+    type: object
+info:
+  contact: {}
+paths:
+  /:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - General
+  /v1:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - General
+  /v1/budgets:
+    get:
+      description: Returns list of budgets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BudgetListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: List all budgets
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    post:
+      consumes:
+      - application/json
+      description: Creates a new budget
+      parameters:
+      - description: Budget
+        in: body
+        name: budget
+        required: true
+        schema:
+          $ref: '#/definitions/models.BudgetCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create a budget
+      tags:
+      - Budgets
+  /v1/budgets/{budgetId}:
+    delete:
+      description: Deletes an existing budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete a budget
+      tags:
+      - Budgets
+    get:
+      description: Returns a specific budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BudgetResponse'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get a budget
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: Budget
+        in: body
+        name: budget
+        required: true
+        schema:
+          $ref: '#/definitions/models.BudgetCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update a budget
+      tags:
+      - Budgets
+  /v1/budgets/{budgetId}/accounts:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+  /v1/budgets/{budgetId}/accounts/{accountId}:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+  /v1/budgets/{budgetId}/accounts/{accountId}/transactions:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+  /v1/budgets/{budgetId}/categories:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Categories
+  /v1/budgets/{budgetId}/categories/{categoryId}:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Categories
+  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Allocations
+  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId}:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Allocations
+  /v1/budgets/{budgetId}/transactions:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Transactions
+  /v1/budgets/{budgetId}/transactions/{transactionId}:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the transaction
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Transactions
+  /version:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - General
+swagger: "2.0"

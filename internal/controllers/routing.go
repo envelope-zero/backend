@@ -7,12 +7,17 @@ import (
 	"os"
 	"time"
 
+	"github.com/envelope-zero/backend/docs"
+	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // This is set at build time, see Makefile.
@@ -90,16 +95,14 @@ func Router() (*gin.Engine, error) {
 	r.GET("", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"links": map[string]string{
-				"v1":      requestURL(c) + "v1",
+				"docs":    requestURL(c) + "docs/index.html",
 				"version": requestURL(c) + "version",
+				"v1":      requestURL(c) + "v1",
 			},
 		})
 	})
 
-	// Options lists the allowed HTTP verbs
-	r.OPTIONS("", func(c *gin.Context) {
-		c.Header("allow", "GET")
-	})
+	r.OPTIONS("", OptionsRoot)
 
 	r.GET("/version", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -109,9 +112,13 @@ func Router() (*gin.Engine, error) {
 		})
 	})
 
-	r.OPTIONS("/version", func(c *gin.Context) {
-		c.Header("allow", "GET")
-	})
+	r.OPTIONS("/version", OptionsVersion)
+
+	docs.SwaggerInfo.Title = "Envelope Zero"
+	docs.SwaggerInfo.Version = version
+	docs.SwaggerInfo.Description = "The backend for Envelope Zero, a zero based envelope budgeting solution. Check out the source code at https://github.com/envelope-zero/backend."
+
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API v1 setup
 	v1 := r.Group("/v1")
@@ -124,13 +131,38 @@ func Router() (*gin.Engine, error) {
 			})
 		})
 
-		v1.OPTIONS("", func(c *gin.Context) {
-			c.Header("allow", "GET")
-		})
+		v1.OPTIONS("", OptionsV1)
 	}
 
 	budgets := v1.Group("/budgets")
 	RegisterBudgetRoutes(budgets)
 
 	return r, nil
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         General
+// @Success      204
+// @Router       / [options]
+func OptionsRoot(c *gin.Context) {
+	httputil.OptionsGet(c)
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         General
+// @Success      204
+// @Router       /version [options]
+func OptionsVersion(c *gin.Context) {
+	httputil.OptionsGet(c)
+}
+
+// @Summary      Allowed HTTP verbs
+// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags         General
+// @Success      204
+// @Router       /v1 [options]
+func OptionsV1(c *gin.Context) {
+	httputil.OptionsGet(c)
 }
