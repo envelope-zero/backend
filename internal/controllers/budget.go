@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -37,7 +38,7 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Budgets
 // @Success      204
-// @Failure      500  {object}  httputil.HTTPError
+// @Failure      500       {object}  httputil.HTTPError
 // @Router       /v1/budgets [options]
 func OptionsBudgetList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
@@ -47,6 +48,8 @@ func OptionsBudgetList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Budgets
 // @Success      204
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
 // @Failure      500       {object}  httputil.HTTPError
 // @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId} [options]
@@ -59,35 +62,35 @@ func OptionsBudgetDetail(c *gin.Context) {
 // @Tags         Budgets
 // @Accept       json
 // @Produce      json
+// @Success      201     {object}  BudgetResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      500       {object}  httputil.HTTPError
 // @Param        budget    body      models.BudgetCreate  true  "Budget"
-// @Success      201     {object}  models.BudgetResponse
-// @Failure      400       {object}  httputil.HTTPError
-// @Failure      500  {object}  httputil.HTTPError
 // @Router       /v1/budgets [post]
 func CreateBudget(c *gin.Context) {
 	var data models.Budget
 
-	if status, err := bindData(c, &data); err != nil {
+	if status, err := httputil.BindData(c, &data); err != nil {
 		httputil.NewError(c, status, err)
 		return
 	}
 
 	models.DB.Create(&data)
-	c.JSON(http.StatusCreated, gin.H{"data": data})
+	c.JSON(http.StatusCreated, BudgetResponse{Data: data})
 }
 
 // @Summary      List all budgets
 // @Description  Returns list of budgets
 // @Tags         Budgets
 // @Produce      json
-// @Success      200  {object}  models.BudgetListResponse
-// @Failure      500  {object}  httputil.HTTPError
+// @Success      200  {object}  BudgetListResponse
+// @Failure      500       {object}  httputil.HTTPError
 // @Router       /v1/budgets [get]
 func GetBudgets(c *gin.Context) {
 	var budgets []models.Budget
 	models.DB.Find(&budgets)
 
-	c.JSON(http.StatusOK, models.BudgetListResponse{
+	c.JSON(http.StatusOK, BudgetListResponse{
 		Data: budgets,
 	})
 }
@@ -96,13 +99,14 @@ func GetBudgets(c *gin.Context) {
 // @Description  Returns a specific budget
 // @Tags         Budgets
 // @Produce      json
-// @Param        budgetId  path      uint64  true  "ID of the budget"
-// @Success      200       {object}  models.BudgetResponse
+// @Success      200  {object}  BudgetResponse
+// @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500  {object}  httputil.HTTPError
+// @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId} [get]
 func GetBudget(c *gin.Context) {
-	budget, err := getBudget(c)
+	budget, err := getBudgetResource(c)
 	if err != nil {
 		return
 	}
@@ -115,7 +119,7 @@ func GetBudget(c *gin.Context) {
 	}
 
 	if !month.Month.IsZero() {
-		envelopes, err := getEnvelopes(c)
+		envelopes, err := getEnvelopeResources(c)
 		if err != nil {
 			return
 		}
@@ -134,63 +138,109 @@ func GetBudget(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": budget, "links": map[string]string{
-		"accounts":     requestURL(c) + "/accounts",
-		"categories":   requestURL(c) + "/categories",
-		"transactions": requestURL(c) + "/transactions",
-		"month":        requestURL(c) + "?month=YYYY-MM",
-	}})
+	c.JSON(http.StatusOK, newBudgetResponse(c))
 }
 
 // @Summary      Update a budget
-// @Description  Update an existing budget
+// @Description  Update an existing budget. Only values to be updated need to be specified.
 // @Tags         Budgets
 // @Accept       json
 // @Produce      json
-// @Param        budgetId  path      uint64               true  "ID of the budget"
-// @Param        budget  body      models.BudgetCreate  true  "Budget"
-// @Success      200       {object}  models.BudgetResponse
+// @Success      200  {object}  BudgetResponse
 // @Failure      400     {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500  {object}  httputil.HTTPError
+// @Param        budgetId  path      uint64               true  "ID of the budget"
+// @Param        budget  body      models.BudgetCreate  true  "Budget"
 // @Router       /v1/budgets/{budgetId} [patch]
 func UpdateBudget(c *gin.Context) {
-	var budget models.Budget
-
-	err := models.DB.First(&budget, c.Param("budgetId")).Error
-	// Return the apporpriate error: 404 if not found, 500 on all others
+	budget, err := getBudgetResource(c)
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
 	var data models.Budget
-	if status, err := bindData(c, &data); err != nil {
-		c.JSON(status, gin.H{"error": err.Error()})
+	if status, err := httputil.BindData(c, &data); err != nil {
+		httputil.NewError(c, status, err)
 		return
 	}
 
 	models.DB.Model(&budget).Updates(data)
-	c.JSON(http.StatusOK, gin.H{"data": budget})
+	c.JSON(http.StatusOK, newBudgetResponse(c))
 }
 
 // @Summary      Delete a budget
 // @Description  Deletes an existing budget
 // @Tags         Budgets
-// @Param        budgetId  path  uint64  true  "ID of the budget"
 // @Success      204
+// @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500     {object}  httputil.HTTPError
+// @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId} [delete]
 func DeleteBudget(c *gin.Context) {
-	var budget models.Budget
-	err := models.DB.First(&budget, c.Param("budgetId")).Error
+	budget, err := getBudgetResource(c)
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
 		return
 	}
 
 	models.DB.Delete(&budget)
 
 	c.JSON(http.StatusNoContent, gin.H{})
+}
+
+// getBudgetResource verifies that the budget from the URL parameters exists and returns it.
+func getBudgetResource(c *gin.Context) (models.Budget, error) {
+	var budget models.Budget
+
+	budgetID, err := httputil.ParseID(c, "budgetId")
+	if err != nil {
+		return models.Budget{}, err
+	}
+
+	// Check that the budget exists. If not, return a 404
+	err = models.DB.Where(&models.Budget{
+		Model: models.Model{
+			ID: budgetID,
+		},
+	}).First(&budget).Error
+	if err != nil {
+		httputil.FetchErrorHandler(c, err)
+		return models.Budget{}, err
+	}
+
+	return budget, nil
+}
+
+type BudgetListResponse struct {
+	Data []models.Budget `json:"data"`
+}
+
+type BudgetResponse struct {
+	Data  models.Budget `json:"data"`
+	Links BudgetLinks   `json:"links"`
+}
+
+type BudgetLinks struct {
+	Accounts     string `json:"accounts" example:"https://example.com/api/v1/budgets/2/accounts"`
+	Categories   string `json:"categories" example:"https://example.com/api/v1/budgets/2/categories"`
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/budgets/2/transactions"`
+	Month        string `json:"month" example:"https://example.com/api/v1/budgets/2?month=2022-03"`
+}
+
+func newBudgetResponse(c *gin.Context) BudgetResponse {
+	// When this function is called, the resource has already been validated
+	budget, _ := getBudgetResource(c)
+
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d", budget.ID)
+
+	return BudgetResponse{
+		Data: budget,
+		Links: BudgetLinks{
+			Accounts:     url + "/accounts",
+			Categories:   url + "/transactions",
+			Transactions: url + "/transactions",
+			Month:        url + "?month=YYYY-MM",
+		},
+	}
 }

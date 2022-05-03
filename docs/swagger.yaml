@@ -1,4 +1,159 @@
 definitions:
+  controllers.AccountLinks:
+    properties:
+      transactions:
+        example: https://example.com/api/v1/budgets/3/accounts/17/transactions
+        type: string
+    type: object
+  controllers.AccountListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Account'
+        type: array
+    type: object
+  controllers.AccountResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Account'
+      links:
+        $ref: '#/definitions/controllers.AccountLinks'
+    type: object
+  controllers.AllocationListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Allocation'
+        type: array
+    type: object
+  controllers.AllocationResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Allocation'
+    type: object
+  controllers.BudgetLinks:
+    properties:
+      accounts:
+        example: https://example.com/api/v1/budgets/2/accounts
+        type: string
+      categories:
+        example: https://example.com/api/v1/budgets/2/categories
+        type: string
+      month:
+        example: https://example.com/api/v1/budgets/2?month=2022-03
+        type: string
+      transactions:
+        example: https://example.com/api/v1/budgets/2/transactions
+        type: string
+    type: object
+  controllers.BudgetListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Budget'
+        type: array
+    type: object
+  controllers.BudgetResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Budget'
+      links:
+        $ref: '#/definitions/controllers.BudgetLinks'
+    type: object
+  controllers.CategoryLinks:
+    properties:
+      envelopes:
+        example: https://example.com/api/v1/budgets/5/categories/7/envelopes
+        type: string
+    type: object
+  controllers.CategoryListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Category'
+        type: array
+    type: object
+  controllers.CategoryResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Category'
+      links:
+        $ref: '#/definitions/controllers.CategoryLinks'
+    type: object
+  controllers.EnvelopeLinks:
+    properties:
+      allocations:
+        example: https://example.com/api/v1/budgets/2/categories/5/envelopes/1/allocations
+        type: string
+      month:
+        example: https://example.com/api/v1/budgets/2/categories/5/envelopes/1?month=2019-03
+        type: string
+    type: object
+  controllers.EnvelopeListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Envelope'
+        type: array
+    type: object
+  controllers.EnvelopeResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Envelope'
+      links:
+        $ref: '#/definitions/controllers.EnvelopeLinks'
+    type: object
+  controllers.RootLinks:
+    properties:
+      docs:
+        example: https://example.com/api/docs/index.html
+        type: string
+      v1:
+        example: https://example.com/api/v1
+        type: string
+      version:
+        example: https://example.com/api/version
+        type: string
+    type: object
+  controllers.RootResponse:
+    properties:
+      links:
+        $ref: '#/definitions/controllers.RootLinks'
+    type: object
+  controllers.TransactionListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Transaction'
+        type: array
+    type: object
+  controllers.TransactionResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Transaction'
+    type: object
+  controllers.V1Links:
+    properties:
+      budgets:
+        example: https://example.com/api/v1
+        type: string
+    type: object
+  controllers.V1Response:
+    properties:
+      links:
+        $ref: '#/definitions/controllers.V1Links'
+    type: object
+  controllers.VersionObject:
+    properties:
+      version:
+        example: 1.1.0
+        type: string
+    type: object
+  controllers.VersionResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controllers.VersionObject'
+    type: object
   gorm.DeletedAt:
     properties:
       time:
@@ -12,6 +167,84 @@ definitions:
       error:
         example: An ID specified in the query string was not a valid uint64
         type: string
+    type: object
+  models.Account:
+    properties:
+      balance:
+        type: number
+      budgetId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      external:
+        type: boolean
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      name:
+        type: string
+      note:
+        type: string
+      onBudget:
+        description: 'Always false when external: true'
+        type: boolean
+      reconciledBalance:
+        type: number
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.AccountCreate:
+    properties:
+      budgetId:
+        type: integer
+      external:
+        type: boolean
+      name:
+        type: string
+      note:
+        type: string
+      onBudget:
+        description: 'Always false when external: true'
+        type: boolean
+    type: object
+  models.Allocation:
+    properties:
+      amount:
+        type: number
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      envelopeId:
+        type: integer
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      month:
+        type: integer
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+      year:
+        type: integer
+    type: object
+  models.AllocationCreate:
+    properties:
+      amount:
+        type: number
+      envelopeId:
+        type: integer
+      month:
+        type: integer
+      year:
+        type: integer
     type: object
   models.Budget:
     properties:
@@ -49,22 +282,130 @@ definitions:
         example: A description so I remember what this was for
         type: string
     type: object
-  models.BudgetListResponse:
+  models.Category:
     properties:
-      data:
-        items:
-          $ref: '#/definitions/models.Budget'
-        type: array
+      budgetId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      name:
+        type: string
+      note:
+        type: string
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
-  models.BudgetResponse:
+  models.CategoryCreate:
     properties:
-      data:
-        $ref: '#/definitions/models.Budget'
+      budgetId:
+        type: integer
+      name:
+        type: string
+      note:
+        type: string
+    type: object
+  models.Envelope:
+    properties:
+      categoryId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      name:
+        type: string
+      note:
+        type: string
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.EnvelopeCreate:
+    properties:
+      categoryId:
+        type: integer
+      name:
+        type: string
+      note:
+        type: string
+    type: object
+  models.Transaction:
+    properties:
+      amount:
+        type: number
+      budgetId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      date:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      destinationAccountId:
+        type: integer
+      envelopeId:
+        type: integer
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      note:
+        type: string
+      reconciled:
+        type: boolean
+      sourceAccountId:
+        type: integer
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.TransactionCreate:
+    properties:
+      amount:
+        type: number
+      budgetId:
+        type: integer
+      date:
+        type: string
+      destinationAccountId:
+        type: integer
+      envelopeId:
+        type: integer
+      note:
+        type: string
+      reconciled:
+        type: boolean
+      sourceAccountId:
+        type: integer
     type: object
 info:
   contact: {}
 paths:
   /:
+    get:
+      description: Entrypoint for the API, listing all endpoints
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.RootResponse'
+      summary: API root
+      tags:
+      - General
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -75,6 +416,15 @@ paths:
       tags:
       - General
   /v1:
+    get:
+      description: Returns general information about the v1 API
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.V1Response'
+      tags:
+      - General
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -93,7 +443,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.BudgetListResponse'
+            $ref: '#/definitions/controllers.BudgetListResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -131,7 +481,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.BudgetResponse'
+            $ref: '#/definitions/controllers.BudgetResponse'
         "400":
           description: Bad Request
           schema:
@@ -155,6 +505,10 @@ paths:
       responses:
         "204":
           description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
         "404":
           description: ""
         "500":
@@ -178,7 +532,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.BudgetResponse'
+            $ref: '#/definitions/controllers.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
         "404":
           description: ""
         "500":
@@ -200,6 +558,12 @@ paths:
       responses:
         "204":
           description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
         "500":
           description: Internal Server Error
           schema:
@@ -210,7 +574,8 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update an existing budget
+      description: Update an existing budget. Only values to be updated need to be
+        specified.
       parameters:
       - description: ID of the budget
         in: path
@@ -229,7 +594,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.BudgetResponse'
+            $ref: '#/definitions/controllers.BudgetResponse'
         "400":
           description: Bad Request
           schema:
@@ -244,6 +609,34 @@ paths:
       tags:
       - Budgets
   /v1/budgets/{budgetId}/accounts:
+    get:
+      description: Returns a list of all accounts for the budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: List accounts
+      tags:
+      - Accounts
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -256,10 +649,114 @@ paths:
       responses:
         "204":
           description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
       summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+    post:
+      description: Create a new account for a specific budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: Account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create account
       tags:
       - Accounts
   /v1/budgets/{budgetId}/accounts/{accountId}:
+    delete:
+      description: Deletes the specified account.
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete account
+      tags:
+      - Accounts
+    get:
+      description: Returns a specific account
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get account
+      tags:
+      - Accounts
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -277,10 +774,88 @@ paths:
       responses:
         "204":
           description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
       summary: Allowed HTTP verbs
       tags:
       - Accounts
+    patch:
+      description: Updates an account. Only values to be updated need to be specified.
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      - description: Account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update account
+      tags:
+      - Accounts
   /v1/budgets/{budgetId}/accounts/{accountId}/transactions:
+    get:
+      description: Returns a list of all transactions for the account requested
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.TransactionListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: List all transactions for an account
+      tags:
+      - Accounts
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -297,11 +872,45 @@ paths:
         type: integer
       responses:
         "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
           description: ""
       summary: Allowed HTTP verbs
       tags:
       - Accounts
   /v1/budgets/{budgetId}/categories:
+    get:
+      description: Returns the full list of all categories for a specific budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CategoryListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get all categories for a budget
+      tags:
+      - Categories
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -314,10 +923,112 @@ paths:
       responses:
         "204":
           description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
       summary: Allowed HTTP verbs
       tags:
       - Categories
+    post:
+      description: Create a new category for a specific budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.CategoryCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create category
+      tags:
+      - Categories
   /v1/budgets/{budgetId}/categories/{categoryId}:
+    delete:
+      description: Deletes an existing category
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete a category
+      tags:
+      - Categories
+    get:
+      description: Returns a category by its ID
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get category
+      tags:
+      - Categories
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -335,10 +1046,91 @@ paths:
       responses:
         "204":
           description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
       summary: Allowed HTTP verbs
       tags:
       - Categories
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing category. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.CategoryCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update a category
+      tags:
+      - Categories
   /v1/budgets/{budgetId}/categories/{categoryId}/envelopes:
+    get:
+      description: Returns the full list of all envelopes for a specific category
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get all envelopes for a category
+      tags:
+      - Envelopes
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -359,7 +1151,118 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - Envelopes
+    post:
+      description: Create a new envelope for a specific category
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: Envelope
+        in: body
+        name: envelope
+        required: true
+        schema:
+          $ref: '#/definitions/models.EnvelopeCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create envelope
+      tags:
+      - Envelopes
   /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}:
+    delete:
+      description: Deletes an existing envelope
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete an envelope
+      tags:
+      - Envelopes
+    get:
+      description: Returns an envelope by its ID
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get envelope
+      tags:
+      - Envelopes
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -385,7 +1288,92 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - Envelopes
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing envelope. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      - description: Envelope
+        in: body
+        name: envelope
+        required: true
+        schema:
+          $ref: '#/definitions/models.EnvelopeCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update an envelope
+      tags:
+      - Envelopes
   /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations:
+    get:
+      description: Returns all allocations for an envelope
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AllocationListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get all allocations for an envelope
+      tags:
+      - Allocations
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -411,7 +1399,134 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - Allocations
+    post:
+      description: Create a new allocation of funds to an envelope for a specific
+        month
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      - description: Allocation
+        in: body
+        name: allocation
+        required: true
+        schema:
+          $ref: '#/definitions/models.AllocationCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.AllocationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create allocations
+      tags:
+      - Allocations
   /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId}:
+    delete:
+      description: Deletes an existing allocation
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete an allocation
+      tags:
+      - Allocations
+    get:
+      description: Returns an allocation by its ID
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AllocationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get allocation
+      tags:
+      - Allocations
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -442,7 +1557,87 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - Allocations
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing allocation. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      - description: Allocation
+        in: body
+        name: allocation
+        required: true
+        schema:
+          $ref: '#/definitions/models.AllocationCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AllocationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update an allocation
+      tags:
+      - Allocations
   /v1/budgets/{budgetId}/transactions:
+    get:
+      description: Returns all transactions for a specific budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.TransactionListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get all transactions
+      tags:
+      - Transactions
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -458,7 +1653,103 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - Transactions
+    post:
+      description: Create a new transaction for the specified budget
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: Transaction
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/models.TransactionCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create transaction
+      tags:
+      - Transactions
   /v1/budgets/{budgetId}/transactions/{transactionId}:
+    delete:
+      description: Deletes an existing transaction
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the transaction
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete a transaction
+      tags:
+      - Transactions
+    get:
+      description: Returns a transaction by its ID
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the transaction
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get transaction
+      tags:
+      - Transactions
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -479,7 +1770,58 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - Transactions
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing transaction. Only values to be updated need
+        to be specified.
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the transaction
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      - description: Transaction
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/models.TransactionCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update a transaction
+      tags:
+      - Transactions
   /version:
+    get:
+      description: Returns the software version of the API
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.VersionResponse'
+      tags:
+      - General
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs

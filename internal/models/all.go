@@ -10,7 +10,7 @@ import (
 //
 // The incoming Transactions fields is used to add the amount of all matching transactions to the overall sum
 // The outgoing Transactions fields is used to subtract the amount of all matching transactions from the overall sum.
-func TransactionsSum(incoming, outgoing Transaction) (decimal.Decimal, error) {
+func TransactionsSum(incoming, outgoing Transaction) decimal.Decimal {
 	var outgoingSum, incomingSum decimal.NullDecimal
 
 	_ = DB.Table("transactions").
@@ -25,7 +25,7 @@ func TransactionsSum(incoming, outgoing Transaction) (decimal.Decimal, error) {
 		Row().
 		Scan(&incomingSum)
 
-	return incomingSum.Decimal.Sub(outgoingSum.Decimal), nil
+	return incomingSum.Decimal.Sub(outgoingSum.Decimal)
 }
 
 // RawTransactions returns a list of transactions for a raw SQL query.

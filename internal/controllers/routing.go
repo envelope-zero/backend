@@ -91,26 +91,9 @@ func Router() (*gin.Engine, error) {
 		return nil, fmt.Errorf("Database connection failed with: %s", err.Error())
 	}
 
-	// The root path lists the available versions
-	r.GET("", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"links": map[string]string{
-				"docs":    requestURL(c) + "docs/index.html",
-				"version": requestURL(c) + "version",
-				"v1":      requestURL(c) + "v1",
-			},
-		})
-	})
-
+	r.GET("", GetRoot)
 	r.OPTIONS("", OptionsRoot)
-
-	r.GET("/version", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"data": map[string]string{
-				"version": version,
-			},
-		})
-	})
+	r.GET("/version", VersionRoot)
 
 	r.OPTIONS("/version", OptionsVersion)
 
@@ -123,14 +106,7 @@ func Router() (*gin.Engine, error) {
 	// API v1 setup
 	v1 := r.Group("/v1")
 	{
-		v1.GET("", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"links": map[string]string{
-					"budgets": requestURL(c) + "/budgets",
-				},
-			})
-		})
-
+		v1.GET("", GetV1)
 		v1.OPTIONS("", OptionsV1)
 	}
 
@@ -138,6 +114,53 @@ func Router() (*gin.Engine, error) {
 	RegisterBudgetRoutes(budgets)
 
 	return r, nil
+}
+
+type RootResponse struct {
+	Links RootLinks `json:"links"`
+}
+
+type RootLinks struct {
+	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"`
+	Version string `json:"version" example:"https://example.com/api/version"`
+	V1      string `json:"v1" example:"https://example.com/api/v1"`
+}
+
+// @Summary      API root
+// @Description  Entrypoint for the API, listing all endpoints
+// @Tags         General
+// @Success      200  {object}  RootResponse
+// @Router       / [get]
+func GetRoot(c *gin.Context) {
+	url := httputil.RequestHost(c)
+
+	c.JSON(http.StatusOK, RootResponse{
+		Links: RootLinks{
+			Docs:    url + "/docs/index.html",
+			Version: url + "/version",
+			V1:      httputil.RequestPathV1(c),
+		},
+	})
+}
+
+type VersionResponse struct {
+	Data VersionObject `json:"data"`
+}
+type VersionObject struct {
+	Version string `json:"version" example:"1.1.0"`
+}
+
+// @Sumary       API version
+// @Description  Returns the software version of the API
+// @Tags         General
+// @Success      200  {object}  VersionResponse
+// @Router       /version [get]
+func VersionRoot(c *gin.Context) {
+	c.JSON(http.StatusOK, VersionResponse{
+		Data: VersionObject{
+			Version: version,
+		},
+	})
 }
 
 // @Summary      Allowed HTTP verbs
@@ -156,6 +179,27 @@ func OptionsRoot(c *gin.Context) {
 // @Router       /version [options]
 func OptionsVersion(c *gin.Context) {
 	httputil.OptionsGet(c)
+}
+
+type V1Response struct {
+	Links V1Links `json:"links"`
+}
+
+type V1Links struct {
+	Budgets string `json:"budgets" example:"https://example.com/api/v1"`
+}
+
+// @Sumary       v1 API
+// @Description  Returns general information about the v1 API
+// @Tags         General
+// @Success      200  {object}  V1Response
+// @Router       /v1 [get]
+func GetV1(c *gin.Context) {
+	c.JSON(http.StatusOK, V1Response{
+		Links: V1Links{
+			Budgets: httputil.RequestPathV1(c) + "/budgets",
+		},
+	})
 }
 
 // @Summary      Allowed HTTP verbs

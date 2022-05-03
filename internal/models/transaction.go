@@ -10,17 +10,21 @@ import (
 // Transaction represents a transaction between two accounts.
 type Transaction struct {
 	Model
+	TransactionCreate
+	Budget             Budget   `json:"-"`
+	SourceAccount      Account  `json:"-"`
+	DestinationAccount Account  `json:"-"`
+	Envelope           Envelope `json:"-"`
+}
+
+type TransactionCreate struct {
 	Date                 time.Time       `json:"date,omitempty"`
 	Amount               decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)"`
 	Note                 string          `json:"note,omitempty"`
 	BudgetID             uint64          `json:"budgetId,omitempty"`
-	Budget               Budget          `json:"-"`
 	SourceAccountID      uint64          `json:"sourceAccountId,omitempty"`
-	SourceAccount        Account         `json:"-"`
 	DestinationAccountID uint64          `json:"destinationAccountId,omitempty"`
-	DestinationAccount   Account         `json:"-"`
 	EnvelopeID           uint64          `json:"envelopeId,omitempty"`
-	Envelope             Envelope        `json:"-"`
 	Reconciled           bool            `json:"reconciled"`
 }
 
