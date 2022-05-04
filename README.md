@@ -21,14 +21,15 @@ The recommended and only supported way for production deployments is to run the 
 
 The backend can be configured with the following environment variables. None are required.
 
-| Name          | Type                      | Default                                              | Description                                                                          |
-| ------------- | ------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `GIN_MODE`    | One of `release`, `debug` | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment! |
-| `LOG_FORMAT`  | One of `json`, `human`    | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                  |
-| `DB_HOST`     | `string`                  |                                                      | hostname or address of postgresql                                                    |
-| `DB_USER`     | `string`                  |                                                      | username for the postgresql connection                                               |
-| `DB_PASSWORD` | `string`                  |                                                      | password for `DB_USER`                                                               |
-| `DB_NAME`     | `string`                  |                                                      | name of the database to use                                                          |
+| Name                 | Type                      | Default                                              | Description                                                                                                                                                       |
+| -------------------- | ------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GIN_MODE`           | One of `release`, `debug` | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment!                                                                              |
+| `LOG_FORMAT`         | One of `json`, `human`    | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                                                                                               |
+| `DB_HOST`            | `string`                  |                                                      | hostname or address of postgresql                                                                                                                                 |
+| `DB_USER`            | `string`                  |                                                      | username for the postgresql connection                                                                                                                            |
+| `DB_PASSWORD`        | `string`                  |                                                      | password for `DB_USER`                                                                                                                                            |
+| `DB_NAME`            | `string`                  |                                                      | name of the database to use                                                                                                                                       |
+| `CORS_ALLOW_ORIGINS` | `string`                  |                                                      | hosts that are allowed to use cross origin requests, separated by spaces. Only set this when your frontend runs on a different host and/or port than the backend! |
 
 ### Deployment methods
 
