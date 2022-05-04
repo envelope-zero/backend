@@ -5,11 +5,13 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/envelope-zero/backend/docs"
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
@@ -77,6 +79,19 @@ func Router() (*gin.Engine, error) {
 				Str("user-agent", c.Request.UserAgent()).
 				Logger()
 		})))
+
+	// CORS settings
+	allowOrigins, ok := os.LookupEnv("CORS_ALLOW_ORIGINS")
+	if ok {
+		log.Debug().Str("allowOrigins", allowOrigins).Msg("CORS")
+
+		r.Use(cors.New(cors.Config{
+			AllowOrigins:     strings.Fields(allowOrigins),
+			AllowMethods:     []string{"OPTIONS", "GET", "POST", "PATCH", "DELETE"},
+			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+			AllowCredentials: true,
+		}))
+	}
 
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, numHandlers int) {
 		log.Debug().Str("method", httpMethod).Str("path", absolutePath).Str("handler", handlerName).Int("handlers", numHandlers).Msg("route")

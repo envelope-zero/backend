@@ -27,3 +27,13 @@ func TestGinMode(t *testing.T) {
 
 	os.Unsetenv("GIN_MODE")
 }
+
+// TestCorsSetting checks that setting of CORS works.
+// It does not check the actual headers as this is already done in testing of the module.
+func TestCorsSetting(t *testing.T) {
+	os.Setenv("CORS_ALLOW_ORIGINS", "http://localhost:3000 https://example.com")
+	_, err := controllers.Router()
+
+	assert.Nil(t, err)
+	os.Unsetenv("CORS_ALLOW_ORIGINS")
+}
