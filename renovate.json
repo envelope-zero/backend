@@ -32,5 +32,13 @@
         "^# renovate: datasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s.*@(?<currentValue>.*)"
       ]
     }
+  ],
+  "packageRules": [
+    {
+      "description": "Automatically merge minor updates for GitHub actions and go dependencies",
+      "matchManagers": ["github-actions", "gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    }
   ]
 }
