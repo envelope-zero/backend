@@ -40,7 +40,7 @@ definitions:
         example: https://example.com/api/v1/budgets/2/categories
         type: string
       month:
-        example: https://example.com/api/v1/budgets/2?month=2022-03
+        example: https://example.com/api/v1/budgets/2/2022-03
         type: string
       transactions:
         example: https://example.com/api/v1/budgets/2/transactions
@@ -52,6 +52,11 @@ definitions:
         items:
           $ref: '#/definitions/models.Budget'
         type: array
+    type: object
+  controllers.BudgetMonthResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.BudgetMonth'
     type: object
   controllers.BudgetResponse:
     properties:
@@ -86,7 +91,7 @@ definitions:
         example: https://example.com/api/v1/budgets/2/categories/5/envelopes/1/allocations
         type: string
       month:
-        example: https://example.com/api/v1/budgets/2/categories/5/envelopes/1?month=2019-03
+        example: https://example.com/api/v1/budgets/2/categories/5/envelopes/1/2019-03
         type: string
     type: object
   controllers.EnvelopeListResponse:
@@ -95,6 +100,11 @@ definitions:
         items:
           $ref: '#/definitions/models.Envelope'
         type: array
+    type: object
+  controllers.EnvelopeMonthResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.EnvelopeMonth'
     type: object
   controllers.EnvelopeResponse:
     properties:
@@ -282,6 +292,22 @@ definitions:
         example: A description so I remember what this was for
         type: string
     type: object
+  models.BudgetMonth:
+    properties:
+      envelopes:
+        items:
+          $ref: '#/definitions/models.EnvelopeMonth'
+        type: array
+      id:
+        example: 23
+        type: integer
+      month:
+        example: "2006-05-04T15:02:01.000000Z"
+        type: string
+      name:
+        example: A test envelope
+        type: string
+    type: object
   models.Category:
     properties:
       budgetId:
@@ -341,6 +367,21 @@ definitions:
         type: string
       note:
         type: string
+    type: object
+  models.EnvelopeMonth:
+    properties:
+      allocation:
+        type: number
+      balance:
+        type: number
+      id:
+        type: integer
+      month:
+        type: string
+      name:
+        type: string
+      spent:
+        type: number
     type: object
   models.Transaction:
     properties:
@@ -606,6 +647,40 @@ paths:
           schema:
             $ref: '#/definitions/httputil.HTTPError'
       summary: Update a budget
+      tags:
+      - Budgets
+  /v1/budgets/{budgetId}/{month}:
+    get:
+      description: Returns data about a budget for a for a specific month
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.BudgetMonthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get Budget month data
       tags:
       - Budgets
   /v1/budgets/{budgetId}/accounts:
@@ -1333,6 +1408,55 @@ paths:
           schema:
             $ref: '#/definitions/httputil.HTTPError'
       summary: Update an envelope
+      tags:
+      - Envelopes
+  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/{month}:
+    get:
+      description: Returns data about an envelope for a for a specific month
+      parameters:
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the budget
+        in: path
+        name: budgetId
+        required: true
+        type: integer
+      - description: ID of the category
+        in: path
+        name: categoryId
+        required: true
+        type: integer
+      - description: ID of the envelope
+        in: path
+        name: envelopeId
+        required: true
+        type: integer
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeMonthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get Envelope month data
       tags:
       - Envelopes
   /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations:

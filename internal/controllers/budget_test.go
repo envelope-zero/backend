@@ -108,7 +108,7 @@ func TestBudgetMonth(t *testing.T) {
 		response BudgetMonthResponse
 	}{
 		{
-			"/v1/budgets/1?month=2022-01",
+			"/v1/budgets/1/2022-01",
 			BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -126,7 +126,7 @@ func TestBudgetMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1?month=2022-02",
+			"/v1/budgets/1/2022-02",
 			BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
@@ -144,7 +144,7 @@ func TestBudgetMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1?month=2022-03",
+			"/v1/budgets/1/2022-03",
 			BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
@@ -182,14 +182,20 @@ func TestBudgetMonth(t *testing.T) {
 
 // TestBudgetMonthInvalid verifies that non-parseable requests return a HTTP 400 Bad Request.
 func TestBudgetMonthInvalid(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/1?month=Stonks!", "")
+	r := test.Request(t, "GET", "/v1/budgets/1/Stonks!", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
 func TestBudgetMonthNonExistent(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/831?month=2022-01", "")
+	r := test.Request(t, "GET", "/v1/budgets/831/2022-01", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
+}
+
+// TestBudgetMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
+func TestBudgetMonthZero(t *testing.T) {
+	r := test.Request(t, "GET", "/v1/budgets/1/0001-01", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestUpdateBudget(t *testing.T) {

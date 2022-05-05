@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -9,6 +10,26 @@ import (
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
 )
+
+type BudgetListResponse struct {
+	Data []models.Budget `json:"data"`
+}
+
+type BudgetResponse struct {
+	Data  models.Budget `json:"data"`
+	Links BudgetLinks   `json:"links"`
+}
+
+type BudgetLinks struct {
+	Accounts     string `json:"accounts" example:"https://example.com/api/v1/budgets/2/accounts"`
+	Categories   string `json:"categories" example:"https://example.com/api/v1/budgets/2/categories"`
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/budgets/2/transactions"`
+	Month        string `json:"month" example:"https://example.com/api/v1/budgets/2/2022-03"`
+}
+
+type BudgetMonthResponse struct {
+	Data models.BudgetMonth `json:"data"`
+}
 
 // RegisterBudgetRoutes registers the routes for budgets with
 // the RouterGroup that is passed.
@@ -24,6 +45,7 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 	{
 		r.OPTIONS("/:budgetId", OptionsBudgetDetail)
 		r.GET("/:budgetId", GetBudget)
+		r.GET("/:budgetId/:month", GetBudgetMonth)
 		r.PATCH("/:budgetId", UpdateBudget)
 		r.DELETE("/:budgetId", DeleteBudget)
 	}
@@ -102,43 +124,61 @@ func GetBudgets(c *gin.Context) {
 // @Success      200  {object}  BudgetResponse
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Failure      500  {object}  httputil.HTTPError
+// @Failure      500       {object}  httputil.HTTPError
 // @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId} [get]
 func GetBudget(c *gin.Context) {
+	_, err := getBudgetResource(c)
+	if err != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, newBudgetResponse(c))
+}
+
+// @Summary      Get Budget month data
+// @Description  Returns data about a budget for a for a specific month
+// @Tags         Budgets
+// @Produce      json
+// @Success      200  {object}  BudgetMonthResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500  {object}  httputil.HTTPError
+// @Param        budgetId  path      uint64  true  "ID of the budget"
+// @Param        month     path      string  true  "The month in YYYY-MM format"
+// @Router       /v1/budgets/{budgetId}/{month} [get]
+func GetBudgetMonth(c *gin.Context) {
 	budget, err := getBudgetResource(c)
 	if err != nil {
 		return
 	}
 
-	// Parse month from the request
-	var month Month
-	if err := c.ShouldBind(&month); err != nil {
-		httputil.FetchErrorHandler(c, err)
+	var month URIMonth
+	if err := c.BindUri(&month); err != nil {
 		return
 	}
 
-	if !month.Month.IsZero() {
-		envelopes, err := getEnvelopeResources(c)
-		if err != nil {
-			return
-		}
-
-		var envelopeMonths []models.EnvelopeMonth
-		for _, envelope := range envelopes {
-			envelopeMonths = append(envelopeMonths, envelope.Month(month.Month))
-		}
-
-		c.JSON(http.StatusOK, gin.H{"data": models.BudgetMonth{
-			ID:        budget.ID,
-			Name:      budget.Name,
-			Month:     time.Date(month.Month.UTC().Year(), month.Month.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
-			Envelopes: envelopeMonths,
-		}})
+	if month.Month.IsZero() {
+		httputil.NewError(c, http.StatusBadRequest, errors.New("You cannot request data for no month"))
 		return
 	}
 
-	c.JSON(http.StatusOK, newBudgetResponse(c))
+	envelopes, err := getEnvelopeResources(c)
+	if err != nil {
+		return
+	}
+
+	var envelopeMonths []models.EnvelopeMonth
+	for _, envelope := range envelopes {
+		envelopeMonths = append(envelopeMonths, envelope.Month(month.Month))
+	}
+
+	c.JSON(http.StatusOK, BudgetMonthResponse{Data: models.BudgetMonth{
+		ID:        budget.ID,
+		Name:      budget.Name,
+		Month:     time.Date(month.Month.UTC().Year(), month.Month.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
+		Envelopes: envelopeMonths,
+	}})
 }
 
 // @Summary      Update a budget
@@ -212,22 +252,6 @@ func getBudgetResource(c *gin.Context) (models.Budget, error) {
 	return budget, nil
 }
 
-type BudgetListResponse struct {
-	Data []models.Budget `json:"data"`
-}
-
-type BudgetResponse struct {
-	Data  models.Budget `json:"data"`
-	Links BudgetLinks   `json:"links"`
-}
-
-type BudgetLinks struct {
-	Accounts     string `json:"accounts" example:"https://example.com/api/v1/budgets/2/accounts"`
-	Categories   string `json:"categories" example:"https://example.com/api/v1/budgets/2/categories"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/budgets/2/transactions"`
-	Month        string `json:"month" example:"https://example.com/api/v1/budgets/2?month=2022-03"`
-}
-
 func newBudgetResponse(c *gin.Context) BudgetResponse {
 	// When this function is called, the resource has already been validated
 	budget, _ := getBudgetResource(c)
@@ -240,7 +264,7 @@ func newBudgetResponse(c *gin.Context) BudgetResponse {
 			Accounts:     url + "/accounts",
 			Categories:   url + "/transactions",
 			Transactions: url + "/transactions",
-			Month:        url + "?month=YYYY-MM",
+			Month:        url + "/YYYY-MM",
 		},
 	}
 }

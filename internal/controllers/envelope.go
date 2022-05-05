@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -11,7 +12,7 @@ import (
 
 type EnvelopeLinks struct {
 	Allocations string `json:"allocations" example:"https://example.com/api/v1/budgets/2/categories/5/envelopes/1/allocations"`
-	Month       string `json:"month" example:"https://example.com/api/v1/budgets/2/categories/5/envelopes/1?month=2019-03"`
+	Month       string `json:"month" example:"https://example.com/api/v1/budgets/2/categories/5/envelopes/1/2019-03"`
 }
 
 type EnvelopeResponse struct {
@@ -21,6 +22,10 @@ type EnvelopeResponse struct {
 
 type EnvelopeListResponse struct {
 	Data []models.Envelope `json:"data"`
+}
+
+type EnvelopeMonthResponse struct {
+	Data models.EnvelopeMonth `json:"data"`
 }
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -37,6 +42,7 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 	{
 		r.OPTIONS("/:envelopeId", OptionsEnvelopeDetail)
 		r.GET("/:envelopeId", GetEnvelope)
+		r.GET("/:envelopeId/:month", GetEnvelopeMonth)
 		r.PATCH("/:envelopeId", UpdateEnvelope)
 		r.DELETE("/:envelopeId", DeleteEnvelope)
 	}
@@ -138,27 +144,45 @@ func GetEnvelopes(c *gin.Context) {
 // @Param        envelopeId  path      uint64                 true  "ID of the envelope"
 // @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId} [get]
 func GetEnvelope(c *gin.Context) {
+	_, err := getEnvelopeResource(c)
+	if err != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, newEnevlopeResponse(c))
+}
+
+// @Summary      Get Envelope month data
+// @Description  Returns data about an envelope for a for a specific month
+// @Tags         Envelopes
+// @Produce      json
+// @Success      200  {object}  EnvelopeMonthResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404
+// @Failure      500         {object}  httputil.HTTPError
+// @Param        budgetId    path      uint64  true  "ID of the budget"
+// @Param        budgetId    path      uint64  true  "ID of the budget"
+// @Param        categoryId  path      uint64  true  "ID of the category"
+// @Param        envelopeId  path      uint64  true  "ID of the envelope"
+// @Param        month       path      string  true  "The month in YYYY-MM format"
+// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/{month} [get]
+func GetEnvelopeMonth(c *gin.Context) {
+	var month URIMonth
+	if err := c.BindUri(&month); err != nil {
+		return
+	}
+
 	envelope, err := getEnvelopeResource(c)
 	if err != nil {
 		return
 	}
 
-	// Parse the month from the request
-	var month Month
-	if err := c.ShouldBind(&month); err != nil {
-		httputil.FetchErrorHandler(c, err)
+	if month.Month.IsZero() {
+		httputil.NewError(c, http.StatusBadRequest, errors.New("You cannot request data for no month"))
 		return
 	}
 
-	// If a month is requested, return only month specfic data
-	if !month.Month.IsZero() {
-		c.JSON(http.StatusOK, gin.H{
-			"data": envelope.Month(month.Month),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, newEnevlopeResponse(c))
+	c.JSON(http.StatusOK, EnvelopeMonthResponse{Data: envelope.Month(month.Month)})
 }
 
 // @Summary      Update an envelope
@@ -282,7 +306,7 @@ func newEnevlopeResponse(c *gin.Context) EnvelopeResponse {
 		Data: envelope,
 		Links: EnvelopeLinks{
 			Allocations: url + "/allocations",
-			Month:       url + "?month=YYYY-MM",
+			Month:       url + "/YYYY-MM",
 		},
 	}
 }
