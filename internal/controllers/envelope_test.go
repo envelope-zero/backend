@@ -147,7 +147,7 @@ func TestEnvelopeMonth(t *testing.T) {
 		envelopeMonth models.EnvelopeMonth
 	}{
 		{
-			"/v1/budgets/1/categories/1/envelopes/1?month=2022-01",
+			"/v1/budgets/1/categories/1/envelopes/1/2022-01",
 			models.EnvelopeMonth{
 				ID:         1,
 				Name:       "Utilities",
@@ -158,7 +158,7 @@ func TestEnvelopeMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1/categories/1/envelopes/1?month=2022-02",
+			"/v1/budgets/1/categories/1/envelopes/1/2022-02",
 			models.EnvelopeMonth{
 				ID:         1,
 				Name:       "Utilities",
@@ -169,7 +169,7 @@ func TestEnvelopeMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1/categories/1/envelopes/1?month=2022-03",
+			"/v1/budgets/1/categories/1/envelopes/1/2022-03",
 			models.EnvelopeMonth{
 				ID:         1,
 				Name:       "Utilities",
@@ -197,7 +197,13 @@ func TestEnvelopeMonth(t *testing.T) {
 
 func TestEnvelopeMonthInvalid(t *testing.T) {
 	// Test that non-parseable requests produce an error
-	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1?month=Stonks!", "")
+	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1/Stonks!", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+}
+
+// TestEnvelopeMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
+func TestEnvelopeMonthZero(t *testing.T) {
+	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1/0001-01", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 

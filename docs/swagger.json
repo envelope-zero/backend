@@ -1786,6 +1786,78 @@
                 }
             }
         },
+        "/v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/{month}": {
+            "get": {
+                "description": "Returns data about an envelope for a for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Get Envelope month data",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the budget",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the budget",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the category",
+                        "name": "categoryId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID of the envelope",
+                        "name": "envelopeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeMonthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/budgets/{budgetId}/transactions": {
             "get": {
                 "description": "Returns all transactions for a specific budget",
@@ -2085,6 +2157,57 @@
                 }
             }
         },
+        "/v1/budgets/{budgetId}/{month}": {
+            "get": {
+                "description": "Returns data about a budget for a for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Get Budget month data",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the budget",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetMonthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/version": {
             "get": {
                 "description": "Returns the software version of the API",
@@ -2178,7 +2301,7 @@
                 },
                 "month": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/2?month=2022-03"
+                    "example": "https://example.com/api/v1/budgets/2/2022-03"
                 },
                 "transactions": {
                     "type": "string",
@@ -2194,6 +2317,14 @@
                     "items": {
                         "$ref": "#/definitions/models.Budget"
                     }
+                }
+            }
+        },
+        "controllers.BudgetMonthResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.BudgetMonth"
                 }
             }
         },
@@ -2248,7 +2379,7 @@
                 },
                 "month": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/2/categories/5/envelopes/1?month=2019-03"
+                    "example": "https://example.com/api/v1/budgets/2/categories/5/envelopes/1/2019-03"
                 }
             }
         },
@@ -2260,6 +2391,14 @@
                     "items": {
                         "$ref": "#/definitions/models.Envelope"
                     }
+                }
+            }
+        },
+        "controllers.EnvelopeMonthResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.EnvelopeMonth"
                 }
             }
         },
@@ -2537,6 +2676,29 @@
                 }
             }
         },
+        "models.BudgetMonth": {
+            "type": "object",
+            "properties": {
+                "envelopes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EnvelopeMonth"
+                    }
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 23
+                },
+                "month": {
+                    "type": "string",
+                    "example": "2006-05-04T15:02:01.000000Z"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "A test envelope"
+                }
+            }
+        },
         "models.Category": {
             "type": "object",
             "properties": {
@@ -2622,6 +2784,29 @@
                 },
                 "note": {
                     "type": "string"
+                }
+            }
+        },
+        "models.EnvelopeMonth": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "type": "number"
+                },
+                "balance": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "month": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "spent": {
+                    "type": "number"
                 }
             }
         },
