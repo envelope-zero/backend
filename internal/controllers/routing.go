@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/docs"
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
+	docs "github.com/envelope-zero/backend/swag"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/requestid"
@@ -125,8 +125,8 @@ func Router() (*gin.Engine, error) {
 		v1.OPTIONS("", OptionsV1)
 	}
 
-	budgets := v1.Group("/budgets")
-	RegisterBudgetRoutes(budgets)
+	RegisterBudgetRoutes(v1.Group("/budgets"))
+	RegisterAccountRoutes(v1.Group("/accounts"))
 
 	return r, nil
 }
@@ -201,7 +201,8 @@ type V1Response struct {
 }
 
 type V1Links struct {
-	Budgets string `json:"budgets" example:"https://example.com/api/v1"`
+	Budgets  string `json:"budgets" example:"https://example.com/api/v1/budgets"`
+	Accounts string `json:"accounts" example:"https://example.com/api/v1/accounts"`
 }
 
 // @Sumary       v1 API
@@ -212,7 +213,8 @@ type V1Links struct {
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
-			Budgets: httputil.RequestPathV1(c) + "/budgets",
+			Budgets:  httputil.RequestPathV1(c) + "/budgets",
+			Accounts: httputil.RequestPathV1(c) + "/accounts",
 		},
 	})
 }

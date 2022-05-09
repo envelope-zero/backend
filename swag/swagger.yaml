@@ -1,23 +1,53 @@
 definitions:
+  controllers.Account:
+    properties:
+      balance:
+        type: number
+      budgetId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      external:
+        type: boolean
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      links:
+        $ref: '#/definitions/controllers.AccountLinks'
+      name:
+        type: string
+      note:
+        type: string
+      onBudget:
+        description: 'Always false when external: true'
+        type: boolean
+      reconciledBalance:
+        type: number
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.AccountLinks:
     properties:
-      transactions:
-        example: https://example.com/api/v1/budgets/3/accounts/17/transactions
+      self:
+        example: https://example.com/api/v1/accounts/17
         type: string
     type: object
   controllers.AccountListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/models.Account'
+          $ref: '#/definitions/controllers.Account'
         type: array
     type: object
   controllers.AccountResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Account'
-      links:
-        $ref: '#/definitions/controllers.AccountLinks'
+        $ref: '#/definitions/controllers.Account'
     type: object
   controllers.AllocationListResponse:
     properties:
@@ -34,7 +64,7 @@ definitions:
   controllers.BudgetLinks:
     properties:
       accounts:
-        example: https://example.com/api/v1/budgets/2/accounts
+        example: https://example.com/api/v1/accounts?budget=2
         type: string
       categories:
         example: https://example.com/api/v1/budgets/2/categories
@@ -144,8 +174,11 @@ definitions:
     type: object
   controllers.V1Links:
     properties:
+      accounts:
+        example: https://example.com/api/v1/accounts
+        type: string
       budgets:
-        example: https://example.com/api/v1
+        example: https://example.com/api/v1/budgets
         type: string
     type: object
   controllers.V1Response:
@@ -176,36 +209,6 @@ definitions:
     properties:
       error:
         example: An ID specified in the query string was not a valid uint64
-        type: string
-    type: object
-  models.Account:
-    properties:
-      balance:
-        type: number
-      budgetId:
-        type: integer
-      createdAt:
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      external:
-        type: boolean
-      id:
-        example: 42
-        format: uint64
-        type: integer
-      name:
-        type: string
-      note:
-        type: string
-      onBudget:
-        description: 'Always false when external: true'
-        type: boolean
-      reconciledBalance:
-        type: number
-      updatedAt:
-        example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   models.AccountCreate:
@@ -475,6 +478,183 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - General
+  /v1/accounts:
+    get:
+      description: Returns a list of all accounts for the budget
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: List accounts
+      tags:
+      - Accounts
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+    post:
+      description: Create a new account for a specific budget
+      parameters:
+      - description: Account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create account
+      tags:
+      - Accounts
+  /v1/accounts/{accountId}:
+    delete:
+      description: Deletes the specified account.
+      parameters:
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete account
+      tags:
+      - Accounts
+    get:
+      description: Returns a specific account
+      parameters:
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get account
+      tags:
+      - Accounts
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+    patch:
+      description: Updates an account. Only values to be updated need to be specified.
+      parameters:
+      - description: ID of the account
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      - description: Account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update account
+      tags:
+      - Accounts
   /v1/budgets:
     get:
       description: Returns list of budgets
@@ -683,280 +863,6 @@ paths:
       summary: Get Budget month data
       tags:
       - Budgets
-  /v1/budgets/{budgetId}/accounts:
-    get:
-      description: Returns a list of all accounts for the budget
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.AccountListResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: List accounts
-      tags:
-      - Accounts
-    options:
-      description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-      summary: Allowed HTTP verbs
-      tags:
-      - Accounts
-    post:
-      description: Create a new account for a specific budget
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: Account
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/models.AccountCreate'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/controllers.AccountResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Create account
-      tags:
-      - Accounts
-  /v1/budgets/{budgetId}/accounts/{accountId}:
-    delete:
-      description: Deletes the specified account.
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the account
-        in: path
-        name: accountId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete account
-      tags:
-      - Accounts
-    get:
-      description: Returns a specific account
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the account
-        in: path
-        name: accountId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.AccountResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Get account
-      tags:
-      - Accounts
-    options:
-      description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the account
-        in: path
-        name: accountId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-      summary: Allowed HTTP verbs
-      tags:
-      - Accounts
-    patch:
-      description: Updates an account. Only values to be updated need to be specified.
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the account
-        in: path
-        name: accountId
-        required: true
-        type: integer
-      - description: Account
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/models.AccountCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.AccountResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Update account
-      tags:
-      - Accounts
-  /v1/budgets/{budgetId}/accounts/{accountId}/transactions:
-    get:
-      description: Returns a list of all transactions for the account requested
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the account
-        in: path
-        name: accountId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.TransactionListResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: List all transactions for an account
-      tags:
-      - Accounts
-    options:
-      description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the account
-        in: path
-        name: accountId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-      summary: Allowed HTTP verbs
-      tags:
-      - Accounts
   /v1/budgets/{budgetId}/categories:
     get:
       description: Returns the full list of all categories for a specific budget

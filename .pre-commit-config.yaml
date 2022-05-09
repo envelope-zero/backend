@@ -33,5 +33,5 @@ repos:
         name: Create swagger docs.go
         language: system
         pass_filenames: false
-        entry: swag init --parseDependency
+        entry: swag init --parseDependency --output ./swag
         files: ^internal/.*
