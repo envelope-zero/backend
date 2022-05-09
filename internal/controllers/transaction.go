@@ -105,8 +105,10 @@ func CreateTransaction(c *gin.Context) {
 func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
 
+	budgetID, _ := httputil.ParseID(c, "budgetId")
+
 	// Check if the budget exists at all
-	budget, err := getBudgetResource(c)
+	budget, err := getBudgetResource(c, budgetID)
 	if err != nil {
 		return
 	}
@@ -204,7 +206,9 @@ func DeleteTransaction(c *gin.Context) {
 func getTransactionResource(c *gin.Context) (models.Transaction, error) {
 	var transaction models.Transaction
 
-	budget, err := getBudgetResource(c)
+	budgetID, _ := httputil.ParseID(c, "budgetId")
+
+	budget, err := getBudgetResource(c, budgetID)
 	if err != nil {
 		return models.Transaction{}, err
 	}

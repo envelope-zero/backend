@@ -42,11 +42,8 @@ func TestGetAccounts(t *testing.T) {
 	assert.Equal(t, true, externalAccount.External)
 
 	for _, account := range response.Data {
-		diff := time.Now().Sub(account.CreatedAt)
-		assert.LessOrEqual(t, diff, test.TOLERANCE)
-
-		diff = time.Now().Sub(account.UpdatedAt)
-		assert.LessOrEqual(t, diff, test.TOLERANCE)
+		assert.LessOrEqual(t, time.Since(account.CreatedAt), test.TOLERANCE)
+		assert.LessOrEqual(t, time.Since(account.UpdatedAt), test.TOLERANCE)
 	}
 
 	if !decimal.NewFromFloat(-30).Equal(bankAccount.Balance) {

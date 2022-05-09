@@ -152,5 +152,6 @@ func TestMain(m *testing.M) {
 
 	models.DB.Create(&waterBillTransactionMar)
 
-	m.Run()
+	code := m.Run()
+	os.Exit(code)
 }

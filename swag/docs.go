@@ -75,7 +75,7 @@ const docTemplate = `{
         },
         "/v1/accounts": {
             "get": {
-                "description": "Returns a list of all accounts for the budget",
+                "description": "Returns a list of all accounts",
                 "produces": [
                     "application/json"
                 ],
@@ -108,7 +108,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new account for a specific budget",
+                "description": "Create a new account",
                 "produces": [
                     "application/json"
                 ],
@@ -2202,6 +2202,42 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Budget": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "€"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "uint64",
+                    "example": 42
+                },
+                "links": {
+                    "$ref": "#/definitions/controllers.BudgetLinks"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My First Budget"
+                },
+                "note": {
+                    "type": "string",
+                    "example": "A description so I remember what this was for"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.BudgetLinks": {
             "type": "object",
             "properties": {
@@ -2217,6 +2253,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets/2/2022-03"
                 },
+                "self": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/budgets/4"
+                },
                 "transactions": {
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets/2/transactions"
@@ -2229,7 +2269,7 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Budget"
+                        "$ref": "#/definitions/controllers.Budget"
                     }
                 }
             }
@@ -2246,10 +2286,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Budget"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.BudgetLinks"
+                    "$ref": "#/definitions/controllers.Budget"
                 }
             }
         },
@@ -2498,39 +2535,6 @@ const docTemplate = `{
                 },
                 "year": {
                     "type": "integer"
-                }
-            }
-        },
-        "models.Budget": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "€"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
-                },
-                "name": {
-                    "type": "string",
-                    "example": "My First Budget"
-                },
-                "note": {
-                    "type": "string",
-                    "example": "A description so I remember what this was for"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

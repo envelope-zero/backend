@@ -2,7 +2,14 @@
 
 This document contains the API design. It is aimed at developers and to support administrators in debugging issues.
 
-## API Responses
+## High level guarantees
+
+- Any resource will be available at the endpoints `/{resource}` for the collection and `/{resource}/{id}` for a single resource.
+- Filtering on collection endpoints is implemented with URL paramaters (“query strings“)
+- Collections always support the HTTP methods `GET` (read resources) and `POST` (create new resource)
+- Resources support the HTTP methods `GET` (read resource), `PATCH` (update resource) and `DELETE` (delete resource)
+
+## API responses
 
 All API responses either have an emty body (for HTTP 204 and HTTP 404 responses) or the body consists of only JSON.
 
@@ -12,13 +19,15 @@ The `error` key always has a value of type `string`, containing a human readable
 
 The `data` key is either a list of objects (for collection endpoints) or a single object (for resource endpoints).
 
-Unset attributes are not contained in the objects that the API returns. Unless an attribute is defined in here to be always contained in API responses, it is optional
+Unset attributes are not contained in the objects that the API returns. Unless an attribute is defined in here to be always contained in API responses with tse string `Always present`, it is optional.
 
-### Reserved keys
+## API resources
 
-The objects in the `data` key have several reserved keys that are read-only:
+API resources share the following **read only** attributes in the `data` key:
 
-- `createdAt`: An RFC3339 timestamp of the time when the resource was created. Always present.
-- `updatedAt`: An RFC3339 timestamp of the time when the resource was updated. Always present.
-- `deletedAt`: An RFC3339 timestamp of the time when the resource was deleted.
-- `id`: The ID of the object. IDs are unique for the backend instance. Always present.
+- `createdAt` (string): An RFC3339 timestamp of the time when the resource was created. Always present.
+- `updatedAt` (string): An RFC3339 timestamp of the time when the resource was updated. Always present.
+- `deletedAt` (string): An RFC3339 timestamp of the time when the resource was deleted.
+- `id` (number): The ID of the object. IDs are unique for the backend instance. Always present.
+- `links` (object): A map of related resources. Always present.
+  - `self` (string): The full URL of the resource itself. Always present.

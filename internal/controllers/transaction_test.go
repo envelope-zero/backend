@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/envelope-zero/backend/internal/test"
 	"github.com/shopspring/decimal"
@@ -67,10 +68,10 @@ func TestGetTransactions(t *testing.T) {
 	}
 
 	for _, transaction := range response.Data {
-		diff := time.Now().Sub(transaction.CreatedAt)
+		diff := time.Since(transaction.CreatedAt)
 		assert.LessOrEqual(t, diff, test.TOLERANCE)
 
-		diff = time.Now().Sub(transaction.UpdatedAt)
+		diff = time.Since(transaction.UpdatedAt)
 		assert.LessOrEqual(t, diff, test.TOLERANCE)
 	}
 }
@@ -114,7 +115,7 @@ func TestTransactionParentChecked(t *testing.T) {
 	r := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
-	var budget BudgetDetailResponse
+	var budget controllers.BudgetResponse
 	test.DecodeResponse(t, &r, &budget)
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
