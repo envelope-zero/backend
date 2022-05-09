@@ -21,7 +21,7 @@ type BudgetResponse struct {
 }
 
 type BudgetLinks struct {
-	Accounts     string `json:"accounts" example:"https://example.com/api/v1/budgets/2/accounts"`
+	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=2"`
 	Categories   string `json:"categories" example:"https://example.com/api/v1/budgets/2/categories"`
 	Transactions string `json:"transactions" example:"https://example.com/api/v1/budgets/2/transactions"`
 	Month        string `json:"month" example:"https://example.com/api/v1/budgets/2/2022-03"`
@@ -50,8 +50,6 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 		r.DELETE("/:budgetId", DeleteBudget)
 	}
 
-	// Register the routes for dependent resources
-	RegisterAccountRoutes(r.Group("/:budgetId/accounts"))
 	RegisterCategoryRoutes(r.Group("/:budgetId/categories"))
 	RegisterTransactionRoutes(r.Group("/:budgetId/transactions"))
 }
@@ -92,8 +90,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 func CreateBudget(c *gin.Context) {
 	var data models.Budget
 
-	if status, err := httputil.BindData(c, &data); err != nil {
-		httputil.NewError(c, status, err)
+	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 
@@ -200,8 +197,7 @@ func UpdateBudget(c *gin.Context) {
 	}
 
 	var data models.Budget
-	if status, err := httputil.BindData(c, &data); err != nil {
-		httputil.NewError(c, status, err)
+	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 
@@ -252,6 +248,23 @@ func getBudgetResource(c *gin.Context) (models.Budget, error) {
 	return budget, nil
 }
 
+// getBudget is the internal helper to verify permissions and return an account.
+func getBudget(c *gin.Context, id uint64) (models.Budget, error) {
+	var budget models.Budget
+
+	err := models.DB.Where(&models.Budget{
+		Model: models.Model{
+			ID: id,
+		},
+	}).First(&budget).Error
+	if err != nil {
+		httputil.FetchErrorHandler(c, err)
+		return models.Budget{}, err
+	}
+
+	return budget, nil
+}
+
 func newBudgetResponse(c *gin.Context) BudgetResponse {
 	// When this function is called, the resource has already been validated
 	budget, _ := getBudgetResource(c)
@@ -261,7 +274,7 @@ func newBudgetResponse(c *gin.Context) BudgetResponse {
 	return BudgetResponse{
 		Data: budget,
 		Links: BudgetLinks{
-			Accounts:     url + "/accounts",
+			Accounts:     httputil.RequestPathV1(c) + fmt.Sprintf("/accounts?budget=%d", budget.ID),
 			Categories:   url + "/transactions",
 			Transactions: url + "/transactions",
 			Month:        url + "/YYYY-MM",

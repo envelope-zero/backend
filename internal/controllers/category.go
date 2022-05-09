@@ -82,9 +82,8 @@ func OptionsCategoryDetail(c *gin.Context) {
 func CreateCategory(c *gin.Context) {
 	var data models.Category
 
-	status, err := httputil.BindData(c, &data)
+	err := httputil.BindData(c, &data)
 	if err != nil {
-		httputil.NewError(c, status, err)
 		return
 	}
 
@@ -155,8 +154,7 @@ func UpdateCategory(c *gin.Context) {
 	}
 
 	var data models.Category
-	if status, err := httputil.BindData(c, &data); err != nil {
-		httputil.NewError(c, status, err)
+	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 

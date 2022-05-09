@@ -47,14 +47,19 @@ func ParseID(c *gin.Context, param string) (uint64, error) {
 }
 
 // BindData binds the data from the request to the struct passed in the interface.
-func BindData(c *gin.Context, data interface{}) (int, error) {
+func BindData(c *gin.Context, data interface{}) error {
 	if err := c.ShouldBindJSON(&data); err != nil {
 		if errors.Is(io.EOF, err) {
-			return http.StatusBadRequest, errors.New("request body must not be emtpy")
+			e := errors.New("request body must not be emtpy")
+			NewError(c, http.StatusBadRequest, e)
+			return e
 		}
 
 		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
-		return http.StatusBadRequest, errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
+		e := errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
+		NewError(c, http.StatusBadRequest, e)
+		return e
 	}
-	return http.StatusOK, nil
+
+	return nil
 }

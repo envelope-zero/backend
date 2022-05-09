@@ -88,9 +88,8 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 func CreateEnvelope(c *gin.Context) {
 	var data models.Envelope
 
-	status, err := httputil.BindData(c, &data)
+	err := httputil.BindData(c, &data)
 	if err != nil {
-		httputil.NewError(c, status, err)
 		return
 	}
 
@@ -209,8 +208,7 @@ func UpdateEnvelope(c *gin.Context) {
 	}
 
 	var data models.Envelope
-	if status, err := httputil.BindData(c, &data); err != nil {
-		c.JSON(status, gin.H{"error": err.Error()})
+	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 

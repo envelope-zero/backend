@@ -81,9 +81,8 @@ func OptionsAllocationDetail(c *gin.Context) {
 func CreateAllocation(c *gin.Context) {
 	var data models.Allocation
 
-	status, err := httputil.BindData(c, &data)
+	err := httputil.BindData(c, &data)
 	if err != nil {
-		httputil.NewError(c, status, err)
 		return
 	}
 
@@ -193,8 +192,7 @@ func UpdateAllocation(c *gin.Context) {
 	}
 
 	var data models.Allocation
-	if status, err := httputil.BindData(c, &data); err != nil {
-		httputil.NewError(c, status, err)
+	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 

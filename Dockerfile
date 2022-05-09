@@ -7,7 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY internal ./internal
-COPY docs ./docs
+COPY swag ./swag
 COPY main.go Makefile ./
 
 ARG VERSION=0.0.0
