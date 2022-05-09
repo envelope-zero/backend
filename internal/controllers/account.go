@@ -69,7 +69,7 @@ func OptionsAccountDetail(c *gin.Context) {
 }
 
 // @Summary      Create account
-// @Description  Create a new account for a specific budget
+// @Description  Create a new account
 // @Tags         Accounts
 // @Produce      json
 // @Success      201  {object}  AccountResponse
@@ -86,7 +86,7 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// Check if the budget that the account shoud belong to exists
-	_, err := getBudget(c, account.BudgetID)
+	_, err := getBudgetResource(c, account.BudgetID)
 	if err != nil {
 		return
 	}
@@ -98,7 +98,7 @@ func CreateAccount(c *gin.Context) {
 }
 
 // @Summary      List accounts
-// @Description  Returns a list of all accounts for the budget
+// @Description  Returns a list of all accounts
 // @Tags         Accounts
 // @Produce      json
 // @Success      200  {object}  AccountListResponse
@@ -109,7 +109,7 @@ func CreateAccount(c *gin.Context) {
 func GetAccounts(c *gin.Context) {
 	var accounts []models.Account
 
-	models.DB.Where(&models.Account{}).Find(&accounts)
+	models.DB.Find(&accounts)
 
 	// When there are no accounts, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -237,7 +237,7 @@ func getAccountObject(c *gin.Context, id uint64) (Account, error) {
 
 // getAccountLinks returns an AccountLinks struct.
 //
-// This function is only needed for newAccountResponse as we cannot create an instance of Account
+// This function is only needed for getAccountObject as we cannot create an instance of Account
 // with mixed named and unnamed parameters.
 func getAccountLinks(c *gin.Context, id uint64) AccountLinks {
 	url := httputil.RequestPathV1(c) + fmt.Sprintf("/accounts/%d", id)

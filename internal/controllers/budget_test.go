@@ -1,35 +1,21 @@
 package controllers_test
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/envelope-zero/backend/internal/test"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
-type BudgetListResponse struct {
-	test.APIResponse
-	Data []models.Budget
-}
-
-type BudgetDetailResponse struct {
-	test.APIResponse
-	Data models.Budget
-}
-type BudgetMonthResponse struct {
-	test.APIResponse
-	Data models.BudgetMonth
-}
-
 func TestGetBudgets(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets", "")
 
-	var response BudgetListResponse
+	var response controllers.BudgetListResponse
 	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
@@ -40,10 +26,10 @@ func TestGetBudgets(t *testing.T) {
 	assert.Equal(t, "Testing Budget", response.Data[0].Name)
 	assert.Equal(t, "GNU: Terry Pratchett", response.Data[0].Note)
 
-	diff := time.Now().Sub(response.Data[0].CreatedAt)
+	diff := time.Since(response.Data[0].CreatedAt)
 	assert.LessOrEqual(t, diff, test.TOLERANCE)
 
-	diff = time.Now().Sub(response.Data[0].UpdatedAt)
+	diff = time.Since(response.Data[0].UpdatedAt)
 	assert.LessOrEqual(t, diff, test.TOLERANCE)
 }
 
@@ -61,19 +47,31 @@ func TestBudgetInvalidIDs(t *testing.T) {
 
 	r = test.Request(t, "GET", "/v1/budgets/DefinitelyNotAUint64", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/DefinitelyNotAUint64/2022-07", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/budgets/-17/1969-07", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "PATCH", "/v1/budgets/-17", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "DELETE", "/v1/budgets/-17", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestCreateBudget(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var apiBudget BudgetDetailResponse
-	test.DecodeResponse(t, &recorder, &apiBudget)
+	var budgetObject, savedObject controllers.BudgetResponse
+	test.DecodeResponse(t, &recorder, &budgetObject)
 
-	var dbBudget models.Budget
-	models.DB.First(&dbBudget, apiBudget.Data.ID)
+	recorder = test.Request(t, "GET", budgetObject.Data.Links.Self, "")
+	test.DecodeResponse(t, &recorder, &savedObject)
 
-	assert.Equal(t, dbBudget, apiBudget.Data)
+	assert.Equal(t, savedObject, budgetObject)
 }
 
 func TestCreateBrokenBudget(t *testing.T) {
@@ -86,30 +84,17 @@ func TestCreateBudgetNoBody(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
-func TestGetBudget(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/1", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
-
-	var budget BudgetDetailResponse
-	test.DecodeResponse(t, &recorder, &budget)
-
-	var dbBudget models.Budget
-	models.DB.First(&dbBudget, budget.Data.ID)
-
-	assert.Equal(t, dbBudget, budget.Data)
-}
-
 // TestBudgetMonth verifies that the monthly calculations are correct.
 func TestBudgetMonth(t *testing.T) {
-	var budgetMonth BudgetMonthResponse
+	var budgetMonth controllers.BudgetMonthResponse
 
 	tests := []struct {
 		path     string
-		response BudgetMonthResponse
+		response controllers.BudgetMonthResponse
 	}{
 		{
 			"/v1/budgets/1/2022-01",
-			BudgetMonthResponse{
+			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 					Envelopes: []models.EnvelopeMonth{
@@ -127,7 +112,7 @@ func TestBudgetMonth(t *testing.T) {
 		},
 		{
 			"/v1/budgets/1/2022-02",
-			BudgetMonthResponse{
+			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 					Envelopes: []models.EnvelopeMonth{
@@ -145,7 +130,7 @@ func TestBudgetMonth(t *testing.T) {
 		},
 		{
 			"/v1/budgets/1/2022-03",
-			BudgetMonthResponse{
+			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 					Envelopes: []models.EnvelopeMonth{
@@ -202,14 +187,13 @@ func TestUpdateBudget(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var budget BudgetDetailResponse
+	var budget controllers.BudgetResponse
 	test.DecodeResponse(t, &recorder, &budget)
 
-	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
-	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new budget" }`)
+	recorder = test.Request(t, "PATCH", budget.Data.Links.Self, `{ "name": "Updated new budget" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
-	var updatedBudget BudgetDetailResponse
+	var updatedBudget controllers.BudgetResponse
 	test.DecodeResponse(t, &recorder, &updatedBudget)
 
 	assert.Equal(t, budget.Data.Note, updatedBudget.Data.Note)
@@ -220,11 +204,10 @@ func TestUpdateBudgetBroken(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var budget BudgetDetailResponse
+	var budget controllers.BudgetResponse
 	test.DecodeResponse(t, &recorder, &budget)
 
-	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
-	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
+	recorder = test.Request(t, "PATCH", budget.Data.Links.Self, `{ "name": 2" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
@@ -237,11 +220,10 @@ func TestDeleteBudget(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var budget BudgetDetailResponse
+	var budget controllers.BudgetResponse
 	test.DecodeResponse(t, &recorder, &budget)
 
-	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
-	recorder = test.Request(t, "DELETE", path, "")
+	recorder = test.Request(t, "DELETE", budget.Data.Links.Self, "")
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 
@@ -254,10 +236,9 @@ func TestDeleteBudgetWithBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var budget BudgetDetailResponse
+	var budget controllers.BudgetResponse
 	test.DecodeResponse(t, &recorder, &budget)
 
-	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)
-	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
+	recorder = test.Request(t, "DELETE", budget.Data.Links.Self, `{ "name": "test name 23" }`)
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }

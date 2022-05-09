@@ -268,37 +268,12 @@ func getEnvelopeResource(c *gin.Context) (models.Envelope, error) {
 	return envelope, nil
 }
 
-// getEnvelopeResources returns all categories for the reuqested budget4.
-func getEnvelopeResources(c *gin.Context) ([]models.Envelope, error) {
-	var envelopes []models.Envelope
-
-	categories, err := getCategoryResources(c)
-	if err != nil {
-		return []models.Envelope{}, err
-	}
-
-	// Get envelopes for all categories
-	for _, category := range categories {
-		var e []models.Envelope
-
-		models.DB.Where(&models.Envelope{
-			EnvelopeCreate: models.EnvelopeCreate{
-				CategoryID: category.ID,
-			},
-		}).Find(&e)
-
-		envelopes = append(envelopes, e...)
-	}
-
-	return envelopes, nil
-}
-
 func newEnevlopeResponse(c *gin.Context) EnvelopeResponse {
-	budget, _ := getBudgetResource(c)
+	budgetID, _ := httputil.ParseID(c, "budgetId")
 	category, _ := getCategoryResource(c)
 	envelope, _ := getEnvelopeResource(c)
 
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d/categories/%d/envelopes/%d", budget.ID, category.ID, envelope.ID)
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d/categories/%d/envelopes/%d", budgetID, category.ID, envelope.ID)
 
 	return EnvelopeResponse{
 		Data: envelope,

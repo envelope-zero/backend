@@ -42,10 +42,10 @@ func TestGetEnvelopes(t *testing.T) {
 	assert.Equal(t, "Utilities", response.Data[0].Name)
 	assert.Equal(t, "Energy & Water", response.Data[0].Note)
 
-	diff := time.Now().Sub(response.Data[0].CreatedAt)
+	diff := time.Since(response.Data[0].CreatedAt)
 	assert.LessOrEqual(t, diff, test.TOLERANCE)
 
-	diff = time.Now().Sub(response.Data[0].UpdatedAt)
+	diff = time.Since(response.Data[0].UpdatedAt)
 	assert.LessOrEqual(t, diff, test.TOLERANCE)
 }
 

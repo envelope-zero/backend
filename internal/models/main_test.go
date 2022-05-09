@@ -24,5 +24,6 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Database migration failed with: %s", err.Error())
 	}
 
-	m.Run()
+	code := m.Run()
+	os.Exit(code)
 }

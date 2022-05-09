@@ -41,11 +41,8 @@ func TestGetAllocations(t *testing.T) {
 		assert.Fail(t, "Allocation amount does not equal 20.99", response.Data[0].Amount)
 	}
 
-	diff := time.Now().Sub(response.Data[0].CreatedAt)
-	assert.LessOrEqual(t, diff, test.TOLERANCE)
-
-	diff = time.Now().Sub(response.Data[0].UpdatedAt)
-	assert.LessOrEqual(t, diff, test.TOLERANCE)
+	assert.LessOrEqual(t, time.Since(response.Data[0].CreatedAt), test.TOLERANCE)
+	assert.LessOrEqual(t, time.Since(response.Data[0].UpdatedAt), test.TOLERANCE)
 }
 
 func TestNoAllocationNotFound(t *testing.T) {

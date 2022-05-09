@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/envelope-zero/backend/internal/test"
 	"github.com/stretchr/testify/assert"
@@ -36,10 +37,10 @@ func TestGetCategories(t *testing.T) {
 	assert.Equal(t, "Running costs", response.Data[0].Name)
 	assert.Equal(t, "For e.g. groceries and energy bills", response.Data[0].Note)
 
-	diff := time.Now().Sub(response.Data[0].CreatedAt)
+	diff := time.Since(response.Data[0].CreatedAt)
 	assert.LessOrEqual(t, diff, test.TOLERANCE)
 
-	diff = time.Now().Sub(response.Data[0].UpdatedAt)
+	diff = time.Since(response.Data[0].UpdatedAt)
 	assert.LessOrEqual(t, diff, test.TOLERANCE)
 }
 
@@ -65,15 +66,6 @@ func TestCategoryInvalidIDs(t *testing.T) {
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
-// TestNonexistingBudgetCategories404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
-//
-// It verifies that for a non-existing budget, the accounts endpoint raises a 404
-// instead of returning an empty list.
-func TestNonexistingBudgetCategories404(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/999/categories", "")
-	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
-}
-
 // TestCategoryParentChecked is a regression test for https://github.com/envelope-zero/backend/issues/90.
 //
 // It verifies that the category details endpoint for a budget only returns categorys that belong to the
@@ -82,7 +74,7 @@ func TestCategoryParentChecked(t *testing.T) {
 	r := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
-	var budget BudgetDetailResponse
+	var budget controllers.BudgetResponse
 	test.DecodeResponse(t, &r, &budget)
 
 	path := fmt.Sprintf("/v1/budgets/%v", budget.Data.ID)

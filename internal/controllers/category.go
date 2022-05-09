@@ -106,7 +106,12 @@ func CreateCategory(c *gin.Context) {
 // @Param        budgetId    path      uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId}/categories [get]
 func GetCategories(c *gin.Context) {
-	categories, err := getCategoryResources(c)
+	id, err := httputil.ParseID(c, "budgetId")
+	if err != nil {
+		return
+	}
+
+	categories, err := getCategoryResources(c, id)
 	if err != nil {
 		return
 	}
@@ -126,12 +131,12 @@ func GetCategories(c *gin.Context) {
 // @Param        categoryId  path      uint64  true  "ID of the category"
 // @Router       /v1/budgets/{budgetId}/categories/{categoryId} [get]
 func GetCategory(c *gin.Context) {
-	_, err := getCategoryResource(c)
+	category, err := getCategoryResource(c)
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, newCategoryResponse(c))
+	c.JSON(http.StatusOK, newCategoryResponse(c, category.ID))
 }
 
 // @Summary      Update a category
@@ -192,7 +197,12 @@ func getCategoryResource(c *gin.Context) (models.Category, error) {
 		return models.Category{}, err
 	}
 
-	budget, err := getBudgetResource(c)
+	budgetID, err := httputil.ParseID(c, "budgetId")
+	if err != nil {
+		return models.Category{}, err
+	}
+
+	budget, err := getBudgetResource(c, budgetID)
 	if err != nil {
 		return models.Category{}, err
 	}
@@ -214,29 +224,23 @@ func getCategoryResource(c *gin.Context) (models.Category, error) {
 }
 
 // getCategoryResources returns all categories for the requested budget.
-func getCategoryResources(c *gin.Context) ([]models.Category, error) {
+func getCategoryResources(c *gin.Context, id uint64) ([]models.Category, error) {
 	var categories []models.Category
-
-	budget, err := getBudgetResource(c)
-	if err != nil {
-		return []models.Category{}, err
-	}
 
 	models.DB.Where(&models.Category{
 		CategoryCreate: models.CategoryCreate{
-			BudgetID: budget.ID,
+			BudgetID: id,
 		},
 	}).Find(&categories)
 
 	return categories, nil
 }
 
-func newCategoryResponse(c *gin.Context) CategoryResponse {
+func newCategoryResponse(c *gin.Context, budgetID uint64) CategoryResponse {
 	// When this function is called, all parent resources have already been validated
-	budget, _ := getBudgetResource(c)
 	category, _ := getCategoryResource(c)
 
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d/categories/%d", budget.ID, category.ID)
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d/categories/%d", budgetID, category.ID)
 
 	return CategoryResponse{
 		Data: category,
