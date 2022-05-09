@@ -86,6 +86,18 @@ func TestAccountInvalidIDs(t *testing.T) {
 
 	r = test.Request(t, "GET", "/v1/accounts/1", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &r)
+
+	r = test.Request(t, "PATCH", "/v1/accounts/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "PATCH", "/v1/accounts/stringRandom", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "DELETE", "/v1/accounts/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "DELETE", "/v1/accounts/stringRandom", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestCreateAccount(t *testing.T) {
@@ -104,6 +116,11 @@ func TestCreateBrokenAccount(t *testing.T) {
 func TestCreateAccountNoBody(t *testing.T) {
 	recorder := test.Request(t, "POST", "/v1/accounts", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
+}
+
+func TestCreateAccountNoBudget(t *testing.T) {
+	recorder := test.Request(t, "POST", "/v1/accounts", `{ "budgetId": 5476 }`)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestGetAccount(t *testing.T) {

@@ -93,10 +93,7 @@ func CreateAccount(c *gin.Context) {
 
 	models.DB.Create(&account)
 
-	accountObject, err := getAccountObject(c, account.ID)
-	if err != nil {
-		return
-	}
+	accountObject, _ := getAccountObject(c, account.ID)
 	c.JSON(http.StatusCreated, AccountResponse{Data: accountObject})
 }
 
@@ -115,15 +112,12 @@ func GetAccounts(c *gin.Context) {
 	models.DB.Where(&models.Account{}).Find(&accounts)
 
 	// When there are no accounts, we want an empty list, not null
-	// Therefore, we make
+	// Therefore, we use make to create a slice with zero elements
+	// which will be marshalled to an empty JSON array
 	accountObjects := make([]Account, 0)
 
 	for _, account := range accounts {
-		o, err := getAccountObject(c, account.ID)
-		if err != nil {
-			return
-		}
-
+		o, _ := getAccountObject(c, account.ID)
 		accountObjects = append(accountObjects, o)
 	}
 
@@ -182,11 +176,7 @@ func UpdateAccount(c *gin.Context) {
 	}
 
 	models.DB.Model(&account).Updates(data)
-	accountObject, err := getAccountObject(c, account.ID)
-	if err != nil {
-		return
-	}
-
+	accountObject, _ := getAccountObject(c, account.ID)
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
 
