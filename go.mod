@@ -75,4 +75,4 @@ require (
 
 replace github.com/envelope-zero/backend/internal/controllers => ./internal/controllers
 
-replace github.com/envelope-zero/backend/docs => ./docs
+replace github.com/envelope-zero/backend/swag => ./swag
