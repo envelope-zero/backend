@@ -11,6 +11,10 @@ import (
 
 // TestMain takes care of the test setup for this package.
 func TestMain(m *testing.M) {
+	os.Exit(runTests(m))
+}
+
+func runTests(m *testing.M) int {
 	// Always remove the DB after running tests
 	defer os.Remove("data/gorm.db")
 
@@ -24,6 +28,5 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Database migration failed with: %s", err.Error())
 	}
 
-	code := m.Run()
-	os.Exit(code)
+	return m.Run()
 }
