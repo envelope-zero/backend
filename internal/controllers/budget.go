@@ -56,7 +56,6 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 	}
 
 	RegisterCategoryRoutes(r.Group("/:budgetId/categories"))
-	RegisterTransactionRoutes(r.Group("/:budgetId/transactions"))
 }
 
 // @Summary      Allowed HTTP verbs
@@ -313,7 +312,7 @@ func getBudgetLinks(c *gin.Context, id uint64) BudgetLinks {
 		Self:         url,
 		Accounts:     httputil.RequestPathV1(c) + fmt.Sprintf("/accounts?budget=%d", id),
 		Categories:   url + "/categories",
-		Transactions: url + "/transactions",
+		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?budget=%d", id),
 		Month:        url + "/YYYY-MM",
 	}
 }

@@ -187,17 +187,56 @@ definitions:
       links:
         $ref: '#/definitions/controllers.RootLinks'
     type: object
+  controllers.Transaction:
+    properties:
+      amount:
+        type: number
+      budgetId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      date:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      destinationAccountId:
+        type: integer
+      envelopeId:
+        type: integer
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      links:
+        $ref: '#/definitions/controllers.TransactionLinks'
+      note:
+        type: string
+      reconciled:
+        type: boolean
+      sourceAccountId:
+        type: integer
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  controllers.TransactionLinks:
+    properties:
+      self:
+        example: https://example.com/api/v1/transactions/1741
+        type: string
+    type: object
   controllers.TransactionListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/models.Transaction'
+          $ref: '#/definitions/controllers.Transaction'
         type: array
     type: object
   controllers.TransactionResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Transaction'
+        $ref: '#/definitions/controllers.Transaction'
     type: object
   controllers.V1Links:
     properties:
@@ -206,6 +245,9 @@ definitions:
         type: string
       budgets:
         example: https://example.com/api/v1/budgets
+        type: string
+      transactions:
+        example: https://example.com/api/v1/transactions
         type: string
     type: object
   controllers.V1Response:
@@ -388,37 +430,6 @@ definitions:
         type: string
       spent:
         type: number
-    type: object
-  models.Transaction:
-    properties:
-      amount:
-        type: number
-      budgetId:
-        type: integer
-      createdAt:
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      date:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      destinationAccountId:
-        type: integer
-      envelopeId:
-        type: integer
-      id:
-        example: 42
-        format: uint64
-        type: integer
-      note:
-        type: string
-      reconciled:
-        type: boolean
-      sourceAccountId:
-        type: integer
-      updatedAt:
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
     type: object
   models.TransactionCreate:
     properties:
@@ -1642,15 +1653,9 @@ paths:
       summary: Update an allocation
       tags:
       - Allocations
-  /v1/budgets/{budgetId}/transactions:
+  /v1/transactions:
     get:
       description: Returns all transactions for a specific budget
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -1674,12 +1679,6 @@ paths:
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       responses:
         "204":
           description: ""
@@ -1687,13 +1686,8 @@ paths:
       tags:
       - Transactions
     post:
-      description: Create a new transaction for the specified budget
+      description: Create a new transaction
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: Transaction
         in: body
         name: transaction
@@ -1720,15 +1714,10 @@ paths:
       summary: Create transaction
       tags:
       - Transactions
-  /v1/budgets/{budgetId}/transactions/{transactionId}:
+  /v1/transactions/{transactionId}:
     delete:
       description: Deletes an existing transaction
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the transaction
         in: path
         name: transactionId
@@ -1753,11 +1742,6 @@ paths:
     get:
       description: Returns a transaction by its ID
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the transaction
         in: path
         name: transactionId
@@ -1787,11 +1771,6 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the transaction
         in: path
         name: transactionId
@@ -1809,11 +1788,6 @@ paths:
       description: Update an existing transaction. Only values to be updated need
         to be specified.
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the transaction
         in: path
         name: transactionId
