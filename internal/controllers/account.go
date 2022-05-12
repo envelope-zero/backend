@@ -111,7 +111,7 @@ func GetAccounts(c *gin.Context) {
 
 	models.DB.Find(&accounts)
 
-	// When there are no accounts, we want an empty list, not null
+	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
 	accountObjects := make([]Account, 0)

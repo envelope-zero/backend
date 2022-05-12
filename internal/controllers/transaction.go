@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/httputil"
@@ -11,11 +12,20 @@ import (
 )
 
 type TransactionListResponse struct {
-	Data []models.Transaction `json:"data"`
+	Data []Transaction `json:"data"`
 }
 
 type TransactionResponse struct {
-	Data models.Transaction `json:"data"`
+	Data Transaction `json:"data"`
+}
+
+type Transaction struct {
+	models.Transaction
+	Links TransactionLinks `json:"links"`
+}
+
+type TransactionLinks struct {
+	Self string `json:"self" example:"https://example.com/api/v1/transactions/1741"`
 }
 
 // RegisterTransactionRoutes registers the routes for transactions with
@@ -41,8 +51,7 @@ func RegisterTransactionRoutes(r *gin.RouterGroup) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Transactions
 // @Success      204
-// @Param        budgetId       path      uint64  true  "ID of the budget"
-// @Router       /v1/budgets/{budgetId}/transactions [options]
+// @Router       /v1/transactions [options]
 func OptionsTransactionList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -51,45 +60,44 @@ func OptionsTransactionList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Transactions
 // @Success      204
-// @Param        budgetId       path  uint64  true  "ID of the budget"
 // @Param        transactionId  path  uint64  true  "ID of the transaction"
-// @Router       /v1/budgets/{budgetId}/transactions/{transactionId} [options]
+// @Router       /v1/transactions/{transactionId} [options]
 func OptionsTransactionDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
 // @Summary      Create transaction
-// @Description  Create a new transaction for the specified budget
+// @Description  Create a new transaction
 // @Tags         Transactions
 // @Produce      json
 // @Success      201  {object}  TransactionResponse
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500          {object}  httputil.HTTPError
-// @Param        budgetId     path      uint64                    true  "ID of the budget"
 // @Param        transaction  body      models.TransactionCreate  true  "Transaction"
-// @Router       /v1/budgets/{budgetId}/transactions [post]
+// @Router       /v1/transactions [post]
 func CreateTransaction(c *gin.Context) {
-	var data models.Transaction
+	var transaction models.Transaction
 
-	err := httputil.BindData(c, &data)
+	if err := httputil.BindData(c, &transaction); err != nil {
+		return
+	}
+
+	// Check if the budget that the transaction shoud belong to exists
+	_, err := getBudgetResource(c, transaction.BudgetID)
 	if err != nil {
 		return
 	}
 
-	// Convert and validate data
-	data.BudgetID, err = httputil.ParseID(c, "budgetId")
-	if err != nil {
-		return
-	}
-
-	if !decimal.Decimal.IsPositive(data.Amount) {
+	if !decimal.Decimal.IsPositive(transaction.Amount) {
 		httputil.NewError(c, http.StatusBadRequest, errors.New("The transaction amount must be positive"))
 		return
 	}
 
-	models.DB.Create(&data)
-	c.JSON(http.StatusCreated, TransactionResponse{Data: data})
+	models.DB.Create(&transaction)
+
+	transactionObject, _ := getTransactionObject(c, transaction.ID)
+	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
 }
 
 // @Summary      Get all transactions
@@ -99,27 +107,23 @@ func CreateTransaction(c *gin.Context) {
 // @Success      200  {object}  TransactionListResponse
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Failure      500       {object}  httputil.HTTPError
-// @Param        budgetId       path      uint64  true  "ID of the budget"
-// @Router       /v1/budgets/{budgetId}/transactions [get]
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /v1/transactions [get]
 func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
 
-	budgetID, _ := httputil.ParseID(c, "budgetId")
+	models.DB.Find(&transactions)
 
-	// Check if the budget exists at all
-	budget, err := getBudgetResource(c, budgetID)
-	if err != nil {
-		return
+	// When there are no resources, we want an empty list, not null
+	// Therefore, we use make to create a slice with zero elements
+	// which will be marshalled to an empty JSON array
+	transactionObjects := make([]Transaction, 0)
+	for _, transaction := range transactions {
+		o, _ := getTransactionObject(c, transaction.ID)
+		transactionObjects = append(transactionObjects, o)
 	}
 
-	models.DB.Where(&models.Category{
-		CategoryCreate: models.CategoryCreate{
-			BudgetID: budget.ID,
-		},
-	}).Find(&transactions)
-
-	c.JSON(http.StatusOK, TransactionListResponse{Data: transactions})
+	c.JSON(http.StatusOK, TransactionListResponse{Data: transactionObjects})
 }
 
 // @Summary      Get transaction
@@ -130,16 +134,20 @@ func GetTransactions(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500            {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Param        transactionId  path      uint64  true  "ID of the transaction"
-// @Router       /v1/budgets/{budgetId}/transactions/{transactionId} [get]
+// @Router       /v1/transactions/{transactionId} [get]
 func GetTransaction(c *gin.Context) {
-	t, err := getTransactionResource(c)
+	id, err := httputil.ParseID(c, "transactionId")
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, TransactionResponse{Data: t})
+	transactionObject, err := getTransactionObject(c, id)
+	if err != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
 // @Summary      Update a transaction
@@ -151,12 +159,16 @@ func GetTransaction(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500            {object}  httputil.HTTPError
-// @Param        budgetId       path      uint64                    true  "ID of the budget"
 // @Param        transactionId  path      uint64                    true  "ID of the transaction"
 // @Param        transaction    body      models.TransactionCreate  true  "Transaction"
-// @Router       /v1/budgets/{budgetId}/transactions/{transactionId} [patch]
+// @Router       /v1/transactions/{transactionId} [patch]
 func UpdateTransaction(c *gin.Context) {
-	transaction, err := getTransactionResource(c)
+	id, err := httputil.ParseID(c, "transactionId")
+	if err != nil {
+		return
+	}
+
+	transaction, err := getTransactionResource(c, id)
 	if err != nil {
 		return
 	}
@@ -178,7 +190,8 @@ func UpdateTransaction(c *gin.Context) {
 	}
 
 	models.DB.Model(&transaction).Updates(data)
-	c.JSON(http.StatusOK, TransactionResponse{Data: transaction})
+	transactionObject, _ := getTransactionObject(c, id)
+	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
 // @Summary      Delete a transaction
@@ -188,11 +201,15 @@ func UpdateTransaction(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500            {object}  httputil.HTTPError
-// @Param        budgetId  path  uint64  true  "ID of the budget"
 // @Param        transactionId  path      uint64  true  "ID of the transaction"
-// @Router       /v1/budgets/{budgetId}/transactions/{transactionId} [delete]
+// @Router       /v1/transactions/{transactionId} [delete]
 func DeleteTransaction(c *gin.Context) {
-	transaction, err := getTransactionResource(c)
+	id, err := httputil.ParseID(c, "transactionId")
+	if err != nil {
+		return
+	}
+
+	transaction, err := getTransactionResource(c, id)
 	if err != nil {
 		return
 	}
@@ -203,27 +220,12 @@ func DeleteTransaction(c *gin.Context) {
 }
 
 // getTransactionResource verifies that the request URI is valid for the transaction and returns it.
-func getTransactionResource(c *gin.Context) (models.Transaction, error) {
+func getTransactionResource(c *gin.Context, id uint64) (models.Transaction, error) {
 	var transaction models.Transaction
 
-	budgetID, _ := httputil.ParseID(c, "budgetId")
-
-	budget, err := getBudgetResource(c, budgetID)
-	if err != nil {
-		return models.Transaction{}, err
-	}
-
-	accountID, err := httputil.ParseID(c, "transactionId")
-	if err != nil {
-		return models.Transaction{}, err
-	}
-
-	err = models.DB.First(&transaction, &models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			BudgetID: budget.ID,
-		},
+	err := models.DB.First(&transaction, &models.Transaction{
 		Model: models.Model{
-			ID: accountID,
+			ID: id,
 		},
 	}).Error
 	if err != nil {
@@ -232,4 +234,28 @@ func getTransactionResource(c *gin.Context) (models.Transaction, error) {
 	}
 
 	return transaction, nil
+}
+
+func getTransactionObject(c *gin.Context, id uint64) (Transaction, error) {
+	resource, err := getTransactionResource(c, id)
+	if err != nil {
+		return Transaction{}, err
+	}
+
+	return Transaction{
+		resource,
+		getTransactionLinks(c, id),
+	}, nil
+}
+
+// getTransactionLinks returns a TransactionLinks struct.
+//
+// This function is only needed for getTransactionObject as we cannot create an instance of Transaction
+// with mixed named and unnamed parameters.
+func getTransactionLinks(c *gin.Context, id uint64) TransactionLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/transactions/%d", id)
+
+	return TransactionLinks{
+		Self: url,
+	}
 }

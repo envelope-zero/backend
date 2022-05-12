@@ -25,8 +25,8 @@ var optionsHeaderTests = []struct {
 	{"/v1/budgets/1/categories/1/envelopes/1", "GET, PATCH, DELETE"},
 	{"/v1/budgets/1/categories/1/envelopes/1/allocations", "GET, POST"},
 	{"/v1/budgets/1/categories/1/envelopes/1/allocations/1", "GET, PATCH, DELETE"},
-	{"/v1/budgets/1/transactions", "GET, POST"},
-	{"/v1/budgets/1/transactions/1", "GET, PATCH, DELETE"},
+	{"/v1/transactions", "GET, POST"},
+	{"/v1/transactions/1", "GET, PATCH, DELETE"},
 }
 
 func TestOptionsHeader(t *testing.T) {

@@ -127,6 +127,7 @@ func Router() (*gin.Engine, error) {
 
 	RegisterBudgetRoutes(v1.Group("/budgets"))
 	RegisterAccountRoutes(v1.Group("/accounts"))
+	RegisterTransactionRoutes(v1.Group("/transactions"))
 
 	return r, nil
 }
@@ -201,8 +202,9 @@ type V1Response struct {
 }
 
 type V1Links struct {
-	Budgets  string `json:"budgets" example:"https://example.com/api/v1/budgets"`
-	Accounts string `json:"accounts" example:"https://example.com/api/v1/accounts"`
+	Budgets      string `json:"budgets" example:"https://example.com/api/v1/budgets"`
+	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts"`
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"`
 }
 
 // @Sumary       v1 API
@@ -213,8 +215,9 @@ type V1Links struct {
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
-			Budgets:  httputil.RequestPathV1(c) + "/budgets",
-			Accounts: httputil.RequestPathV1(c) + "/accounts",
+			Budgets:      httputil.RequestPathV1(c) + "/budgets",
+			Accounts:     httputil.RequestPathV1(c) + "/accounts",
+			Transactions: httputil.RequestPathV1(c) + "/transactions",
 		},
 	})
 }

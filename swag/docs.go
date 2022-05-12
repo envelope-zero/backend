@@ -1729,7 +1729,58 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/transactions": {
+        "/v1/budgets/{budgetId}/{month}": {
+            "get": {
+                "description": "Returns data about a budget for a for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Get Budget month data",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the budget",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetMonthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/transactions": {
             "get": {
                 "description": "Returns all transactions for a specific budget",
                 "produces": [
@@ -1739,15 +1790,6 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Get all transactions",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1773,7 +1815,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new transaction for the specified budget",
+                "description": "Create a new transaction",
                 "produces": [
                     "application/json"
                 ],
@@ -1782,13 +1824,6 @@ const docTemplate = `{
                 ],
                 "summary": "Create transaction",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "description": "Transaction",
                         "name": "transaction",
@@ -1829,15 +1864,6 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "204": {
                         "description": ""
@@ -1845,7 +1871,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/transactions/{transactionId}": {
+        "/v1/transactions/{transactionId}": {
             "get": {
                 "description": "Returns a transaction by its ID",
                 "produces": [
@@ -1856,13 +1882,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get transaction",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "ID of the transaction",
@@ -1904,13 +1923,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "ID of the transaction",
                         "name": "transactionId",
                         "in": "path",
@@ -1947,13 +1959,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "ID of the transaction",
                         "name": "transactionId",
                         "in": "path",
@@ -1981,13 +1986,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "ID of the transaction",
                         "name": "transactionId",
                         "in": "path",
@@ -2008,57 +2006,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/controllers.TransactionResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/budgets/{budgetId}/{month}": {
-            "get": {
-                "description": "Returns data about a budget for a for a specific month",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Budgets"
-                ],
-                "summary": "Get Budget month data",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "The month in YYYY-MM format",
-                        "name": "month",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.BudgetMonthResponse"
                         }
                     },
                     "400": {
@@ -2389,13 +2336,70 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "budgetId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "destinationAccountId": {
+                    "type": "integer"
+                },
+                "envelopeId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "uint64",
+                    "example": 42
+                },
+                "links": {
+                    "$ref": "#/definitions/controllers.TransactionLinks"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "reconciled": {
+                    "type": "boolean"
+                },
+                "sourceAccountId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.TransactionLinks": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/transactions/1741"
+                }
+            }
+        },
         "controllers.TransactionListResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Transaction"
+                        "$ref": "#/definitions/controllers.Transaction"
                     }
                 }
             }
@@ -2404,7 +2408,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Transaction"
+                    "$ref": "#/definitions/controllers.Transaction"
                 }
             }
         },
@@ -2418,6 +2422,10 @@ const docTemplate = `{
                 "budgets": {
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets"
+                },
+                "transactions": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/transactions"
                 }
             }
         },
@@ -2686,51 +2694,6 @@ const docTemplate = `{
                 },
                 "spent": {
                     "type": "number"
-                }
-            }
-        },
-        "models.Transaction": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "budgetId": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "destinationAccountId": {
-                    "type": "integer"
-                },
-                "envelopeId": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
-                },
-                "note": {
-                    "type": "string"
-                },
-                "reconciled": {
-                    "type": "boolean"
-                },
-                "sourceAccountId": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
