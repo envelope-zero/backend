@@ -49,17 +49,48 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Account'
     type: object
+  controllers.Allocation:
+    properties:
+      amount:
+        type: number
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      envelopeId:
+        type: integer
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      links:
+        $ref: '#/definitions/controllers.AllocationLinks'
+      month:
+        type: integer
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+      year:
+        type: integer
+    type: object
+  controllers.AllocationLinks:
+    properties:
+      self:
+        example: https://example.com/api/v1/allocations/47
+        type: string
+    type: object
   controllers.AllocationListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/models.Allocation'
+          $ref: '#/definitions/controllers.Allocation'
         type: array
     type: object
   controllers.AllocationResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Allocation'
+        $ref: '#/definitions/controllers.Allocation'
     type: object
   controllers.Budget:
     properties:
@@ -93,7 +124,7 @@ definitions:
         example: https://example.com/api/v1/accounts?budget=2
         type: string
       categories:
-        example: https://example.com/api/v1/budgets/2/categories
+        example: https://example.com/api/v1/categories?budget=2
         type: string
       month:
         example: https://example.com/api/v1/budgets/2/2022-03
@@ -122,40 +153,90 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Budget'
     type: object
+  controllers.Category:
+    properties:
+      budgetId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        example: 42
+        format: uint64
+        type: integer
+      links:
+        $ref: '#/definitions/controllers.CategoryLinks'
+      name:
+        type: string
+      note:
+        type: string
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.CategoryLinks:
     properties:
       envelopes:
-        example: https://example.com/api/v1/budgets/5/categories/7/envelopes
+        example: https://example.com/api/v1/envelopes?category=7
+        type: string
+      self:
+        example: https://example.com/api/v1/categories/7
         type: string
     type: object
   controllers.CategoryListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/models.Category'
+          $ref: '#/definitions/controllers.Category'
         type: array
     type: object
   controllers.CategoryResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Category'
+        $ref: '#/definitions/controllers.Category'
+    type: object
+  controllers.Envelope:
+    properties:
+      categoryId:
+        type: integer
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        example: 42
+        format: uint64
+        type: integer
       links:
-        $ref: '#/definitions/controllers.CategoryLinks'
+        $ref: '#/definitions/controllers.EnvelopeLinks'
+      name:
+        type: string
+      note:
+        type: string
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   controllers.EnvelopeLinks:
     properties:
       allocations:
-        example: https://example.com/api/v1/budgets/2/categories/5/envelopes/1/allocations
+        example: https://example.com/api/v1/allocations?envelope=87
         type: string
       month:
-        example: https://example.com/api/v1/budgets/2/categories/5/envelopes/1/2019-03
+        example: https://example.com/api/v1/envelopes/87/2019-03
+        type: string
+      self:
+        example: https://example.com/api/v1/envelopes/87
         type: string
     type: object
   controllers.EnvelopeListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/models.Envelope'
+          $ref: '#/definitions/controllers.Envelope'
         type: array
     type: object
   controllers.EnvelopeMonthResponse:
@@ -166,9 +247,7 @@ definitions:
   controllers.EnvelopeResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Envelope'
-      links:
-        $ref: '#/definitions/controllers.EnvelopeLinks'
+        $ref: '#/definitions/controllers.Envelope'
     type: object
   controllers.RootLinks:
     properties:
@@ -243,8 +322,17 @@ definitions:
       accounts:
         example: https://example.com/api/v1/accounts
         type: string
+      allocations:
+        example: https://example.com/api/v1/allocations3
+        type: string
       budgets:
         example: https://example.com/api/v1/budgets
+        type: string
+      categories:
+        example: https://example.com/api/v1/categories
+        type: string
+      envelopes:
+        example: https://example.com/api/v1/envelopes
         type: string
       transactions:
         example: https://example.com/api/v1/transactions
@@ -294,29 +382,6 @@ definitions:
         description: 'Always false when external: true'
         type: boolean
     type: object
-  models.Allocation:
-    properties:
-      amount:
-        type: number
-      createdAt:
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      envelopeId:
-        type: integer
-      id:
-        example: 42
-        format: uint64
-        type: integer
-      month:
-        type: integer
-      updatedAt:
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-      year:
-        type: integer
-    type: object
   models.AllocationCreate:
     properties:
       amount:
@@ -356,27 +421,6 @@ definitions:
         example: A test envelope
         type: string
     type: object
-  models.Category:
-    properties:
-      budgetId:
-        type: integer
-      createdAt:
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        example: 42
-        format: uint64
-        type: integer
-      name:
-        type: string
-      note:
-        type: string
-      updatedAt:
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
   models.CategoryCreate:
     properties:
       budgetId:
@@ -384,27 +428,6 @@ definitions:
       name:
         type: string
       note:
-        type: string
-    type: object
-  models.Envelope:
-    properties:
-      categoryId:
-        type: integer
-      createdAt:
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        example: 42
-        format: uint64
-        type: integer
-      name:
-        type: string
-      note:
-        type: string
-      updatedAt:
-        example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   models.EnvelopeCreate:
@@ -669,6 +692,173 @@ paths:
       summary: Update account
       tags:
       - Accounts
+  /v1/allocations:
+    get:
+      description: Returns all allocations for an envelope
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AllocationListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get all allocations for an envelope
+      tags:
+      - Allocations
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Allocations
+    post:
+      description: Create a new allocation of funds to an envelope for a specific
+        month
+      parameters:
+      - description: Allocation
+        in: body
+        name: allocation
+        required: true
+        schema:
+          $ref: '#/definitions/models.AllocationCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.AllocationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Create allocations
+      tags:
+      - Allocations
+  /v1/allocations/{allocationId}:
+    delete:
+      description: Deletes an existing allocation
+      parameters:
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Delete an allocation
+      tags:
+      - Allocations
+    get:
+      description: Returns an allocation by its ID
+      parameters:
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AllocationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Get allocation
+      tags:
+      - Allocations
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+      summary: Allowed HTTP verbs
+      tags:
+      - Allocations
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing allocation. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID of the allocation
+        in: path
+        name: allocationId
+        required: true
+        type: integer
+      - description: Allocation
+        in: body
+        name: allocation
+        required: true
+        schema:
+          $ref: '#/definitions/models.AllocationCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AllocationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+        "404":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: Update an allocation
+      tags:
+      - Allocations
   /v1/budgets:
     get:
       description: Returns list of budgets
@@ -877,15 +1067,9 @@ paths:
       summary: Get Budget month data
       tags:
       - Budgets
-  /v1/budgets/{budgetId}/categories:
+  /v1/categories:
     get:
       description: Returns the full list of all categories for a specific budget
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -909,12 +1093,6 @@ paths:
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       responses:
         "204":
           description: ""
@@ -930,11 +1108,6 @@ paths:
     post:
       description: Create a new category for a specific budget
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: Category
         in: body
         name: category
@@ -961,15 +1134,10 @@ paths:
       summary: Create category
       tags:
       - Categories
-  /v1/budgets/{budgetId}/categories/{categoryId}:
+  /v1/categories/{categoryId}:
     delete:
       description: Deletes an existing category
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the category
         in: path
         name: categoryId
@@ -994,11 +1162,6 @@ paths:
     get:
       description: Returns a category by its ID
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the category
         in: path
         name: categoryId
@@ -1028,11 +1191,6 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the category
         in: path
         name: categoryId
@@ -1056,11 +1214,6 @@ paths:
       description: Update an existing category. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
       - description: ID of the category
         in: path
         name: categoryId
@@ -1092,20 +1245,9 @@ paths:
       summary: Update a category
       tags:
       - Categories
-  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes:
+  /v1/envelopes:
     get:
       description: Returns the full list of all envelopes for a specific category
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -1129,17 +1271,6 @@ paths:
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       responses:
         "204":
           description: ""
@@ -1149,16 +1280,6 @@ paths:
     post:
       description: Create a new envelope for a specific category
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       - description: Envelope
         in: body
         name: envelope
@@ -1185,20 +1306,10 @@ paths:
       summary: Create envelope
       tags:
       - Envelopes
-  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}:
+  /v1/envelopes/{envelopeId}:
     delete:
       description: Deletes an existing envelope
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       - description: ID of the envelope
         in: path
         name: envelopeId
@@ -1223,16 +1334,6 @@ paths:
     get:
       description: Returns an envelope by its ID
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       - description: ID of the envelope
         in: path
         name: envelopeId
@@ -1262,16 +1363,6 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       - description: ID of the envelope
         in: path
         name: envelopeId
@@ -1289,16 +1380,6 @@ paths:
       description: Update an existing envelope. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       - description: ID of the envelope
         in: path
         name: envelopeId
@@ -1330,25 +1411,10 @@ paths:
       summary: Update an envelope
       tags:
       - Envelopes
-  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/{month}:
+  /v1/envelopes/{envelopeId}/{month}:
     get:
       description: Returns data about an envelope for a for a specific month
       parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
       - description: ID of the envelope
         in: path
         name: envelopeId
@@ -1379,280 +1445,6 @@ paths:
       summary: Get Envelope month data
       tags:
       - Envelopes
-  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations:
-    get:
-      description: Returns all allocations for an envelope
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
-      - description: ID of the envelope
-        in: path
-        name: envelopeId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.AllocationListResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Get all allocations for an envelope
-      tags:
-      - Allocations
-    options:
-      description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
-      - description: ID of the envelope
-        in: path
-        name: envelopeId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: ""
-      summary: Allowed HTTP verbs
-      tags:
-      - Allocations
-    post:
-      description: Create a new allocation of funds to an envelope for a specific
-        month
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
-      - description: ID of the envelope
-        in: path
-        name: envelopeId
-        required: true
-        type: integer
-      - description: Allocation
-        in: body
-        name: allocation
-        required: true
-        schema:
-          $ref: '#/definitions/models.AllocationCreate'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/controllers.AllocationResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Create allocations
-      tags:
-      - Allocations
-  /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId}:
-    delete:
-      description: Deletes an existing allocation
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
-      - description: ID of the envelope
-        in: path
-        name: envelopeId
-        required: true
-        type: integer
-      - description: ID of the allocation
-        in: path
-        name: allocationId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete an allocation
-      tags:
-      - Allocations
-    get:
-      description: Returns an allocation by its ID
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
-      - description: ID of the envelope
-        in: path
-        name: envelopeId
-        required: true
-        type: integer
-      - description: ID of the allocation
-        in: path
-        name: allocationId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.AllocationResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Get allocation
-      tags:
-      - Allocations
-    options:
-      description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
-      - description: ID of the envelope
-        in: path
-        name: envelopeId
-        required: true
-        type: integer
-      - description: ID of the allocation
-        in: path
-        name: allocationId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: ""
-      summary: Allowed HTTP verbs
-      tags:
-      - Allocations
-    patch:
-      consumes:
-      - application/json
-      description: Update an existing allocation. Only values to be updated need to
-        be specified.
-      parameters:
-      - description: ID of the budget
-        in: path
-        name: budgetId
-        required: true
-        type: integer
-      - description: ID of the category
-        in: path
-        name: categoryId
-        required: true
-        type: integer
-      - description: ID of the envelope
-        in: path
-        name: envelopeId
-        required: true
-        type: integer
-      - description: ID of the allocation
-        in: path
-        name: allocationId
-        required: true
-        type: integer
-      - description: Allocation
-        in: body
-        name: allocation
-        required: true
-        schema:
-          $ref: '#/definitions/models.AllocationCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.AllocationResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Update an allocation
-      tags:
-      - Allocations
   /v1/transactions:
     get:
       description: Returns all transactions for a specific budget

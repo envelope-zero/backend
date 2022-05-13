@@ -10,22 +10,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type EnvelopeLinks struct {
-	Allocations string `json:"allocations" example:"https://example.com/api/v1/budgets/2/categories/5/envelopes/1/allocations"`
-	Month       string `json:"month" example:"https://example.com/api/v1/budgets/2/categories/5/envelopes/1/2019-03"`
+type EnvelopeListResponse struct {
+	Data []Envelope `json:"data"`
 }
 
 type EnvelopeResponse struct {
-	Data  models.Envelope `json:"data"`
-	Links EnvelopeLinks   `json:"links"`
+	Data Envelope `json:"data"`
 }
 
-type EnvelopeListResponse struct {
-	Data []models.Envelope `json:"data"`
+type Envelope struct {
+	models.Envelope
+	Links EnvelopeLinks `json:"links"`
 }
 
 type EnvelopeMonthResponse struct {
 	Data models.EnvelopeMonth `json:"data"`
+}
+
+type EnvelopeLinks struct {
+	Self        string `json:"self" example:"https://example.com/api/v1/envelopes/87"`
+	Allocations string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=87"`
+	Month       string `json:"month" example:"https://example.com/api/v1/envelopes/87/2019-03"`
 }
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -46,17 +51,13 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 		r.PATCH("/:envelopeId", UpdateEnvelope)
 		r.DELETE("/:envelopeId", DeleteEnvelope)
 	}
-
-	RegisterAllocationRoutes(r.Group("/:envelopeId/allocations"))
 }
 
 // @Summary      Allowed HTTP verbs
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Envelopes
 // @Success      204
-// @Param        budgetId    path  uint64  true  "ID of the budget"
-// @Param        categoryId  path  uint64  true  "ID of the category"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes [options]
+// @Router       /v1/envelopes [options]
 func OptionsEnvelopeList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -65,10 +66,8 @@ func OptionsEnvelopeList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Envelopes
 // @Success      204
-// @Param        budgetId    path  uint64  true  "ID of the budget"
-// @Param        categoryId  path  uint64  true  "ID of the category"
 // @Param        envelopeId  path  uint64  true  "ID of the envelope"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId} [options]
+// @Router       /v1/envelopes/{envelopeId} [options]
 func OptionsEnvelopeDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
@@ -80,25 +79,26 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 // @Success      201  {object}  EnvelopeResponse
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64                 true  "ID of the budget"
-// @Param        categoryId  path      uint64  true  "ID of the category"
-// @Param        envelope    body      models.EnvelopeCreate  true  "Envelope"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes [post]
+// @Failure      500       {object}  httputil.HTTPError
+// @Param        envelope  body      models.EnvelopeCreate  true  "Envelope"
+// @Router       /v1/envelopes [post]
 func CreateEnvelope(c *gin.Context) {
-	var data models.Envelope
+	var envelope models.Envelope
 
-	err := httputil.BindData(c, &data)
+	err := httputil.BindData(c, &envelope)
 	if err != nil {
 		return
 	}
 
-	data.CategoryID, err = httputil.ParseID(c, "categoryId")
+	_, err = getCategoryResource(c, envelope.CategoryID)
 	if err != nil {
 		return
 	}
-	models.DB.Create(&data)
-	c.JSON(http.StatusCreated, EnvelopeResponse{Data: data})
+
+	models.DB.Create(&envelope)
+
+	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
+	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelopeObject})
 }
 
 // @Summary      Get all envelopes for a category
@@ -108,26 +108,24 @@ func CreateEnvelope(c *gin.Context) {
 // @Success      200  {object}  EnvelopeListResponse
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Param        categoryId  path      uint64                 true  "ID of the category"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes [get]
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /v1/envelopes [get]
 func GetEnvelopes(c *gin.Context) {
 	var envelopes []models.Envelope
 
-	// Check if the category exists at all
-	category, err := getCategoryResource(c)
-	if err != nil {
-		return
+	models.DB.Find(&envelopes)
+
+	// When there are no resources, we want an empty list, not null
+	// Therefore, we use make to create a slice with zero elements
+	// which will be marshalled to an empty JSON array
+	envelopeObjects := make([]Envelope, 0)
+
+	for _, envelope := range envelopes {
+		o, _ := getEnvelopeObject(c, envelope.ID)
+		envelopeObjects = append(envelopeObjects, o)
 	}
 
-	models.DB.Where(&models.Envelope{
-		EnvelopeCreate: models.EnvelopeCreate{
-			CategoryID: category.ID,
-		},
-	}).Find(&envelopes)
-
-	c.JSON(http.StatusOK, EnvelopeListResponse{Data: envelopes})
+	c.JSON(http.StatusOK, EnvelopeListResponse{Data: envelopeObjects})
 }
 
 // @Summary      Get envelope
@@ -138,17 +136,20 @@ func GetEnvelopes(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Param        categoryId  path      uint64  true  "ID of the category"
 // @Param        envelopeId  path      uint64                 true  "ID of the envelope"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId} [get]
+// @Router       /v1/envelopes/{envelopeId} [get]
 func GetEnvelope(c *gin.Context) {
-	_, err := getEnvelopeResource(c)
+	id, err := httputil.ParseID(c, "envelopeId")
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, newEnevlopeResponse(c))
+	envelopeObject, err := getEnvelopeObject(c, id)
+	if err != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
 
 // @Summary      Get Envelope month data
@@ -159,22 +160,21 @@ func GetEnvelope(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Param        categoryId  path      uint64  true  "ID of the category"
 // @Param        envelopeId  path      uint64  true  "ID of the envelope"
 // @Param        month       path      string  true  "The month in YYYY-MM format"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/{month} [get]
+// @Router       /v1/envelopes/{envelopeId}/{month} [get]
 func GetEnvelopeMonth(c *gin.Context) {
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
 		return
 	}
 
-	envelope, err := getEnvelopeResource(c)
+	id, err := httputil.ParseID(c, "envelopeId")
 	if err != nil {
 		return
 	}
+
+	envelope, _ := getEnvelopeResource(c, id)
 
 	if month.Month.IsZero() {
 		httputil.NewError(c, http.StatusBadRequest, errors.New("You cannot request data for no month"))
@@ -193,17 +193,17 @@ func GetEnvelopeMonth(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64                 true  "ID of the budget"
-// @Param        categoryId  path      uint64                 true  "ID of the category"
 // @Param        envelopeId  path      uint64  true  "ID of the envelope"
 // @Param        envelope    body      models.EnvelopeCreate  true  "Envelope"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId} [patch]
+// @Router       /v1/envelopes/{envelopeId} [patch]
 func UpdateEnvelope(c *gin.Context) {
-	var envelope models.Envelope
-
-	err := models.DB.First(&envelope, c.Param("envelopeId")).Error
+	id, err := httputil.ParseID(c, "envelopeId")
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		return
+	}
+
+	envelope, err := getEnvelopeResource(c, id)
+	if err != nil {
 		return
 	}
 
@@ -213,7 +213,8 @@ func UpdateEnvelope(c *gin.Context) {
 	}
 
 	models.DB.Model(&envelope).Updates(data)
-	c.JSON(http.StatusOK, gin.H{"data": envelope})
+	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
+	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
 
 // @Summary      Delete an envelope
@@ -223,12 +224,15 @@ func UpdateEnvelope(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Param        categoryId  path      uint64  true  "ID of the category"
 // @Param        envelopeId  path      uint64  true  "ID of the envelope"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId} [delete]
+// @Router       /v1/envelopes/{envelopeId} [delete]
 func DeleteEnvelope(c *gin.Context) {
-	envelope, err := getEnvelopeResource(c)
+	id, err := httputil.ParseID(c, "envelopeId")
+	if err != nil {
+		return
+	}
+
+	envelope, err := getEnvelopeResource(c, id)
 	if err != nil {
 		return
 	}
@@ -239,25 +243,12 @@ func DeleteEnvelope(c *gin.Context) {
 }
 
 // getEnvelopeResource verifies that the envelope from the URL parameters exists and returns it.
-func getEnvelopeResource(c *gin.Context) (models.Envelope, error) {
+func getEnvelopeResource(c *gin.Context, id uint64) (models.Envelope, error) {
 	var envelope models.Envelope
 
-	envelopeID, err := httputil.ParseID(c, "envelopeId")
-	if err != nil {
-		return models.Envelope{}, err
-	}
-
-	category, err := getCategoryResource(c)
-	if err != nil {
-		return models.Envelope{}, err
-	}
-
-	err = models.DB.Where(&models.Envelope{
-		EnvelopeCreate: models.EnvelopeCreate{
-			CategoryID: category.ID,
-		},
+	err := models.DB.Where(&models.Envelope{
 		Model: models.Model{
-			ID: envelopeID,
+			ID: id,
 		},
 	}).First(&envelope).Error
 	if err != nil {
@@ -268,18 +259,28 @@ func getEnvelopeResource(c *gin.Context) (models.Envelope, error) {
 	return envelope, nil
 }
 
-func newEnevlopeResponse(c *gin.Context) EnvelopeResponse {
-	budgetID, _ := httputil.ParseID(c, "budgetId")
-	category, _ := getCategoryResource(c)
-	envelope, _ := getEnvelopeResource(c)
+func getEnvelopeObject(c *gin.Context, id uint64) (Envelope, error) {
+	resource, err := getEnvelopeResource(c, id)
+	if err != nil {
+		return Envelope{}, err
+	}
 
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d/categories/%d/envelopes/%d", budgetID, category.ID, envelope.ID)
+	return Envelope{
+		resource,
+		getEnvelopeLinks(c, id),
+	}, nil
+}
 
-	return EnvelopeResponse{
-		Data: envelope,
-		Links: EnvelopeLinks{
-			Allocations: url + "/allocations",
-			Month:       url + "/YYYY-MM",
-		},
+// getEnvelopeLinks returns a BudgetLinks struct.
+//
+// This function is only needed for getEnvelopeObject as we cannot create an instance of Envelope
+// with mixed named and unnamed parameters.
+func getEnvelopeLinks(c *gin.Context, id uint64) EnvelopeLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes/%d", id)
+
+	return EnvelopeLinks{
+		Self:        url,
+		Allocations: url + "/allocations",
+		Month:       url + "/YYYY-MM",
 	}
 }
