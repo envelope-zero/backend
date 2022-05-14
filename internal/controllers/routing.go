@@ -128,6 +128,9 @@ func Router() (*gin.Engine, error) {
 	RegisterBudgetRoutes(v1.Group("/budgets"))
 	RegisterAccountRoutes(v1.Group("/accounts"))
 	RegisterTransactionRoutes(v1.Group("/transactions"))
+	RegisterCategoryRoutes(v1.Group("/categories"))
+	RegisterEnvelopeRoutes(v1.Group("/envelopes"))
+	RegisterAllocationRoutes(v1.Group("/allocations"))
 
 	return r, nil
 }
@@ -204,7 +207,10 @@ type V1Response struct {
 type V1Links struct {
 	Budgets      string `json:"budgets" example:"https://example.com/api/v1/budgets"`
 	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts"`
+	Categories   string `json:"categories" example:"https://example.com/api/v1/categories"`
 	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"`
+	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`
+	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations3"`
 }
 
 // @Sumary       v1 API
@@ -217,7 +223,10 @@ func GetV1(c *gin.Context) {
 		Links: V1Links{
 			Budgets:      httputil.RequestPathV1(c) + "/budgets",
 			Accounts:     httputil.RequestPathV1(c) + "/accounts",
+			Categories:   httputil.RequestPathV1(c) + "/categories",
 			Transactions: httputil.RequestPathV1(c) + "/transactions",
+			Envelopes:    httputil.RequestPathV1(c) + "/envelopes",
+			Allocations:  httputil.RequestPathV1(c) + "/allocations",
 		},
 	})
 }

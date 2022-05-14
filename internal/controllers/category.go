@@ -10,16 +10,21 @@ import (
 )
 
 type CategoryListResponse struct {
-	Data []models.Category `json:"data"`
+	Data []Category `json:"data"`
 }
 
 type CategoryResponse struct {
-	Data  models.Category `json:"data"`
-	Links CategoryLinks   `json:"links"`
+	Data Category `json:"data"`
+}
+
+type Category struct {
+	models.Category
+	Links CategoryLinks `json:"links"`
 }
 
 type CategoryLinks struct {
-	Envelopes string `json:"envelopes" example:"https://example.com/api/v1/budgets/5/categories/7/envelopes"`
+	Self      string `json:"self" example:"https://example.com/api/v1/categories/7"`
+	Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=7"`
 }
 
 // RegisterCategoryRoutes registers the routes for categories with
@@ -39,8 +44,6 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 		r.PATCH("/:categoryId", UpdateCategory)
 		r.DELETE("/:categoryId", DeleteCategory)
 	}
-
-	RegisterEnvelopeRoutes(r.Group("/:categoryId/envelopes"))
 }
 
 // @Summary      Allowed HTTP verbs
@@ -49,8 +52,7 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Router       /v1/budgets/{budgetId}/categories [options]
+// @Router       /v1/categories [options]
 func OptionsCategoryList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -61,9 +63,8 @@ func OptionsCategoryList(c *gin.Context) {
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Param        budgetId    path  uint64  true  "ID of the budget"
 // @Param        categoryId  path  uint64  true  "ID of the category"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId} [options]
+// @Router       /v1/categories/{categoryId} [options]
 func OptionsCategoryDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
@@ -75,24 +76,26 @@ func OptionsCategoryDetail(c *gin.Context) {
 // @Success      201  {object}  CategoryResponse
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Failure      500       {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64                 true  "ID of the budget"
+// @Failure      500  {object}  httputil.HTTPError
 // @Param        category    body      models.CategoryCreate  true  "Category"
-// @Router       /v1/budgets/{budgetId}/categories [post]
+// @Router       /v1/categories [post]
 func CreateCategory(c *gin.Context) {
-	var data models.Category
+	var category models.Category
 
-	err := httputil.BindData(c, &data)
+	err := httputil.BindData(c, &category)
 	if err != nil {
 		return
 	}
 
-	data.CategoryCreate.BudgetID, err = httputil.ParseID(c, "budgetId")
+	_, err = getBudgetResource(c, category.BudgetID)
 	if err != nil {
 		return
 	}
-	models.DB.Create(&data)
-	c.JSON(http.StatusCreated, CategoryResponse{Data: data})
+
+	models.DB.Create(&category)
+
+	categoryObject, _ := getCategoryObject(c, category.ID)
+	c.JSON(http.StatusCreated, CategoryResponse{Data: categoryObject})
 }
 
 // @Summary      Get all categories for a budget
@@ -103,20 +106,23 @@ func CreateCategory(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500       {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Router       /v1/budgets/{budgetId}/categories [get]
+// @Router       /v1/categories [get]
 func GetCategories(c *gin.Context) {
-	id, err := httputil.ParseID(c, "budgetId")
-	if err != nil {
-		return
+	var categories []models.Category
+
+	models.DB.Find(&categories)
+
+	// When there are no resources, we want an empty list, not null
+	// Therefore, we use make to create a slice with zero elements
+	// which will be marshalled to an empty JSON array
+	categoryObjects := make([]Category, 0)
+
+	for _, category := range categories {
+		o, _ := getCategoryObject(c, category.ID)
+		categoryObjects = append(categoryObjects, o)
 	}
 
-	categories, err := getCategoryResources(c, id)
-	if err != nil {
-		return
-	}
-
-	c.JSON(http.StatusOK, CategoryListResponse{Data: categories})
+	c.JSON(http.StatusOK, CategoryListResponse{Data: categoryObjects})
 }
 
 // @Summary      Get category
@@ -127,16 +133,20 @@ func GetCategories(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Param        categoryId  path      uint64  true  "ID of the category"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId} [get]
+// @Router       /v1/categories/{categoryId} [get]
 func GetCategory(c *gin.Context) {
-	category, err := getCategoryResource(c)
+	id, err := httputil.ParseID(c, "categoryId")
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, newCategoryResponse(c, category.ID))
+	categoryObject, err := getCategoryObject(c, id)
+	if err != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
 
 // @Summary      Update a category
@@ -148,12 +158,16 @@ func GetCategory(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64                 true  "ID of the budget"
 // @Param        categoryId  path      uint64                 true  "ID of the category"
 // @Param        category  body      models.CategoryCreate  true  "Category"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId} [patch]
+// @Router       /v1/categories/{categoryId} [patch]
 func UpdateCategory(c *gin.Context) {
-	category, err := getCategoryResource(c)
+	id, err := httputil.ParseID(c, "categoryId")
+	if err != nil {
+		return
+	}
+
+	category, err := getCategoryResource(c, id)
 	if err != nil {
 		return
 	}
@@ -164,7 +178,8 @@ func UpdateCategory(c *gin.Context) {
 	}
 
 	models.DB.Model(&category).Updates(data)
-	c.JSON(http.StatusOK, CategoryResponse{Data: category})
+	categoryObject, _ := getCategoryObject(c, category.ID)
+	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
 
 // @Summary      Delete a category
@@ -174,11 +189,15 @@ func UpdateCategory(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId  path  uint64  true  "ID of the budget"
 // @Param        categoryId  path      uint64  true  "ID of the category"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId} [delete]
+// @Router       /v1/categories/{categoryId} [delete]
 func DeleteCategory(c *gin.Context) {
-	category, err := getCategoryResource(c)
+	id, err := httputil.ParseID(c, "categoryId")
+	if err != nil {
+		return
+	}
+
+	category, err := getCategoryResource(c, id)
 	if err != nil {
 		return
 	}
@@ -188,31 +207,12 @@ func DeleteCategory(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-// getCategoryResource verifies that the category from the URL parameters exists and returns it.
-func getCategoryResource(c *gin.Context) (models.Category, error) {
+func getCategoryResource(c *gin.Context, id uint64) (models.Category, error) {
 	var category models.Category
 
-	categoryID, err := httputil.ParseID(c, "categoryId")
-	if err != nil {
-		return models.Category{}, err
-	}
-
-	budgetID, err := httputil.ParseID(c, "budgetId")
-	if err != nil {
-		return models.Category{}, err
-	}
-
-	budget, err := getBudgetResource(c, budgetID)
-	if err != nil {
-		return models.Category{}, err
-	}
-
-	err = models.DB.Where(&models.Category{
-		CategoryCreate: models.CategoryCreate{
-			BudgetID: budget.ID,
-		},
+	err := models.DB.Where(&models.Category{
 		Model: models.Model{
-			ID: categoryID,
+			ID: id,
 		},
 	}).First(&category).Error
 	if err != nil {
@@ -236,16 +236,27 @@ func getCategoryResources(c *gin.Context, id uint64) ([]models.Category, error) 
 	return categories, nil
 }
 
-func newCategoryResponse(c *gin.Context, budgetID uint64) CategoryResponse {
-	// When this function is called, all parent resources have already been validated
-	category, _ := getCategoryResource(c)
+func getCategoryObject(c *gin.Context, id uint64) (Category, error) {
+	resource, err := getCategoryResource(c, id)
+	if err != nil {
+		return Category{}, err
+	}
 
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d/categories/%d", budgetID, category.ID)
+	return Category{
+		resource,
+		getCategoryLinks(c, id),
+	}, nil
+}
 
-	return CategoryResponse{
-		Data: category,
-		Links: CategoryLinks{
-			Envelopes: url + "/envelopes",
-		},
+// getCategoryLinks returns a BudgetLinks struct.
+//
+// This function is only needed for getCategoryObject as we cannot create an instance of Category
+// with mixed named and unnamed parameters.
+func getCategoryLinks(c *gin.Context, id uint64) CategoryLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/categories/%d", id)
+
+	return CategoryLinks{
+		Self:      url,
+		Envelopes: httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes?category=%d", id),
 	}
 }

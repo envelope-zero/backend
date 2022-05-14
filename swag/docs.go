@@ -337,6 +337,252 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/allocations": {
+            "get": {
+                "description": "Returns all allocations for an envelope",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Allocations"
+                ],
+                "summary": "Get all allocations for an envelope",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AllocationListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new allocation of funds to an envelope for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Allocations"
+                ],
+                "summary": "Create allocations",
+                "parameters": [
+                    {
+                        "description": "Allocation",
+                        "name": "allocation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AllocationCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AllocationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Allocations"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/allocations/{allocationId}": {
+            "get": {
+                "description": "Returns an allocation by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Allocations"
+                ],
+                "summary": "Get allocation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the allocation",
+                        "name": "allocationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AllocationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an existing allocation",
+                "tags": [
+                    "Allocations"
+                ],
+                "summary": "Delete an allocation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the allocation",
+                        "name": "allocationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Allocations"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the allocation",
+                        "name": "allocationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing allocation. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Allocations"
+                ],
+                "summary": "Update an allocation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the allocation",
+                        "name": "allocationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Allocation",
+                        "name": "allocation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AllocationCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AllocationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/budgets": {
             "get": {
                 "description": "Returns list of budgets",
@@ -595,7 +841,58 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/categories": {
+        "/v1/budgets/{budgetId}/{month}": {
+            "get": {
+                "description": "Returns data about a budget for a for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Get Budget month data",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the budget",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetMonthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/categories": {
             "get": {
                 "description": "Returns the full list of all categories for a specific budget",
                 "produces": [
@@ -605,15 +902,6 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Get all categories for a budget",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -648,13 +936,6 @@ const docTemplate = `{
                 ],
                 "summary": "Create category",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "description": "Category",
                         "name": "category",
@@ -695,15 +976,6 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Allowed HTTP verbs",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "204": {
                         "description": ""
@@ -720,7 +992,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/categories/{categoryId}": {
+        "/v1/categories/{categoryId}": {
             "get": {
                 "description": "Returns a category by its ID",
                 "produces": [
@@ -731,13 +1003,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get category",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "ID of the category",
@@ -779,13 +1044,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "ID of the category",
                         "name": "categoryId",
                         "in": "path",
@@ -822,13 +1080,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "ID of the category",
                         "name": "categoryId",
                         "in": "path",
@@ -863,13 +1114,6 @@ const docTemplate = `{
                 ],
                 "summary": "Update a category",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "ID of the category",
@@ -912,7 +1156,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/categories/{categoryId}/envelopes": {
+        "/v1/envelopes": {
             "get": {
                 "description": "Returns the full list of all envelopes for a specific category",
                 "produces": [
@@ -922,22 +1166,6 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Get all envelopes for a category",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -972,20 +1200,6 @@ const docTemplate = `{
                 ],
                 "summary": "Create envelope",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "description": "Envelope",
                         "name": "envelope",
@@ -1026,22 +1240,6 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "204": {
                         "description": ""
@@ -1049,7 +1247,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}": {
+        "/v1/envelopes/{envelopeId}": {
             "get": {
                 "description": "Returns an envelope by its ID",
                 "produces": [
@@ -1060,20 +1258,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get envelope",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "ID of the envelope",
@@ -1115,20 +1299,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "ID of the envelope",
                         "name": "envelopeId",
                         "in": "path",
@@ -1165,20 +1335,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "ID of the envelope",
                         "name": "envelopeId",
                         "in": "path",
@@ -1204,20 +1360,6 @@ const docTemplate = `{
                 ],
                 "summary": "Update an envelope",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "ID of the envelope",
@@ -1260,404 +1402,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations": {
-            "get": {
-                "description": "Returns all allocations for an envelope",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Allocations"
-                ],
-                "summary": "Get all allocations for an envelope",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the envelope",
-                        "name": "envelopeId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.AllocationListResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new allocation of funds to an envelope for a specific month",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Allocations"
-                ],
-                "summary": "Create allocations",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the envelope",
-                        "name": "envelopeId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Allocation",
-                        "name": "allocation",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.AllocationCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.AllocationResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            },
-            "options": {
-                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
-                "tags": [
-                    "Allocations"
-                ],
-                "summary": "Allowed HTTP verbs",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the envelope",
-                        "name": "envelopeId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId}": {
-            "get": {
-                "description": "Returns an allocation by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Allocations"
-                ],
-                "summary": "Get allocation",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the envelope",
-                        "name": "envelopeId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the allocation",
-                        "name": "allocationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.AllocationResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes an existing allocation",
-                "tags": [
-                    "Allocations"
-                ],
-                "summary": "Delete an allocation",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the envelope",
-                        "name": "envelopeId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the allocation",
-                        "name": "allocationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            },
-            "options": {
-                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
-                "tags": [
-                    "Allocations"
-                ],
-                "summary": "Allowed HTTP verbs",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the envelope",
-                        "name": "envelopeId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the allocation",
-                        "name": "allocationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    }
-                }
-            },
-            "patch": {
-                "description": "Update an existing allocation. Only values to be updated need to be specified.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Allocations"
-                ],
-                "summary": "Update an allocation",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the envelope",
-                        "name": "envelopeId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the allocation",
-                        "name": "allocationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Allocation",
-                        "name": "allocation",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.AllocationCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.AllocationResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/{month}": {
+        "/v1/envelopes/{envelopeId}/{month}": {
             "get": {
                 "description": "Returns data about an envelope for a for a specific month",
                 "produces": [
@@ -1668,27 +1413,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get Envelope month data",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID of the category",
-                        "name": "categoryId",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "ID of the envelope",
@@ -1709,57 +1433,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/controllers.EnvelopeMonthResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/budgets/{budgetId}/{month}": {
-            "get": {
-                "description": "Returns data about a budget for a for a specific month",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Budgets"
-                ],
-                "summary": "Get Budget month data",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the budget",
-                        "name": "budgetId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "The month in YYYY-MM format",
-                        "name": "month",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.BudgetMonthResponse"
                         }
                     },
                     "400": {
@@ -2130,13 +1803,58 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Allocation": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "envelopeId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "uint64",
+                    "example": 42
+                },
+                "links": {
+                    "$ref": "#/definitions/controllers.AllocationLinks"
+                },
+                "month": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.AllocationLinks": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/allocations/47"
+                }
+            }
+        },
         "controllers.AllocationListResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Allocation"
+                        "$ref": "#/definitions/controllers.Allocation"
                     }
                 }
             }
@@ -2145,7 +1863,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Allocation"
+                    "$ref": "#/definitions/controllers.Allocation"
                 }
             }
         },
@@ -2194,7 +1912,7 @@ const docTemplate = `{
                 },
                 "categories": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/2/categories"
+                    "example": "https://example.com/api/v1/categories?budget=2"
                 },
                 "month": {
                     "type": "string",
@@ -2237,12 +1955,49 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Category": {
+            "type": "object",
+            "properties": {
+                "budgetId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "uint64",
+                    "example": 42
+                },
+                "links": {
+                    "$ref": "#/definitions/controllers.CategoryLinks"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.CategoryLinks": {
             "type": "object",
             "properties": {
                 "envelopes": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/5/categories/7/envelopes"
+                    "example": "https://example.com/api/v1/envelopes?category=7"
+                },
+                "self": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/categories/7"
                 }
             }
         },
@@ -2252,7 +2007,7 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Category"
+                        "$ref": "#/definitions/controllers.Category"
                     }
                 }
             }
@@ -2261,10 +2016,40 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Category"
+                    "$ref": "#/definitions/controllers.Category"
+                }
+            }
+        },
+        "controllers.Envelope": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "uint64",
+                    "example": 42
                 },
                 "links": {
-                    "$ref": "#/definitions/controllers.CategoryLinks"
+                    "$ref": "#/definitions/controllers.EnvelopeLinks"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -2273,11 +2058,15 @@ const docTemplate = `{
             "properties": {
                 "allocations": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/2/categories/5/envelopes/1/allocations"
+                    "example": "https://example.com/api/v1/allocations?envelope=87"
                 },
                 "month": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/2/categories/5/envelopes/1/2019-03"
+                    "example": "https://example.com/api/v1/envelopes/87/2019-03"
+                },
+                "self": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/envelopes/87"
                 }
             }
         },
@@ -2287,7 +2076,7 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Envelope"
+                        "$ref": "#/definitions/controllers.Envelope"
                     }
                 }
             }
@@ -2304,10 +2093,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Envelope"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.EnvelopeLinks"
+                    "$ref": "#/definitions/controllers.Envelope"
                 }
             }
         },
@@ -2419,9 +2205,21 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/v1/accounts"
                 },
+                "allocations": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/allocations3"
+                },
                 "budgets": {
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets"
+                },
+                "categories": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/categories"
+                },
+                "envelopes": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/envelopes"
                 },
                 "transactions": {
                     "type": "string",
@@ -2496,39 +2294,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Allocation": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "envelopeId": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
-                },
-                "month": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                },
-                "year": {
-                    "type": "integer"
-                }
-            }
-        },
         "models.AllocationCreate": {
             "type": "object",
             "properties": {
@@ -2586,36 +2351,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Category": {
-            "type": "object",
-            "properties": {
-                "budgetId": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
-                },
-                "name": {
-                    "type": "string"
-                },
-                "note": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
         "models.CategoryCreate": {
             "type": "object",
             "properties": {
@@ -2627,36 +2362,6 @@ const docTemplate = `{
                 },
                 "note": {
                     "type": "string"
-                }
-            }
-        },
-        "models.Envelope": {
-            "type": "object",
-            "properties": {
-                "categoryId": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
-                },
-                "name": {
-                    "type": "string"
-                },
-                "note": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

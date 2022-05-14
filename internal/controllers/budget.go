@@ -27,7 +27,7 @@ type Budget struct {
 type BudgetLinks struct {
 	Self         string `json:"self" example:"https://example.com/api/v1/budgets/4"`
 	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=2"`
-	Categories   string `json:"categories" example:"https://example.com/api/v1/budgets/2/categories"`
+	Categories   string `json:"categories" example:"https://example.com/api/v1/categories?budget=2"`
 	Transactions string `json:"transactions" example:"https://example.com/api/v1/budgets/2/transactions"`
 	Month        string `json:"month" example:"https://example.com/api/v1/budgets/2/2022-03"`
 }
@@ -54,8 +54,6 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 		r.PATCH("/:budgetId", UpdateBudget)
 		r.DELETE("/:budgetId", DeleteBudget)
 	}
-
-	RegisterCategoryRoutes(r.Group("/:budgetId/categories"))
 }
 
 // @Summary      Allowed HTTP verbs
@@ -311,7 +309,7 @@ func getBudgetLinks(c *gin.Context, id uint64) BudgetLinks {
 	return BudgetLinks{
 		Self:         url,
 		Accounts:     httputil.RequestPathV1(c) + fmt.Sprintf("/accounts?budget=%d", id),
-		Categories:   url + "/categories",
+		Categories:   httputil.RequestPathV1(c) + fmt.Sprintf("/categories?budget=%d", id),
 		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?budget=%d", id),
 		Month:        url + "/YYYY-MM",
 	}

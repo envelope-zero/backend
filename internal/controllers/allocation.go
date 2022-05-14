@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,11 +15,20 @@ import (
 )
 
 type AllocationResponse struct {
-	Data models.Allocation `json:"data"`
+	Data Allocation `json:"data"`
 }
 
 type AllocationListResponse struct {
-	Data []models.Allocation `json:"data"`
+	Data []Allocation `json:"data"`
+}
+
+type Allocation struct {
+	models.Allocation
+	Links AllocationLinks `json:"links"`
+}
+
+type AllocationLinks struct {
+	Self string `json:"self" example:"https://example.com/api/v1/allocations/47"`
 }
 
 // RegisterAllocationRoutes registers the routes for allocations with
@@ -44,10 +54,7 @@ func RegisterAllocationRoutes(r *gin.RouterGroup) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Allocations
 // @Success      204
-// @Param        budgetId    path  uint64  true  "ID of the budget"
-// @Param        categoryId    path  uint64  true  "ID of the category"
-// @Param        envelopeId    path  uint64  true  "ID of the envelope"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations [options]
+// @Router       /v1/allocations [options]
 func OptionsAllocationList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -56,11 +63,8 @@ func OptionsAllocationList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Allocations
 // @Success      204
-// @Param        budgetId      path  uint64  true  "ID of the budget"
-// @Param        categoryId  path  uint64  true  "ID of the category"
-// @Param        envelopeId  path  uint64  true  "ID of the envelope"
 // @Param        allocationId  path  uint64  true  "ID of the allocation"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [options]
+// @Router       /v1/allocations/{allocationId} [options]
 func OptionsAllocationDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
@@ -73,24 +77,22 @@ func OptionsAllocationDetail(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500           {object}  httputil.HTTPError
-// @Param        budgetId      path      uint64                   true  "ID of the budget"
-// @Param        categoryId    path      uint64                   true  "ID of the category"
-// @Param        envelopeId    path      uint64                   true  "ID of the envelope"
 // @Param        allocation    body      models.AllocationCreate  true  "Allocation"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations [post]
+// @Router       /v1/allocations [post]
 func CreateAllocation(c *gin.Context) {
-	var data models.Allocation
+	var allocation models.Allocation
 
-	err := httputil.BindData(c, &data)
+	err := httputil.BindData(c, &allocation)
 	if err != nil {
 		return
 	}
 
-	data.EnvelopeID, err = httputil.ParseID(c, "envelopeId")
+	_, err = getEnvelopeResource(c, allocation.EnvelopeID)
 	if err != nil {
 		return
 	}
-	result := models.DB.Create(&data)
+
+	result := models.DB.Create(&allocation)
 
 	if result.Error != nil {
 		// By default, we assume a server error
@@ -115,7 +117,8 @@ func CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, AllocationResponse{Data: data})
+	allocationObject, _ := getAllocationObject(c, allocation.ID)
+	c.JSON(http.StatusCreated, AllocationResponse{Data: allocationObject})
 }
 
 // @Summary      Get all allocations for an envelope
@@ -125,27 +128,24 @@ func CreateAllocation(c *gin.Context) {
 // @Success      200  {object}  AllocationListResponse
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64  true  "ID of the budget"
-// @Param        categoryId  path      uint64  true  "ID of the category"
-// @Param        envelopeId  path      uint64  true  "ID of the envelope"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations [get]
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /v1/allocations [get]
 func GetAllocations(c *gin.Context) {
 	var allocations []models.Allocation
 
-	// Check if the envelope exists
-	envelope, err := getEnvelopeResource(c)
-	if err != nil {
-		return
+	models.DB.Find(&allocations)
+
+	// When there are no resources, we want an empty list, not null
+	// Therefore, we use make to create a slice with zero elements
+	// which will be marshalled to an empty JSON array
+	allocationObjects := make([]Allocation, 0)
+
+	for _, allocation := range allocations {
+		o, _ := getAllocationObject(c, allocation.ID)
+		allocationObjects = append(allocationObjects, o)
 	}
 
-	models.DB.Where(&models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-		},
-	}).Find(&allocations)
-
-	c.JSON(http.StatusOK, AllocationListResponse{Data: allocations})
+	c.JSON(http.StatusOK, AllocationListResponse{Data: allocationObjects})
 }
 
 // @Summary      Get allocation
@@ -156,18 +156,20 @@ func GetAllocations(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500           {object}  httputil.HTTPError
-// @Param        budgetId      path      uint64  true  "ID of the budget"
-// @Param        categoryId    path      uint64  true  "ID of the category"
-// @Param        envelopeId  path      uint64                   true  "ID of the envelope"
 // @Param        allocationId  path      uint64  true  "ID of the allocation"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [get]
+// @Router       /v1/allocations/{allocationId} [get]
 func GetAllocation(c *gin.Context) {
-	allocation, err := getAllocationResource(c)
+	id, err := httputil.ParseID(c, "allocationId")
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, AllocationResponse{Data: allocation})
+	allocationObject, err := getAllocationObject(c, id)
+	if err != nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
 // @Summary      Update an allocation
@@ -179,14 +181,16 @@ func GetAllocation(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500           {object}  httputil.HTTPError
-// @Param        budgetId    path      uint64                   true  "ID of the budget"
-// @Param        categoryId  path      uint64                   true  "ID of the category"
-// @Param        envelopeId    path      uint64  true  "ID of the envelope"
 // @Param        allocationId  path      uint64                   true  "ID of the allocation"
 // @Param        allocation  body      models.AllocationCreate  true  "Allocation"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [patch]
+// @Router       /v1/allocations/{allocationId} [patch]
 func UpdateAllocation(c *gin.Context) {
-	allocation, err := getAllocationResource(c)
+	id, err := httputil.ParseID(c, "allocationId")
+	if err != nil {
+		return
+	}
+
+	allocation, err := getAllocationResource(c, id)
 	if err != nil {
 		return
 	}
@@ -197,7 +201,9 @@ func UpdateAllocation(c *gin.Context) {
 	}
 
 	models.DB.Model(&allocation).Updates(data)
-	c.JSON(http.StatusOK, AllocationResponse{Data: allocation})
+	allocationObject, _ := getAllocationObject(c, allocation.ID)
+
+	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
 // @Summary      Delete an allocation
@@ -207,13 +213,15 @@ func UpdateAllocation(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        budgetId      path      uint64  true  "ID of the budget"
-// @Param        categoryId    path      uint64  true  "ID of the category"
-// @Param        envelopeId    path      uint64  true  "ID of the envelope"
 // @Param        allocationId  path      uint64  true  "ID of the allocation"
-// @Router       /v1/budgets/{budgetId}/categories/{categoryId}/envelopes/{envelopeId}/allocations/{allocationId} [delete]
+// @Router       /v1/allocations/{allocationId} [delete]
 func DeleteAllocation(c *gin.Context) {
-	allocation, err := getAllocationResource(c)
+	id, err := httputil.ParseID(c, "allocationId")
+	if err != nil {
+		return
+	}
+
+	allocation, err := getAllocationResource(c, id)
 	if err != nil {
 		return
 	}
@@ -224,25 +232,12 @@ func DeleteAllocation(c *gin.Context) {
 }
 
 // getAllocationResource verifies that the request URI is valid for the transaction and returns it.
-func getAllocationResource(c *gin.Context) (models.Allocation, error) {
+func getAllocationResource(c *gin.Context, id uint64) (models.Allocation, error) {
 	var allocation models.Allocation
 
-	envelope, err := getEnvelopeResource(c)
-	if err != nil {
-		return models.Allocation{}, err
-	}
-
-	allocationID, err := httputil.ParseID(c, "allocationId")
-	if err != nil {
-		return models.Allocation{}, err
-	}
-
-	err = models.DB.First(&allocation, &models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-		},
+	err := models.DB.First(&allocation, &models.Allocation{
 		Model: models.Model{
-			ID: allocationID,
+			ID: id,
 		},
 	}).Error
 	if err != nil {
@@ -251,4 +246,28 @@ func getAllocationResource(c *gin.Context) (models.Allocation, error) {
 	}
 
 	return allocation, nil
+}
+
+func getAllocationObject(c *gin.Context, id uint64) (Allocation, error) {
+	resource, err := getAllocationResource(c, id)
+	if err != nil {
+		return Allocation{}, err
+	}
+
+	return Allocation{
+		resource,
+		getAllocationLinks(c, id),
+	}, nil
+}
+
+// getAllocationLinks returns a BudgetLinks struct.
+//
+// This function is only needed for getAllocationObject as we cannot create an instance of Allocation
+// with mixed named and unnamed parameters.
+func getAllocationLinks(c *gin.Context, id uint64) AllocationLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/allocations/%d", id)
+
+	return AllocationLinks{
+		Self: url,
+	}
 }

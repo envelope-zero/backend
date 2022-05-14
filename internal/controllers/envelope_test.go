@@ -6,31 +6,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/envelope-zero/backend/internal/test"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
-type EnvelopeListResponse struct {
-	test.APIResponse
-	Data []models.Envelope
-}
-
-type EnvelopeDetailResponse struct {
-	test.APIResponse
-	Data models.Envelope
-}
-
-type EnvelopeMonthResponse struct {
-	test.APIResponse
-	Data models.EnvelopeMonth
-}
-
 func TestGetEnvelopes(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes", "")
+	recorder := test.Request(t, "GET", "/v1/envelopes", "")
 
-	var response EnvelopeListResponse
+	var response controllers.EnvelopeListResponse
 	test.DecodeResponse(t, &recorder, &response)
 
 	assert.Equal(t, 200, recorder.Code)
@@ -50,7 +36,7 @@ func TestGetEnvelopes(t *testing.T) {
 }
 
 func TestNoEnvelopeNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/2", "")
+	recorder := test.Request(t, "GET", "/v1/envelopes/2", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
@@ -58,96 +44,70 @@ func TestNoEnvelopeNotFound(t *testing.T) {
 // TestEnvelopeInvalidIDs verifies that on non-number requests for envelope IDs,
 // the API returs a Bad Request status code.
 func TestEnvelopeInvalidIDs(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/-1985", "")
+	r := test.Request(t, "GET", "/v1/envelopes/-1985", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/OhNoOurTable", "")
+	r = test.Request(t, "GET", "/v1/envelopes/OhNoOurTable", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
-}
 
-// TestNonexistingCategoryEnvelopes404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
-//
-// It verifies that for a non-existing category, the envelopes endpoint raises a 404
-// instead of returning an empty list.
-func TestNonexistingCategoryEnvelopes404(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/999/envelopes", "")
-	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
-}
+	r = test.Request(t, "PATCH", "/v1/envelopes/StupidLittleWalk", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-// TestNonexistingBudgetEnvelopes404 is a regression test for https://github.com/envelope-zero/backend/issues/89.
-//
-// It verifies that for a non-existing budget, no matter if the category with the ID exists,
-// the envelopes endpoint raises a 404 instead of returning an empty list.
-func TestNonexistingBudgetEnvelopes404(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/999/categories/1/envelopes", "")
-	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
-}
-
-// TestEnvelopeParentChecked is a regression test for https://github.com/envelope-zero/backend/issues/90.
-//
-// It verifies that the envelope details endpoint for a category only returns envelopes that belong to the
-// category.
-func TestEnvelopeParentChecked(t *testing.T) {
-	r := test.Request(t, "POST", "/v1/budgets/1/categories", `{ "name": "Testing category" }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &r)
-
-	var category CategoryDetailResponse
-	test.DecodeResponse(t, &r, &category)
-
-	path := fmt.Sprintf("/v1/budgets/1/categories/%v", category.Data.ID)
-	r = test.Request(t, "GET", path+"/envelopes/1", "")
-	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
-
-	r = test.Request(t, "DELETE", path, "")
-	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
+	r = test.Request(t, "DELETE", "/v1/envelopes/25640ly", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestCreateEnvelope(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", `{ "name": "New Envelope", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "name": "New Envelope", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var apiEnvelope EnvelopeDetailResponse
-	test.DecodeResponse(t, &recorder, &apiEnvelope)
+	var envelopeObject, savedEnvelope controllers.EnvelopeResponse
+	test.DecodeResponse(t, &recorder, &envelopeObject)
 
-	var dbEnvelope models.Envelope
-	models.DB.First(&dbEnvelope, apiEnvelope.Data.ID)
+	recorder = test.Request(t, "GET", envelopeObject.Data.Links.Self, "")
+	test.DecodeResponse(t, &recorder, &savedEnvelope)
 
-	assert.Equal(t, dbEnvelope, apiEnvelope.Data)
+	assert.Equal(t, savedEnvelope, envelopeObject)
 }
 
 func TestCreateBrokenEnvelope(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", `{ "createdAt": "New Envelope", "note": "More tests for envelopes to ensure less brokenness something" }`)
+	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "createdAt": "New Envelope", "note": "More tests for envelopes to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
+func TestCreateEnvelopeNoCategory(t *testing.T) {
+	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "categoryId": 5967 }`)
+	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+}
+
 func TestCreateEnvelopeNoBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", "")
+	recorder := test.Request(t, "POST", "/v1/envelopes", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestGetEnvelope(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1", "")
+	recorder := test.Request(t, "GET", "/v1/envelopes/1", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
-	var envelope EnvelopeDetailResponse
-	test.DecodeResponse(t, &recorder, &envelope)
+	var envelopeObject, savedEnvelope controllers.EnvelopeResponse
+	test.DecodeResponse(t, &recorder, &envelopeObject)
 
-	var dbEnvelope models.Envelope
-	models.DB.First(&dbEnvelope, envelope.Data.ID)
+	recorder = test.Request(t, "GET", envelopeObject.Data.Links.Self, "")
+	test.DecodeResponse(t, &recorder, &savedEnvelope)
 
-	assert.Equal(t, dbEnvelope, envelope.Data)
+	assert.Equal(t, savedEnvelope, envelopeObject)
 }
 
 // TestEnvelopeMonth verifies that the monthly calculations are correct.
 func TestEnvelopeMonth(t *testing.T) {
-	var envelopeMonth EnvelopeMonthResponse
+	var envelopeMonth controllers.EnvelopeMonthResponse
 
 	tests := []struct {
 		path          string
 		envelopeMonth models.EnvelopeMonth
 	}{
 		{
-			"/v1/budgets/1/categories/1/envelopes/1/2022-01",
+			"/v1/envelopes/1/2022-01",
 			models.EnvelopeMonth{
 				ID:         1,
 				Name:       "Utilities",
@@ -158,7 +118,7 @@ func TestEnvelopeMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1/categories/1/envelopes/1/2022-02",
+			"/v1/envelopes/1/2022-02",
 			models.EnvelopeMonth{
 				ID:         1,
 				Name:       "Utilities",
@@ -169,7 +129,7 @@ func TestEnvelopeMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1/categories/1/envelopes/1/2022-03",
+			"/v1/envelopes/1/2022-03",
 			models.EnvelopeMonth{
 				ID:         1,
 				Name:       "Utilities",
@@ -197,28 +157,31 @@ func TestEnvelopeMonth(t *testing.T) {
 
 func TestEnvelopeMonthInvalid(t *testing.T) {
 	// Test that non-parseable requests produce an error
-	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1/Stonks!", "")
+	r := test.Request(t, "GET", "/v1/envelopes/1/Stonks!", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, "GET", "/v1/envelopes/-17/2022-03", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 // TestEnvelopeMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func TestEnvelopeMonthZero(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/1/categories/1/envelopes/1/0001-01", "")
+	r := test.Request(t, "GET", "/v1/envelopes/1/0001-01", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestUpdateEnvelope(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", `{ "name": "New Envelope", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "name": "New Envelope", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var envelope EnvelopeDetailResponse
+	var envelope controllers.EnvelopeResponse
 	test.DecodeResponse(t, &recorder, &envelope)
 
-	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/%v", envelope.Data.ID)
+	path := fmt.Sprintf("/v1/envelopes/%v", envelope.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": "Updated new envelope for testing" }`)
 	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
 
-	var updatedEnvelope EnvelopeDetailResponse
+	var updatedEnvelope controllers.EnvelopeResponse
 	test.DecodeResponse(t, &recorder, &updatedEnvelope)
 
 	assert.Equal(t, envelope.Data.Note, updatedEnvelope.Data.Note)
@@ -226,40 +189,40 @@ func TestUpdateEnvelope(t *testing.T) {
 }
 
 func TestUpdateEnvelopeBroken(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", `{ "name": "New Envelope", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "name": "New Envelope", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var envelope EnvelopeDetailResponse
+	var envelope controllers.EnvelopeResponse
 	test.DecodeResponse(t, &recorder, &envelope)
 
-	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/%v", envelope.Data.ID)
+	path := fmt.Sprintf("/v1/envelopes/%v", envelope.Data.ID)
 	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestUpdateNonExistingEnvelope(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/budgets/1/categories/1/envelopes/48902805", `{ "name": "2" }`)
+	recorder := test.Request(t, "PATCH", "/v1/envelopes/48902805", `{ "name": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteEnvelope(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/budgets/1/categories/1/envelopes/1", "")
+	recorder := test.Request(t, "DELETE", "/v1/envelopes/1", "")
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 
 func TestDeleteNonExistingEnvelope(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/budgets/1/categories/1/envelopes/48902805", "")
+	recorder := test.Request(t, "DELETE", "/v1/envelopes/48902805", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteEnvelopeWithBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets/1/categories/1/envelopes", `{ "name": "Delete me now!" }`)
+	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
-	var envelope EnvelopeDetailResponse
+	var envelope controllers.EnvelopeResponse
 	test.DecodeResponse(t, &recorder, &envelope)
 
-	path := fmt.Sprintf("/v1/budgets/1/categories/1/envelopes/%v", envelope.Data.ID)
+	path := fmt.Sprintf("/v1/envelopes/%v", envelope.Data.ID)
 	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }

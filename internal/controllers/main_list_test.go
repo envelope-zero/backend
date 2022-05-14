@@ -13,7 +13,7 @@ var getOverviewTests = []struct {
 	expected string
 }{
 	{"/", `{ "links": { "v1": "http:///v1", "version": "http:///version", "docs": "http:///docs/index.html" }}`},
-	{"/v1", `{ "links": { "budgets": "http:///v1/budgets", "accounts": "http:///v1/accounts", "transactions": "http:///v1/transactions" }}`},
+	{"/v1", `{ "links": { "budgets": "http:///v1/budgets", "accounts": "http:///v1/accounts", "transactions": "http:///v1/transactions", "categories": "http:///v1/categories", "envelopes": "http:///v1/envelopes", "allocations": "http:///v1/allocations" }}`},
 	{"/version", `{"data": { "version": "0.0.0" }}`},
 }
 
