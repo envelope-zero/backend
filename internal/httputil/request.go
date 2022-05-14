@@ -2,10 +2,8 @@ package httputil
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
@@ -31,8 +29,6 @@ func RequestHost(c *gin.Context) string {
 	host := c.Request.Host
 	var forwardedPrefix string
 
-	fmt.Println(c.Request.Header)
-
 	xForwardedHost := c.Request.Header.Get("x-forwarded-host")
 	if xForwardedHost != "" {
 		host = xForwardedHost
@@ -55,19 +51,6 @@ func RequestPathV1(c *gin.Context) string {
 // RequestURL returns the full request URL.
 func RequestURL(c *gin.Context) string {
 	return RequestHost(c) + c.Request.URL.Path
-}
-
-// ParseID parses the ID.
-func ParseID(c *gin.Context, param string) (uint64, error) {
-	var parsed uint64
-
-	parsed, err := strconv.ParseUint(c.Param(param), 10, 64)
-	if err != nil {
-		FetchErrorHandler(c, err)
-		return 0, err
-	}
-
-	return parsed, nil
 }
 
 // BindData binds the data from the request to the struct passed in the interface.

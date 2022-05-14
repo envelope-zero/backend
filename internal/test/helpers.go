@@ -27,8 +27,19 @@ type APIResponse struct {
 }
 
 // Request is a helper method to simplify making a HTTP request for tests.
-func Request(t *testing.T, method, url, body string, headers ...map[string]string) httptest.ResponseRecorder {
-	byteStr := []byte(body)
+func Request(t *testing.T, method, url string, body any, headers ...map[string]string) httptest.ResponseRecorder {
+	var byteStr []byte
+	var err error
+
+	// If the body is a string, convert it to bytes
+	if reflect.TypeOf(body).Kind() == reflect.String {
+		byteStr = []byte(body.(string))
+	} else {
+		byteStr, err = json.Marshal(body)
+		if err != nil {
+			assert.FailNow(t, "Request body could not be marshalled from object input", err)
+		}
+	}
 
 	os.Setenv("LOG_FORMAT", "human")
 	router, err := controllers.Router()

@@ -7,6 +7,7 @@ import (
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type CategoryListResponse struct {
@@ -23,8 +24,8 @@ type Category struct {
 }
 
 type CategoryLinks struct {
-	Self      string `json:"self" example:"https://example.com/api/v1/categories/7"`
-	Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=7"`
+	Self      string `json:"self" example:"https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`
+	Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"`
 }
 
 // RegisterCategoryRoutes registers the routes for categories with
@@ -136,12 +137,13 @@ func GetCategories(c *gin.Context) {
 // @Param        categoryId  path      uint64  true  "ID of the category"
 // @Router       /v1/categories/{categoryId} [get]
 func GetCategory(c *gin.Context) {
-	id, err := httputil.ParseID(c, "categoryId")
+	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	categoryObject, err := getCategoryObject(c, id)
+	categoryObject, err := getCategoryObject(c, p)
 	if err != nil {
 		return
 	}
@@ -162,12 +164,13 @@ func GetCategory(c *gin.Context) {
 // @Param        category  body      models.CategoryCreate  true  "Category"
 // @Router       /v1/categories/{categoryId} [patch]
 func UpdateCategory(c *gin.Context) {
-	id, err := httputil.ParseID(c, "categoryId")
+	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	category, err := getCategoryResource(c, id)
+	category, err := getCategoryResource(c, p)
 	if err != nil {
 		return
 	}
@@ -192,12 +195,13 @@ func UpdateCategory(c *gin.Context) {
 // @Param        categoryId  path      uint64  true  "ID of the category"
 // @Router       /v1/categories/{categoryId} [delete]
 func DeleteCategory(c *gin.Context) {
-	id, err := httputil.ParseID(c, "categoryId")
+	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	category, err := getCategoryResource(c, id)
+	category, err := getCategoryResource(c, p)
 	if err != nil {
 		return
 	}
@@ -207,7 +211,7 @@ func DeleteCategory(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-func getCategoryResource(c *gin.Context, id uint64) (models.Category, error) {
+func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) {
 	var category models.Category
 
 	err := models.DB.Where(&models.Category{
@@ -224,7 +228,7 @@ func getCategoryResource(c *gin.Context, id uint64) (models.Category, error) {
 }
 
 // getCategoryResources returns all categories for the requested budget.
-func getCategoryResources(c *gin.Context, id uint64) ([]models.Category, error) {
+func getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, error) {
 	var categories []models.Category
 
 	models.DB.Where(&models.Category{
@@ -236,7 +240,7 @@ func getCategoryResources(c *gin.Context, id uint64) ([]models.Category, error) 
 	return categories, nil
 }
 
-func getCategoryObject(c *gin.Context, id uint64) (Category, error) {
+func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, error) {
 	resource, err := getCategoryResource(c, id)
 	if err != nil {
 		return Category{}, err
@@ -252,11 +256,11 @@ func getCategoryObject(c *gin.Context, id uint64) (Category, error) {
 //
 // This function is only needed for getCategoryObject as we cannot create an instance of Category
 // with mixed named and unnamed parameters.
-func getCategoryLinks(c *gin.Context, id uint64) CategoryLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/categories/%d", id)
+func getCategoryLinks(c *gin.Context, id uuid.UUID) CategoryLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/categories/%s", id)
 
 	return CategoryLinks{
 		Self:      url,
-		Envelopes: httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes?category=%d", id),
+		Envelopes: httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes?category=%s", id),
 	}
 }

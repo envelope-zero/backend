@@ -23,7 +23,6 @@ func TestFetchErrorHandlerErrRecordNotFound(t *testing.T) {
 		httputil.FetchErrorHandler(c, gorm.ErrRecordNotFound)
 	})
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -37,7 +36,6 @@ func TestFetchErrorHandlerStrconvNumError(t *testing.T) {
 		httputil.FetchErrorHandler(c, &strconv.NumError{})
 	})
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -52,7 +50,6 @@ func TestFetchErrorHandlerTimeParseError(t *testing.T) {
 		httputil.FetchErrorHandler(c, &time.ParseError{})
 	})
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -67,9 +64,22 @@ func TestFetchErrorHandlerInternalServerError(t *testing.T) {
 		httputil.FetchErrorHandler(c, errors.New("Some random error"))
 	})
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "an error occured on the server during your request")
+}
+
+func TestErrorInvalidUUID(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httputil.ErrorInvalidUUID(c)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "not a valid UUID")
 }

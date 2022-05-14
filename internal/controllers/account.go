@@ -7,6 +7,7 @@ import (
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AccountListResponse struct {
@@ -23,7 +24,7 @@ type Account struct {
 }
 
 type AccountLinks struct {
-	Self string `json:"self" example:"https://example.com/api/v1/accounts/17"`
+	Self string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
 }
 
 // RegisterAccountRoutes registers the routes for accounts with
@@ -135,12 +136,13 @@ func GetAccounts(c *gin.Context) {
 // @Param        accountId  path      uint64                true  "ID of the account"
 // @Router       /v1/accounts/{accountId} [get]
 func GetAccount(c *gin.Context) {
-	id, err := httputil.ParseID(c, "accountId")
+	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	accountObject, err := getAccountObject(c, id)
+	accountObject, err := getAccountObject(c, p)
 	if err != nil {
 		return
 	}
@@ -160,12 +162,13 @@ func GetAccount(c *gin.Context) {
 // @Param        account    body      models.AccountCreate  true  "Account"
 // @Router       /v1/accounts/{accountId} [patch]
 func UpdateAccount(c *gin.Context) {
-	id, err := httputil.ParseID(c, "accountId")
+	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	account, err := getAccountResource(c, id)
+	account, err := getAccountResource(c, p)
 	if err != nil {
 		return
 	}
@@ -191,12 +194,13 @@ func UpdateAccount(c *gin.Context) {
 // @Param        accountId  path  uint64  true  "ID of the account"
 // @Router       /v1/accounts/{accountId} [delete]
 func DeleteAccount(c *gin.Context) {
-	id, err := httputil.ParseID(c, "accountId")
+	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	account, err := getAccountResource(c, id)
+	account, err := getAccountResource(c, p)
 	if err != nil {
 		return
 	}
@@ -207,7 +211,7 @@ func DeleteAccount(c *gin.Context) {
 }
 
 // getAccountResource is the internal helper to verify permissions and return an account.
-func getAccountResource(c *gin.Context, id uint64) (models.Account, error) {
+func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, error) {
 	var account models.Account
 
 	err := models.DB.Where(&models.Account{
@@ -223,7 +227,7 @@ func getAccountResource(c *gin.Context, id uint64) (models.Account, error) {
 	return account, nil
 }
 
-func getAccountObject(c *gin.Context, id uint64) (Account, error) {
+func getAccountObject(c *gin.Context, id uuid.UUID) (Account, error) {
 	resource, err := getAccountResource(c, id)
 	if err != nil {
 		return Account{}, err
@@ -239,8 +243,8 @@ func getAccountObject(c *gin.Context, id uint64) (Account, error) {
 //
 // This function is only needed for getAccountObject as we cannot create an instance of Account
 // with mixed named and unnamed parameters.
-func getAccountLinks(c *gin.Context, id uint64) AccountLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/accounts/%d", id)
+func getAccountLinks(c *gin.Context, id uuid.UUID) AccountLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/accounts/%s", id)
 
 	return AccountLinks{
 		Self: url,

@@ -1736,7 +1736,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "budgetId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string",
@@ -1749,9 +1749,8 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
                     "$ref": "#/definitions/controllers.AccountLinks"
@@ -1780,7 +1779,7 @@ const docTemplate = `{
             "properties": {
                 "self": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/accounts/17"
+                    "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
                 }
             }
         },
@@ -1817,12 +1816,11 @@ const docTemplate = `{
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "envelopeId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
                     "$ref": "#/definitions/controllers.AllocationLinks"
@@ -1844,7 +1842,7 @@ const docTemplate = `{
             "properties": {
                 "self": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/allocations/47"
+                    "example": "https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"
                 }
             }
         },
@@ -1882,9 +1880,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
                     "$ref": "#/definitions/controllers.BudgetLinks"
@@ -1908,23 +1905,23 @@ const docTemplate = `{
             "properties": {
                 "accounts": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/accounts?budget=2"
+                    "example": "https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "categories": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/categories?budget=2"
+                    "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "month": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/2/2022-03"
+                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/2022-03"
                 },
                 "self": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/4"
+                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "transactions": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/2/transactions"
+                    "example": "https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 }
             }
         },
@@ -1959,7 +1956,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string",
@@ -1969,9 +1966,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
                     "$ref": "#/definitions/controllers.CategoryLinks"
@@ -1993,11 +1989,11 @@ const docTemplate = `{
             "properties": {
                 "envelopes": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/envelopes?category=7"
+                    "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
                 },
                 "self": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/categories/7"
+                    "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
                 }
             }
         },
@@ -2024,7 +2020,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "categoryId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string",
@@ -2034,9 +2030,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
                     "$ref": "#/definitions/controllers.EnvelopeLinks"
@@ -2058,15 +2053,15 @@ const docTemplate = `{
             "properties": {
                 "allocations": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/allocations?envelope=87"
+                    "example": "https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                 },
                 "month": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/envelopes/87/2019-03"
+                    "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/2019-03"
                 },
                 "self": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/envelopes/87"
+                    "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                 }
             }
         },
@@ -2129,7 +2124,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "budgetId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string",
@@ -2142,15 +2137,14 @@ const docTemplate = `{
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "destinationAccountId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "envelopeId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "id": {
-                    "type": "integer",
-                    "format": "uint64",
-                    "example": 42
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
                     "$ref": "#/definitions/controllers.TransactionLinks"
@@ -2162,7 +2156,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "sourceAccountId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string",
@@ -2175,7 +2169,7 @@ const docTemplate = `{
             "properties": {
                 "self": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/transactions/1741"
+                    "example": "https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
                 }
             }
         },
@@ -2277,7 +2271,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "external": {
                     "type": "boolean"
@@ -2301,7 +2295,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "envelopeId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "month": {
                     "type": "integer"
@@ -2338,8 +2332,8 @@ const docTemplate = `{
                     }
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 23
+                    "type": "string",
+                    "example": "23"
                 },
                 "month": {
                     "type": "string",
@@ -2355,7 +2349,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2369,7 +2363,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "categoryId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2389,7 +2383,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "month": {
                     "type": "string"
@@ -2409,16 +2403,16 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "budgetId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "date": {
                     "type": "string"
                 },
                 "destinationAccountId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "envelopeId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "note": {
                     "type": "string"
@@ -2427,7 +2421,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "sourceAccountId": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         }

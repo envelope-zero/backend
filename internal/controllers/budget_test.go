@@ -1,6 +1,7 @@
 package controllers_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -34,30 +35,43 @@ func TestGetBudgets(t *testing.T) {
 }
 
 func TestNoBudgetNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/2", "")
+	recorder := test.Request(t, "GET", "/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
-// TestBudgetInvalidIDs verifies that on non-number requests for budget IDs,
-// the API returs a Bad Request status code.
 func TestBudgetInvalidIDs(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/-17", "")
+	/*
+	 *  GET
+	 */
+	r := test.Request(t, http.MethodGet, "/v1/budgets/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/budgets/DefinitelyNotAUint64", "")
+	r = test.Request(t, http.MethodGet, "/v1/budgets/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/budgets/DefinitelyNotAUint64/2022-07", "")
+	r = test.Request(t, http.MethodGet, "/v1/budgets/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/budgets/-17/1969-07", "")
+	r = test.Request(t, http.MethodGet, "/v1/budgets/d19a622f-broken-uuid/2022-01", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "PATCH", "/v1/budgets/-17", "")
+	/*
+	 * PATCH
+	 */
+	r = test.Request(t, http.MethodPatch, "/v1/budgets/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "DELETE", "/v1/budgets/-17", "")
+	r = test.Request(t, http.MethodPatch, "/v1/budgets/stringRandom", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	/*
+	 * DELETE
+	 */
+	r = test.Request(t, http.MethodDelete, "/v1/budgets/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodDelete, "/v1/budgets/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -86,6 +100,10 @@ func TestCreateBudgetNoBody(t *testing.T) {
 
 // TestBudgetMonth verifies that the monthly calculations are correct.
 func TestBudgetMonth(t *testing.T) {
+	var budgetList controllers.BudgetListResponse
+	r := test.Request(t, http.MethodGet, "/v1/budgets", "")
+	test.DecodeResponse(t, &r, &budgetList)
+
 	var budgetMonth controllers.BudgetMonthResponse
 
 	tests := []struct {
@@ -93,13 +111,12 @@ func TestBudgetMonth(t *testing.T) {
 		response controllers.BudgetMonthResponse
 	}{
 		{
-			"/v1/budgets/1/2022-01",
+			fmt.Sprintf("/v1/budgets/%s/2022-01", budgetList.Data[0].ID),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 					Envelopes: []models.EnvelopeMonth{
 						{
-							ID:         1,
 							Name:       "Utilities",
 							Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 							Spent:      decimal.NewFromFloat(-10),
@@ -111,13 +128,12 @@ func TestBudgetMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1/2022-02",
+			fmt.Sprintf("/v1/budgets/%s/2022-02", budgetList.Data[0].ID),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 					Envelopes: []models.EnvelopeMonth{
 						{
-							ID:         1,
 							Name:       "Utilities",
 							Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 							Spent:      decimal.NewFromFloat(-5),
@@ -129,13 +145,12 @@ func TestBudgetMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/budgets/1/2022-03",
+			fmt.Sprintf("/v1/budgets/%s/2022-03", budgetList.Data[0].ID),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 					Envelopes: []models.EnvelopeMonth{
 						{
-							ID:         1,
 							Name:       "Utilities",
 							Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 							Spent:      decimal.NewFromFloat(-15),
@@ -165,21 +180,29 @@ func TestBudgetMonth(t *testing.T) {
 	}
 }
 
-// TestBudgetMonthInvalid verifies that non-parseable requests return a HTTP 400 Bad Request.
-func TestBudgetMonthInvalid(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/1/Stonks!", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
-}
-
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
 func TestBudgetMonthNonExistent(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/831/2022-01", "")
+	r := test.Request(t, "GET", "/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
 }
 
 // TestBudgetMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func TestBudgetMonthZero(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/1/0001-01", "")
+	var budgetList controllers.BudgetListResponse
+	r := test.Request(t, http.MethodGet, "/v1/budgets", "")
+	test.DecodeResponse(t, &r, &budgetList)
+
+	r = test.Request(t, "GET", fmt.Sprintf("/v1/budgets/%s/0001-01", budgetList.Data[0].ID), "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+}
+
+// TestBudgetMonthInvalid tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
+func TestBudgetMonthInvalid(t *testing.T) {
+	var budgetList controllers.BudgetListResponse
+	r := test.Request(t, http.MethodGet, "/v1/budgets", "")
+	test.DecodeResponse(t, &r, &budgetList)
+
+	r = test.Request(t, "GET", fmt.Sprintf("/v1/budgets/%s/December-2020", budgetList.Data[0].ID), "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -212,7 +235,7 @@ func TestUpdateBudgetBroken(t *testing.T) {
 }
 
 func TestUpdateNonExistingBudget(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/budgets/48902805", `{ "name": "2" }`)
+	recorder := test.Request(t, "PATCH", "/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -228,7 +251,7 @@ func TestDeleteBudget(t *testing.T) {
 }
 
 func TestDeleteNonExistingBudget(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/budgets/48902805", "")
+	recorder := test.Request(t, "DELETE", "/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 

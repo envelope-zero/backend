@@ -8,6 +8,7 @@ import (
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type EnvelopeListResponse struct {
@@ -28,9 +29,9 @@ type EnvelopeMonthResponse struct {
 }
 
 type EnvelopeLinks struct {
-	Self        string `json:"self" example:"https://example.com/api/v1/envelopes/87"`
-	Allocations string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=87"`
-	Month       string `json:"month" example:"https://example.com/api/v1/envelopes/87/2019-03"`
+	Self        string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
+	Allocations string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
+	Month       string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/2019-03"`
 }
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -139,12 +140,13 @@ func GetEnvelopes(c *gin.Context) {
 // @Param        envelopeId  path      uint64                 true  "ID of the envelope"
 // @Router       /v1/envelopes/{envelopeId} [get]
 func GetEnvelope(c *gin.Context) {
-	id, err := httputil.ParseID(c, "envelopeId")
+	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	envelopeObject, err := getEnvelopeObject(c, id)
+	envelopeObject, err := getEnvelopeObject(c, p)
 	if err != nil {
 		return
 	}
@@ -164,17 +166,18 @@ func GetEnvelope(c *gin.Context) {
 // @Param        month       path      string  true  "The month in YYYY-MM format"
 // @Router       /v1/envelopes/{envelopeId}/{month} [get]
 func GetEnvelopeMonth(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("envelopeId"))
+	if err != nil {
+		httputil.ErrorInvalidUUID(c)
+		return
+	}
+
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
 		return
 	}
 
-	id, err := httputil.ParseID(c, "envelopeId")
-	if err != nil {
-		return
-	}
-
-	envelope, _ := getEnvelopeResource(c, id)
+	envelope, _ := getEnvelopeResource(c, p)
 
 	if month.Month.IsZero() {
 		httputil.NewError(c, http.StatusBadRequest, errors.New("You cannot request data for no month"))
@@ -197,12 +200,13 @@ func GetEnvelopeMonth(c *gin.Context) {
 // @Param        envelope    body      models.EnvelopeCreate  true  "Envelope"
 // @Router       /v1/envelopes/{envelopeId} [patch]
 func UpdateEnvelope(c *gin.Context) {
-	id, err := httputil.ParseID(c, "envelopeId")
+	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	envelope, err := getEnvelopeResource(c, id)
+	envelope, err := getEnvelopeResource(c, p)
 	if err != nil {
 		return
 	}
@@ -227,12 +231,13 @@ func UpdateEnvelope(c *gin.Context) {
 // @Param        envelopeId  path      uint64  true  "ID of the envelope"
 // @Router       /v1/envelopes/{envelopeId} [delete]
 func DeleteEnvelope(c *gin.Context) {
-	id, err := httputil.ParseID(c, "envelopeId")
+	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	envelope, err := getEnvelopeResource(c, id)
+	envelope, err := getEnvelopeResource(c, p)
 	if err != nil {
 		return
 	}
@@ -243,7 +248,7 @@ func DeleteEnvelope(c *gin.Context) {
 }
 
 // getEnvelopeResource verifies that the envelope from the URL parameters exists and returns it.
-func getEnvelopeResource(c *gin.Context, id uint64) (models.Envelope, error) {
+func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) {
 	var envelope models.Envelope
 
 	err := models.DB.Where(&models.Envelope{
@@ -259,7 +264,7 @@ func getEnvelopeResource(c *gin.Context, id uint64) (models.Envelope, error) {
 	return envelope, nil
 }
 
-func getEnvelopeObject(c *gin.Context, id uint64) (Envelope, error) {
+func getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, error) {
 	resource, err := getEnvelopeResource(c, id)
 	if err != nil {
 		return Envelope{}, err
@@ -275,8 +280,8 @@ func getEnvelopeObject(c *gin.Context, id uint64) (Envelope, error) {
 //
 // This function is only needed for getEnvelopeObject as we cannot create an instance of Envelope
 // with mixed named and unnamed parameters.
-func getEnvelopeLinks(c *gin.Context, id uint64) EnvelopeLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes/%d", id)
+func getEnvelopeLinks(c *gin.Context, id uuid.UUID) EnvelopeLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes/%s", id)
 
 	return EnvelopeLinks{
 		Self:        url,

@@ -13,6 +13,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func createTestEnvelope(t *testing.T, c models.EnvelopeCreate) controllers.EnvelopeResponse {
+	r := test.Request(t, "POST", "/v1/envelopes", c)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var e controllers.EnvelopeResponse
+	test.DecodeResponse(t, &r, &e)
+
+	return e
+}
+
 func TestGetEnvelopes(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/envelopes", "")
 
@@ -24,7 +34,6 @@ func TestGetEnvelopes(t *testing.T) {
 		assert.FailNow(t, "Response does not have exactly 1 item")
 	}
 
-	assert.Equal(t, uint64(1), response.Data[0].CategoryID)
 	assert.Equal(t, "Utilities", response.Data[0].Name)
 	assert.Equal(t, "Energy & Water", response.Data[0].Note)
 
@@ -36,24 +45,43 @@ func TestGetEnvelopes(t *testing.T) {
 }
 
 func TestNoEnvelopeNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/envelopes/2", "")
+	recorder := test.Request(t, "GET", "/v1/envelopes/828f2483-dabd-4267-a223-e34b5f171978", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
-// TestEnvelopeInvalidIDs verifies that on non-number requests for envelope IDs,
-// the API returs a Bad Request status code.
 func TestEnvelopeInvalidIDs(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/envelopes/-1985", "")
+	/*
+	 *  GET
+	 */
+	r := test.Request(t, http.MethodGet, "/v1/envelopes/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/envelopes/OhNoOurTable", "")
+	r = test.Request(t, http.MethodGet, "/v1/envelopes/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "PATCH", "/v1/envelopes/StupidLittleWalk", "")
+	r = test.Request(t, http.MethodGet, "/v1/envelopes/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "DELETE", "/v1/envelopes/25640ly", "")
+	r = test.Request(t, http.MethodGet, "/v1/envelopes/d19a622f-broken-uuid/2017-09", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	/*
+	 * PATCH
+	 */
+	r = test.Request(t, http.MethodPatch, "/v1/envelopes/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodPatch, "/v1/envelopes/stringRandom", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	/*
+	 * DELETE
+	 */
+	r = test.Request(t, http.MethodDelete, "/v1/envelopes/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodDelete, "/v1/envelopes/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -76,7 +104,7 @@ func TestCreateBrokenEnvelope(t *testing.T) {
 }
 
 func TestCreateEnvelopeNoCategory(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "categoryId": 5967 }`)
+	recorder := test.Request(t, "POST", "/v1/envelopes", `{ "categoryId": "5f0cd7b9-9788-4871-96f8-c816c9ae338a" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -86,20 +114,15 @@ func TestCreateEnvelopeNoBody(t *testing.T) {
 }
 
 func TestGetEnvelope(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/envelopes/1", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
-
-	var envelopeObject, savedEnvelope controllers.EnvelopeResponse
-	test.DecodeResponse(t, &recorder, &envelopeObject)
-
-	recorder = test.Request(t, "GET", envelopeObject.Data.Links.Self, "")
-	test.DecodeResponse(t, &recorder, &savedEnvelope)
-
-	assert.Equal(t, savedEnvelope, envelopeObject)
+	_ = createTestEnvelope(t, models.EnvelopeCreate{Name: "This only tests creation"})
 }
 
 // TestEnvelopeMonth verifies that the monthly calculations are correct.
 func TestEnvelopeMonth(t *testing.T) {
+	var envelopeList controllers.EnvelopeListResponse
+	r := test.Request(t, http.MethodGet, "/v1/envelopes", "")
+	test.DecodeResponse(t, &r, &envelopeList)
+
 	var envelopeMonth controllers.EnvelopeMonthResponse
 
 	tests := []struct {
@@ -107,9 +130,8 @@ func TestEnvelopeMonth(t *testing.T) {
 		envelopeMonth models.EnvelopeMonth
 	}{
 		{
-			"/v1/envelopes/1/2022-01",
+			fmt.Sprintf("/v1/envelopes/%s/2022-01", envelopeList.Data[0].ID),
 			models.EnvelopeMonth{
-				ID:         1,
 				Name:       "Utilities",
 				Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 				Spent:      decimal.NewFromFloat(-10),
@@ -118,9 +140,8 @@ func TestEnvelopeMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/envelopes/1/2022-02",
+			fmt.Sprintf("/v1/envelopes/%s/2022-02", envelopeList.Data[0].ID),
 			models.EnvelopeMonth{
-				ID:         1,
 				Name:       "Utilities",
 				Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 				Spent:      decimal.NewFromFloat(-5),
@@ -129,9 +150,8 @@ func TestEnvelopeMonth(t *testing.T) {
 			},
 		},
 		{
-			"/v1/envelopes/1/2022-03",
+			fmt.Sprintf("/v1/envelopes/%s/2022-03", envelopeList.Data[0].ID),
 			models.EnvelopeMonth{
-				ID:         1,
 				Name:       "Utilities",
 				Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 				Spent:      decimal.NewFromFloat(-15),
@@ -146,7 +166,6 @@ func TestEnvelopeMonth(t *testing.T) {
 		test.AssertHTTPStatus(t, http.StatusOK, &r)
 
 		test.DecodeResponse(t, &r, &envelopeMonth)
-		assert.Equal(t, envelopeMonth.Data.ID, tt.envelopeMonth.ID)
 		assert.Equal(t, envelopeMonth.Data.Name, tt.envelopeMonth.Name)
 		assert.Equal(t, envelopeMonth.Data.Month, tt.envelopeMonth.Month)
 		assert.True(t, envelopeMonth.Data.Spent.Equal(tt.envelopeMonth.Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.envelopeMonth.Spent, envelopeMonth.Data.Spent, envelopeMonth.Data)
@@ -156,17 +175,19 @@ func TestEnvelopeMonth(t *testing.T) {
 }
 
 func TestEnvelopeMonthInvalid(t *testing.T) {
-	// Test that non-parseable requests produce an error
-	r := test.Request(t, "GET", "/v1/envelopes/1/Stonks!", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	var envelopeList controllers.EnvelopeListResponse
+	r := test.Request(t, http.MethodGet, "/v1/envelopes", "")
+	test.DecodeResponse(t, &r, &envelopeList)
 
-	r = test.Request(t, "GET", "/v1/envelopes/-17/2022-03", "")
+	// Test that non-parseable requests produce an error
+	r = test.Request(t, "GET", fmt.Sprintf("/v1/envelopes/%s/Stonks!", envelopeList.Data[0].ID), "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 // TestEnvelopeMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func TestEnvelopeMonthZero(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/envelopes/1/0001-01", "")
+	e := createTestEnvelope(t, models.EnvelopeCreate{})
+	r := test.Request(t, http.MethodGet, fmt.Sprintf("%s/0001-01", e.Data.Links.Self), "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -201,17 +222,18 @@ func TestUpdateEnvelopeBroken(t *testing.T) {
 }
 
 func TestUpdateNonExistingEnvelope(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/envelopes/48902805", `{ "name": "2" }`)
+	recorder := test.Request(t, "PATCH", "/v1/envelopes/dcf472ba-a64e-4f0f-900e-a789319e432c", `{ "name": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteEnvelope(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/envelopes/1", "")
-	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+	e := createTestEnvelope(t, models.EnvelopeCreate{Name: "Delete me!"})
+	r := test.Request(t, http.MethodDelete, e.Data.Links.Self, "")
+	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
 }
 
 func TestDeleteNonExistingEnvelope(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/envelopes/48902805", "")
+	recorder := test.Request(t, "DELETE", "/v1/envelopes/21a300da-d8b4-478d-8e85-95cb7982cbca", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
