@@ -8,8 +8,8 @@ on:
     tags:
       - "*"
 
-permissions:
-  packages: write
+#permissions:
+#  packages: write
 
 jobs:
   go-test:
