@@ -3,3 +3,8 @@ gorm.db
 coverage.out
 /backend
 dist/
+
+# Created in the workflows but need to be ignored
+node_modules/
+package-lock.json
+package.json
