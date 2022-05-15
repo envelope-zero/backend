@@ -1,9 +1,7 @@
-name: Build and release
+name: Build and release OCI image
 
 on:
   push:
-    branches:
-      - "main"
     tags:
       - "**"
   pull_request:
