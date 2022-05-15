@@ -24,10 +24,11 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
-# dockers:
-#   - dockerfile: Dockerfile.goreleaser
-#     image_templates:
-#       - "ghcr.io/envelope-zero/backend:{{ .Tag }}"
-#       - "ghcr.io/envelope-zero/backend:v{{ .Major }}"
-#       - "ghcr.io/envelope-zero/backend:v{{ .Major }}.{{ .Minor }}"
-#       - "ghcr.io/envelope-zero/backend:latest"
+
+dockers:
+  - dockerfile: Dockerfile.goreleaser
+    image_templates:
+      - "ghcr.io/envelope-zero/backend:{{ .Tag }}"
+      - "ghcr.io/envelope-zero/backend:v{{ .Major }}"
+      - "ghcr.io/envelope-zero/backend:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/envelope-zero/backend:latest"
