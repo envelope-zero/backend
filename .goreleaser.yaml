@@ -5,6 +5,8 @@ builds:
       - linux
       - windows
       - darwin
+    ldflags:
+      - -X github.com/envelope-zero/backend/internal/controllers.version={{.Version}}
 archives:
   - replacements:
       darwin: Darwin
@@ -24,10 +26,9 @@ changelog:
       - "^test:"
 
 dockers:
-  - image_templates:
+  - dockerfile: Dockerfile.goreleaser
+    image_templates:
       - "ghcr.io/envelope-zero/backend:{{ .Tag }}"
       - "ghcr.io/envelope-zero/backend:v{{ .Major }}"
       - "ghcr.io/envelope-zero/backend:v{{ .Major }}.{{ .Minor }}"
       - "ghcr.io/envelope-zero/backend:latest"
-    build_flag_templates:
-      - "--build-arg=VERSION={{ .Tag }}"
