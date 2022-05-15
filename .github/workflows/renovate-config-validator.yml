@@ -2,6 +2,14 @@ name: Validate renovate config
 
 on:
   push:
+    branches:
+      - main
+    paths:
+      - renovate.json
+      - .github/workflows/renovate-config-validator.yml
+  pull_request:
+    branches:
+      - main
     paths:
       - renovate.json
       - .github/workflows/renovate-config-validator.yml
