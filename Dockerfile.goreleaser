@@ -1,0 +1,3 @@
+FROM scratch
+COPY backend /backend
+ENTRYPOINT ["/backend"]
