@@ -30,4 +30,4 @@ dockers:
       - "ghcr.io/envelope-zero/backend:v{{ .Major }}.{{ .Minor }}"
       - "ghcr.io/envelope-zero/backend:latest"
     build_flag_templates:
-      - "--build-arg VERSION={{ .Tag }}"
+      - "--build-arg=VERSION={{ .Tag }}"
