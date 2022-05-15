@@ -3,7 +3,8 @@ name: Validate renovate config
 on:
   push:
     paths:
-      - "renovate.json"
+      - renovate.json
+      - .github/workflows/renovate-config-validator.yml
 
 jobs:
   validate:
