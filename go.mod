@@ -14,7 +14,7 @@ require (
 	github.com/gin-contrib/requestid v0.0.4
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/gin-swagger v1.4.3
-	github.com/swaggo/swag v1.8.1
+	github.com/swaggo/swag v1.8.2
 )
 
 require (
