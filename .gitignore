@@ -2,3 +2,4 @@ tmp
 gorm.db
 coverage.out
 /backend
+dist/
