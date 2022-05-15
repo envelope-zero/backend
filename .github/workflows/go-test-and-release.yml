@@ -8,9 +8,6 @@ on:
     tags:
       - "*"
 
-#permissions:
-#  packages: write
-
 jobs:
   go-test:
     runs-on: ubuntu-latest
