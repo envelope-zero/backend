@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/envelope-zero/backend/internal/test"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRequest(t *testing.T) {
@@ -17,4 +18,9 @@ func TestDecodeResponse(t *testing.T) {
 
 	r := test.Request(t, "GET", "/v1/budgets", "")
 	test.DecodeResponse(t, &r, &budgets)
+}
+
+func TestDecodeError(t *testing.T) {
+	m := test.DecodeError(t, []byte(`{"error":"some string"}`))
+	assert.Equal(t, "some string", m)
 }

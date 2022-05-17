@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/internal/controllers"
+	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -59,4 +60,13 @@ func DecodeResponse(t *testing.T, r *httptest.ResponseRecorder, target interface
 	if err != nil {
 		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into %v, '%v'", r.Body, reflect.TypeOf(target), err)
 	}
+}
+
+func DecodeError(t *testing.T, s []byte) string {
+	var r httputil.HTTPError
+	if err := json.Unmarshal(s, &r); err != nil {
+		assert.Fail(t, "Not valid JSON!", "%s", s)
+	}
+
+	return r.Error
 }

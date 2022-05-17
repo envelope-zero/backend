@@ -19,6 +19,11 @@ The recommended and only supported way for production deployments is to run the 
 
 :warning: If you do not configure a postgresql database, sqlite will automatically be used. Mount a persistent volume to the `/data` directory - this is where the sqlite database is stored. If you do not do this, you will lose all data every time the container is deleted.
 
+If you serve the backend with a reverse proxy under a different path than `/`, note the following:
+
+- Your reverse proxy must set the `x-forwarded-host` header so that correct URIs are generated
+- If you do not serve the backend at the prefix `/api` (required by the [frontend](https://github.com/envelope-zero/frontend)), your reverse proxy needs to set the `x-forwarded-prefix` header
+
 The backend can be configured with the following environment variables. None are required.
 
 | Name                 | Type                      | Default                                              | Description                                                                                                                                                       |
@@ -66,8 +71,6 @@ ingress:
     - hosts:
         - envelope-zero.example.com
 ```
-
-If you do not use the root path `/`, but a prefix, make sure your reverse proxy writes the used prefix in the `x-forwarded-prefix` header. That header is used by the backend to generate the correct URLs for resources.
 
 ## Supported Versions
 
