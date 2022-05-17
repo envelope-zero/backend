@@ -2,6 +2,7 @@ package httputil
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,8 +20,31 @@ func RequestHost(c *gin.Context) string {
 		scheme = "https"
 	}
 
-	forwardedPrefix := c.Request.Header.Get("x-forwarded-prefix")
-	return scheme + "://" + c.Request.Host + forwardedPrefix
+	// We can reasonably expect a reverse proxy to set x-forwarded-host
+	// as it is a de-facto standard.
+	//
+	// If it is set, we use it to construct the links and use the
+	// x-forwarded-prefix header as prefix. If that is unset,
+	// fall back to "/api"
+	//
+	// If no proxy is detected, don’t do anything.
+	host := c.Request.Host
+	var forwardedPrefix string
+
+	fmt.Println(c.Request.Header)
+
+	xForwardedHost := c.Request.Header.Get("x-forwarded-host")
+	if xForwardedHost != "" {
+		host = xForwardedHost
+
+		forwardedPrefix = c.Request.Header.Get("x-forwarded-prefix")
+
+		if forwardedPrefix == "" {
+			forwardedPrefix = "/api"
+		}
+	}
+
+	return scheme + "://" + host + forwardedPrefix
 }
 
 // RequestPathV1 returns the URL with the prefix for API v1.
