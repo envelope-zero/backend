@@ -30,16 +30,6 @@ func ConnectDatabase() error {
 		Logger: gorm_zerolog.New(),
 	}
 
-	// logger.New(
-	// 	golog.New(os.Stdout, "\r\n", golog.LstdFlags),
-	// 	logger.Config{
-	// 		SlowThreshold:             time.Millisecond,
-	// 		LogLevel:                  logger.Error,
-	// 		IgnoreRecordNotFoundError: true,
-	// 		Colorful:                  true,
-	// 	},
-	// ),
-
 	// Check with database driver to use. If DB_HOST is set, assume postgresql
 	_, ok := os.LookupEnv("DB_HOST")
 	if ok {
@@ -66,6 +56,20 @@ func ConnectDatabase() error {
 		return err
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+
+	// Get new connections after one hour
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	// This is done to prevent SQLITE_BUSY errors.
+	// If you have ideas how to improve this, you are very welcome to open an issue or a PR. Thank you!
+	sqlDB.SetMaxIdleConns(1)
+	sqlDB.SetMaxOpenConns(1)
+
 	DB = db
+
 	return nil
 }
