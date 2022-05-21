@@ -47,3 +47,7 @@ func NewError(c *gin.Context, status int, err error) {
 type HTTPError struct {
 	Error string `json:"error" example:"An ID specified in the query string was not a valid uint64"`
 }
+
+func ErrorInvalidUUID(c *gin.Context) {
+	NewError(c, http.StatusBadRequest, errors.New("The specified resource ID is not a valid UUID"))
+}

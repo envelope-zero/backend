@@ -12,6 +12,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func createTestTransaction(t *testing.T, c models.TransactionCreate) controllers.TransactionResponse {
+	r := test.Request(t, "POST", "/v1/transactions", c)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var tr controllers.TransactionResponse
+	test.DecodeResponse(t, &r, &tr)
+
+	return tr
+}
+
 func TestGetTransactions(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/transactions", "")
 
@@ -24,34 +34,22 @@ func TestGetTransactions(t *testing.T) {
 	}
 
 	januaryTransaction := response.Data[0]
-	assert.Equal(t, uint64(1), januaryTransaction.BudgetID)
 	assert.Equal(t, "Water bill for January", januaryTransaction.Note)
 	assert.Equal(t, true, januaryTransaction.Reconciled)
-	assert.Equal(t, uint64(1), januaryTransaction.SourceAccountID)
-	assert.Equal(t, uint64(3), januaryTransaction.DestinationAccountID)
-	assert.Equal(t, uint64(1), januaryTransaction.EnvelopeID)
 	if !decimal.NewFromFloat(10).Equal(januaryTransaction.Amount) {
 		assert.Fail(t, "Transaction amount does not equal 10", januaryTransaction.Amount)
 	}
 
 	februaryTransaction := response.Data[1]
-	assert.Equal(t, uint64(1), februaryTransaction.BudgetID)
 	assert.Equal(t, "Water bill for February", februaryTransaction.Note)
 	assert.Equal(t, false, februaryTransaction.Reconciled)
-	assert.Equal(t, uint64(1), februaryTransaction.SourceAccountID)
-	assert.Equal(t, uint64(3), februaryTransaction.DestinationAccountID)
-	assert.Equal(t, uint64(1), februaryTransaction.EnvelopeID)
 	if !decimal.NewFromFloat(5).Equal(februaryTransaction.Amount) {
 		assert.Fail(t, "Transaction amount does not equal 5", februaryTransaction.Amount)
 	}
 
 	marchTransaction := response.Data[2]
-	assert.Equal(t, uint64(1), marchTransaction.BudgetID)
 	assert.Equal(t, "Water bill for March", marchTransaction.Note)
 	assert.Equal(t, false, marchTransaction.Reconciled)
-	assert.Equal(t, uint64(1), marchTransaction.SourceAccountID)
-	assert.Equal(t, uint64(3), marchTransaction.DestinationAccountID)
-	assert.Equal(t, uint64(1), marchTransaction.EnvelopeID)
 	if !decimal.NewFromFloat(15).Equal(marchTransaction.Amount) {
 		assert.Fail(t, "Transaction amount does not equal 15", marchTransaction.Amount)
 	}
@@ -66,24 +64,40 @@ func TestGetTransactions(t *testing.T) {
 }
 
 func TestNoTransactionNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/transactions/37", "")
+	recorder := test.Request(t, "GET", "/v1/transactions/048b061f-3b6b-45ab-b0e9-0f38d2fff0c8", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
-// TestTransactionInvalidIDs verifies that on non-number requests for transaction IDs,
-// the API returs a Bad Request status code.
 func TestTransactionInvalidIDs(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/transactions/-56", "")
+	/*
+	 *  GET
+	 */
+	r := test.Request(t, http.MethodGet, "/v1/transactions/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/transactions/notANumber", "")
+	r = test.Request(t, http.MethodGet, "/v1/transactions/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "PATCH", "/v1/transactions/TreesAreNice", "")
+	r = test.Request(t, http.MethodGet, "/v1/transactions/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "DELETE", "/v1/transactions/-15", "")
+	/*
+	 * PATCH
+	 */
+	r = test.Request(t, http.MethodPatch, "/v1/transactions/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodPatch, "/v1/transactions/stringRandom", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	/*
+	 * DELETE
+	 */
+	r = test.Request(t, http.MethodDelete, "/v1/transactions/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodDelete, "/v1/transactions/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -116,7 +130,7 @@ func TestCreateNegativeAmountTransaction(t *testing.T) {
 }
 
 func TestCreateNonExistingBudgetTransaction(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "budgetId": 5, "amount": 32.12, "note": "The budget with this id must exist, so this must fail" }`)
+	recorder := test.Request(t, "POST", "/v1/transactions", `{ "budgetId": "978e95a0-90f2-4dee-91fd-ee708c30301c", "amount": 32.12, "note": "The budget with this id must exist, so this must fail" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -126,18 +140,10 @@ func TestCreateTransactionNoBody(t *testing.T) {
 }
 
 func TestGetTransaction(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/transactions/1", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
+	tr := createTestTransaction(t, models.TransactionCreate{Amount: decimal.NewFromFloat(13.71)})
 
-	var transaction controllers.TransactionResponse
-	test.DecodeResponse(t, &recorder, &transaction)
-
-	var dbTransaction models.Transaction
-	models.DB.First(&dbTransaction, transaction.Data.ID)
-
-	if !decimal.NewFromFloat(10).Equals(transaction.Data.Amount) {
-		assert.Fail(t, "Transaction amount does not equal 10", transaction.Data.Amount)
-	}
+	r := test.Request(t, http.MethodGet, tr.Data.Links.Self, "")
+	assert.Equal(t, http.StatusOK, r.Code)
 }
 
 func TestUpdateTransaction(t *testing.T) {
@@ -179,17 +185,19 @@ func TestUpdateTransactionNegativeAmount(t *testing.T) {
 }
 
 func TestUpdateNonExistingTransaction(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/transactions/48902805", `{ "note": "2" }`)
+	recorder := test.Request(t, "PATCH", "/v1/transactions/6ae3312c-23cf-4225-9a81-4f218ba41b00", `{ "note": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteTransaction(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/transactions/1", "")
+	tr := createTestTransaction(t, models.TransactionCreate{Amount: decimal.NewFromFloat(123.12)})
+
+	recorder := test.Request(t, "DELETE", tr.Data.Links.Self, "")
 	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
 }
 
 func TestDeleteNonExistingTransaction(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/transactions/48902805", "")
+	recorder := test.Request(t, "DELETE", "/v1/transactions/4bcb6d09-ced1-41e8-a3fe-bf4f16c5e501", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 

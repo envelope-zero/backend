@@ -2,7 +2,6 @@ package httputil_test
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -104,48 +103,6 @@ func TestRequestPathURI(t *testing.T) {
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, "http://example.com/seenotrettung/ist-kein-verbrechen", w.Body.String())
-}
-
-func TestParseIDInvalid(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-
-	r.GET("/", func(ctx *gin.Context) {
-		id, err := httputil.ParseID(c, "NotAValidUint")
-		if err != nil {
-			return
-		}
-
-		c.String(http.StatusOK, fmt.Sprintf("%d", id))
-	})
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
-	c.Request.Host = "example.com"
-	r.ServeHTTP(w, c.Request)
-
-	// Not checking the error messages here as this is done in error_test.go
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-}
-
-func TestParseID(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-	c.Params = append(c.Params, gin.Param{Key: "id", Value: "171"})
-
-	r.GET("/", func(ctx *gin.Context) {
-		id, err := httputil.ParseID(c, "id")
-		if err != nil {
-			return
-		}
-
-		c.String(http.StatusOK, fmt.Sprintf("%d", id))
-	})
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
-	c.Request.Host = "example.com"
-	r.ServeHTTP(w, c.Request)
-
-	assert.Equal(t, "171", w.Body.String())
 }
 
 func TestBindData(t *testing.T) {

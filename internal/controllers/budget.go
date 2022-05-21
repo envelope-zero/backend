@@ -9,6 +9,7 @@ import (
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type BudgetListResponse struct {
@@ -25,11 +26,11 @@ type Budget struct {
 }
 
 type BudgetLinks struct {
-	Self         string `json:"self" example:"https://example.com/api/v1/budgets/4"`
-	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=2"`
-	Categories   string `json:"categories" example:"https://example.com/api/v1/categories?budget=2"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/budgets/2/transactions"`
-	Month        string `json:"month" example:"https://example.com/api/v1/budgets/2/2022-03"`
+	Self         string `json:"self" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Categories   string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Month        string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/2022-03"`
 }
 
 type BudgetMonthResponse struct {
@@ -137,12 +138,13 @@ func GetBudgets(c *gin.Context) {
 // @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId} [get]
 func GetBudget(c *gin.Context) {
-	id, err := httputil.ParseID(c, "budgetId")
+	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	budgetObject, err := getBudgetObject(c, id)
+	budgetObject, err := getBudgetObject(c, p)
 	if err != nil {
 		return
 	}
@@ -162,12 +164,13 @@ func GetBudget(c *gin.Context) {
 // @Param        month     path      string  true  "The month in YYYY-MM format"
 // @Router       /v1/budgets/{budgetId}/{month} [get]
 func GetBudgetMonth(c *gin.Context) {
-	id, err := httputil.ParseID(c, "budgetId")
+	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	budget, err := getBudgetResource(c, id)
+	budget, err := getBudgetResource(c, p)
 	if err != nil {
 		return
 	}
@@ -225,12 +228,13 @@ func GetBudgetMonth(c *gin.Context) {
 // @Param        budget  body      models.BudgetCreate  true  "Budget"
 // @Router       /v1/budgets/{budgetId} [patch]
 func UpdateBudget(c *gin.Context) {
-	id, err := httputil.ParseID(c, "budgetId")
+	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	budget, err := getBudgetResource(c, id)
+	budget, err := getBudgetResource(c, p)
 	if err != nil {
 		return
 	}
@@ -255,12 +259,13 @@ func UpdateBudget(c *gin.Context) {
 // @Param        budgetId  path      uint64  true  "ID of the budget"
 // @Router       /v1/budgets/{budgetId} [delete]
 func DeleteBudget(c *gin.Context) {
-	id, err := httputil.ParseID(c, "budgetId")
+	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	budget, err := getBudgetResource(c, id)
+	budget, err := getBudgetResource(c, p)
 	if err != nil {
 		return
 	}
@@ -271,7 +276,7 @@ func DeleteBudget(c *gin.Context) {
 }
 
 // getBudgetResource is the internal helper to verify permissions and return a budget.
-func getBudgetResource(c *gin.Context, id uint64) (models.Budget, error) {
+func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 	var budget models.Budget
 
 	err := models.DB.Where(&models.Budget{
@@ -287,7 +292,7 @@ func getBudgetResource(c *gin.Context, id uint64) (models.Budget, error) {
 	return budget, nil
 }
 
-func getBudgetObject(c *gin.Context, id uint64) (Budget, error) {
+func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, error) {
 	resource, err := getBudgetResource(c, id)
 	if err != nil {
 		return Budget{}, err
@@ -303,14 +308,14 @@ func getBudgetObject(c *gin.Context, id uint64) (Budget, error) {
 //
 // This function is only needed for getBudgetObject as we cannot create an instance of Budget
 // with mixed named and unnamed parameters.
-func getBudgetLinks(c *gin.Context, id uint64) BudgetLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%d", id)
+func getBudgetLinks(c *gin.Context, id uuid.UUID) BudgetLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%s", id)
 
 	return BudgetLinks{
 		Self:         url,
-		Accounts:     httputil.RequestPathV1(c) + fmt.Sprintf("/accounts?budget=%d", id),
-		Categories:   httputil.RequestPathV1(c) + fmt.Sprintf("/categories?budget=%d", id),
-		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?budget=%d", id),
+		Accounts:     httputil.RequestPathV1(c) + fmt.Sprintf("/accounts?budget=%s", id),
+		Categories:   httputil.RequestPathV1(c) + fmt.Sprintf("/categories?budget=%s", id),
+		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?budget=%s", id),
 		Month:        url + "/YYYY-MM",
 	}
 }

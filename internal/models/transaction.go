@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
@@ -21,10 +22,10 @@ type TransactionCreate struct {
 	Date                 time.Time       `json:"date,omitempty"`
 	Amount               decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)"`
 	Note                 string          `json:"note,omitempty"`
-	BudgetID             uint64          `json:"budgetId,omitempty"`
-	SourceAccountID      uint64          `json:"sourceAccountId,omitempty"`
-	DestinationAccountID uint64          `json:"destinationAccountId,omitempty"`
-	EnvelopeID           uint64          `json:"envelopeId,omitempty"`
+	BudgetID             uuid.UUID       `json:"budgetId,omitempty"`
+	SourceAccountID      uuid.UUID       `json:"sourceAccountId,omitempty"`
+	DestinationAccountID uuid.UUID       `json:"destinationAccountId,omitempty"`
+	EnvelopeID           uuid.UUID       `json:"envelopeId,omitempty"`
 	Reconciled           bool            `json:"reconciled"`
 }
 

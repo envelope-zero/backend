@@ -21,7 +21,6 @@ func TestGetCategories(t *testing.T) {
 		assert.FailNow(t, "Response does not have exactly 1 item")
 	}
 
-	assert.Equal(t, uint64(1), response.Data[0].BudgetID)
 	assert.Equal(t, "Running costs", response.Data[0].Name)
 	assert.Equal(t, "For e.g. groceries and energy bills", response.Data[0].Note)
 
@@ -33,24 +32,40 @@ func TestGetCategories(t *testing.T) {
 }
 
 func TestNoCategoryNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/categories/2", "")
+	recorder := test.Request(t, "GET", "/v1/categories/4e743e94-6a4b-44d6-aba5-d77c87103ff7", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
-// TestCategoryInvalidIDs verifies that on non-number requests for category IDs,
-// the API returs a Bad Request status code.
 func TestCategoryInvalidIDs(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/categories/-557", "")
+	/*
+	 *  GET
+	 */
+	r := test.Request(t, http.MethodGet, "/v1/categories/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/categories/NFTsAreAScam", "")
+	r = test.Request(t, http.MethodGet, "/v1/categories/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "PATCH", "/v1/categories/CatsAreCute", "")
+	r = test.Request(t, http.MethodGet, "/v1/categories/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "DELETE", "/v1/categories/-!", "")
+	/*
+	 * PATCH
+	 */
+	r = test.Request(t, http.MethodPatch, "/v1/categories/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodPatch, "/v1/categories/stringRandom", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	/*
+	 * DELETE
+	 */
+	r = test.Request(t, http.MethodDelete, "/v1/categories/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodDelete, "/v1/categories/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -73,7 +88,7 @@ func TestCreateBrokenCategory(t *testing.T) {
 }
 
 func TestCreateBrokenNoBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "budgetId": 674 }`)
+	recorder := test.Request(t, "POST", "/v1/categories", `{ "budgetId": "f8c74664-9b79-4e15-8d3d-4618f3e3c230" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -111,7 +126,7 @@ func TestUpdateCategoryBroken(t *testing.T) {
 }
 
 func TestUpdateNonExistingCategory(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/categories/48902805", `{ "name": "2" }`)
+	recorder := test.Request(t, "PATCH", "/v1/categories/f9288848-517e-4b8c-9f14-b3d849ca275b", `{ "name": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -127,7 +142,7 @@ func TestDeleteCategory(t *testing.T) {
 }
 
 func TestDeleteNonExistingCategory(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/categories/48902805", "")
+	recorder := test.Request(t, "DELETE", "/v1/categories/a2aa0569-5ac5-42e1-8563-7c61194cc7d9", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 

@@ -8,6 +8,7 @@ import (
 	"github.com/envelope-zero/backend/internal/httputil"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -25,7 +26,7 @@ type Transaction struct {
 }
 
 type TransactionLinks struct {
-	Self string `json:"self" example:"https://example.com/api/v1/transactions/1741"`
+	Self string `json:"self" example:"https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"`
 }
 
 // RegisterTransactionRoutes registers the routes for transactions with
@@ -137,12 +138,13 @@ func GetTransactions(c *gin.Context) {
 // @Param        transactionId  path      uint64  true  "ID of the transaction"
 // @Router       /v1/transactions/{transactionId} [get]
 func GetTransaction(c *gin.Context) {
-	id, err := httputil.ParseID(c, "transactionId")
+	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	transactionObject, err := getTransactionObject(c, id)
+	transactionObject, err := getTransactionObject(c, p)
 	if err != nil {
 		return
 	}
@@ -163,12 +165,13 @@ func GetTransaction(c *gin.Context) {
 // @Param        transaction    body      models.TransactionCreate  true  "Transaction"
 // @Router       /v1/transactions/{transactionId} [patch]
 func UpdateTransaction(c *gin.Context) {
-	id, err := httputil.ParseID(c, "transactionId")
+	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	transaction, err := getTransactionResource(c, id)
+	transaction, err := getTransactionResource(c, p)
 	if err != nil {
 		return
 	}
@@ -190,7 +193,7 @@ func UpdateTransaction(c *gin.Context) {
 	}
 
 	models.DB.Model(&transaction).Updates(data)
-	transactionObject, _ := getTransactionObject(c, id)
+	transactionObject, _ := getTransactionObject(c, p)
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
@@ -204,12 +207,13 @@ func UpdateTransaction(c *gin.Context) {
 // @Param        transactionId  path      uint64  true  "ID of the transaction"
 // @Router       /v1/transactions/{transactionId} [delete]
 func DeleteTransaction(c *gin.Context) {
-	id, err := httputil.ParseID(c, "transactionId")
+	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	transaction, err := getTransactionResource(c, id)
+	transaction, err := getTransactionResource(c, p)
 	if err != nil {
 		return
 	}
@@ -220,7 +224,7 @@ func DeleteTransaction(c *gin.Context) {
 }
 
 // getTransactionResource verifies that the request URI is valid for the transaction and returns it.
-func getTransactionResource(c *gin.Context, id uint64) (models.Transaction, error) {
+func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, error) {
 	var transaction models.Transaction
 
 	err := models.DB.First(&transaction, &models.Transaction{
@@ -236,7 +240,7 @@ func getTransactionResource(c *gin.Context, id uint64) (models.Transaction, erro
 	return transaction, nil
 }
 
-func getTransactionObject(c *gin.Context, id uint64) (Transaction, error) {
+func getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, error) {
 	resource, err := getTransactionResource(c, id)
 	if err != nil {
 		return Transaction{}, err
@@ -252,8 +256,8 @@ func getTransactionObject(c *gin.Context, id uint64) (Transaction, error) {
 //
 // This function is only needed for getTransactionObject as we cannot create an instance of Transaction
 // with mixed named and unnamed parameters.
-func getTransactionLinks(c *gin.Context, id uint64) TransactionLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/transactions/%d", id)
+func getTransactionLinks(c *gin.Context, id uuid.UUID) TransactionLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/transactions/%s", id)
 
 	return TransactionLinks{
 		Self: url,

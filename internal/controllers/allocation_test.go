@@ -1,7 +1,6 @@
 package controllers_test
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -9,9 +8,20 @@ import (
 	"github.com/envelope-zero/backend/internal/controllers"
 	"github.com/envelope-zero/backend/internal/models"
 	"github.com/envelope-zero/backend/internal/test"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
+
+func createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.AllocationResponse {
+	r := test.Request(t, "POST", "/v1/allocations", c)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var a controllers.AllocationResponse
+	test.DecodeResponse(t, &r, &a)
+
+	return a
+}
 
 func TestGetAllocations(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/allocations", "")
@@ -24,7 +34,6 @@ func TestGetAllocations(t *testing.T) {
 		assert.FailNow(t, "Response does not have exactly 3 items")
 	}
 
-	assert.Equal(t, uint64(1), response.Data[0].EnvelopeID)
 	assert.Equal(t, uint8(1), response.Data[0].Month)
 	assert.Equal(t, uint(2022), response.Data[0].Year)
 
@@ -37,39 +46,52 @@ func TestGetAllocations(t *testing.T) {
 }
 
 func TestNoAllocationNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/allocations/60", "")
+	recorder := test.Request(t, "GET", "/v1/allocations/f8b93ce2-309f-4e99-8886-6ab960df99c3", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
-// TestAllocationInvalidIDs verifies that on non-number requests for allocation IDs,
-// the API returs a Bad Request status code.
 func TestAllocationInvalidIDs(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/allocations/-2", "")
+	/*
+	 *  GET
+	 */
+	r := test.Request(t, http.MethodGet, "/v1/allocations/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "GET", "/v1/allocations/RoadWorkAhead", "")
+	r = test.Request(t, http.MethodGet, "/v1/allocations/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "PATCH", "/v1/allocations/SneezingBecauseAllergies", "")
+	r = test.Request(t, http.MethodGet, "/v1/allocations/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, "DELETE", "/v1/allocations/;!", "")
+	/*
+	 * PATCH
+	 */
+	r = test.Request(t, http.MethodPatch, "/v1/allocations/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodPatch, "/v1/allocations/stringRandom", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	/*
+	 * DELETE
+	 */
+	r = test.Request(t, http.MethodDelete, "/v1/allocations/-274", "")
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+
+	r = test.Request(t, http.MethodDelete, "/v1/allocations/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestCreateAllocation(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "month": 10, "year": 2022, "amount": 15.42 }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+	a := createTestAllocation(t, models.AllocationCreate{
+		Month:  10,
+		Year:   2022,
+		Amount: decimal.NewFromFloat(15.42),
+	})
 
-	var apiAllocation controllers.AllocationResponse
-	test.DecodeResponse(t, &recorder, &apiAllocation)
-
-	var dbAllocation models.Allocation
-	models.DB.First(&dbAllocation, apiAllocation.Data.ID)
-
-	if !decimal.NewFromFloat(15.42).Equal(apiAllocation.Data.Amount) {
-		assert.Fail(t, "Allocation amount does not equal 15.42", apiAllocation.Data.Amount)
+	if !decimal.NewFromFloat(15.42).Equal(a.Data.Amount) {
+		assert.Fail(t, "Allocation amount does not equal 15.42", a.Data.Amount)
 	}
 }
 
@@ -79,17 +101,17 @@ func TestCreateBrokenAllocation(t *testing.T) {
 }
 
 func TestCreateAllocationNonExistingEnvelope(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "envelopeId": 2581 }`)
+	recorder := test.Request(t, "POST", "/v1/allocations", models.AllocationCreate{EnvelopeID: uuid.New()})
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestCreateDuplicateAllocation(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "year": 2022, "month": 2 }`)
+	recorder := test.Request(t, "POST", "/v1/allocations", models.AllocationCreate{Year: 2022, Month: 2})
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateAllocationNoMonth(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "year": 2022, "month": 17 }`)
+	recorder := test.Request(t, "POST", "/v1/allocations", models.AllocationCreate{Year: 2022, Month: 17})
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
@@ -99,78 +121,54 @@ func TestCreateAllocationNoBody(t *testing.T) {
 }
 
 func TestGetAllocation(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/allocations/1", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
+	a := createTestAllocation(t, models.AllocationCreate{
+		Year:  2022,
+		Month: 8,
+	})
 
-	var allocationObject, savedAllocation controllers.AllocationResponse
-	test.DecodeResponse(t, &recorder, &allocationObject)
-
-	recorder = test.Request(t, "GET", allocationObject.Data.Links.Self, "")
-	test.DecodeResponse(t, &recorder, &savedAllocation)
-
-	assert.Equal(t, savedAllocation, allocationObject)
+	r := test.Request(t, http.MethodGet, a.Data.Links.Self, "")
+	assert.Equal(t, http.StatusOK, r.Code)
 }
 
 func TestUpdateAllocation(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "year": 2100, "month": 6 }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+	a := createTestAllocation(t, models.AllocationCreate{Year: 2100, Month: 6})
 
-	var allocation controllers.AllocationResponse
-	test.DecodeResponse(t, &recorder, &allocation)
-
-	path := fmt.Sprintf("/v1/allocations/%v", allocation.Data.ID)
-	recorder = test.Request(t, "PATCH", path, `{  "year": 2022 }`)
-	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
+	r := test.Request(t, "PATCH", a.Data.Links.Self, models.AllocationCreate{Year: 2022})
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
 
 	var updatedAllocation controllers.AllocationResponse
-	test.DecodeResponse(t, &recorder, &updatedAllocation)
+	test.DecodeResponse(t, &r, &updatedAllocation)
 
 	assert.Equal(t, uint(2022), updatedAllocation.Data.Year)
 }
 
 func TestUpdateAllocationBroken(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "year": 2017, "month": 11 }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+	a := createTestAllocation(t, models.AllocationCreate{Year: 2100, Month: 6})
 
-	var allocation controllers.AllocationResponse
-	test.DecodeResponse(t, &recorder, &allocation)
-
-	path := fmt.Sprintf("/v1/allocations/%v", allocation.Data.ID)
-	recorder = test.Request(t, "PATCH", path, `{ "name": 2" }`)
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
+	r := test.Request(t, "PATCH", a.Data.Links.Self, `{ "name": 2" }`)
+	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestUpdateNonExistingAllocation(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/allocations/48902805", `{ "name": "2" }`)
+	recorder := test.Request(t, "PATCH", "/v1/allocations/df684988-31df-444c-8aaa-b53195d55d6e", models.AllocationCreate{Month: 2})
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteAllocation(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "year": 2033, "month": 11 }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+	a := createTestAllocation(t, models.AllocationCreate{Year: 2033, Month: 11})
+	r := test.Request(t, "DELETE", a.Data.Links.Self, "")
 
-	var allocation controllers.AllocationResponse
-	test.DecodeResponse(t, &recorder, &allocation)
-
-	path := fmt.Sprintf("/v1/allocations/%v", allocation.Data.ID)
-	recorder = test.Request(t, "DELETE", path, "")
-
-	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
 }
 
 func TestDeleteNonExistingAllocation(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/allocations/48902805", "")
+	recorder := test.Request(t, "DELETE", "/v1/allocations/34ac51a7-431c-454b-ba29-feaefeae70d5", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteAllocationWithBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "year": 2070, "month": 12}`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+	a := createTestAllocation(t, models.AllocationCreate{Year: 2070, Month: 12})
 
-	var allocation controllers.AllocationResponse
-	test.DecodeResponse(t, &recorder, &allocation)
-
-	path := fmt.Sprintf("/v1/allocations/%v", allocation.Data.ID)
-	recorder = test.Request(t, "DELETE", path, `{ "name": "test name 23" }`)
-	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+	r := test.Request(t, "DELETE", a.Data.Links.Self, models.AllocationCreate{Year: 2011, Month: 3})
+	test.AssertHTTPStatus(t, http.StatusNoContent, &r)
 }

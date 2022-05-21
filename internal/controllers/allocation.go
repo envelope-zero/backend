@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-contrib/requestid"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 
 	"github.com/envelope-zero/backend/internal/httputil"
@@ -28,7 +29,7 @@ type Allocation struct {
 }
 
 type AllocationLinks struct {
-	Self string `json:"self" example:"https://example.com/api/v1/allocations/47"`
+	Self string `json:"self" example:"https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"`
 }
 
 // RegisterAllocationRoutes registers the routes for allocations with
@@ -159,12 +160,13 @@ func GetAllocations(c *gin.Context) {
 // @Param        allocationId  path      uint64  true  "ID of the allocation"
 // @Router       /v1/allocations/{allocationId} [get]
 func GetAllocation(c *gin.Context) {
-	id, err := httputil.ParseID(c, "allocationId")
+	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	allocationObject, err := getAllocationObject(c, id)
+	allocationObject, err := getAllocationObject(c, p)
 	if err != nil {
 		return
 	}
@@ -185,12 +187,13 @@ func GetAllocation(c *gin.Context) {
 // @Param        allocation  body      models.AllocationCreate  true  "Allocation"
 // @Router       /v1/allocations/{allocationId} [patch]
 func UpdateAllocation(c *gin.Context) {
-	id, err := httputil.ParseID(c, "allocationId")
+	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	allocation, err := getAllocationResource(c, id)
+	allocation, err := getAllocationResource(c, p)
 	if err != nil {
 		return
 	}
@@ -216,12 +219,13 @@ func UpdateAllocation(c *gin.Context) {
 // @Param        allocationId  path      uint64  true  "ID of the allocation"
 // @Router       /v1/allocations/{allocationId} [delete]
 func DeleteAllocation(c *gin.Context) {
-	id, err := httputil.ParseID(c, "allocationId")
+	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
+		httputil.ErrorInvalidUUID(c)
 		return
 	}
 
-	allocation, err := getAllocationResource(c, id)
+	allocation, err := getAllocationResource(c, p)
 	if err != nil {
 		return
 	}
@@ -232,7 +236,7 @@ func DeleteAllocation(c *gin.Context) {
 }
 
 // getAllocationResource verifies that the request URI is valid for the transaction and returns it.
-func getAllocationResource(c *gin.Context, id uint64) (models.Allocation, error) {
+func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, error) {
 	var allocation models.Allocation
 
 	err := models.DB.First(&allocation, &models.Allocation{
@@ -248,7 +252,7 @@ func getAllocationResource(c *gin.Context, id uint64) (models.Allocation, error)
 	return allocation, nil
 }
 
-func getAllocationObject(c *gin.Context, id uint64) (Allocation, error) {
+func getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, error) {
 	resource, err := getAllocationResource(c, id)
 	if err != nil {
 		return Allocation{}, err
@@ -264,8 +268,8 @@ func getAllocationObject(c *gin.Context, id uint64) (Allocation, error) {
 //
 // This function is only needed for getAllocationObject as we cannot create an instance of Allocation
 // with mixed named and unnamed parameters.
-func getAllocationLinks(c *gin.Context, id uint64) AllocationLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/allocations/%d", id)
+func getAllocationLinks(c *gin.Context, id uuid.UUID) AllocationLinks {
+	url := httputil.RequestPathV1(c) + fmt.Sprintf("/allocations/%s", id)
 
 	return AllocationLinks{
 		Self: url,

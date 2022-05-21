@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Budget represents a budget
@@ -20,7 +22,7 @@ type BudgetCreate struct {
 }
 
 type BudgetMonth struct {
-	ID        uint64          `json:"id" example:"23"`
+	ID        uuid.UUID       `json:"id" example:"23"`
 	Name      string          `json:"name" example:"A test envelope"`
 	Month     time.Time       `json:"month" example:"2006-05-04T15:02:01.000000Z"`
 	Envelopes []EnvelopeMonth `json:"envelopes,omitempty"`

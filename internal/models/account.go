@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
@@ -15,11 +16,11 @@ type Account struct {
 }
 
 type AccountCreate struct {
-	Name     string `json:"name,omitempty"`
-	Note     string `json:"note,omitempty"`
-	BudgetID uint64 `json:"budgetId"`
-	OnBudget bool   `json:"onBudget"` // Always false when external: true
-	External bool   `json:"external"`
+	Name     string    `json:"name,omitempty"`
+	Note     string    `json:"note,omitempty"`
+	BudgetID uuid.UUID `json:"budgetId"`
+	OnBudget bool      `json:"onBudget"` // Always false when external: true
+	External bool      `json:"external"`
 }
 
 func (a Account) WithCalculations() Account {
