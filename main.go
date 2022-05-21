@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/rs/zerolog/log"
 
-	"github.com/envelope-zero/backend/internal/controllers"
+	"github.com/envelope-zero/backend/pkg/controllers"
 )
 
 func main() {
