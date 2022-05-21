@@ -73,6 +73,6 @@ require (
 	modernc.org/sqlite v1.17.1 // indirect
 )
 
-replace github.com/envelope-zero/backend/internal/controllers => ./internal/controllers
+replace github.com/envelope-zero/backend/pkg/controllers => ./pkg/controllers
 
-replace github.com/envelope-zero/backend/swag => ./swag
+replace github.com/envelope-zero/backend/api => ./api

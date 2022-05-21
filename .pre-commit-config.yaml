@@ -27,11 +27,11 @@ repos:
         language: system
         pass_filenames: false
         entry: swag fmt
-        files: ^internal/.*
+        files: ^pkg/.*
 
       - id: swag init
         name: Create swagger docs.go
         language: system
         pass_filenames: false
-        entry: swag init --parseDependency --output ./swag
-        files: ^internal/.*
+        entry: swag init --parseDependency --output ./api
+        files: ^pkg/.*
