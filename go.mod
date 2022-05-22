@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.7.7
-	github.com/glebarez/sqlite v1.4.4
+	github.com/glebarez/sqlite v1.4.5
 	github.com/shopspring/decimal v1.3.1
 	gorm.io/driver/postgres v1.3.6
 	gorm.io/gorm v1.23.5
@@ -34,7 +34,7 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/logger v0.2.2
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/glebarez/go-sqlite v1.17.1 // indirect
+	github.com/glebarez/go-sqlite v1.17.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
@@ -67,10 +67,10 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	modernc.org/libc v1.16.1 // indirect
+	modernc.org/libc v1.16.8 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.1.1 // indirect
-	modernc.org/sqlite v1.17.1 // indirect
+	modernc.org/sqlite v1.17.2 // indirect
 )
 
 replace github.com/envelope-zero/backend/pkg/controllers => ./pkg/controllers
