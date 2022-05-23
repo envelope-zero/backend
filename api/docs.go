@@ -1782,6 +1782,10 @@ const docTemplate = `{
                 "self": {
                     "type": "string",
                     "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                },
+                "transactions": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/transactions?=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
                 }
             }
         },
