@@ -24,7 +24,8 @@ type Account struct {
 }
 
 type AccountLinks struct {
-	Self string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+	Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
 }
 
 // RegisterAccountRoutes registers the routes for accounts with
@@ -245,8 +246,10 @@ func getAccountObject(c *gin.Context, id uuid.UUID) (Account, error) {
 // with mixed named and unnamed parameters.
 func getAccountLinks(c *gin.Context, id uuid.UUID) AccountLinks {
 	url := httputil.RequestPathV1(c) + fmt.Sprintf("/accounts/%s", id)
+	t := httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?account=%s", id)
 
 	return AccountLinks{
-		Self: url,
+		Self:         url,
+		Transactions: t,
 	}
 }
