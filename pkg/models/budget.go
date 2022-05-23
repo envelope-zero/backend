@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 // Budget represents a budget
@@ -13,6 +14,7 @@ import (
 type Budget struct {
 	Model
 	BudgetCreate
+	Balance decimal.Decimal `json:"balance" gorm:"-"`
 }
 
 type BudgetCreate struct {

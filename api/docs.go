@@ -1874,6 +1874,9 @@ const docTemplate = `{
         "controllers.Budget": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "type": "number"
+                },
                 "createdAt": {
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
