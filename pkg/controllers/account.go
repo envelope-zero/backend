@@ -64,7 +64,7 @@ func OptionsAccountList(c *gin.Context) {
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Param        accountId  path      uint64  true  "ID of the account"
+// @Param        accountId  path  string  true  "ID formatted as string"
 // @Router       /v1/accounts/{accountId} [options]
 func OptionsAccountDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
@@ -134,7 +134,7 @@ func GetAccounts(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500        {object}  httputil.HTTPError
-// @Param        accountId  path      uint64                true  "ID of the account"
+// @Param        accountId  path      string  true  "ID formatted as string"
 // @Router       /v1/accounts/{accountId} [get]
 func GetAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
@@ -159,7 +159,7 @@ func GetAccount(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500        {object}  httputil.HTTPError
-// @Param        accountId  path      uint64  true  "ID of the account"
+// @Param        accountId  path      string                true  "ID formatted as string"
 // @Param        account    body      models.AccountCreate  true  "Account"
 // @Router       /v1/accounts/{accountId} [patch]
 func UpdateAccount(c *gin.Context) {
@@ -192,7 +192,7 @@ func UpdateAccount(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500        {object}  httputil.HTTPError
-// @Param        accountId  path  uint64  true  "ID of the account"
+// @Param        accountId  path      string  true  "ID formatted as string"
 // @Router       /v1/accounts/{accountId} [delete]
 func DeleteAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
