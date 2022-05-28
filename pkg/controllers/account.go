@@ -25,7 +25,7 @@ type Account struct {
 
 type AccountLinks struct {
 	Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account♫=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
 }
 
 // RegisterAccountRoutes registers the routes for accounts with
