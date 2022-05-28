@@ -74,7 +74,7 @@ func OptionsBudgetList(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500       {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64  true  "ID of the budget"
+// @Param        budgetId  path      string  true  "ID formatted as string"
 // @Router       /v1/budgets/{budgetId} [options]
 func OptionsBudgetDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
@@ -135,7 +135,7 @@ func GetBudgets(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500       {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64  true  "ID of the budget"
+// @Param        budgetId  path      string  true  "ID formatted as string"
 // @Router       /v1/budgets/{budgetId} [get]
 func GetBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
@@ -160,7 +160,7 @@ func GetBudget(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500  {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64  true  "ID of the budget"
+// @Param        budgetId  path      string  true  "ID formatted as string"
 // @Param        month     path      string  true  "The month in YYYY-MM format"
 // @Router       /v1/budgets/{budgetId}/{month} [get]
 func GetBudgetMonth(c *gin.Context) {
@@ -224,7 +224,7 @@ func GetBudgetMonth(c *gin.Context) {
 // @Failure      400     {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500  {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64               true  "ID of the budget"
+// @Param        budgetId  path      string               true  "ID formatted as string"
 // @Param        budget  body      models.BudgetCreate  true  "Budget"
 // @Router       /v1/budgets/{budgetId} [patch]
 func UpdateBudget(c *gin.Context) {
@@ -256,7 +256,7 @@ func UpdateBudget(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500     {object}  httputil.HTTPError
-// @Param        budgetId  path      uint64  true  "ID of the budget"
+// @Param        budgetId  path      string  true  "ID formatted as string"
 // @Router       /v1/budgets/{budgetId} [delete]
 func DeleteBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))

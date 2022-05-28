@@ -67,7 +67,7 @@ func OptionsEnvelopeList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Envelopes
 // @Success      204
-// @Param        envelopeId  path  uint64  true  "ID of the envelope"
+// @Param        envelopeId  path  string  true  "ID formatted as string"
 // @Router       /v1/envelopes/{envelopeId} [options]
 func OptionsEnvelopeDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
@@ -137,7 +137,7 @@ func GetEnvelopes(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        envelopeId  path      uint64                 true  "ID of the envelope"
+// @Param        envelopeId  path      string  true  "ID formatted as string"
 // @Router       /v1/envelopes/{envelopeId} [get]
 func GetEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
@@ -162,7 +162,7 @@ func GetEnvelope(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        envelopeId  path      uint64  true  "ID of the envelope"
+// @Param        envelopeId  path      string  true  "ID formatted as string"
 // @Param        month       path      string  true  "The month in YYYY-MM format"
 // @Router       /v1/envelopes/{envelopeId}/{month} [get]
 func GetEnvelopeMonth(c *gin.Context) {
@@ -196,7 +196,7 @@ func GetEnvelopeMonth(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        envelopeId  path      uint64  true  "ID of the envelope"
+// @Param        envelopeId  path      string                 true  "ID formatted as string"
 // @Param        envelope    body      models.EnvelopeCreate  true  "Envelope"
 // @Router       /v1/envelopes/{envelopeId} [patch]
 func UpdateEnvelope(c *gin.Context) {
@@ -228,7 +228,7 @@ func UpdateEnvelope(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        envelopeId  path      uint64  true  "ID of the envelope"
+// @Param        envelopeId  path      string  true  "ID formatted as string"
 // @Router       /v1/envelopes/{envelopeId} [delete]
 func DeleteEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))

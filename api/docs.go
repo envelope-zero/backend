@@ -186,8 +186,8 @@ const docTemplate = `{
                 "summary": "Get account",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the account",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "accountId",
                         "in": "path",
                         "required": true
@@ -228,8 +228,8 @@ const docTemplate = `{
                 "summary": "Delete account",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the account",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "accountId",
                         "in": "path",
                         "required": true
@@ -264,8 +264,8 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the account",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "accountId",
                         "in": "path",
                         "required": true
@@ -297,8 +297,8 @@ const docTemplate = `{
                 "summary": "Update account",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the account",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "accountId",
                         "in": "path",
                         "required": true
@@ -441,8 +441,8 @@ const docTemplate = `{
                 "summary": "Get allocation",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the allocation",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "allocationId",
                         "in": "path",
                         "required": true
@@ -480,8 +480,8 @@ const docTemplate = `{
                 "summary": "Delete an allocation",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the allocation",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "allocationId",
                         "in": "path",
                         "required": true
@@ -516,8 +516,8 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the allocation",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "allocationId",
                         "in": "path",
                         "required": true
@@ -543,8 +543,8 @@ const docTemplate = `{
                 "summary": "Update an allocation",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the allocation",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "allocationId",
                         "in": "path",
                         "required": true
@@ -684,8 +684,8 @@ const docTemplate = `{
                 "summary": "Get a budget",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the budget",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "budgetId",
                         "in": "path",
                         "required": true
@@ -723,8 +723,8 @@ const docTemplate = `{
                 "summary": "Delete a budget",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the budget",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "budgetId",
                         "in": "path",
                         "required": true
@@ -759,8 +759,8 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the budget",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "budgetId",
                         "in": "path",
                         "required": true
@@ -801,8 +801,8 @@ const docTemplate = `{
                 "summary": "Update a budget",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the budget",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "budgetId",
                         "in": "path",
                         "required": true
@@ -854,8 +854,8 @@ const docTemplate = `{
                 "summary": "Get Budget month data",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the budget",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "budgetId",
                         "in": "path",
                         "required": true
@@ -1005,8 +1005,8 @@ const docTemplate = `{
                 "summary": "Get category",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the category",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "categoryId",
                         "in": "path",
                         "required": true
@@ -1044,8 +1044,8 @@ const docTemplate = `{
                 "summary": "Delete a category",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the category",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "categoryId",
                         "in": "path",
                         "required": true
@@ -1080,8 +1080,8 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the category",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "categoryId",
                         "in": "path",
                         "required": true
@@ -1116,8 +1116,8 @@ const docTemplate = `{
                 "summary": "Update a category",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the category",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "categoryId",
                         "in": "path",
                         "required": true
@@ -1260,8 +1260,8 @@ const docTemplate = `{
                 "summary": "Get envelope",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the envelope",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "envelopeId",
                         "in": "path",
                         "required": true
@@ -1299,8 +1299,8 @@ const docTemplate = `{
                 "summary": "Delete an envelope",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the envelope",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "envelopeId",
                         "in": "path",
                         "required": true
@@ -1335,8 +1335,8 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the envelope",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "envelopeId",
                         "in": "path",
                         "required": true
@@ -1362,8 +1362,8 @@ const docTemplate = `{
                 "summary": "Update an envelope",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the envelope",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "envelopeId",
                         "in": "path",
                         "required": true
@@ -1415,8 +1415,8 @@ const docTemplate = `{
                 "summary": "Get Envelope month data",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the envelope",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "envelopeId",
                         "in": "path",
                         "required": true
@@ -1557,8 +1557,8 @@ const docTemplate = `{
                 "summary": "Get transaction",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the transaction",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "transactionId",
                         "in": "path",
                         "required": true
@@ -1596,8 +1596,8 @@ const docTemplate = `{
                 "summary": "Delete a transaction",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the transaction",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "transactionId",
                         "in": "path",
                         "required": true
@@ -1632,8 +1632,8 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the transaction",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "transactionId",
                         "in": "path",
                         "required": true
@@ -1659,8 +1659,8 @@ const docTemplate = `{
                 "summary": "Update a transaction",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the transaction",
+                        "type": "string",
+                        "description": "ID formatted as string",
                         "name": "transactionId",
                         "in": "path",
                         "required": true

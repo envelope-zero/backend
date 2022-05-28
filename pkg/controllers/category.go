@@ -64,7 +64,7 @@ func OptionsCategoryList(c *gin.Context) {
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
-// @Param        categoryId  path  uint64  true  "ID of the category"
+// @Param        categoryId  path  string  true  "ID formatted as string"
 // @Router       /v1/categories/{categoryId} [options]
 func OptionsCategoryDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
@@ -134,7 +134,7 @@ func GetCategories(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        categoryId  path      uint64  true  "ID of the category"
+// @Param        categoryId  path      string  true  "ID formatted as string"
 // @Router       /v1/categories/{categoryId} [get]
 func GetCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
@@ -160,7 +160,7 @@ func GetCategory(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        categoryId  path      uint64                 true  "ID of the category"
+// @Param        categoryId  path      string                 true  "ID formatted as string"
 // @Param        category  body      models.CategoryCreate  true  "Category"
 // @Router       /v1/categories/{categoryId} [patch]
 func UpdateCategory(c *gin.Context) {
@@ -192,7 +192,7 @@ func UpdateCategory(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        categoryId  path      uint64  true  "ID of the category"
+// @Param        categoryId  path      string  true  "ID formatted as string"
 // @Router       /v1/categories/{categoryId} [delete]
 func DeleteCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))

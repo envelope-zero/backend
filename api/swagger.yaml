@@ -586,11 +586,11 @@ paths:
     delete:
       description: Deletes the specified account.
       parameters:
-      - description: ID of the account
+      - description: ID formatted as string
         in: path
         name: accountId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -612,11 +612,11 @@ paths:
     get:
       description: Returns a specific account
       parameters:
-      - description: ID of the account
+      - description: ID formatted as string
         in: path
         name: accountId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -641,11 +641,11 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the account
+      - description: ID formatted as string
         in: path
         name: accountId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -661,11 +661,11 @@ paths:
     patch:
       description: Updates an account. Only values to be updated need to be specified.
       parameters:
-      - description: ID of the account
+      - description: ID formatted as string
         in: path
         name: accountId
         required: true
-        type: integer
+        type: string
       - description: Account
         in: body
         name: account
@@ -758,11 +758,11 @@ paths:
     delete:
       description: Deletes an existing allocation
       parameters:
-      - description: ID of the allocation
+      - description: ID formatted as string
         in: path
         name: allocationId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -782,11 +782,11 @@ paths:
     get:
       description: Returns an allocation by its ID
       parameters:
-      - description: ID of the allocation
+      - description: ID formatted as string
         in: path
         name: allocationId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -811,11 +811,11 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the allocation
+      - description: ID formatted as string
         in: path
         name: allocationId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -828,11 +828,11 @@ paths:
       description: Update an existing allocation. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID of the allocation
+      - description: ID formatted as string
         in: path
         name: allocationId
         required: true
-        type: integer
+        type: string
       - description: Allocation
         in: body
         name: allocation
@@ -922,11 +922,11 @@ paths:
     delete:
       description: Deletes an existing budget
       parameters:
-      - description: ID of the budget
+      - description: ID formatted as string
         in: path
         name: budgetId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -946,11 +946,11 @@ paths:
     get:
       description: Returns a specific budget
       parameters:
-      - description: ID of the budget
+      - description: ID formatted as string
         in: path
         name: budgetId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -975,11 +975,11 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the budget
+      - description: ID formatted as string
         in: path
         name: budgetId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -1002,11 +1002,11 @@ paths:
       description: Update an existing budget. Only values to be updated need to be
         specified.
       parameters:
-      - description: ID of the budget
+      - description: ID formatted as string
         in: path
         name: budgetId
         required: true
-        type: integer
+        type: string
       - description: Budget
         in: body
         name: budget
@@ -1037,11 +1037,11 @@ paths:
     get:
       description: Returns data about a budget for a for a specific month
       parameters:
-      - description: ID of the budget
+      - description: ID formatted as string
         in: path
         name: budgetId
         required: true
-        type: integer
+        type: string
       - description: The month in YYYY-MM format
         in: path
         name: month
@@ -1138,11 +1138,11 @@ paths:
     delete:
       description: Deletes an existing category
       parameters:
-      - description: ID of the category
+      - description: ID formatted as string
         in: path
         name: categoryId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -1162,11 +1162,11 @@ paths:
     get:
       description: Returns a category by its ID
       parameters:
-      - description: ID of the category
+      - description: ID formatted as string
         in: path
         name: categoryId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1191,11 +1191,11 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the category
+      - description: ID formatted as string
         in: path
         name: categoryId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -1214,11 +1214,11 @@ paths:
       description: Update an existing category. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID of the category
+      - description: ID formatted as string
         in: path
         name: categoryId
         required: true
-        type: integer
+        type: string
       - description: Category
         in: body
         name: category
@@ -1310,11 +1310,11 @@ paths:
     delete:
       description: Deletes an existing envelope
       parameters:
-      - description: ID of the envelope
+      - description: ID formatted as string
         in: path
         name: envelopeId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -1334,11 +1334,11 @@ paths:
     get:
       description: Returns an envelope by its ID
       parameters:
-      - description: ID of the envelope
+      - description: ID formatted as string
         in: path
         name: envelopeId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1363,11 +1363,11 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the envelope
+      - description: ID formatted as string
         in: path
         name: envelopeId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -1380,11 +1380,11 @@ paths:
       description: Update an existing envelope. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID of the envelope
+      - description: ID formatted as string
         in: path
         name: envelopeId
         required: true
-        type: integer
+        type: string
       - description: Envelope
         in: body
         name: envelope
@@ -1415,11 +1415,11 @@ paths:
     get:
       description: Returns data about an envelope for a for a specific month
       parameters:
-      - description: ID of the envelope
+      - description: ID formatted as string
         in: path
         name: envelopeId
         required: true
-        type: integer
+        type: string
       - description: The month in YYYY-MM format
         in: path
         name: month
@@ -1510,11 +1510,11 @@ paths:
     delete:
       description: Deletes an existing transaction
       parameters:
-      - description: ID of the transaction
+      - description: ID formatted as string
         in: path
         name: transactionId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -1534,11 +1534,11 @@ paths:
     get:
       description: Returns a transaction by its ID
       parameters:
-      - description: ID of the transaction
+      - description: ID formatted as string
         in: path
         name: transactionId
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1563,11 +1563,11 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the transaction
+      - description: ID formatted as string
         in: path
         name: transactionId
         required: true
-        type: integer
+        type: string
       responses:
         "204":
           description: ""
@@ -1580,11 +1580,11 @@ paths:
       description: Update an existing transaction. Only values to be updated need
         to be specified.
       parameters:
-      - description: ID of the transaction
+      - description: ID formatted as string
         in: path
         name: transactionId
         required: true
-        type: integer
+        type: string
       - description: Transaction
         in: body
         name: transaction

@@ -61,7 +61,7 @@ func OptionsTransactionList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Transactions
 // @Success      204
-// @Param        transactionId  path  uint64  true  "ID of the transaction"
+// @Param        transactionId  path  string  true  "ID formatted as string"
 // @Router       /v1/transactions/{transactionId} [options]
 func OptionsTransactionDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
@@ -135,7 +135,7 @@ func GetTransactions(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500            {object}  httputil.HTTPError
-// @Param        transactionId  path      uint64  true  "ID of the transaction"
+// @Param        transactionId  path      string  true  "ID formatted as string"
 // @Router       /v1/transactions/{transactionId} [get]
 func GetTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
@@ -161,7 +161,7 @@ func GetTransaction(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500            {object}  httputil.HTTPError
-// @Param        transactionId  path      uint64                    true  "ID of the transaction"
+// @Param        transactionId  path      string                    true  "ID formatted as string"
 // @Param        transaction    body      models.TransactionCreate  true  "Transaction"
 // @Router       /v1/transactions/{transactionId} [patch]
 func UpdateTransaction(c *gin.Context) {
@@ -204,7 +204,7 @@ func UpdateTransaction(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500            {object}  httputil.HTTPError
-// @Param        transactionId  path      uint64  true  "ID of the transaction"
+// @Param        transactionId  path      string  true  "ID formatted as string"
 // @Router       /v1/transactions/{transactionId} [delete]
 func DeleteTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))

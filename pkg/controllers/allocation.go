@@ -64,7 +64,7 @@ func OptionsAllocationList(c *gin.Context) {
 // @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags         Allocations
 // @Success      204
-// @Param        allocationId  path  uint64  true  "ID of the allocation"
+// @Param        allocationId  path  string  true  "ID formatted as string"
 // @Router       /v1/allocations/{allocationId} [options]
 func OptionsAllocationDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
@@ -157,7 +157,7 @@ func GetAllocations(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500           {object}  httputil.HTTPError
-// @Param        allocationId  path      uint64  true  "ID of the allocation"
+// @Param        allocationId  path      string  true  "ID formatted as string"
 // @Router       /v1/allocations/{allocationId} [get]
 func GetAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
@@ -183,7 +183,7 @@ func GetAllocation(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500           {object}  httputil.HTTPError
-// @Param        allocationId  path      uint64                   true  "ID of the allocation"
+// @Param        allocationId  path      string                   true  "ID formatted as string"
 // @Param        allocation  body      models.AllocationCreate  true  "Allocation"
 // @Router       /v1/allocations/{allocationId} [patch]
 func UpdateAllocation(c *gin.Context) {
@@ -216,7 +216,7 @@ func UpdateAllocation(c *gin.Context) {
 // @Failure      400  {object}  httputil.HTTPError
 // @Failure      404
 // @Failure      500         {object}  httputil.HTTPError
-// @Param        allocationId  path      uint64  true  "ID of the allocation"
+// @Param        allocationId  path      string  true  "ID formatted as string"
 // @Router       /v1/allocations/{allocationId} [delete]
 func DeleteAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
