@@ -36,7 +36,7 @@ definitions:
         example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
         type: string
       transactions:
-        example: https://example.com/api/v1/transactions?=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        example: https://example.com/api/v1/transactions?account♫=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
         type: string
     type: object
   controllers.AccountListResponse:
@@ -862,6 +862,19 @@ paths:
   /v1/budgets:
     get:
       description: Returns list of budgets
+      parameters:
+      - description: Name of the budget
+        in: query
+        name: name
+        type: string
+      - description: Note for the budget
+        in: query
+        name: note
+        type: string
+      - description: Currency the budget is in
+        in: query
+        name: currency
+        type: string
       produces:
       - application/json
       responses:

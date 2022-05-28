@@ -582,6 +582,26 @@
                     "Budgets"
                 ],
                 "summary": "List all budgets",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of the budget",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Note for the budget",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Currency the budget is in",
+                        "name": "currency",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1773,7 +1793,7 @@
                 },
                 "transactions": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/transactions?=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                    "example": "https://example.com/api/v1/transactions?account♫=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
                 }
             }
         },

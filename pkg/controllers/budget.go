@@ -37,6 +37,11 @@ type BudgetMonthResponse struct {
 	Data models.BudgetMonth `json:"data"`
 }
 
+type BudgetQueryFilter struct {
+	QueryFilter
+	Currency string `form:"currency"`
+}
+
 // RegisterBudgetRoutes registers the routes for budgets with
 // the RouterGroup that is passed.
 func RegisterBudgetRoutes(r *gin.RouterGroup) {
@@ -110,9 +115,26 @@ func CreateBudget(c *gin.Context) {
 // @Success      200  {object}  BudgetListResponse
 // @Failure      500       {object}  httputil.HTTPError
 // @Router       /v1/budgets [get]
+// @Router       /v1/budgets [get]
+// @Param        name      query  string  false  "Name of the budget"
+// @Param        note      query  string  false  "Note for the budget"
+// @Param        currency  query  string  false  "Currency the budget is in"
 func GetBudgets(c *gin.Context) {
+	var f BudgetQueryFilter
+
+	// We should find something that is not parseable and test this line
+	if err := c.Bind(&f); err != nil {
+		return
+	}
+
 	var budgets []models.Budget
-	models.DB.Find(&budgets)
+	models.DB.Where(&models.Budget{
+		BudgetCreate: models.BudgetCreate{
+			Name:     f.Name,
+			Note:     f.Note,
+			Currency: f.Currency,
+		},
+	}).Find(&budgets)
 
 	// When there are no budgets, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements

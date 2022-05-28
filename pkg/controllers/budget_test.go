@@ -13,6 +13,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetResponse {
+	r := test.Request(t, http.MethodPost, "/v1/budgets", c)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var a controllers.BudgetResponse
+	test.DecodeResponse(t, &r, &a)
+
+	return a
+}
+
 func TestGetBudgets(t *testing.T) {
 	recorder := test.Request(t, "GET", "/v1/budgets", "")
 
@@ -32,6 +42,53 @@ func TestGetBudgets(t *testing.T) {
 
 	diff = time.Since(response.Data[0].UpdatedAt)
 	assert.LessOrEqual(t, diff, test.TOLERANCE)
+}
+
+func TestGetBudgetsFilter(t *testing.T) {
+	_ = createTestBudget(t, models.BudgetCreate{
+		Name:     "Exact String Match",
+		Note:     "This is a specific note",
+		Currency: "€",
+	})
+
+	_ = createTestBudget(t, models.BudgetCreate{
+		Name:     "Another String",
+		Note:     "This is a specific note",
+		Currency: "$",
+	})
+
+	_ = createTestBudget(t, models.BudgetCreate{
+		Name:     "Another String",
+		Note:     "A different note",
+		Currency: "€",
+	})
+
+	var re controllers.BudgetListResponse
+
+	r := test.Request(t, http.MethodGet, "/v1/budgets?currency=€", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	test.DecodeResponse(t, &r, &re)
+	assert.Equal(t, 2, len(re.Data))
+
+	r = test.Request(t, http.MethodGet, "/v1/budgets?currency=$", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	test.DecodeResponse(t, &r, &re)
+	assert.Equal(t, 1, len(re.Data))
+
+	r = test.Request(t, http.MethodGet, "/v1/budgets?currency=€&name=Another String", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	test.DecodeResponse(t, &r, &re)
+	assert.Equal(t, 1, len(re.Data))
+
+	r = test.Request(t, http.MethodGet, "/v1/budgets?note=This is a specific note", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	test.DecodeResponse(t, &r, &re)
+	assert.Equal(t, 2, len(re.Data))
+
+	r = test.Request(t, http.MethodGet, "/v1/budgets?name=Exact String Match", "")
+	test.AssertHTTPStatus(t, http.StatusOK, &r)
+	test.DecodeResponse(t, &r, &re)
+	assert.Equal(t, 1, len(re.Data))
 }
 
 func TestNoBudgetNotFound(t *testing.T) {
