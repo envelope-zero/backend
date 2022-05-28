@@ -13,7 +13,7 @@ coverage:
     patch:
       default:
         target: auto
-        threshold: 10%
+        threshold: 25%
 
 ignore:
   - "internal/test" # test helpers, those are tested by the tests themselves
