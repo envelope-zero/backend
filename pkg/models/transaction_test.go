@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +18,7 @@ func TestTransactionFindTimeUTC(t *testing.T) {
 		},
 	}
 
-	err := transaction.AfterFind(models.DB)
+	err := transaction.AfterFind(database.DB)
 	if err != nil {
 		assert.Fail(t, "transaction.AfterFind failed")
 	}
@@ -29,7 +30,7 @@ func TestTransactionSaveTimeUTC(t *testing.T) {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{}
-	err := transaction.BeforeSave(models.DB)
+	err := transaction.BeforeSave(database.DB)
 	if err != nil {
 		assert.Fail(t, "transaction.AfterFind failed")
 	}
@@ -41,7 +42,7 @@ func TestTransactionSaveTimeUTC(t *testing.T) {
 			Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
 		},
 	}
-	err = transaction.BeforeSave(models.DB)
+	err = transaction.BeforeSave(database.DB)
 	if err != nil {
 		assert.Fail(t, "transaction.AfterFind failed")
 	}

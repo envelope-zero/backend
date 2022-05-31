@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/controllers"
+	"github.com/envelope-zero/backend/internal/router"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/stretchr/testify/assert"
 )
@@ -42,7 +42,7 @@ func Request(t *testing.T, method, url string, body any, headers ...map[string]s
 	}
 
 	os.Setenv("LOG_FORMAT", "human")
-	router, err := controllers.Router()
+	router, err := router.Router()
 	if err != nil {
 		assert.FailNow(t, "Router could not be initialized")
 	}

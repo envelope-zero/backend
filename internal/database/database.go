@@ -1,4 +1,4 @@
-package models
+package database
 
 import (
 	"fmt"
@@ -49,11 +49,6 @@ func ConnectDatabase() error {
 
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
-	}
-
-	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{})
-	if err != nil {
-		return err
 	}
 
 	sqlDB, err := db.DB()

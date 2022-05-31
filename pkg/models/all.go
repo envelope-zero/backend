@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/shopspring/decimal"
 )
 
@@ -13,13 +14,13 @@ import (
 func TransactionsSum(incoming, outgoing Transaction) decimal.Decimal {
 	var outgoingSum, incomingSum decimal.NullDecimal
 
-	_ = DB.Table("transactions").
+	_ = database.DB.Table("transactions").
 		Where(&outgoing).
 		Select("SUM(amount)").
 		Row().
 		Scan(&outgoingSum)
 
-	_ = DB.Table("transactions").
+	_ = database.DB.Table("transactions").
 		Where(&incoming).
 		Select("SUM(amount)").
 		Row().
@@ -32,7 +33,7 @@ func TransactionsSum(incoming, outgoing Transaction) decimal.Decimal {
 func RawTransactions(query string) ([]Transaction, error) {
 	var transactions []Transaction
 
-	err := DB.Raw(query).Scan(&transactions).Error
+	err := database.DB.Raw(query).Scan(&transactions).Error
 	if err != nil {
 		return []Transaction{}, fmt.Errorf("getting transactions with query '%v' failed: %w", query, err)
 	}

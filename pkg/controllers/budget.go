@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -102,7 +103,7 @@ func CreateBudget(c *gin.Context) {
 		return
 	}
 
-	models.DB.Create(&budget)
+	database.DB.Create(&budget)
 
 	budgetObject, _ := getBudgetObject(c, budget.ID)
 	c.JSON(http.StatusCreated, BudgetResponse{Data: budgetObject})
@@ -128,7 +129,7 @@ func GetBudgets(c *gin.Context) {
 	}
 
 	var budgets []models.Budget
-	models.DB.Where(&models.Budget{
+	database.DB.Where(&models.Budget{
 		BudgetCreate: models.BudgetCreate{
 			Name:     f.Name,
 			Note:     f.Note,
@@ -215,7 +216,7 @@ func GetBudgetMonth(c *gin.Context) {
 	for _, category := range categories {
 		var e []models.Envelope
 
-		models.DB.Where(&models.Envelope{
+		database.DB.Where(&models.Envelope{
 			EnvelopeCreate: models.EnvelopeCreate{
 				CategoryID: category.ID,
 			},
@@ -266,7 +267,7 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	models.DB.Model(&budget).Updates(data)
+	database.DB.Model(&budget).Updates(data)
 	budgetObject, _ := getBudgetObject(c, budget.ID)
 	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
 }
@@ -292,7 +293,7 @@ func DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	models.DB.Delete(&budget)
+	database.DB.Delete(&budget)
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
@@ -301,7 +302,7 @@ func DeleteBudget(c *gin.Context) {
 func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 	var budget models.Budget
 
-	err := models.DB.Where(&models.Budget{
+	err := database.DB.Where(&models.Budget{
 		Model: models.Model{
 			ID: id,
 		},

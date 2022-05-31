@@ -249,23 +249,6 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Envelope'
     type: object
-  controllers.RootLinks:
-    properties:
-      docs:
-        example: https://example.com/api/docs/index.html
-        type: string
-      v1:
-        example: https://example.com/api/v1
-        type: string
-      version:
-        example: https://example.com/api/version
-        type: string
-    type: object
-  controllers.RootResponse:
-    properties:
-      links:
-        $ref: '#/definitions/controllers.RootLinks'
-    type: object
   controllers.Transaction:
     properties:
       amount:
@@ -315,43 +298,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/controllers.Transaction'
-    type: object
-  controllers.V1Links:
-    properties:
-      accounts:
-        example: https://example.com/api/v1/accounts
-        type: string
-      allocations:
-        example: https://example.com/api/v1/allocations3
-        type: string
-      budgets:
-        example: https://example.com/api/v1/budgets
-        type: string
-      categories:
-        example: https://example.com/api/v1/categories
-        type: string
-      envelopes:
-        example: https://example.com/api/v1/envelopes
-        type: string
-      transactions:
-        example: https://example.com/api/v1/transactions
-        type: string
-    type: object
-  controllers.V1Response:
-    properties:
-      links:
-        $ref: '#/definitions/controllers.V1Links'
-    type: object
-  controllers.VersionObject:
-    properties:
-      version:
-        example: 1.1.0
-        type: string
-    type: object
-  controllers.VersionResponse:
-    properties:
-      data:
-        $ref: '#/definitions/controllers.VersionObject'
     type: object
   gorm.DeletedAt:
     properties:
@@ -472,6 +418,60 @@ definitions:
       sourceAccountId:
         type: string
     type: object
+  router.RootLinks:
+    properties:
+      docs:
+        example: https://example.com/api/docs/index.html
+        type: string
+      v1:
+        example: https://example.com/api/v1
+        type: string
+      version:
+        example: https://example.com/api/version
+        type: string
+    type: object
+  router.RootResponse:
+    properties:
+      links:
+        $ref: '#/definitions/router.RootLinks'
+    type: object
+  router.V1Links:
+    properties:
+      accounts:
+        example: https://example.com/api/v1/accounts
+        type: string
+      allocations:
+        example: https://example.com/api/v1/allocations3
+        type: string
+      budgets:
+        example: https://example.com/api/v1/budgets
+        type: string
+      categories:
+        example: https://example.com/api/v1/categories
+        type: string
+      envelopes:
+        example: https://example.com/api/v1/envelopes
+        type: string
+      transactions:
+        example: https://example.com/api/v1/transactions
+        type: string
+    type: object
+  router.V1Response:
+    properties:
+      links:
+        $ref: '#/definitions/router.V1Links'
+    type: object
+  router.VersionObject:
+    properties:
+      version:
+        example: 1.1.0
+        type: string
+    type: object
+  router.VersionResponse:
+    properties:
+      data:
+        $ref: '#/definitions/router.VersionObject'
+    type: object
 info:
   contact: {}
 paths:
@@ -482,7 +482,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.RootResponse'
+            $ref: '#/definitions/router.RootResponse'
       summary: API root
       tags:
       - General
@@ -502,7 +502,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.V1Response'
+            $ref: '#/definitions/router.V1Response'
       summary: v1 API
       tags:
       - General
@@ -1631,7 +1631,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.VersionResponse'
+            $ref: '#/definitions/router.VersionResponse'
       summary: API version
       tags:
       - General

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
@@ -67,7 +68,7 @@ func (e Envelope) Month(t time.Time) EnvelopeMonth {
 	spent := e.Spent(t)
 
 	var allocation Allocation
-	DB.First(&allocation, &Allocation{
+	database.DB.First(&allocation, &Allocation{
 		AllocationCreate: AllocationCreate{
 			Month: uint8(t.UTC().Month()),
 			Year:  uint(t.UTC().Year()),

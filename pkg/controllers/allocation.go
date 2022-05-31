@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -93,7 +94,7 @@ func CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	result := models.DB.Create(&allocation)
+	result := database.DB.Create(&allocation)
 
 	if result.Error != nil {
 		// By default, we assume a server error
@@ -134,7 +135,7 @@ func CreateAllocation(c *gin.Context) {
 func GetAllocations(c *gin.Context) {
 	var allocations []models.Allocation
 
-	models.DB.Find(&allocations)
+	database.DB.Find(&allocations)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -203,7 +204,7 @@ func UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	models.DB.Model(&allocation).Updates(data)
+	database.DB.Model(&allocation).Updates(data)
 	allocationObject, _ := getAllocationObject(c, allocation.ID)
 
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
@@ -230,7 +231,7 @@ func DeleteAllocation(c *gin.Context) {
 		return
 	}
 
-	models.DB.Delete(&allocation)
+	database.DB.Delete(&allocation)
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
@@ -239,7 +240,7 @@ func DeleteAllocation(c *gin.Context) {
 func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, error) {
 	var allocation models.Allocation
 
-	err := models.DB.First(&allocation, &models.Allocation{
+	err := database.DB.First(&allocation, &models.Allocation{
 		Model: models.Model{
 			ID: id,
 		},

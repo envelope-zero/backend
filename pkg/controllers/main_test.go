@@ -6,10 +6,47 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
 )
+
+// // Environment for the test suite. Used to save the database connection
+// type TestSuiteEnv struct {
+// 	suite.Suite
+// 	db *gorm.DB
+// }
+
+// // Pseudo-Test run by go test that runs the test suite
+// func TestSuite(t *testing.T) {
+// 	suite.Run(t, new(TestSuiteEnv))
+// }
+
+// // SetupSuite is called before any of the tests in the suite are run
+// func (suite *TestSuiteEnv) SetupSuite() {
+// 	database.Setup()
+// 	suite.db = database.GetDB()
+// }
+
+// // SetupTest is called before each test in the suite
+// func (suite *TestSuiteEnv) SetupTest() {
+// }
+
+// // TearDownTest is called after each test in the suite
+// func (suite *TestSuiteEnv) TearDownTest() {
+// 	database.ClearTable()
+// }
+
+// // TearDownSuite is called after all tests in the suite have run
+// func (suite *TestSuiteEnv) TearDownSuite() {
+// 	sqlDB, err := suite.db.DB()
+// 	if err != nil {
+// 		suite.Assert().FailNow("TearDownSuite: Database connection could not be closed", err)
+// 	}
+
+// 	sqlDB.Close()
+// }
 
 // TestMain takes care of the test setup for this package.
 func TestMain(m *testing.M) {
@@ -25,7 +62,13 @@ func runTests(m *testing.M) int {
 		gin.SetMode("release")
 	}
 
-	err := models.ConnectDatabase()
+	err := database.ConnectDatabase()
+	if err != nil {
+		log.Fatalf("Database connection failed with: %s", err.Error())
+	}
+
+	// Migrate all models so that the schema is correct
+	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
 	if err != nil {
 		log.Fatalf("Database migration failed with: %s", err.Error())
 	}
@@ -36,7 +79,7 @@ func runTests(m *testing.M) int {
 			Note: "GNU: Terry Pratchett",
 		},
 	}
-	models.DB.Create(&budget)
+	database.DB.Create(&budget)
 
 	bankAccount := models.Account{
 		AccountCreate: models.AccountCreate{
@@ -45,7 +88,7 @@ func runTests(m *testing.M) int {
 			OnBudget: true,
 		},
 	}
-	models.DB.Create(&bankAccount)
+	database.DB.Create(&bankAccount)
 
 	cashAccount := models.Account{
 		AccountCreate: models.AccountCreate{
@@ -54,7 +97,7 @@ func runTests(m *testing.M) int {
 			OnBudget: false,
 		},
 	}
-	models.DB.Create(&cashAccount)
+	database.DB.Create(&cashAccount)
 
 	externalAccount := models.Account{
 		AccountCreate: models.AccountCreate{
@@ -63,7 +106,7 @@ func runTests(m *testing.M) int {
 			External: true,
 		},
 	}
-	models.DB.Create(&externalAccount)
+	database.DB.Create(&externalAccount)
 
 	category := models.Category{
 		CategoryCreate: models.CategoryCreate{
@@ -72,7 +115,7 @@ func runTests(m *testing.M) int {
 			Note:     "For e.g. groceries and energy bills",
 		},
 	}
-	models.DB.Create(&category)
+	database.DB.Create(&category)
 
 	envelope := models.Envelope{
 		EnvelopeCreate: models.EnvelopeCreate{
@@ -81,7 +124,7 @@ func runTests(m *testing.M) int {
 			Note:       "Energy & Water",
 		},
 	}
-	models.DB.Create(&envelope)
+	database.DB.Create(&envelope)
 
 	allocationJan := models.Allocation{
 		AllocationCreate: models.AllocationCreate{
@@ -91,7 +134,7 @@ func runTests(m *testing.M) int {
 			Amount:     decimal.NewFromFloat(20.99),
 		},
 	}
-	models.DB.Create(&allocationJan)
+	database.DB.Create(&allocationJan)
 
 	allocationFeb := models.Allocation{
 		AllocationCreate: models.AllocationCreate{
@@ -101,7 +144,7 @@ func runTests(m *testing.M) int {
 			Amount:     decimal.NewFromFloat(47.12),
 		},
 	}
-	models.DB.Create(&allocationFeb)
+	database.DB.Create(&allocationFeb)
 
 	allocationMar := models.Allocation{
 		AllocationCreate: models.AllocationCreate{
@@ -111,7 +154,7 @@ func runTests(m *testing.M) int {
 			Amount:     decimal.NewFromFloat(31.17),
 		},
 	}
-	models.DB.Create(&allocationMar)
+	database.DB.Create(&allocationMar)
 
 	waterBillTransactionJan := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
@@ -125,7 +168,7 @@ func runTests(m *testing.M) int {
 			Reconciled:           true,
 		},
 	}
-	models.DB.Create(&waterBillTransactionJan)
+	database.DB.Create(&waterBillTransactionJan)
 
 	waterBillTransactionFeb := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
@@ -139,7 +182,7 @@ func runTests(m *testing.M) int {
 			Reconciled:           false,
 		},
 	}
-	models.DB.Create(&waterBillTransactionFeb)
+	database.DB.Create(&waterBillTransactionFeb)
 
 	waterBillTransactionMar := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
@@ -154,7 +197,7 @@ func runTests(m *testing.M) int {
 		},
 	}
 
-	models.DB.Create(&waterBillTransactionMar)
+	database.DB.Create(&waterBillTransactionMar)
 
 	return m.Run()
 }
