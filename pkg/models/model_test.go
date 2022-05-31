@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ func TestModelTimeUTC(t *testing.T) {
 		DeletedAt: &gorm.DeletedAt{Time: time.Now().In(tz)},
 	}
 
-	err := model.AfterFind(models.DB)
+	err := model.AfterFind(database.DB)
 	if err != nil {
 		assert.Fail(t, "model.AfterFind failed")
 	}

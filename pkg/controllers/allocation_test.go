@@ -14,7 +14,7 @@ import (
 )
 
 func createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.AllocationResponse {
-	r := test.Request(t, "POST", "/v1/allocations", c)
+	r := test.Request(t, "POST", "http://example.com/v1/allocations", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
 	var a controllers.AllocationResponse
@@ -24,7 +24,7 @@ func createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.A
 }
 
 func TestGetAllocations(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/allocations", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/allocations", "")
 
 	var response controllers.AllocationListResponse
 	test.DecodeResponse(t, &recorder, &response)
@@ -46,7 +46,7 @@ func TestGetAllocations(t *testing.T) {
 }
 
 func TestNoAllocationNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/allocations/f8b93ce2-309f-4e99-8886-6ab960df99c3", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/allocations/f8b93ce2-309f-4e99-8886-6ab960df99c3", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
@@ -55,31 +55,31 @@ func TestAllocationInvalidIDs(t *testing.T) {
 	/*
 	 *  GET
 	 */
-	r := test.Request(t, http.MethodGet, "/v1/allocations/-56", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/allocations/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/allocations/notANumber", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/allocations/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/allocations/23", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/allocations/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * PATCH
 	 */
-	r = test.Request(t, http.MethodPatch, "/v1/allocations/-274", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/allocations/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodPatch, "/v1/allocations/stringRandom", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/allocations/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * DELETE
 	 */
-	r = test.Request(t, http.MethodDelete, "/v1/allocations/-274", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/allocations/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodDelete, "/v1/allocations/stringRandom", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/allocations/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -96,27 +96,27 @@ func TestCreateAllocation(t *testing.T) {
 }
 
 func TestCreateBrokenAllocation(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", `{ "createdAt": "New Allocation" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/allocations", `{ "createdAt": "New Allocation" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateAllocationNonExistingEnvelope(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", models.AllocationCreate{EnvelopeID: uuid.New()})
+	recorder := test.Request(t, "POST", "http://example.com/v1/allocations", models.AllocationCreate{EnvelopeID: uuid.New()})
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestCreateDuplicateAllocation(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", models.AllocationCreate{Year: 2022, Month: 2})
+	recorder := test.Request(t, "POST", "http://example.com/v1/allocations", models.AllocationCreate{Year: 2022, Month: 2})
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateAllocationNoMonth(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", models.AllocationCreate{Year: 2022, Month: 17})
+	recorder := test.Request(t, "POST", "http://example.com/v1/allocations", models.AllocationCreate{Year: 2022, Month: 17})
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateAllocationNoBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/allocations", "")
+	recorder := test.Request(t, "POST", "http://example.com/v1/allocations", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
@@ -150,7 +150,7 @@ func TestUpdateAllocationBroken(t *testing.T) {
 }
 
 func TestUpdateNonExistingAllocation(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/allocations/df684988-31df-444c-8aaa-b53195d55d6e", models.AllocationCreate{Month: 2})
+	recorder := test.Request(t, "PATCH", "http://example.com/v1/allocations/df684988-31df-444c-8aaa-b53195d55d6e", models.AllocationCreate{Month: 2})
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -162,7 +162,7 @@ func TestDeleteAllocation(t *testing.T) {
 }
 
 func TestDeleteNonExistingAllocation(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/allocations/34ac51a7-431c-454b-ba29-feaefeae70d5", "")
+	recorder := test.Request(t, "DELETE", "http://example.com/v1/allocations/34ac51a7-431c-454b-ba29-feaefeae70d5", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 

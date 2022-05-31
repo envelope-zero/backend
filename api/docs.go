@@ -27,7 +27,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.RootResponse"
+                            "$ref": "#/definitions/router.RootResponse"
                         }
                     }
                 }
@@ -56,7 +56,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.V1Response"
+                            "$ref": "#/definitions/router.V1Response"
                         }
                     }
                 }
@@ -1731,7 +1731,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.VersionResponse"
+                            "$ref": "#/definitions/router.VersionResponse"
                         }
                     }
                 }
@@ -2121,31 +2121,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.RootLinks": {
-            "type": "object",
-            "properties": {
-                "docs": {
-                    "type": "string",
-                    "example": "https://example.com/api/docs/index.html"
-                },
-                "v1": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1"
-                },
-                "version": {
-                    "type": "string",
-                    "example": "https://example.com/api/version"
-                }
-            }
-        },
-        "controllers.RootResponse": {
-            "type": "object",
-            "properties": {
-                "links": {
-                    "$ref": "#/definitions/controllers.RootLinks"
-                }
-            }
-        },
         "controllers.Transaction": {
             "type": "object",
             "properties": {
@@ -2218,60 +2193,6 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/controllers.Transaction"
-                }
-            }
-        },
-        "controllers.V1Links": {
-            "type": "object",
-            "properties": {
-                "accounts": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/accounts"
-                },
-                "allocations": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/allocations3"
-                },
-                "budgets": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/budgets"
-                },
-                "categories": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/categories"
-                },
-                "envelopes": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/envelopes"
-                },
-                "transactions": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/transactions"
-                }
-            }
-        },
-        "controllers.V1Response": {
-            "type": "object",
-            "properties": {
-                "links": {
-                    "$ref": "#/definitions/controllers.V1Links"
-                }
-            }
-        },
-        "controllers.VersionObject": {
-            "type": "object",
-            "properties": {
-                "version": {
-                    "type": "string",
-                    "example": "1.1.0"
-                }
-            }
-        },
-        "controllers.VersionResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/controllers.VersionObject"
                 }
             }
         },
@@ -2451,6 +2372,85 @@ const docTemplate = `{
                 },
                 "sourceAccountId": {
                     "type": "string"
+                }
+            }
+        },
+        "router.RootLinks": {
+            "type": "object",
+            "properties": {
+                "docs": {
+                    "type": "string",
+                    "example": "https://example.com/api/docs/index.html"
+                },
+                "v1": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "https://example.com/api/version"
+                }
+            }
+        },
+        "router.RootResponse": {
+            "type": "object",
+            "properties": {
+                "links": {
+                    "$ref": "#/definitions/router.RootLinks"
+                }
+            }
+        },
+        "router.V1Links": {
+            "type": "object",
+            "properties": {
+                "accounts": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/accounts"
+                },
+                "allocations": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/allocations3"
+                },
+                "budgets": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/budgets"
+                },
+                "categories": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/categories"
+                },
+                "envelopes": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/envelopes"
+                },
+                "transactions": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/transactions"
+                }
+            }
+        },
+        "router.V1Response": {
+            "type": "object",
+            "properties": {
+                "links": {
+                    "$ref": "#/definitions/router.V1Links"
+                }
+            }
+        },
+        "router.VersionObject": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string",
+                    "example": "1.1.0"
+                }
+            }
+        },
+        "router.VersionResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/router.VersionObject"
                 }
             }
         }

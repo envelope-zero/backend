@@ -14,7 +14,7 @@ import (
 )
 
 func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetResponse {
-	r := test.Request(t, http.MethodPost, "/v1/budgets", c)
+	r := test.Request(t, http.MethodPost, "http://example.com/v1/budgets", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
 	var a controllers.BudgetResponse
@@ -24,7 +24,7 @@ func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetRes
 }
 
 func TestGetBudgets(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/budgets", "")
 
 	var response controllers.BudgetListResponse
 	test.DecodeResponse(t, &recorder, &response)
@@ -65,34 +65,34 @@ func TestGetBudgetsFilter(t *testing.T) {
 
 	var re controllers.BudgetListResponse
 
-	r := test.Request(t, http.MethodGet, "/v1/budgets?currency=€", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets?currency=€", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &r)
 	test.DecodeResponse(t, &r, &re)
 	assert.Equal(t, 2, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "/v1/budgets?currency=$", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?currency=$", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &r)
 	test.DecodeResponse(t, &r, &re)
 	assert.Equal(t, 1, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "/v1/budgets?currency=€&name=Another String", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?currency=€&name=Another String", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &r)
 	test.DecodeResponse(t, &r, &re)
 	assert.Equal(t, 1, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "/v1/budgets?note=This is a specific note", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?note=This is a specific note", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &r)
 	test.DecodeResponse(t, &r, &re)
 	assert.Equal(t, 2, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "/v1/budgets?name=Exact String Match", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?name=Exact String Match", "")
 	test.AssertHTTPStatus(t, http.StatusOK, &r)
 	test.DecodeResponse(t, &r, &re)
 	assert.Equal(t, 1, len(re.Data))
 }
 
 func TestNoBudgetNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
@@ -101,39 +101,39 @@ func TestBudgetInvalidIDs(t *testing.T) {
 	/*
 	 *  GET
 	 */
-	r := test.Request(t, http.MethodGet, "/v1/budgets/-56", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/budgets/notANumber", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/budgets/23", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/budgets/d19a622f-broken-uuid/2022-01", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets/d19a622f-broken-uuid/2022-01", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * PATCH
 	 */
-	r = test.Request(t, http.MethodPatch, "/v1/budgets/-274", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/budgets/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodPatch, "/v1/budgets/stringRandom", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/budgets/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * DELETE
 	 */
-	r = test.Request(t, http.MethodDelete, "/v1/budgets/-274", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/budgets/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodDelete, "/v1/budgets/stringRandom", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/budgets/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestCreateBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budgetObject, savedObject controllers.BudgetResponse
@@ -146,19 +146,19 @@ func TestCreateBudget(t *testing.T) {
 }
 
 func TestCreateBrokenBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateBudgetNoBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets", "")
+	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 // TestBudgetMonth verifies that the monthly calculations are correct.
 func TestBudgetMonth(t *testing.T) {
 	var budgetList controllers.BudgetListResponse
-	r := test.Request(t, http.MethodGet, "/v1/budgets", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets", "")
 	test.DecodeResponse(t, &r, &budgetList)
 
 	var budgetMonth controllers.BudgetMonthResponse
@@ -168,7 +168,7 @@ func TestBudgetMonth(t *testing.T) {
 		response controllers.BudgetMonthResponse
 	}{
 		{
-			fmt.Sprintf("/v1/budgets/%s/2022-01", budgetList.Data[0].ID),
+			fmt.Sprintf("http://example.com/v1/budgets/%s/2022-01", budgetList.Data[0].ID),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -185,7 +185,7 @@ func TestBudgetMonth(t *testing.T) {
 			},
 		},
 		{
-			fmt.Sprintf("/v1/budgets/%s/2022-02", budgetList.Data[0].ID),
+			fmt.Sprintf("http://example.com/v1/budgets/%s/2022-02", budgetList.Data[0].ID),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
@@ -202,7 +202,7 @@ func TestBudgetMonth(t *testing.T) {
 			},
 		},
 		{
-			fmt.Sprintf("/v1/budgets/%s/2022-03", budgetList.Data[0].ID),
+			fmt.Sprintf("http://example.com/v1/budgets/%s/2022-03", budgetList.Data[0].ID),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
@@ -239,32 +239,32 @@ func TestBudgetMonth(t *testing.T) {
 
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
 func TestBudgetMonthNonExistent(t *testing.T) {
-	r := test.Request(t, "GET", "/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
+	r := test.Request(t, "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
 }
 
 // TestBudgetMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func TestBudgetMonthZero(t *testing.T) {
 	var budgetList controllers.BudgetListResponse
-	r := test.Request(t, http.MethodGet, "/v1/budgets", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets", "")
 	test.DecodeResponse(t, &r, &budgetList)
 
-	r = test.Request(t, "GET", fmt.Sprintf("/v1/budgets/%s/0001-01", budgetList.Data[0].ID), "")
+	r = test.Request(t, "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/0001-01", budgetList.Data[0].ID), "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 // TestBudgetMonthInvalid tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func TestBudgetMonthInvalid(t *testing.T) {
 	var budgetList controllers.BudgetListResponse
-	r := test.Request(t, http.MethodGet, "/v1/budgets", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets", "")
 	test.DecodeResponse(t, &r, &budgetList)
 
-	r = test.Request(t, "GET", fmt.Sprintf("/v1/budgets/%s/December-2020", budgetList.Data[0].ID), "")
+	r = test.Request(t, "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/December-2020", budgetList.Data[0].ID), "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestUpdateBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
@@ -281,7 +281,7 @@ func TestUpdateBudget(t *testing.T) {
 }
 
 func TestUpdateBudgetBroken(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
@@ -292,12 +292,12 @@ func TestUpdateBudgetBroken(t *testing.T) {
 }
 
 func TestUpdateNonExistingBudget(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
+	recorder := test.Request(t, "PATCH", "http://example.com/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "Delete me now!" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
@@ -308,12 +308,12 @@ func TestDeleteBudget(t *testing.T) {
 }
 
 func TestDeleteNonExistingBudget(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
+	recorder := test.Request(t, "DELETE", "http://example.com/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteBudgetWithBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/budgets", `{ "name": "Delete me now!" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse

@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 )
@@ -23,7 +24,13 @@ func runTests(m *testing.M) int {
 		gin.SetMode("release")
 	}
 
-	err := models.ConnectDatabase()
+	err := database.ConnectDatabase()
+	if err != nil {
+		log.Fatalf("Database connection failed with: %s", err.Error())
+	}
+
+	// Migrate all models so that the schema is correct
+	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
 	if err != nil {
 		log.Fatalf("Database migration failed with: %s", err.Error())
 	}

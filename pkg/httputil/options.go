@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/render"
 )
 
 func OptionsGet(c *gin.Context) {
 	c.Header("allow", "GET")
-	c.Status(http.StatusNoContent)
+	c.Render(http.StatusNoContent, render.JSON{})
 }
 
 func OptionsGetPost(c *gin.Context) {
 	c.Header("allow", "GET, POST")
-	c.Status(http.StatusNoContent)
+	c.Render(http.StatusNoContent, render.JSON{})
 }
 
 func OptionsGetPatchDelete(c *gin.Context) {
 	c.Header("allow", "GET, PATCH, DELETE")
-	c.Status(http.StatusNoContent)
+	c.Render(http.StatusNoContent, render.JSON{})
 }

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -43,7 +44,7 @@ func (a Account) Transactions() []Transaction {
 	var transactions []Transaction
 
 	// Get all transactions where the account is either the source or the destination
-	DB.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}}).Or(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).Find(&transactions)
+	database.DB.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}}).Or(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).Find(&transactions)
 	return transactions
 }
 

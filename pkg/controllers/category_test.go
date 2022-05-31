@@ -11,7 +11,7 @@ import (
 )
 
 func TestGetCategories(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/categories", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/categories", "")
 
 	var response controllers.CategoryListResponse
 	test.DecodeResponse(t, &recorder, &response)
@@ -32,7 +32,7 @@ func TestGetCategories(t *testing.T) {
 }
 
 func TestNoCategoryNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/categories/4e743e94-6a4b-44d6-aba5-d77c87103ff7", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/categories/4e743e94-6a4b-44d6-aba5-d77c87103ff7", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
@@ -41,36 +41,36 @@ func TestCategoryInvalidIDs(t *testing.T) {
 	/*
 	 *  GET
 	 */
-	r := test.Request(t, http.MethodGet, "/v1/categories/-56", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/categories/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/categories/notANumber", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/categories/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/categories/23", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/categories/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * PATCH
 	 */
-	r = test.Request(t, http.MethodPatch, "/v1/categories/-274", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/categories/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodPatch, "/v1/categories/stringRandom", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/categories/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * DELETE
 	 */
-	r = test.Request(t, http.MethodDelete, "/v1/categories/-274", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/categories/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodDelete, "/v1/categories/stringRandom", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/categories/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestCreateCategory(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var categoryObject, savedCategory controllers.CategoryResponse
@@ -83,22 +83,22 @@ func TestCreateCategory(t *testing.T) {
 }
 
 func TestCreateBrokenCategory(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "createdAt": "New Category", "note": "More tests for categories to ensure less brokenness something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", `{ "createdAt": "New Category", "note": "More tests for categories to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateBrokenNoBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "budgetId": "f8c74664-9b79-4e15-8d3d-4618f3e3c230" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", `{ "budgetId": "f8c74664-9b79-4e15-8d3d-4618f3e3c230" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestCreateCategoryNoBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", "")
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestUpdateCategory(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category controllers.CategoryResponse
@@ -115,7 +115,7 @@ func TestUpdateCategory(t *testing.T) {
 }
 
 func TestUpdateCategoryBroken(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category controllers.CategoryResponse
@@ -126,12 +126,12 @@ func TestUpdateCategoryBroken(t *testing.T) {
 }
 
 func TestUpdateNonExistingCategory(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/categories/f9288848-517e-4b8c-9f14-b3d849ca275b", `{ "name": "2" }`)
+	recorder := test.Request(t, "PATCH", "http://example.com/v1/categories/f9288848-517e-4b8c-9f14-b3d849ca275b", `{ "name": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteCategory(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "name": "Delete me now!" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category controllers.CategoryResponse
@@ -142,12 +142,12 @@ func TestDeleteCategory(t *testing.T) {
 }
 
 func TestDeleteNonExistingCategory(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/categories/a2aa0569-5ac5-42e1-8563-7c61194cc7d9", "")
+	recorder := test.Request(t, "DELETE", "http://example.com/v1/categories/a2aa0569-5ac5-42e1-8563-7c61194cc7d9", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteCategoryWithBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/categories", `{ "name": "Delete me now!" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/categories", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var category controllers.CategoryResponse

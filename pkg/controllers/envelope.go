@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -96,7 +97,7 @@ func CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	models.DB.Create(&envelope)
+	database.DB.Create(&envelope)
 
 	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
 	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelopeObject})
@@ -114,7 +115,7 @@ func CreateEnvelope(c *gin.Context) {
 func GetEnvelopes(c *gin.Context) {
 	var envelopes []models.Envelope
 
-	models.DB.Find(&envelopes)
+	database.DB.Find(&envelopes)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -216,7 +217,7 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	models.DB.Model(&envelope).Updates(data)
+	database.DB.Model(&envelope).Updates(data)
 	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
 	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
@@ -242,7 +243,7 @@ func DeleteEnvelope(c *gin.Context) {
 		return
 	}
 
-	models.DB.Delete(&envelope)
+	database.DB.Delete(&envelope)
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
@@ -251,7 +252,7 @@ func DeleteEnvelope(c *gin.Context) {
 func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) {
 	var envelope models.Envelope
 
-	err := models.DB.Where(&models.Envelope{
+	err := database.DB.Where(&models.Envelope{
 		Model: models.Model{
 			ID: id,
 		},

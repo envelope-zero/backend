@@ -3,6 +3,7 @@ package models_test
 import (
 	"testing"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -15,14 +16,14 @@ func TestAccountCalculations(t *testing.T) {
 			External: false,
 		},
 	}
-	models.DB.Save(&account)
+	database.DB.Save(&account)
 
 	externalAccount := models.Account{
 		AccountCreate: models.AccountCreate{
 			External: true,
 		},
 	}
-	models.DB.Save(&externalAccount)
+	database.DB.Save(&externalAccount)
 
 	incomingTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
@@ -32,7 +33,7 @@ func TestAccountCalculations(t *testing.T) {
 			Amount:               decimal.NewFromFloat(32.17),
 		},
 	}
-	models.DB.Save(&incomingTransaction)
+	database.DB.Save(&incomingTransaction)
 
 	outgoingTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
@@ -41,7 +42,7 @@ func TestAccountCalculations(t *testing.T) {
 			Amount:               decimal.NewFromFloat(17.45),
 		},
 	}
-	models.DB.Save(&outgoingTransaction)
+	database.DB.Save(&outgoingTransaction)
 
 	a := account.WithCalculations()
 
@@ -49,10 +50,10 @@ func TestAccountCalculations(t *testing.T) {
 
 	assert.True(t, a.ReconciledBalance.Equal(incomingTransaction.Amount), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
 
-	models.DB.Delete(&account)
-	models.DB.Delete(&externalAccount)
-	models.DB.Delete(&incomingTransaction)
-	models.DB.Delete(&outgoingTransaction)
+	database.DB.Delete(&account)
+	database.DB.Delete(&externalAccount)
+	database.DB.Delete(&incomingTransaction)
+	database.DB.Delete(&outgoingTransaction)
 }
 
 func TestAccountTransactions(t *testing.T) {
@@ -70,7 +71,7 @@ func TestAccountOnBudget(t *testing.T) {
 		},
 	}
 
-	err := account.BeforeSave(models.DB)
+	err := account.BeforeSave(database.DB)
 	if err != nil {
 		assert.Fail(t, "account.BeforeSave failed")
 	}
@@ -84,7 +85,7 @@ func TestAccountOnBudget(t *testing.T) {
 		},
 	}
 
-	err = account.BeforeSave(models.DB)
+	err = account.BeforeSave(database.DB)
 	if err != nil {
 		assert.Fail(t, "account.BeforeSave failed")
 	}

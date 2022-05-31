@@ -1,4 +1,4 @@
-package controllers
+package router
 
 import (
 	"fmt"
@@ -9,6 +9,8 @@ import (
 	"time"
 
 	docs "github.com/envelope-zero/backend/api"
+	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-contrib/cors"
@@ -101,14 +103,24 @@ func Router() (*gin.Engine, error) {
 	// therefore we don’t need to trust anyone here.
 	_ = r.SetTrustedProxies([]string{})
 
-	err := models.ConnectDatabase()
+	// Connect to the database
+	err := database.ConnectDatabase()
 	if err != nil {
 		return nil, fmt.Errorf("Database connection failed with: %s", err.Error())
 	}
 
+	// Migrate all models so that the schema is correct
+	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
+	if err != nil {
+		return nil, err
+	}
+
+	/*
+	 *  Route setup
+	 */
 	r.GET("", GetRoot)
 	r.OPTIONS("", OptionsRoot)
-	r.GET("/version", VersionRoot)
+	r.GET("/version", GetVersion)
 
 	r.OPTIONS("/version", OptionsVersion)
 
@@ -125,12 +137,12 @@ func Router() (*gin.Engine, error) {
 		v1.OPTIONS("", OptionsV1)
 	}
 
-	RegisterBudgetRoutes(v1.Group("/budgets"))
-	RegisterAccountRoutes(v1.Group("/accounts"))
-	RegisterTransactionRoutes(v1.Group("/transactions"))
-	RegisterCategoryRoutes(v1.Group("/categories"))
-	RegisterEnvelopeRoutes(v1.Group("/envelopes"))
-	RegisterAllocationRoutes(v1.Group("/allocations"))
+	controllers.RegisterBudgetRoutes(v1.Group("/budgets"))
+	controllers.RegisterAccountRoutes(v1.Group("/accounts"))
+	controllers.RegisterTransactionRoutes(v1.Group("/transactions"))
+	controllers.RegisterCategoryRoutes(v1.Group("/categories"))
+	controllers.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
+	controllers.RegisterAllocationRoutes(v1.Group("/allocations"))
 
 	return r, nil
 }
@@ -174,7 +186,7 @@ type VersionObject struct {
 // @Tags         General
 // @Success      200  {object}  VersionResponse
 // @Router       /version [get]
-func VersionRoot(c *gin.Context) {
+func GetVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, VersionResponse{
 		Data: VersionObject{
 			Version: version,

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -95,7 +96,7 @@ func CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	models.DB.Create(&transaction)
+	database.DB.Create(&transaction)
 
 	transactionObject, _ := getTransactionObject(c, transaction.ID)
 	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
@@ -113,7 +114,7 @@ func CreateTransaction(c *gin.Context) {
 func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
 
-	models.DB.Find(&transactions)
+	database.DB.Find(&transactions)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -192,7 +193,7 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	models.DB.Model(&transaction).Updates(data)
+	database.DB.Model(&transaction).Updates(data)
 	transactionObject, _ := getTransactionObject(c, p)
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
@@ -218,7 +219,7 @@ func DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	models.DB.Delete(&transaction)
+	database.DB.Delete(&transaction)
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
@@ -227,7 +228,7 @@ func DeleteTransaction(c *gin.Context) {
 func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, error) {
 	var transaction models.Transaction
 
-	err := models.DB.First(&transaction, &models.Transaction{
+	err := database.DB.First(&transaction, &models.Transaction{
 		Model: models.Model{
 			ID: id,
 		},

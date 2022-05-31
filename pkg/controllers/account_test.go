@@ -14,7 +14,7 @@ import (
 )
 
 func createTestAccount(t *testing.T, c models.AccountCreate) controllers.AccountResponse {
-	r := test.Request(t, http.MethodPost, "/v1/accounts", c)
+	r := test.Request(t, http.MethodPost, "http://example.com/v1/accounts", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
 	var a controllers.AccountResponse
@@ -24,7 +24,7 @@ func createTestAccount(t *testing.T, c models.AccountCreate) controllers.Account
 }
 
 func TestGetAccounts(t *testing.T) {
-	recorder := test.Request(t, http.MethodGet, "/v1/accounts", "")
+	recorder := test.Request(t, http.MethodGet, "http://example.com/v1/accounts", "")
 
 	var response controllers.AccountListResponse
 	test.DecodeResponse(t, &recorder, &response)
@@ -72,7 +72,7 @@ func TestGetAccounts(t *testing.T) {
 }
 
 func TestNoAccountNotFound(t *testing.T) {
-	recorder := test.Request(t, http.MethodGet, "/v1/accounts/39633f90-3d9f-4b1e-ac24-c341c432a6e3", "")
+	recorder := test.Request(t, http.MethodGet, "http://example.com/v1/accounts/39633f90-3d9f-4b1e-ac24-c341c432a6e3", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
@@ -81,31 +81,31 @@ func TestAccountInvalidIDs(t *testing.T) {
 	/*
 	 *  GET
 	 */
-	r := test.Request(t, http.MethodGet, "/v1/accounts/-56", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/accounts/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/accounts/notANumber", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/accounts/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/accounts/23", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/accounts/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * PATCH
 	 */
-	r = test.Request(t, http.MethodPatch, "/v1/accounts/-274", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/accounts/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodPatch, "/v1/accounts/stringRandom", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/accounts/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * DELETE
 	 */
-	r = test.Request(t, http.MethodDelete, "/v1/accounts/-274", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/accounts/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodDelete, "/v1/accounts/stringRandom", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/accounts/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
@@ -114,17 +114,17 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestCreateBrokenAccount(t *testing.T) {
-	recorder := test.Request(t, http.MethodPost, "/v1/accounts", `{ "createdAt": "New Account", "note": "More tests for accounts to ensure less brokenness something" }`)
+	recorder := test.Request(t, http.MethodPost, "http://example.com/v1/accounts", `{ "createdAt": "New Account", "note": "More tests for accounts to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateAccountNoBody(t *testing.T) {
-	recorder := test.Request(t, http.MethodPost, "/v1/accounts", "")
+	recorder := test.Request(t, http.MethodPost, "http://example.com/v1/accounts", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateAccountNoBudget(t *testing.T) {
-	recorder := test.Request(t, http.MethodPost, "/v1/accounts", models.AccountCreate{BudgetID: uuid.New()})
+	recorder := test.Request(t, http.MethodPost, "http://example.com/v1/accounts", models.AccountCreate{BudgetID: uuid.New()})
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -136,7 +136,7 @@ func TestGetAccount(t *testing.T) {
 }
 
 func TestGetAccountTransactionsNonExistingAccount(t *testing.T) {
-	recorder := test.Request(t, http.MethodGet, "/v1/accounts/57372/transactions", "")
+	recorder := test.Request(t, http.MethodGet, "http://example.com/v1/accounts/57372/transactions", "")
 	assert.Equal(t, http.StatusNotFound, recorder.Code)
 }
 
@@ -163,12 +163,12 @@ func TestUpdateAccountBroken(t *testing.T) {
 }
 
 func TestUpdateNonExistingAccount(t *testing.T) {
-	recorder := test.Request(t, http.MethodPatch, "/v1/accounts/9b81de41-eead-451d-bc6b-31fceedd236c", models.AccountCreate{Name: "This account does not exist"})
+	recorder := test.Request(t, http.MethodPatch, "http://example.com/v1/accounts/9b81de41-eead-451d-bc6b-31fceedd236c", models.AccountCreate{Name: "This account does not exist"})
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteAccountsAndEmptyList(t *testing.T) {
-	r := test.Request(t, http.MethodGet, "/v1/accounts", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/accounts", "")
 
 	var l controllers.AccountListResponse
 	test.DecodeResponse(t, &r, &l)
@@ -178,7 +178,7 @@ func TestDeleteAccountsAndEmptyList(t *testing.T) {
 		test.AssertHTTPStatus(t, http.StatusNoContent, &r)
 	}
 
-	r = test.Request(t, http.MethodGet, "/v1/accounts", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/accounts", "")
 	test.DecodeResponse(t, &r, &l)
 
 	// Verify that the account list is an empty list, not null
@@ -187,7 +187,7 @@ func TestDeleteAccountsAndEmptyList(t *testing.T) {
 }
 
 func TestDeleteNonExistingAccount(t *testing.T) {
-	recorder := test.Request(t, http.MethodDelete, "/v1/accounts/77b70a75-4bb3-4d1d-90cf-5b7a61f452f5", "")
+	recorder := test.Request(t, http.MethodDelete, "http://example.com/v1/accounts/77b70a75-4bb3-4d1d-90cf-5b7a61f452f5", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 

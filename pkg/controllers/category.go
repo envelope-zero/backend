@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -93,7 +94,7 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	models.DB.Create(&category)
+	database.DB.Create(&category)
 
 	categoryObject, _ := getCategoryObject(c, category.ID)
 	c.JSON(http.StatusCreated, CategoryResponse{Data: categoryObject})
@@ -111,7 +112,7 @@ func CreateCategory(c *gin.Context) {
 func GetCategories(c *gin.Context) {
 	var categories []models.Category
 
-	models.DB.Find(&categories)
+	database.DB.Find(&categories)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -180,7 +181,7 @@ func UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	models.DB.Model(&category).Updates(data)
+	database.DB.Model(&category).Updates(data)
 	categoryObject, _ := getCategoryObject(c, category.ID)
 	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
@@ -206,7 +207,7 @@ func DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	models.DB.Delete(&category)
+	database.DB.Delete(&category)
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
@@ -214,7 +215,7 @@ func DeleteCategory(c *gin.Context) {
 func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) {
 	var category models.Category
 
-	err := models.DB.Where(&models.Category{
+	err := database.DB.Where(&models.Category{
 		Model: models.Model{
 			ID: id,
 		},
@@ -231,7 +232,7 @@ func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) 
 func getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, error) {
 	var categories []models.Category
 
-	models.DB.Where(&models.Category{
+	database.DB.Where(&models.Category{
 		CategoryCreate: models.CategoryCreate{
 			BudgetID: id,
 		},

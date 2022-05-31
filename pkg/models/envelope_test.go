@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ func TestEnvelopeMonthSum(t *testing.T) {
 			Name: "Internal Source Account",
 		},
 	}
-	models.DB.Create(internalAccount)
+	database.DB.Create(internalAccount)
 
 	externalAccount := &models.Account{
 		AccountCreate: models.AccountCreate{
@@ -23,14 +24,14 @@ func TestEnvelopeMonthSum(t *testing.T) {
 			External: true,
 		},
 	}
-	models.DB.Create(&externalAccount)
+	database.DB.Create(&externalAccount)
 
 	envelope := &models.Envelope{
 		EnvelopeCreate: models.EnvelopeCreate{
 			Name: "Testing envelope",
 		},
 	}
-	models.DB.Create(&envelope)
+	database.DB.Create(&envelope)
 
 	spent := decimal.NewFromFloat(17.32)
 	transaction := &models.Transaction{
@@ -42,7 +43,7 @@ func TestEnvelopeMonthSum(t *testing.T) {
 			Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	models.DB.Create(&transaction)
+	database.DB.Create(&transaction)
 
 	transactionIn := &models.Transaction{
 		TransactionCreate: models.TransactionCreate{
@@ -53,7 +54,7 @@ func TestEnvelopeMonthSum(t *testing.T) {
 			Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	models.DB.Create(&transactionIn)
+	database.DB.Create(&transactionIn)
 
 	envelopeMonth := envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
 	assert.True(t, envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -93,7 +94,7 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	models.DB.Create(&account)
+	database.DB.Create(&account)
 
 	accountObject, _ := getAccountObject(c, account.ID)
 	c.JSON(http.StatusCreated, AccountResponse{Data: accountObject})
@@ -111,7 +112,7 @@ func CreateAccount(c *gin.Context) {
 func GetAccounts(c *gin.Context) {
 	var accounts []models.Account
 
-	models.DB.Find(&accounts)
+	database.DB.Find(&accounts)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -179,7 +180,7 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	models.DB.Model(&account).Updates(data)
+	database.DB.Model(&account).Updates(data)
 	accountObject, _ := getAccountObject(c, account.ID)
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
@@ -206,7 +207,7 @@ func DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	models.DB.Delete(&account)
+	database.DB.Delete(&account)
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
@@ -215,7 +216,7 @@ func DeleteAccount(c *gin.Context) {
 func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, error) {
 	var account models.Account
 
-	err := models.DB.Where(&models.Account{
+	err := database.DB.Where(&models.Account{
 		Model: models.Model{
 			ID: id,
 		},

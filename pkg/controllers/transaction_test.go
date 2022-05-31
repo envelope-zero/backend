@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/pkg/test"
@@ -13,7 +14,7 @@ import (
 )
 
 func createTestTransaction(t *testing.T, c models.TransactionCreate) controllers.TransactionResponse {
-	r := test.Request(t, "POST", "/v1/transactions", c)
+	r := test.Request(t, "POST", "http://example.com/v1/transactions", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
 	var tr controllers.TransactionResponse
@@ -23,7 +24,7 @@ func createTestTransaction(t *testing.T, c models.TransactionCreate) controllers
 }
 
 func TestGetTransactions(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/transactions", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/transactions", "")
 
 	var response controllers.TransactionListResponse
 	test.DecodeResponse(t, &recorder, &response)
@@ -64,7 +65,7 @@ func TestGetTransactions(t *testing.T) {
 }
 
 func TestNoTransactionNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "/v1/transactions/048b061f-3b6b-45ab-b0e9-0f38d2fff0c8", "")
+	recorder := test.Request(t, "GET", "http://example.com/v1/transactions/048b061f-3b6b-45ab-b0e9-0f38d2fff0c8", "")
 
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
@@ -73,69 +74,69 @@ func TestTransactionInvalidIDs(t *testing.T) {
 	/*
 	 *  GET
 	 */
-	r := test.Request(t, http.MethodGet, "/v1/transactions/-56", "")
+	r := test.Request(t, http.MethodGet, "http://example.com/v1/transactions/-56", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/transactions/notANumber", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/transactions/notANumber", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "/v1/transactions/23", "")
+	r = test.Request(t, http.MethodGet, "http://example.com/v1/transactions/23", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * PATCH
 	 */
-	r = test.Request(t, http.MethodPatch, "/v1/transactions/-274", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/transactions/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodPatch, "/v1/transactions/stringRandom", "")
+	r = test.Request(t, http.MethodPatch, "http://example.com/v1/transactions/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
 	/*
 	 * DELETE
 	 */
-	r = test.Request(t, http.MethodDelete, "/v1/transactions/-274", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/transactions/-274", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodDelete, "/v1/transactions/stringRandom", "")
+	r = test.Request(t, http.MethodDelete, "http://example.com/v1/transactions/stringRandom", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
 }
 
 func TestCreateTransaction(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "note": "More tests something something", "amount": 1253.17 }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "note": "More tests something something", "amount": 1253.17 }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var apiTransaction controllers.TransactionResponse
 	test.DecodeResponse(t, &recorder, &apiTransaction)
 
 	var dbTransaction models.Transaction
-	models.DB.First(&dbTransaction, apiTransaction.Data.ID)
+	database.DB.First(&dbTransaction, apiTransaction.Data.ID)
 
 	assert.True(t, apiTransaction.Data.Amount.Equal(dbTransaction.Amount))
 }
 
 func TestCreateTransactionNoAmount(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateBrokenTransaction(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "createdAt": "New Transaction", "note": "More tests for transactions to ensure less brokenness something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "createdAt": "New Transaction", "note": "More tests for transactions to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateNegativeAmountTransaction(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "amount": -17.12, "note": "Negative amounts are not allowed, this must fail" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "amount": -17.12, "note": "Negative amounts are not allowed, this must fail" }`)
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
 func TestCreateNonExistingBudgetTransaction(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "budgetId": "978e95a0-90f2-4dee-91fd-ee708c30301c", "amount": 32.12, "note": "The budget with this id must exist, so this must fail" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "budgetId": "978e95a0-90f2-4dee-91fd-ee708c30301c", "amount": 32.12, "note": "The budget with this id must exist, so this must fail" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestCreateTransactionNoBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", "")
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", "")
 	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
 }
 
@@ -147,7 +148,7 @@ func TestGetTransaction(t *testing.T) {
 }
 
 func TestUpdateTransaction(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "note": "More tests something something", "amount": 584.42 }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "note": "More tests something something", "amount": 584.42 }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction controllers.TransactionResponse
@@ -163,7 +164,7 @@ func TestUpdateTransaction(t *testing.T) {
 }
 
 func TestUpdateTransactionBroken(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "amount": 5883.53, "note": "More tests something something" }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "amount": 5883.53, "note": "More tests something something" }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction controllers.TransactionResponse
@@ -174,7 +175,7 @@ func TestUpdateTransactionBroken(t *testing.T) {
 }
 
 func TestUpdateTransactionNegativeAmount(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "amount": 382.18 }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "amount": 382.18 }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction controllers.TransactionResponse
@@ -185,7 +186,7 @@ func TestUpdateTransactionNegativeAmount(t *testing.T) {
 }
 
 func TestUpdateNonExistingTransaction(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "/v1/transactions/6ae3312c-23cf-4225-9a81-4f218ba41b00", `{ "note": "2" }`)
+	recorder := test.Request(t, "PATCH", "http://example.com/v1/transactions/6ae3312c-23cf-4225-9a81-4f218ba41b00", `{ "note": "2" }`)
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
@@ -197,12 +198,12 @@ func TestDeleteTransaction(t *testing.T) {
 }
 
 func TestDeleteNonExistingTransaction(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "/v1/transactions/4bcb6d09-ced1-41e8-a3fe-bf4f16c5e501", "")
+	recorder := test.Request(t, "DELETE", "http://example.com/v1/transactions/4bcb6d09-ced1-41e8-a3fe-bf4f16c5e501", "")
 	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
 }
 
 func TestDeleteTransactionWithBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "/v1/transactions", `{ "name": "Delete me now!", "amount": 17.21 }`)
+	recorder := test.Request(t, "POST", "http://example.com/v1/transactions", `{ "name": "Delete me now!", "amount": 17.21 }`)
 	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
 
 	var transaction controllers.TransactionResponse
