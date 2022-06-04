@@ -13,9 +13,15 @@ import (
 // The scheme defaults to https and only falls back to http
 // if the x-forwarded-proto header is set to "http".
 func RequestHost(c *gin.Context) string {
-	scheme := c.Request.Header.Get("x-forwarded-proto")
+	// Default to the URL scheme. This might be empty du to http.Request being weird
+	scheme := c.Request.URL.Scheme
+
+	if c.Request.Header.Get("x-forwarded-proto") != "" {
+		scheme = c.Request.Header.Get("x-forwarded-proto")
+	}
+
 	if scheme == "" {
-		scheme = c.Request.URL.Scheme
+		scheme = "http"
 	}
 
 	// We can reasonably expect a reverse proxy to set x-forwarded-host
