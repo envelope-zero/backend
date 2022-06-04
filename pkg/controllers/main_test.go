@@ -2,67 +2,35 @@ package controllers_test
 
 import (
 	"log"
-	"os"
 	"testing"
 	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
-	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 	"github.com/shopspring/decimal"
+	"github.com/stretchr/testify/suite"
 )
 
-// // Environment for the test suite. Used to save the database connection
-// type TestSuiteEnv struct {
-// 	suite.Suite
-// 	db *gorm.DB
-// }
-
-// // Pseudo-Test run by go test that runs the test suite
-// func TestSuite(t *testing.T) {
-// 	suite.Run(t, new(TestSuiteEnv))
-// }
-
-// // SetupSuite is called before any of the tests in the suite are run
-// func (suite *TestSuiteEnv) SetupSuite() {
-// 	database.Setup()
-// 	suite.db = database.GetDB()
-// }
-
-// // SetupTest is called before each test in the suite
-// func (suite *TestSuiteEnv) SetupTest() {
-// }
-
-// // TearDownTest is called after each test in the suite
-// func (suite *TestSuiteEnv) TearDownTest() {
-// 	database.ClearTable()
-// }
-
-// // TearDownSuite is called after all tests in the suite have run
-// func (suite *TestSuiteEnv) TearDownSuite() {
-// 	sqlDB, err := suite.db.DB()
-// 	if err != nil {
-// 		suite.Assert().FailNow("TearDownSuite: Database connection could not be closed", err)
-// 	}
-
-// 	sqlDB.Close()
-// }
-
-// TestMain takes care of the test setup for this package.
-func TestMain(m *testing.M) {
-	os.Exit(runTests(m))
+// Environment for the test suite. Used to save the database connection.
+type TestSuiteEnv struct {
+	suite.Suite
 }
 
-func runTests(m *testing.M) int {
-	// Always remove the DB after running tests
-	defer os.Remove("data/gorm.db")
+// Pseudo-Test run by go test that runs the test suite.
+func TestSuite(t *testing.T) {
+	suite.Run(t, new(TestSuiteEnv))
+}
 
-	ginMode := os.Getenv("GIN_MODE")
-	if ginMode == "" {
-		gin.SetMode("release")
-	}
+// TearDownTest is called after each test in the suite.
+func (suite *TestSuiteEnv) TearDownTest() {
+	sqlDB, _ := database.DB.DB()
+	sqlDB.Close()
+}
 
-	err := database.ConnectDatabase()
+// SetupTest is called before each test in the suite.
+func (suite *TestSuiteEnv) SetupTest() {
+	err := database.ConnectDatabase(sqlite.Open, ":memory:")
 	if err != nil {
 		log.Fatalf("Database connection failed with: %s", err.Error())
 	}
@@ -198,6 +166,4 @@ func runTests(m *testing.M) int {
 	}
 
 	database.DB.Create(&waterBillTransactionMar)
-
-	return m.Run()
 }

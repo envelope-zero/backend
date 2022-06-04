@@ -2,7 +2,6 @@ package controllers_test
 
 import (
 	"net/http"
-	"testing"
 
 	"github.com/envelope-zero/backend/pkg/test"
 )
@@ -19,10 +18,10 @@ var methodNotAllowedTests = []struct {
 	{"http://example.com/v1/budgets", "PUT"},
 }
 
-func TestMethodNotAllowed(t *testing.T) {
+func (suite *TestSuiteEnv) TestMethodNotAllowed() {
 	for _, tt := range methodNotAllowedTests {
-		recorder := test.Request(t, tt.method, tt.path, "")
+		recorder := test.Request(suite.T(), tt.method, tt.path, "")
 
-		test.AssertHTTPStatus(t, http.StatusMethodNotAllowed, &recorder)
+		test.AssertHTTPStatus(suite.T(), http.StatusMethodNotAllowed, &recorder)
 	}
 }

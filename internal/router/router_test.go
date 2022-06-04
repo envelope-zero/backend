@@ -13,15 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDBConnectionErrorHandled(t *testing.T) {
-	os.Setenv("DB_HOST", "invalid")
-
-	_, err := router.Router()
-
-	assert.NotNil(t, err)
-	os.Unsetenv("DB_HOST")
-}
-
 func TestGinMode(t *testing.T) {
 	os.Setenv("GIN_MODE", "debug")
 	_, err := router.Router()

@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -9,10 +8,8 @@ import (
 	"time"
 
 	docs "github.com/envelope-zero/backend/api"
-	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/httputil"
-	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/requestid"
@@ -102,18 +99,6 @@ func Router() (*gin.Engine, error) {
 	// Don’t trust any proxy. We do not process any client IPs,
 	// therefore we don’t need to trust anyone here.
 	_ = r.SetTrustedProxies([]string{})
-
-	// Connect to the database
-	err := database.ConnectDatabase()
-	if err != nil {
-		return nil, fmt.Errorf("Database connection failed with: %s", err.Error())
-	}
-
-	// Migrate all models so that the schema is correct
-	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
-	if err != nil {
-		return nil, err
-	}
 
 	/*
 	 *  Route setup

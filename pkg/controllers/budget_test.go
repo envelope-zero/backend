@@ -23,41 +23,41 @@ func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetRes
 	return a
 }
 
-func TestGetBudgets(t *testing.T) {
-	recorder := test.Request(t, "GET", "http://example.com/v1/budgets", "")
+func (suite *TestSuiteEnv) TestGetBudgets() {
+	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/budgets", "")
 
 	var response controllers.BudgetListResponse
-	test.DecodeResponse(t, &recorder, &response)
+	test.DecodeResponse(suite.T(), &recorder, &response)
 
-	assert.Equal(t, 200, recorder.Code)
-	if !assert.Len(t, response.Data, 1) {
-		assert.FailNow(t, "Response does not have exactly 1 item")
+	assert.Equal(suite.T(), 200, recorder.Code)
+	if !assert.Len(suite.T(), response.Data, 1) {
+		assert.FailNow(suite.T(), "Response does not have exactly 1 item")
 	}
 
-	assert.Equal(t, "Testing Budget", response.Data[0].Name)
-	assert.Equal(t, "GNU: Terry Pratchett", response.Data[0].Note)
+	assert.Equal(suite.T(), "Testing Budget", response.Data[0].Name)
+	assert.Equal(suite.T(), "GNU: Terry Pratchett", response.Data[0].Note)
 
 	diff := time.Since(response.Data[0].CreatedAt)
-	assert.LessOrEqual(t, diff, test.TOLERANCE)
+	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
 
 	diff = time.Since(response.Data[0].UpdatedAt)
-	assert.LessOrEqual(t, diff, test.TOLERANCE)
+	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
 }
 
-func TestGetBudgetsFilter(t *testing.T) {
-	_ = createTestBudget(t, models.BudgetCreate{
+func (suite *TestSuiteEnv) TestGetBudgetsFilter() {
+	_ = createTestBudget(suite.T(), models.BudgetCreate{
 		Name:     "Exact String Match",
 		Note:     "This is a specific note",
 		Currency: "€",
 	})
 
-	_ = createTestBudget(t, models.BudgetCreate{
+	_ = createTestBudget(suite.T(), models.BudgetCreate{
 		Name:     "Another String",
 		Note:     "This is a specific note",
 		Currency: "$",
 	})
 
-	_ = createTestBudget(t, models.BudgetCreate{
+	_ = createTestBudget(suite.T(), models.BudgetCreate{
 		Name:     "Another String",
 		Note:     "A different note",
 		Currency: "€",
@@ -65,101 +65,105 @@ func TestGetBudgetsFilter(t *testing.T) {
 
 	var re controllers.BudgetListResponse
 
-	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets?currency=€", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	test.DecodeResponse(t, &r, &re)
-	assert.Equal(t, 2, len(re.Data))
+	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?currency=€", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.DecodeResponse(suite.T(), &r, &re)
+	assert.Equal(suite.T(), 2, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?currency=$", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	test.DecodeResponse(t, &r, &re)
-	assert.Equal(t, 1, len(re.Data))
+	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?currency=$", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.DecodeResponse(suite.T(), &r, &re)
+	assert.Equal(suite.T(), 1, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?currency=€&name=Another String", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	test.DecodeResponse(t, &r, &re)
-	assert.Equal(t, 1, len(re.Data))
+	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?currency=€&name=Another String", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.DecodeResponse(suite.T(), &r, &re)
+	assert.Equal(suite.T(), 1, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?note=This is a specific note", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	test.DecodeResponse(t, &r, &re)
-	assert.Equal(t, 2, len(re.Data))
+	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?note=This is a specific note", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.DecodeResponse(suite.T(), &r, &re)
+	assert.Equal(suite.T(), 2, len(re.Data))
 
-	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets?name=Exact String Match", "")
-	test.AssertHTTPStatus(t, http.StatusOK, &r)
-	test.DecodeResponse(t, &r, &re)
-	assert.Equal(t, 1, len(re.Data))
+	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?name=Exact String Match", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.DecodeResponse(suite.T(), &r, &re)
+	assert.Equal(suite.T(), 1, len(re.Data))
 }
 
-func TestNoBudgetNotFound(t *testing.T) {
-	recorder := test.Request(t, "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
+func (suite *TestSuiteEnv) TestNoBudgetNotFound() {
+	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
 
-	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func TestBudgetInvalidIDs(t *testing.T) {
+func (suite *TestSuiteEnv) TestBudgetInvalidIDs() {
 	/*
 	 *  GET
 	 */
-	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets/-56", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/-56", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets/notANumber", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/notANumber", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets/23", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/23", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodGet, "http://example.com/v1/budgets/d19a622f-broken-uuid/2022-01", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/d19a622f-broken-uuid/2022-01", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
 	/*
 	 * PATCH
 	 */
-	r = test.Request(t, http.MethodPatch, "http://example.com/v1/budgets/-274", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/budgets/-274", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodPatch, "http://example.com/v1/budgets/stringRandom", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/budgets/stringRandom", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
 	/*
 	 * DELETE
 	 */
-	r = test.Request(t, http.MethodDelete, "http://example.com/v1/budgets/-274", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/budgets/-274", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
-	r = test.Request(t, http.MethodDelete, "http://example.com/v1/budgets/stringRandom", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/budgets/stringRandom", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func TestCreateBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+func (suite *TestSuiteEnv) TestCreateBudget() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budgetObject, savedObject controllers.BudgetResponse
-	test.DecodeResponse(t, &recorder, &budgetObject)
+	test.DecodeResponse(suite.T(), &recorder, &budgetObject)
 
-	recorder = test.Request(t, "GET", budgetObject.Data.Links.Self, "")
-	test.DecodeResponse(t, &recorder, &savedObject)
+	recorder = test.Request(suite.T(), "GET", budgetObject.Data.Links.Self, "")
+	test.DecodeResponse(suite.T(), &recorder, &savedObject)
 
-	assert.Equal(t, savedObject, budgetObject)
+	assert.Equal(suite.T(), savedObject, budgetObject)
 }
 
-func TestCreateBrokenBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
+func (suite *TestSuiteEnv) TestCreateBrokenBudget() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func TestCreateBudgetNoBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
+func (suite *TestSuiteEnv) TestCreateBudgetNoBody() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 // TestBudgetMonth verifies that the monthly calculations are correct.
-func TestBudgetMonth(t *testing.T) {
+func (suite *TestSuiteEnv) TestBudgetMonth() {
 	var budgetList controllers.BudgetListResponse
-	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets", "")
-	test.DecodeResponse(t, &r, &budgetList)
+	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
+	test.DecodeResponse(suite.T(), &r, &budgetList)
+
+	if !assert.Len(suite.T(), budgetList.Data, 1) {
+		assert.FailNow(suite.T(), "Response length does not match!", "BudgetList does not have exactly 1 item, it has %v", len(budgetList.Data))
+	}
 
 	var budgetMonth controllers.BudgetMonthResponse
 
@@ -221,104 +225,104 @@ func TestBudgetMonth(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		r := test.Request(t, "GET", tt.path, "")
-		test.AssertHTTPStatus(t, http.StatusOK, &r)
-		test.DecodeResponse(t, &r, &budgetMonth)
+		r := test.Request(suite.T(), "GET", tt.path, "")
+		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+		test.DecodeResponse(suite.T(), &r, &budgetMonth)
 
-		if !assert.Len(t, budgetMonth.Data.Envelopes, len(tt.response.Data.Envelopes)) {
-			assert.FailNow(t, "Response length does not match!", "Response does not have exactly %v item(s)", len(tt.response.Data.Envelopes))
+		if !assert.Len(suite.T(), budgetMonth.Data.Envelopes, len(tt.response.Data.Envelopes)) {
+			assert.FailNow(suite.T(), "Response length does not match!", "Response does not have exactly %v item(s)", len(tt.response.Data.Envelopes))
 		}
 
 		for i, envelope := range budgetMonth.Data.Envelopes {
-			assert.True(t, envelope.Spent.Equal(tt.response.Data.Envelopes[i].Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Spent, envelope.Spent, budgetMonth.Data)
-			assert.True(t, envelope.Balance.Equal(tt.response.Data.Envelopes[i].Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Balance, envelope.Balance, budgetMonth.Data)
-			assert.True(t, envelope.Allocation.Equal(tt.response.Data.Envelopes[i].Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Allocation, envelope.Allocation, budgetMonth.Data)
+			assert.True(suite.T(), envelope.Spent.Equal(tt.response.Data.Envelopes[i].Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Spent, envelope.Spent, budgetMonth.Data)
+			assert.True(suite.T(), envelope.Balance.Equal(tt.response.Data.Envelopes[i].Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Balance, envelope.Balance, budgetMonth.Data)
+			assert.True(suite.T(), envelope.Allocation.Equal(tt.response.Data.Envelopes[i].Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Allocation, envelope.Allocation, budgetMonth.Data)
 		}
 	}
 }
 
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
-func TestBudgetMonthNonExistent(t *testing.T) {
-	r := test.Request(t, "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
-	test.AssertHTTPStatus(t, http.StatusNotFound, &r)
+func (suite *TestSuiteEnv) TestBudgetMonthNonExistent() {
+	r := test.Request(suite.T(), "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &r)
 }
 
 // TestBudgetMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
-func TestBudgetMonthZero(t *testing.T) {
+func (suite *TestSuiteEnv) TestBudgetMonthZero() {
 	var budgetList controllers.BudgetListResponse
-	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets", "")
-	test.DecodeResponse(t, &r, &budgetList)
+	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
+	test.DecodeResponse(suite.T(), &r, &budgetList)
 
-	r = test.Request(t, "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/0001-01", budgetList.Data[0].ID), "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/0001-01", budgetList.Data[0].ID), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
 // TestBudgetMonthInvalid tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
-func TestBudgetMonthInvalid(t *testing.T) {
+func (suite *TestSuiteEnv) TestBudgetMonthInvalid() {
 	var budgetList controllers.BudgetListResponse
-	r := test.Request(t, http.MethodGet, "http://example.com/v1/budgets", "")
-	test.DecodeResponse(t, &r, &budgetList)
+	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
+	test.DecodeResponse(suite.T(), &r, &budgetList)
 
-	r = test.Request(t, "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/December-2020", budgetList.Data[0].ID), "")
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &r)
+	r = test.Request(suite.T(), "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/December-2020", budgetList.Data[0].ID), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func TestUpdateBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+func (suite *TestSuiteEnv) TestUpdateBudget() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
-	test.DecodeResponse(t, &recorder, &budget)
+	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(t, "PATCH", budget.Data.Links.Self, `{ "name": "Updated new budget" }`)
-	test.AssertHTTPStatus(t, http.StatusOK, &recorder)
+	recorder = test.Request(suite.T(), "PATCH", budget.Data.Links.Self, `{ "name": "Updated new budget" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 
 	var updatedBudget controllers.BudgetResponse
-	test.DecodeResponse(t, &recorder, &updatedBudget)
+	test.DecodeResponse(suite.T(), &recorder, &updatedBudget)
 
-	assert.Equal(t, budget.Data.Note, updatedBudget.Data.Note)
-	assert.Equal(t, "Updated new budget", updatedBudget.Data.Name)
+	assert.Equal(suite.T(), budget.Data.Note, updatedBudget.Data.Note)
+	assert.Equal(suite.T(), "Updated new budget", updatedBudget.Data.Name)
 }
 
-func TestUpdateBudgetBroken(t *testing.T) {
-	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+func (suite *TestSuiteEnv) TestUpdateBudgetBroken() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
-	test.DecodeResponse(t, &recorder, &budget)
+	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(t, "PATCH", budget.Data.Links.Self, `{ "name": 2" }`)
-	test.AssertHTTPStatus(t, http.StatusBadRequest, &recorder)
+	recorder = test.Request(suite.T(), "PATCH", budget.Data.Links.Self, `{ "name": 2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func TestUpdateNonExistingBudget(t *testing.T) {
-	recorder := test.Request(t, "PATCH", "http://example.com/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
-	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+func (suite *TestSuiteEnv) TestUpdateNonExistingBudget() {
+	recorder := test.Request(suite.T(), "PATCH", "http://example.com/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func TestDeleteBudget(t *testing.T) {
-	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+func (suite *TestSuiteEnv) TestDeleteBudget() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
-	test.DecodeResponse(t, &recorder, &budget)
+	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(t, "DELETE", budget.Data.Links.Self, "")
-	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+	recorder = test.Request(suite.T(), "DELETE", budget.Data.Links.Self, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
 
-func TestDeleteNonExistingBudget(t *testing.T) {
-	recorder := test.Request(t, "DELETE", "http://example.com/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
-	test.AssertHTTPStatus(t, http.StatusNotFound, &recorder)
+func (suite *TestSuiteEnv) TestDeleteNonExistingBudget() {
+	recorder := test.Request(suite.T(), "DELETE", "http://example.com/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func TestDeleteBudgetWithBody(t *testing.T) {
-	recorder := test.Request(t, "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
-	test.AssertHTTPStatus(t, http.StatusCreated, &recorder)
+func (suite *TestSuiteEnv) TestDeleteBudgetWithBody() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
-	test.DecodeResponse(t, &recorder, &budget)
+	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(t, "DELETE", budget.Data.Links.Self, `{ "name": "test name 23" }`)
-	test.AssertHTTPStatus(t, http.StatusNoContent, &recorder)
+	recorder = test.Request(suite.T(), "DELETE", budget.Data.Links.Self, `{ "name": "test name 23" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
