@@ -8,6 +8,7 @@ import (
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 )
 
 // TestMain takes care of the test setup for this package.
@@ -16,15 +17,12 @@ func TestMain(m *testing.M) {
 }
 
 func runTests(m *testing.M) int {
-	// Always remove the DB after running tests
-	defer os.Remove("data/gorm.db")
-
 	ginMode := os.Getenv("GIN_MODE")
 	if ginMode == "" {
 		gin.SetMode("release")
 	}
 
-	err := database.ConnectDatabase()
+	err := database.ConnectDatabase(sqlite.Open, ":memory:")
 	if err != nil {
 		log.Fatalf("Database connection failed with: %s", err.Error())
 	}

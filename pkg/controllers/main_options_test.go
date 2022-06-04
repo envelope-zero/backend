@@ -2,7 +2,6 @@ package controllers_test
 
 import (
 	"net/http"
-	"testing"
 
 	"github.com/envelope-zero/backend/pkg/test"
 	"github.com/stretchr/testify/assert"
@@ -29,11 +28,11 @@ var optionsHeaderTests = []struct {
 	{"http://example.com/v1/transactions/1", "GET, PATCH, DELETE"},
 }
 
-func TestOptionsHeader(t *testing.T) {
+func (suite *TestSuiteEnv) TestOptionsHeader() {
 	for _, tt := range optionsHeaderTests {
-		recorder := test.Request(t, "OPTIONS", tt.path, "")
+		recorder := test.Request(suite.T(), "OPTIONS", tt.path, "")
 
-		assert.Equal(t, http.StatusNoContent, recorder.Code, "Status for %v is wrong, expected %d, got %d", tt.path, http.StatusNoContent, recorder.Code)
-		assert.Equal(t, recorder.Header().Get("allow"), tt.expected)
+		assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Status for %v is wrong, expected %d, got %d", tt.path, http.StatusNoContent, recorder.Code)
+		assert.Equal(suite.T(), recorder.Header().Get("allow"), tt.expected)
 	}
 }
