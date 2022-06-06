@@ -3,7 +3,7 @@ module github.com/envelope-zero/backend
 go 1.18
 
 require (
-	github.com/gin-gonic/gin v1.8.0
+	github.com/gin-gonic/gin v1.8.1
 	github.com/glebarez/sqlite v1.4.5
 	github.com/shopspring/decimal v1.3.1
 	gorm.io/driver/postgres v1.3.7
