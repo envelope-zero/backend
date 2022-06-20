@@ -60,7 +60,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rs/zerolog v1.27.0
-	github.com/stretchr/testify v1.7.3
+	github.com/stretchr/testify v1.7.4
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
