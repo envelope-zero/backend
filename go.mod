@@ -7,7 +7,7 @@ require (
 	github.com/glebarez/sqlite v1.4.5
 	github.com/shopspring/decimal v1.3.1
 	gorm.io/driver/postgres v1.3.8
-	gorm.io/gorm v1.23.7
+	gorm.io/gorm v1.23.8
 )
 
 require (
