@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
@@ -35,9 +34,11 @@ type EnvelopeMonth struct {
 // Spent returns the amount spent for the month the time.Time instance is in.
 func (e Envelope) Spent(t time.Time) decimal.Decimal {
 	// All transactions where the Envelope ID matches and that have an external account as source and an internal account as destination
-	incoming, _ := RawTransactions(
-		fmt.Sprintf("SELECT transactions.* FROM transactions, accounts AS source_accounts, accounts AS destination_accounts WHERE transactions.source_account_id = source_accounts.id AND source_accounts.external AND transactions.destination_account_id = destination_accounts.id AND NOT destination_accounts.external AND transactions.envelope_id = \"%v\"", e.ID),
-	)
+	var incoming []Transaction
+
+	database.DB.Joins("SourceAccount").Joins("DestinationAccount").Where(
+		"SourceAccount__external = 1 AND DestinationAccount__external = 0 AND transactions.envelope_id = ?", e.ID,
+	).Find(&incoming)
 
 	// Add all incoming transactions that are in the correct month
 	incomingSum := decimal.Zero
@@ -47,10 +48,10 @@ func (e Envelope) Spent(t time.Time) decimal.Decimal {
 		}
 	}
 
-	outgoing, _ := RawTransactions(
-		// All transactions where the envelope ID matches that have an internal account as source and an external account as destination
-		fmt.Sprintf("SELECT transactions.* FROM transactions, accounts AS source_accounts, accounts AS destination_accounts WHERE transactions.source_account_id = source_accounts.id AND NOT source_accounts.external AND transactions.destination_account_id = destination_accounts.id AND destination_accounts.external AND transactions.envelope_id = \"%v\"", e.ID),
-	)
+	var outgoing []Transaction
+	database.DB.Joins("SourceAccount").Joins("DestinationAccount").Where(
+		"SourceAccount__external = 0 AND DestinationAccount__external = 1 AND transactions.envelope_id = ?", e.ID,
+	).Find(&outgoing)
 
 	// Add all outgoing transactions that are in the correct month
 	outgoingSum := decimal.Zero
