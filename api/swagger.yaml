@@ -4,6 +4,7 @@ definitions:
       balance:
         type: number
       budgetId:
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       createdAt:
         example: "2022-04-02T19:28:44.491514Z"
@@ -11,6 +12,7 @@ definitions:
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       external:
+        example: true
         type: boolean
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
@@ -18,11 +20,14 @@ definitions:
       links:
         $ref: '#/definitions/controllers.AccountLinks'
       name:
+        example: Checking
         type: string
       note:
+        example: My bank account
         type: string
       onBudget:
         description: 'Always false when external: true'
+        example: false
         type: boolean
       reconciledBalance:
         type: number
@@ -316,15 +321,20 @@ definitions:
   models.AccountCreate:
     properties:
       budgetId:
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       external:
+        example: true
         type: boolean
       name:
+        example: Checking
         type: string
       note:
+        example: My bank account
         type: string
       onBudget:
         description: 'Always false when external: true'
+        example: false
         type: boolean
     type: object
   models.AllocationCreate:
