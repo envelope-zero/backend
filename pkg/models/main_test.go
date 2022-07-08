@@ -7,21 +7,33 @@ import (
 
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
-	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
+	"github.com/stretchr/testify/suite"
 )
 
-// TestMain takes care of the test setup for this package.
-func TestMain(m *testing.M) {
-	os.Exit(runTests(m))
+// Environment for the test suite. Used to save the database connection.
+type TestSuiteEnv struct {
+	suite.Suite
 }
 
-func runTests(m *testing.M) int {
-	ginMode := os.Getenv("GIN_MODE")
-	if ginMode == "" {
-		gin.SetMode("release")
-	}
+// Pseudo-Test run by go test that runs the test suite.
+func TestSuite(t *testing.T) {
+	suite.Run(t, new(TestSuiteEnv))
+}
 
+func (suite *TestSuiteEnv) SetupSuite() {
+	os.Setenv("LOG_FORMAT", "human")
+	os.Setenv("GIN_MODE", "debug")
+}
+
+// TearDownTest is called after each test in the suite.
+func (suite *TestSuiteEnv) TearDownTest() {
+	sqlDB, _ := database.DB.DB()
+	sqlDB.Close()
+}
+
+// SetupTest is called before each test in the suite.
+func (suite *TestSuiteEnv) SetupTest() {
 	err := database.ConnectDatabase(sqlite.Open, ":memory:")
 	if err != nil {
 		log.Fatalf("Database connection failed with: %s", err.Error())
@@ -32,6 +44,4 @@ func runTests(m *testing.M) int {
 	if err != nil {
 		log.Fatalf("Database migration failed with: %s", err.Error())
 	}
-
-	return m.Run()
 }

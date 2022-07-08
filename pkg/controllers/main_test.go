@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -20,6 +21,11 @@ type TestSuiteEnv struct {
 // Pseudo-Test run by go test that runs the test suite.
 func TestSuite(t *testing.T) {
 	suite.Run(t, new(TestSuiteEnv))
+}
+
+func (suite *TestSuiteEnv) SetupSuite() {
+	os.Setenv("LOG_FORMAT", "human")
+	os.Setenv("GIN_MODE", "debug")
 }
 
 // TearDownTest is called after each test in the suite.

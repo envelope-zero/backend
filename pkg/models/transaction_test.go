@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
@@ -9,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTransactionFindTimeUTC(t *testing.T) {
+func (suite *TestSuiteEnv) TestTransactionFindTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{
@@ -20,22 +19,22 @@ func TestTransactionFindTimeUTC(t *testing.T) {
 
 	err := transaction.AfterFind(database.DB)
 	if err != nil {
-		assert.Fail(t, "transaction.AfterFind failed")
+		assert.Fail(suite.T(), "transaction.AfterFind failed")
 	}
 
-	assert.Equal(t, time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
+	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
 }
 
-func TestTransactionSaveTimeUTC(t *testing.T) {
+func (suite *TestSuiteEnv) TestTransactionSaveTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{}
 	err := transaction.BeforeSave(database.DB)
 	if err != nil {
-		assert.Fail(t, "transaction.AfterFind failed")
+		assert.Fail(suite.T(), "transaction.AfterFind failed")
 	}
 
-	assert.Equal(t, time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
+	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
 
 	transaction = models.Transaction{
 		TransactionCreate: models.TransactionCreate{
@@ -44,8 +43,8 @@ func TestTransactionSaveTimeUTC(t *testing.T) {
 	}
 	err = transaction.BeforeSave(database.DB)
 	if err != nil {
-		assert.Fail(t, "transaction.AfterFind failed")
+		assert.Fail(suite.T(), "transaction.AfterFind failed")
 	}
 
-	assert.Equal(t, time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
+	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
 }

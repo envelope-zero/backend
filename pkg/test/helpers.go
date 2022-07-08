@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -41,7 +40,6 @@ func Request(t *testing.T, method, url string, body any, headers ...map[string]s
 		}
 	}
 
-	os.Setenv("LOG_FORMAT", "human")
 	router, err := router.Router()
 	if err != nil {
 		assert.FailNow(t, "Router could not be initialized")
