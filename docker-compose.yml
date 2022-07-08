@@ -2,7 +2,7 @@ version: "3"
 
 services:
   db:
-    image: postgres:14.3-alpine
+    image: postgres:14.4-alpine
     restart: always
     environment:
       - POSTGRES_USER=ez
