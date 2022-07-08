@@ -17,11 +17,11 @@ type Account struct {
 }
 
 type AccountCreate struct {
-	Name     string    `json:"name,omitempty"`
-	Note     string    `json:"note,omitempty"`
-	BudgetID uuid.UUID `json:"budgetId"`
-	OnBudget bool      `json:"onBudget"` // Always false when external: true
-	External bool      `json:"external"`
+	Name     string    `json:"name,omitempty" example:"Checking"`
+	Note     string    `json:"note,omitempty" example:"My bank account"`
+	BudgetID uuid.UUID `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	OnBudget bool      `json:"onBudget" example:"false"` // Always false when external: true
+	External bool      `json:"external" example:"true"`
 }
 
 func (a Account) WithCalculations() Account {

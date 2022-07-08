@@ -1758,7 +1758,8 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "budgetId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "createdAt": {
                     "type": "string",
@@ -1768,7 +1769,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "external": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "id": {
                     "type": "string",
@@ -1778,14 +1780,17 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.AccountLinks"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Checking"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My bank account"
                 },
                 "onBudget": {
                     "description": "Always false when external: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "reconciledBalance": {
                     "type": "number"
@@ -2221,20 +2226,25 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "external": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Checking"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My bank account"
                 },
                 "onBudget": {
                     "description": "Always false when external: true",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },
