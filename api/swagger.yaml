@@ -41,7 +41,7 @@ definitions:
         example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
         type: string
       transactions:
-        example: https://example.com/api/v1/transactions?account♫=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        example: https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
         type: string
     type: object
   controllers.AccountListResponse:
@@ -528,6 +528,27 @@ paths:
   /v1/accounts:
     get:
       description: Returns a list of all accounts
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Filter by on/off-budget
+        in: query
+        name: onBudget
+        type: boolean
+      - description: Filter internal/external
+        in: query
+        name: external
+        type: boolean
       produces:
       - application/json
       responses:
@@ -873,15 +894,15 @@ paths:
     get:
       description: Returns list of budgets
       parameters:
-      - description: Name of the budget
+      - description: Filter by name
         in: query
         name: name
         type: string
-      - description: Note for the budget
+      - description: Filter by note
         in: query
         name: note
         type: string
-      - description: Currency the budget is in
+      - description: Filter by currency
         in: query
         name: currency
         type: string

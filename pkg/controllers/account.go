@@ -27,7 +27,30 @@ type Account struct {
 
 type AccountLinks struct {
 	Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account♫=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+}
+
+type AccountQueryFilter struct {
+	Name     string `form:"name"`
+	Note     string `form:"note"`
+	BudgetID string `form:"budget"`
+	OnBudget bool   `form:"onBudget"`
+	External bool   `form:"external"`
+}
+
+func (a AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, error) {
+	budgetID, err := httputil.UUIDFromString(c, a.BudgetID)
+	if err != nil {
+		return models.AccountCreate{}, err
+	}
+
+	return models.AccountCreate{
+		Name:     a.Name,
+		Note:     a.Note,
+		BudgetID: budgetID,
+		OnBudget: a.OnBudget,
+		External: a.External,
+	}, nil
 }
 
 // RegisterAccountRoutes registers the routes for accounts with
@@ -110,10 +133,31 @@ func CreateAccount(c *gin.Context) {
 // @Failure      404
 // @Failure      500  {object}  httputil.HTTPError
 // @Router       /v1/accounts [get]
+// @Param        name      query  string  false  "Filter by name"
+// @Param        note      query  string  false  "Filter by note"
+// @Param        budget    query  string  false  "Filter by budget ID"
+// @Param        onBudget  query  bool    false  "Filter by on/off-budget"
+// @Param        external  query  bool    false  "Filter internal/external"
 func GetAccounts(c *gin.Context) {
-	var accounts []models.Account
+	var filter AccountQueryFilter
+	if err := c.Bind(&filter); err != nil {
+		httputil.ErrorInvalidQueryString(c)
+		return
+	}
 
-	database.DB.Find(&accounts)
+	// Get the set parameters in the query string
+	queryFields := httputil.GetFields(c.Request.URL, filter)
+
+	// Convert the QueryFilter to a Create struct
+	create, err := filter.ToCreate(c)
+	if err != nil {
+		return
+	}
+
+	var accounts []models.Account
+	database.DB.Where(&models.Account{
+		AccountCreate: create,
+	}, queryFields...).Find(&accounts)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements

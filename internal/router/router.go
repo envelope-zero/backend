@@ -92,9 +92,8 @@ func Router() (*gin.Engine, error) {
 		}))
 	}
 
-	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, numHandlers int) {
-		log.Debug().Str("method", httpMethod).Str("path", absolutePath).Str("handler", handlerName).Int("handlers", numHandlers).Msg("route")
-	}
+	// Disable the gin debug route printing as it clutters logs (and test logs)
+	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, numHandlers int) {}
 
 	// Don’t trust any proxy. We do not process any client IPs,
 	// therefore we don’t need to trust anyone here.

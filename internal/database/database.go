@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	gorm_zerolog "github.com/wei840222/gorm-zerolog"
 	"gorm.io/gorm"
 )
@@ -25,7 +24,6 @@ func ConnectDatabase(dialector func(string) gorm.Dialector, dsn string) error {
 		Logger: gorm_zerolog.New(),
 	}
 
-	log.Info().Str("dsn", dsn).Msg("Connecting database")
 	db, err = gorm.Open(dialector(dsn), config)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)

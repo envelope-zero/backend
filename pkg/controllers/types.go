@@ -10,8 +10,3 @@ import (
 type URIMonth struct {
 	Month time.Time `uri:"month" time_format:"2006-01" time_utc:"1"`
 }
-
-type QueryFilter struct {
-	Name string `form:"name"`
-	Note string `form:"note"`
-}

@@ -65,7 +65,7 @@ func TestRequestHostProtoHTTPS(t *testing.T) {
 		c.String(http.StatusOK, httputil.RequestHost(c))
 	})
 
-	// Check with x-forwarded-prefix
+	// Check with x-forwarded-proto
 	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/", nil)
 	c.Request.Header.Set("x-forwarded-host", "example.com")
 	c.Request.Header.Set("x-forwarded-proto", "https")
@@ -111,7 +111,6 @@ func TestBindData(t *testing.T) {
 		_ = httputil.BindData(c, &o)
 	})
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/", bytes.NewBuffer([]byte(`{ "name": "Drink more water!" }`)))
 	r.ServeHTTP(w, c.Request)
 
@@ -130,7 +129,6 @@ func TestBindBrokenData(t *testing.T) {
 		_ = httputil.BindData(c, &o)
 	})
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/", bytes.NewBuffer([]byte(`{ broken json: "Drink more water!" }`)))
 	r.ServeHTTP(w, c.Request)
 
@@ -150,10 +148,75 @@ func TestBindEmptyBody(t *testing.T) {
 		_ = httputil.BindData(c, &o)
 	})
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/", bytes.NewBuffer([]byte("")))
 	r.ServeHTTP(w, c.Request)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Binding failed: %s", w.Body.String())
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "request body must not be empty")
+}
+
+func TestUUIDFromString(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		var o struct {
+			UUID string `form:"id"`
+		}
+
+		_ = c.Bind(&o)
+		_, err := httputil.UUIDFromString(c, o.UUID)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
+		c.Status(http.StatusOK)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/?id=4e743e94-6a4b-44d6-aba5-d77c82103fa7", bytes.NewBuffer([]byte("")))
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestUUIDFromStringInvalid(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		var o struct {
+			UUID string `form:"id"`
+		}
+
+		_ = c.Bind(&o)
+		_, err := httputil.UUIDFromString(c, o.UUID)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
+		c.Status(http.StatusOK)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/?id=not-a-valid-uuid", bytes.NewBuffer([]byte("")))
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestUUIDFromStringEmpty(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		var o struct {
+			UUID string `form:"id"`
+		}
+
+		_ = c.Bind(&o)
+		_, err := httputil.UUIDFromString(c, o.UUID)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
+		c.Status(http.StatusOK)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/?id=", bytes.NewBuffer([]byte("")))
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
