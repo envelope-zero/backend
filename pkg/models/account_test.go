@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccountCalculations(t *testing.T) {
+func (suite *TestSuiteEnv) TestAccountCalculations() {
 	account := models.Account{
 		AccountCreate: models.AccountCreate{
 			OnBudget: true,
@@ -46,9 +44,9 @@ func TestAccountCalculations(t *testing.T) {
 
 	a := account.WithCalculations()
 
-	assert.True(t, a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
+	assert.True(suite.T(), a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
 
-	assert.True(t, a.ReconciledBalance.Equal(incomingTransaction.Amount), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
+	assert.True(suite.T(), a.ReconciledBalance.Equal(incomingTransaction.Amount), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
 
 	database.DB.Delete(&account)
 	database.DB.Delete(&externalAccount)
@@ -56,14 +54,14 @@ func TestAccountCalculations(t *testing.T) {
 	database.DB.Delete(&outgoingTransaction)
 }
 
-func TestAccountTransactions(t *testing.T) {
+func (suite *TestSuiteEnv) TestAccountTransactions() {
 	account := models.Account{}
 
 	transactions := account.Transactions()
-	assert.Len(t, transactions, 0)
+	assert.Len(suite.T(), transactions, 0)
 }
 
-func TestAccountOnBudget(t *testing.T) {
+func (suite *TestSuiteEnv) TestAccountOnBudget() {
 	account := models.Account{
 		AccountCreate: models.AccountCreate{
 			OnBudget: true,
@@ -73,10 +71,10 @@ func TestAccountOnBudget(t *testing.T) {
 
 	err := account.BeforeSave(database.DB)
 	if err != nil {
-		assert.Fail(t, "account.BeforeSave failed")
+		assert.Fail(suite.T(), "account.BeforeSave failed")
 	}
 
-	assert.False(t, account.OnBudget, "OnBudget is true even though the account is external")
+	assert.False(suite.T(), account.OnBudget, "OnBudget is true even though the account is external")
 
 	account = models.Account{
 		AccountCreate: models.AccountCreate{
@@ -87,8 +85,8 @@ func TestAccountOnBudget(t *testing.T) {
 
 	err = account.BeforeSave(database.DB)
 	if err != nil {
-		assert.Fail(t, "account.BeforeSave failed")
+		assert.Fail(suite.T(), "account.BeforeSave failed")
 	}
 
-	assert.True(t, account.OnBudget, "OnBudget is set to false even though the account is internal")
+	assert.True(suite.T(), account.OnBudget, "OnBudget is set to false even though the account is internal")
 }

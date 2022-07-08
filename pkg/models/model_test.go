@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
@@ -10,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestModelTimeUTC(t *testing.T) {
+func (suite *TestSuiteEnv) TestModelTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	model := models.Model{
@@ -21,10 +20,10 @@ func TestModelTimeUTC(t *testing.T) {
 
 	err := model.AfterFind(database.DB)
 	if err != nil {
-		assert.Fail(t, "model.AfterFind failed")
+		assert.Fail(suite.T(), "model.AfterFind failed")
 	}
 
-	assert.Equal(t, time.UTC, model.CreatedAt.Location(), "Timezone for model is not UTC")
-	assert.Equal(t, time.UTC, model.UpdatedAt.Location(), "Timezone for model is not UTC")
-	assert.Equal(t, time.UTC, model.DeletedAt.Time.Location(), "Timezone for model is not UTC")
+	assert.Equal(suite.T(), time.UTC, model.CreatedAt.Location(), "Timezone for model is not UTC")
+	assert.Equal(suite.T(), time.UTC, model.UpdatedAt.Location(), "Timezone for model is not UTC")
+	assert.Equal(suite.T(), time.UTC, model.DeletedAt.Time.Location(), "Timezone for model is not UTC")
 }
