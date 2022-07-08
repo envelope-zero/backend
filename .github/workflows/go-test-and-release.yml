@@ -48,7 +48,7 @@ jobs:
           # renovate: go-version
           go-version: 1.18.2
 
-      - uses: docker/login-action@v1
+      - uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
