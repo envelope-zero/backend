@@ -2,12 +2,29 @@ package controllers_test
 
 import (
 	"net/http"
+	"testing"
 	"time"
 
 	"github.com/envelope-zero/backend/pkg/controllers"
+	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
+
+func createTestCategory(t *testing.T, c models.CategoryCreate) controllers.CategoryResponse {
+	if c.BudgetID == uuid.Nil {
+		c.BudgetID = createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
+	}
+
+	r := test.Request(t, http.MethodPost, "http://example.com/v1/categories", c)
+	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+
+	var category controllers.CategoryResponse
+	test.DecodeResponse(t, &r, &category)
+
+	return category
+}
 
 func (suite *TestSuiteEnv) TestGetCategories() {
 	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories", "")
@@ -28,6 +45,13 @@ func (suite *TestSuiteEnv) TestGetCategories() {
 
 	diff = time.Since(response.Data[0].UpdatedAt)
 	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
+}
+
+func (suite *TestSuiteEnv) TestGetCategory() {
+	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Catch me if you can!"})
+	recorder := test.Request(suite.T(), http.MethodGet, category.Data.Links.Self, "")
+
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestNoCategoryNotFound() {
@@ -69,16 +93,7 @@ func (suite *TestSuiteEnv) TestCategoryInvalidIDs() {
 }
 
 func (suite *TestSuiteEnv) TestCreateCategory() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
-
-	var categoryObject, savedCategory controllers.CategoryResponse
-	test.DecodeResponse(suite.T(), &recorder, &categoryObject)
-
-	recorder = test.Request(suite.T(), "GET", categoryObject.Data.Links.Self, "")
-	test.DecodeResponse(suite.T(), &recorder, &savedCategory)
-
-	assert.Equal(suite.T(), savedCategory, categoryObject)
+	_ = createTestCategory(suite.T(), models.CategoryCreate{Name: "New Category", Note: "Something to test creation"})
 }
 
 func (suite *TestSuiteEnv) TestCreateBrokenCategory() {
@@ -86,7 +101,7 @@ func (suite *TestSuiteEnv) TestCreateBrokenCategory() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateBrokenNoBudget() {
+func (suite *TestSuiteEnv) TestCreateBudgetDoesNotExist() {
 	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "budgetId": "f8c74664-9b79-4e15-8d3d-4618f3e3c230" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
@@ -97,13 +112,9 @@ func (suite *TestSuiteEnv) TestCreateCategoryNoBody() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateCategory() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
 
-	var category controllers.CategoryResponse
-	test.DecodeResponse(suite.T(), &recorder, &category)
-
-	recorder = test.Request(suite.T(), "PATCH", category.Data.Links.Self, `{ "name": "Updated new category for testing" }`)
+	recorder := test.Request(suite.T(), "PATCH", category.Data.Links.Self, `{ "name": "Updated new category for testing" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 
 	var updatedCategory controllers.CategoryResponse
@@ -114,13 +125,9 @@ func (suite *TestSuiteEnv) TestUpdateCategory() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateCategoryBroken() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "name": "New Category", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
 
-	var category controllers.CategoryResponse
-	test.DecodeResponse(suite.T(), &recorder, &category)
-
-	recorder = test.Request(suite.T(), "PATCH", category.Data.Links.Self, `{ "name": 2" }`)
+	recorder := test.Request(suite.T(), "PATCH", category.Data.Links.Self, `{ "name": 2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -130,13 +137,9 @@ func (suite *TestSuiteEnv) TestUpdateNonExistingCategory() {
 }
 
 func (suite *TestSuiteEnv) TestDeleteCategory() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "name": "Delete me now!" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Delete me now!"})
 
-	var category controllers.CategoryResponse
-	test.DecodeResponse(suite.T(), &recorder, &category)
-
-	recorder = test.Request(suite.T(), "DELETE", category.Data.Links.Self, "")
+	recorder := test.Request(suite.T(), "DELETE", category.Data.Links.Self, "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
 
@@ -146,12 +149,8 @@ func (suite *TestSuiteEnv) TestDeleteNonExistingCategory() {
 }
 
 func (suite *TestSuiteEnv) TestDeleteCategoryWithBody() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "name": "Delete me now!" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Delete me now!"})
 
-	var category controllers.CategoryResponse
-	test.DecodeResponse(suite.T(), &recorder, &category)
-
-	recorder = test.Request(suite.T(), "DELETE", category.Data.Links.Self, `{ "name": "test name 23" }`)
+	recorder := test.Request(suite.T(), "DELETE", category.Data.Links.Self, `{ "name": "test name 23" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }

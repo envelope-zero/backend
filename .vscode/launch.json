@@ -9,7 +9,7 @@
       "cwd": "${workspaceFolder}",
       "program": "${workspaceFolder}/main.go",
       "env": {
-        "LOG_LEVEL": "debug"
+        "GIN_MODE": "debug"
       },
       "console": "integratedTerminal"
     },

@@ -300,6 +300,12 @@ func DeleteBudget(c *gin.Context) {
 
 // getBudgetResource is the internal helper to verify permissions and return a budget.
 func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
+	if id == uuid.Nil {
+		err := errors.New("No budget ID specified")
+		httputil.NewError(c, http.StatusBadRequest, err)
+		return models.Budget{}, err
+	}
+
 	var budget models.Budget
 
 	err := database.DB.Where(&models.Budget{

@@ -33,7 +33,7 @@ func main() {
 			panic("Could not create data directory")
 		}
 
-		dsn = "data/gorm.db"
+		dsn = "data/gorm.db?_pragma=foreign_keys(1)"
 		dialector = sqlite.Open
 	}
 

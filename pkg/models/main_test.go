@@ -34,7 +34,7 @@ func (suite *TestSuiteEnv) TearDownTest() {
 
 // SetupTest is called before each test in the suite.
 func (suite *TestSuiteEnv) SetupTest() {
-	err := database.ConnectDatabase(sqlite.Open, ":memory:")
+	err := database.ConnectDatabase(sqlite.Open, ":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
 		log.Fatalf("Database connection failed with: %s", err.Error())
 	}

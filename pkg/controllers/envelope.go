@@ -250,6 +250,12 @@ func DeleteEnvelope(c *gin.Context) {
 
 // getEnvelopeResource verifies that the envelope from the URL parameters exists and returns it.
 func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) {
+	if id == uuid.Nil {
+		err := errors.New("No envelope ID specified")
+		httputil.NewError(c, http.StatusBadRequest, err)
+		return models.Envelope{}, err
+	}
+
 	var envelope models.Envelope
 
 	err := database.DB.Where(&models.Envelope{

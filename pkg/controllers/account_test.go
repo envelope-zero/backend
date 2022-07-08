@@ -14,6 +14,10 @@ import (
 )
 
 func createTestAccount(t *testing.T, c models.AccountCreate) controllers.AccountResponse {
+	if c.BudgetID == uuid.Nil {
+		c.BudgetID = createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
+	}
+
 	r := test.Request(t, http.MethodPost, "http://example.com/v1/accounts", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
@@ -113,6 +117,11 @@ func (suite *TestSuiteEnv) TestCreateAccount() {
 	_ = createTestAccount(suite.T(), models.AccountCreate{Name: "Test account for creation"})
 }
 
+func (suite *TestSuiteEnv) TestCreateAccountNoBudget() {
+	r := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/accounts", models.Account{})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
 func (suite *TestSuiteEnv) TestCreateBrokenAccount() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/accounts", `{ "createdAt": "New Account", "note": "More tests for accounts to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
@@ -123,7 +132,7 @@ func (suite *TestSuiteEnv) TestCreateAccountNoBody() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateAccountNoBudget() {
+func (suite *TestSuiteEnv) TestCreateAccountNonExistingBudget() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/accounts", models.AccountCreate{BudgetID: uuid.New()})
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }

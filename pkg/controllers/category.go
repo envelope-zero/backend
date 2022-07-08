@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -213,6 +214,12 @@ func DeleteCategory(c *gin.Context) {
 }
 
 func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) {
+	if id == uuid.Nil {
+		err := errors.New("No category ID specified")
+		httputil.NewError(c, http.StatusBadRequest, err)
+		return models.Category{}, err
+	}
+
 	var category models.Category
 
 	err := database.DB.Where(&models.Category{

@@ -91,6 +91,24 @@ func CreateTransaction(c *gin.Context) {
 		return
 	}
 
+	// Check the source account
+	_, err = getAccountResource(c, transaction.SourceAccountID)
+	if err != nil {
+		return
+	}
+
+	// Check the destination account
+	_, err = getAccountResource(c, transaction.DestinationAccountID)
+	if err != nil {
+		return
+	}
+
+	// Check the envelope
+	_, err = getEnvelopeResource(c, transaction.EnvelopeID)
+	if err != nil {
+		return
+	}
+
 	if !decimal.Decimal.IsPositive(transaction.Amount) {
 		httputil.NewError(c, http.StatusBadRequest, errors.New("The transaction amount must be positive"))
 		return
@@ -226,6 +244,12 @@ func DeleteTransaction(c *gin.Context) {
 
 // getTransactionResource verifies that the request URI is valid for the transaction and returns it.
 func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, error) {
+	if id == uuid.Nil {
+		err := errors.New("No transaction ID specified")
+		httputil.NewError(c, http.StatusBadRequest, err)
+		return models.Transaction{}, err
+	}
+
 	var transaction models.Transaction
 
 	err := database.DB.First(&transaction, &models.Transaction{

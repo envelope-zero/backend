@@ -238,6 +238,12 @@ func DeleteAllocation(c *gin.Context) {
 
 // getAllocationResource verifies that the request URI is valid for the transaction and returns it.
 func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, error) {
+	if id == uuid.Nil {
+		err := errors.New("No allocation ID specified")
+		httputil.NewError(c, http.StatusBadRequest, err)
+		return models.Allocation{}, err
+	}
+
 	var allocation models.Allocation
 
 	err := database.DB.First(&allocation, &models.Allocation{
