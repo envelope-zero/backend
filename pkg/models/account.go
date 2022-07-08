@@ -81,3 +81,25 @@ func (a Account) getBalance() decimal.Decimal {
 		},
 	)
 }
+
+// TransactionSums returns the sum of all transactions matching two Transaction structs
+//
+// The incoming Transactions fields is used to add the amount of all matching transactions to the overall sum
+// The outgoing Transactions fields is used to subtract the amount of all matching transactions from the overall sum.
+func TransactionsSum(incoming, outgoing Transaction) decimal.Decimal {
+	var outgoingSum, incomingSum decimal.NullDecimal
+
+	_ = database.DB.Table("transactions").
+		Where(&outgoing).
+		Select("SUM(amount)").
+		Row().
+		Scan(&outgoingSum)
+
+	_ = database.DB.Table("transactions").
+		Where(&incoming).
+		Select("SUM(amount)").
+		Row().
+		Scan(&incomingSum)
+
+	return incomingSum.Decimal.Sub(outgoingSum.Decimal)
+}
