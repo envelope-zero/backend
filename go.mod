@@ -7,7 +7,7 @@ require (
 	github.com/gin-contrib/logger v0.2.2
 	github.com/gin-contrib/requestid v0.0.5
 	github.com/gin-gonic/gin v1.8.1
-	github.com/glebarez/sqlite v1.4.6-0.20220708144610-8fabac10466c
+	github.com/glebarez/sqlite v1.4.6
 	github.com/google/uuid v1.3.0
 	github.com/rs/zerolog v1.27.0
 	github.com/shopspring/decimal v1.3.1
