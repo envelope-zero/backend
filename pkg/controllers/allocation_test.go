@@ -14,6 +14,10 @@ import (
 )
 
 func createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.AllocationResponse {
+	if c.EnvelopeID == uuid.Nil {
+		c.EnvelopeID = createTestEnvelope(t, models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
+	}
+
 	r := test.Request(t, "POST", "http://example.com/v1/allocations", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
@@ -95,6 +99,11 @@ func (suite *TestSuiteEnv) TestCreateAllocation() {
 	}
 }
 
+func (suite *TestSuiteEnv) TestCreateAllocationNoEnvelope() {
+	r := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/allocations", models.Allocation{})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
 func (suite *TestSuiteEnv) TestCreateBrokenAllocation() {
 	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/allocations", `{ "createdAt": "New Allocation" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
@@ -171,4 +180,9 @@ func (suite *TestSuiteEnv) TestDeleteAllocationWithBody() {
 
 	r := test.Request(suite.T(), "DELETE", a.Data.Links.Self, models.AllocationCreate{Year: 2011, Month: 3})
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &r)
+}
+
+func (suite *TestSuiteEnv) TestDeleteNullAllocation() {
+	r := test.Request(suite.T(), "DELETE", "http://example.com/v1/allocations/00000000-0000-0000-0000-000000000000", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }

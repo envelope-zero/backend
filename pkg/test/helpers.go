@@ -60,7 +60,7 @@ func Request(t *testing.T, method, url string, body any, headers ...map[string]s
 }
 
 func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder) {
-	assert.Equal(t, expected, r.Code, "HTTP status is wrong. Response body: %s", r.Body.String())
+	assert.Equal(t, expected, r.Code, "HTTP status is wrong. Request ID: '%s' Response body: %s", r.Result().Header.Get("x-request-id"), r.Body.String())
 }
 
 // DecodeResponse decodes an HTTP response into a target struct.

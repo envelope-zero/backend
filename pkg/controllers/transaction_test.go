@@ -5,15 +5,31 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
 func createTestTransaction(t *testing.T, c models.TransactionCreate) controllers.TransactionResponse {
+	if c.BudgetID == uuid.Nil {
+		c.BudgetID = createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
+	}
+
+	if c.SourceAccountID == uuid.Nil {
+		c.SourceAccountID = createTestAccount(t, models.AccountCreate{Name: "Source Account"}).Data.ID
+	}
+
+	if c.DestinationAccountID == uuid.Nil {
+		c.DestinationAccountID = createTestAccount(t, models.AccountCreate{Name: "Destination Account"}).Data.ID
+	}
+
+	if c.EnvelopeID == uuid.Nil {
+		c.EnvelopeID = createTestEnvelope(t, models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
+	}
+
 	r := test.Request(t, "POST", "http://example.com/v1/transactions", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
@@ -103,16 +119,54 @@ func (suite *TestSuiteEnv) TestTransactionInvalidIDs() {
 }
 
 func (suite *TestSuiteEnv) TestCreateTransaction() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/transactions", `{ "note": "More tests something something", "amount": 1253.17 }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{Note: "More tests something something", Amount: decimal.NewFromFloat(1253.17)})
+}
 
-	var apiTransaction controllers.TransactionResponse
-	test.DecodeResponse(suite.T(), &recorder, &apiTransaction)
+func (suite *TestSuiteEnv) TestCreateTransactionMissingReference() {
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	account := createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID})
 
-	var dbTransaction models.Transaction
-	database.DB.First(&dbTransaction, apiTransaction.Data.ID)
+	// Missing Budget
+	r := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			SourceAccountID:      account.Data.ID,
+			DestinationAccountID: account.Data.ID,
+			EnvelopeID:           envelope.Data.ID,
+		},
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 
-	assert.True(suite.T(), apiTransaction.Data.Amount.Equal(dbTransaction.Amount))
+	// Missing Envelope
+	r = test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.Data.ID,
+			SourceAccountID:      account.Data.ID,
+			DestinationAccountID: account.Data.ID,
+		},
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+
+	// Missing Source Account
+	r = test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.Data.ID,
+			DestinationAccountID: account.Data.ID,
+			EnvelopeID:           envelope.Data.ID,
+		},
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+
+	// Missing Destination Account
+	r = test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			BudgetID:        budget.Data.ID,
+			SourceAccountID: account.Data.ID,
+			EnvelopeID:      envelope.Data.ID,
+		},
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
 func (suite *TestSuiteEnv) TestCreateTransactionNoAmount() {
@@ -126,7 +180,20 @@ func (suite *TestSuiteEnv) TestCreateBrokenTransaction() {
 }
 
 func (suite *TestSuiteEnv) TestCreateNegativeAmountTransaction() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/transactions", `{ "amount": -17.12, "note": "Negative amounts are not allowed, this must fail" }`)
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	account := createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID})
+
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/transactions", models.TransactionCreate{
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      account.Data.ID,
+		DestinationAccountID: account.Data.ID,
+		EnvelopeID:           envelope.Data.ID,
+		Amount:               decimal.NewFromFloat(-17.12),
+		Note:                 "Negative amounts are not allowed, this must fail",
+	})
+
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -148,13 +215,9 @@ func (suite *TestSuiteEnv) TestGetTransaction() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateTransaction() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/transactions", `{ "note": "More tests something something", "amount": 584.42 }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(584.42)})
 
-	var transaction controllers.TransactionResponse
-	test.DecodeResponse(suite.T(), &recorder, &transaction)
-
-	recorder = test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "note": "Updated new transaction for testing" }`)
+	recorder := test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "note": "Updated new transaction for testing" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 
 	var updatedTransaction controllers.TransactionResponse
@@ -164,24 +227,16 @@ func (suite *TestSuiteEnv) TestUpdateTransaction() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateTransactionBroken() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/transactions", `{ "amount": 5883.53, "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(5883.53)})
 
-	var transaction controllers.TransactionResponse
-	test.DecodeResponse(suite.T(), &recorder, &transaction)
-
-	recorder = test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "note": 2" }`)
+	recorder := test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "note": 2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestUpdateTransactionNegativeAmount() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/transactions", `{ "amount": 382.18 }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(382.18)})
 
-	var transaction controllers.TransactionResponse
-	test.DecodeResponse(suite.T(), &recorder, &transaction)
-
-	recorder = test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "amount": -58.23 }`)
+	recorder := test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "amount": -58.23 }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -191,9 +246,9 @@ func (suite *TestSuiteEnv) TestUpdateNonExistingTransaction() {
 }
 
 func (suite *TestSuiteEnv) TestDeleteTransaction() {
-	tr := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(123.12)})
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(123.12)})
 
-	recorder := test.Request(suite.T(), "DELETE", tr.Data.Links.Self, "")
+	recorder := test.Request(suite.T(), "DELETE", transaction.Data.Links.Self, "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
 
@@ -203,12 +258,12 @@ func (suite *TestSuiteEnv) TestDeleteNonExistingTransaction() {
 }
 
 func (suite *TestSuiteEnv) TestDeleteTransactionWithBody() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/transactions", `{ "name": "Delete me now!", "amount": 17.21 }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
-
-	var transaction controllers.TransactionResponse
-	test.DecodeResponse(suite.T(), &recorder, &transaction)
-
-	recorder = test.Request(suite.T(), "DELETE", transaction.Data.Links.Self, `{ "name": "test name 23" }`)
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(17.21)})
+	recorder := test.Request(suite.T(), "DELETE", transaction.Data.Links.Self, `{ "amount": "23.91" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestDeleteNullTransaction() {
+	r := test.Request(suite.T(), "DELETE", "http://example.com/v1/transactions/00000000-0000-0000-0000-000000000000", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }

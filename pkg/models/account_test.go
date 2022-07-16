@@ -8,50 +8,89 @@ import (
 )
 
 func (suite *TestSuiteEnv) TestAccountCalculations() {
+	budget := models.Budget{}
+	err := database.DB.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
 	account := models.Account{
 		AccountCreate: models.AccountCreate{
+			BudgetID: budget.ID,
 			OnBudget: true,
 			External: false,
 		},
 	}
-	database.DB.Save(&account)
+	err = database.DB.Save(&account).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	externalAccount := models.Account{
 		AccountCreate: models.AccountCreate{
+			BudgetID: budget.ID,
 			External: true,
 		},
 	}
-	database.DB.Save(&externalAccount)
+	err = database.DB.Save(&externalAccount).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	category := models.Category{
+		CategoryCreate: models.CategoryCreate{
+			BudgetID: budget.ID,
+		},
+	}
+	err = database.DB.Save(&category).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	envelope := models.Envelope{
+		EnvelopeCreate: models.EnvelopeCreate{
+			CategoryID: category.ID,
+		},
+	}
+	err = database.DB.Save(&envelope).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	incomingTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.ID,
+			EnvelopeID:           envelope.ID,
 			SourceAccountID:      externalAccount.ID,
 			DestinationAccountID: account.ID,
 			Reconciled:           true,
 			Amount:               decimal.NewFromFloat(32.17),
 		},
 	}
-	database.DB.Save(&incomingTransaction)
+	err = database.DB.Save(&incomingTransaction).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	outgoingTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.ID,
+			EnvelopeID:           envelope.ID,
 			SourceAccountID:      account.ID,
 			DestinationAccountID: externalAccount.ID,
 			Amount:               decimal.NewFromFloat(17.45),
 		},
 	}
-	database.DB.Save(&outgoingTransaction)
+	err = database.DB.Save(&outgoingTransaction).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	a := account.WithCalculations()
 
 	assert.True(suite.T(), a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
 
 	assert.True(suite.T(), a.ReconciledBalance.Equal(incomingTransaction.Amount), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
-
-	database.DB.Delete(&account)
-	database.DB.Delete(&externalAccount)
-	database.DB.Delete(&incomingTransaction)
-	database.DB.Delete(&outgoingTransaction)
 }
 
 func (suite *TestSuiteEnv) TestAccountTransactions() {

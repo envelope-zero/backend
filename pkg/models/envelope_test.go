@@ -10,31 +10,60 @@ import (
 )
 
 func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
+	budget := models.Budget{}
+	err := database.DB.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
 	internalAccount := &models.Account{
 		AccountCreate: models.AccountCreate{
-			Name: "Internal Source Account",
+			Name:     "Internal Source Account",
+			BudgetID: budget.ID,
 		},
 	}
-	database.DB.Create(internalAccount)
+	err = database.DB.Create(internalAccount).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	externalAccount := &models.Account{
 		AccountCreate: models.AccountCreate{
 			Name:     "External Destination Account",
+			BudgetID: budget.ID,
 			External: true,
 		},
 	}
-	database.DB.Create(&externalAccount)
+	err = database.DB.Create(&externalAccount).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	category := models.Category{
+		CategoryCreate: models.CategoryCreate{
+			BudgetID: budget.ID,
+		},
+	}
+	err = database.DB.Save(&category).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	envelope := &models.Envelope{
 		EnvelopeCreate: models.EnvelopeCreate{
-			Name: "Testing envelope",
+			Name:       "Testing envelope",
+			CategoryID: category.ID,
 		},
 	}
-	database.DB.Create(&envelope)
+	err = database.DB.Create(&envelope).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	spent := decimal.NewFromFloat(17.32)
 	transaction := &models.Transaction{
 		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.ID,
 			EnvelopeID:           envelope.ID,
 			Amount:               spent,
 			SourceAccountID:      internalAccount.ID,
@@ -42,10 +71,14 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 			Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	database.DB.Create(&transaction)
+	err = database.DB.Create(&transaction).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	transactionIn := &models.Transaction{
 		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.ID,
 			EnvelopeID:           envelope.ID,
 			Amount:               spent.Neg(),
 			SourceAccountID:      externalAccount.ID,
@@ -53,7 +86,10 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 			Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	database.DB.Create(&transactionIn)
+	err = database.DB.Create(&transactionIn).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
 
 	envelopeMonth := envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)

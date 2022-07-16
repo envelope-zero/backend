@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -214,6 +215,12 @@ func DeleteAccount(c *gin.Context) {
 
 // getAccountResource is the internal helper to verify permissions and return an account.
 func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, error) {
+	if id == uuid.Nil {
+		err := errors.New("No account ID specified")
+		httputil.NewError(c, http.StatusBadRequest, err)
+		return models.Account{}, err
+	}
+
 	var account models.Account
 
 	err := database.DB.Where(&models.Account{
