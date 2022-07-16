@@ -3,7 +3,6 @@ package controllers_test
 import (
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -40,44 +39,16 @@ func createTestTransaction(t *testing.T, c models.TransactionCreate) controllers
 }
 
 func (suite *TestSuiteEnv) TestGetTransactions() {
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(17.23)})
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(23.42)})
+
 	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/transactions", "")
 
 	var response controllers.TransactionListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
 
 	assert.Equal(suite.T(), 200, recorder.Code)
-	if !assert.Len(suite.T(), response.Data, 3) {
-		assert.FailNow(suite.T(), "Response does not have exactly 3 items")
-	}
-
-	januaryTransaction := response.Data[0]
-	assert.Equal(suite.T(), "Water bill for January", januaryTransaction.Note)
-	assert.Equal(suite.T(), true, januaryTransaction.Reconciled)
-	if !decimal.NewFromFloat(10).Equal(januaryTransaction.Amount) {
-		assert.Fail(suite.T(), "Transaction amount does not equal 10", januaryTransaction.Amount)
-	}
-
-	februaryTransaction := response.Data[1]
-	assert.Equal(suite.T(), "Water bill for February", februaryTransaction.Note)
-	assert.Equal(suite.T(), false, februaryTransaction.Reconciled)
-	if !decimal.NewFromFloat(5).Equal(februaryTransaction.Amount) {
-		assert.Fail(suite.T(), "Transaction amount does not equal 5", februaryTransaction.Amount)
-	}
-
-	marchTransaction := response.Data[2]
-	assert.Equal(suite.T(), "Water bill for March", marchTransaction.Note)
-	assert.Equal(suite.T(), false, marchTransaction.Reconciled)
-	if !decimal.NewFromFloat(15).Equal(marchTransaction.Amount) {
-		assert.Fail(suite.T(), "Transaction amount does not equal 15", marchTransaction.Amount)
-	}
-
-	for _, transaction := range response.Data {
-		diff := time.Since(transaction.CreatedAt)
-		assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
-
-		diff = time.Since(transaction.UpdatedAt)
-		assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
-	}
+	assert.Len(suite.T(), response.Data, 2)
 }
 
 func (suite *TestSuiteEnv) TestNoTransactionNotFound() {

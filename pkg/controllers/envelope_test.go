@@ -29,18 +29,15 @@ func createTestEnvelope(t *testing.T, c models.EnvelopeCreate) controllers.Envel
 }
 
 func (suite *TestSuiteEnv) TestGetEnvelopes() {
+	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+
 	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/envelopes", "")
 
 	var response controllers.EnvelopeListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
 
 	assert.Equal(suite.T(), 200, recorder.Code)
-	if !assert.Len(suite.T(), response.Data, 1) {
-		assert.FailNow(suite.T(), "Response does not have exactly 1 item")
-	}
-
-	assert.Equal(suite.T(), "Utilities", response.Data[0].Name)
-	assert.Equal(suite.T(), "Energy & Water", response.Data[0].Note)
+	assert.Len(suite.T(), response.Data, 1)
 
 	diff := time.Since(response.Data[0].CreatedAt)
 	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
@@ -123,18 +120,72 @@ func (suite *TestSuiteEnv) TestCreateEnvelopeNoBody() {
 
 // TestEnvelopeMonth verifies that the monthly calculations are correct.
 func (suite *TestSuiteEnv) TestEnvelopeMonth() {
-	var envelopeList controllers.EnvelopeListResponse
-	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/envelopes", "")
-	test.DecodeResponse(suite.T(), &r, &envelopeList)
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
+	account := createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID})
+	externalAccount := createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID, External: true})
 
-	var envelopeMonth controllers.EnvelopeMonthResponse
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelope.Data.ID,
+		Month:      1,
+		Year:       2022,
+		Amount:     decimal.NewFromFloat(20.99),
+	})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelope.Data.ID,
+		Month:      2,
+		Year:       2022,
+		Amount:     decimal.NewFromFloat(47.12),
+	})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelope.Data.ID,
+		Month:      3,
+		Year:       2022,
+		Amount:     decimal.NewFromFloat(31.17),
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(10.0),
+		Note:                 "Water bill for January",
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      account.Data.ID,
+		DestinationAccountID: externalAccount.Data.ID,
+		EnvelopeID:           envelope.Data.ID,
+		Reconciled:           true,
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(5.0),
+		Note:                 "Water bill for February",
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      account.Data.ID,
+		DestinationAccountID: externalAccount.Data.ID,
+		EnvelopeID:           envelope.Data.ID,
+		Reconciled:           true,
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(15.0),
+		Note:                 "Water bill for March",
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      account.Data.ID,
+		DestinationAccountID: externalAccount.Data.ID,
+		EnvelopeID:           envelope.Data.ID,
+		Reconciled:           true,
+	})
 
 	tests := []struct {
 		path          string
 		envelopeMonth models.EnvelopeMonth
 	}{
 		{
-			fmt.Sprintf("http://example.com/v1/envelopes/%s/2022-01", envelopeList.Data[0].ID),
+			fmt.Sprintf("%s/2022-01", envelope.Data.Links.Self),
 			models.EnvelopeMonth{
 				Name:       "Utilities",
 				Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -144,7 +195,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 			},
 		},
 		{
-			fmt.Sprintf("http://example.com/v1/envelopes/%s/2022-02", envelopeList.Data[0].ID),
+			fmt.Sprintf("%s/2022-02", envelope.Data.Links.Self),
 			models.EnvelopeMonth{
 				Name:       "Utilities",
 				Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
@@ -154,7 +205,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 			},
 		},
 		{
-			fmt.Sprintf("http://example.com/v1/envelopes/%s/2022-03", envelopeList.Data[0].ID),
+			fmt.Sprintf("%s/2022-03", envelope.Data.Links.Self),
 			models.EnvelopeMonth{
 				Name:       "Utilities",
 				Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
@@ -165,6 +216,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 		},
 	}
 
+	var envelopeMonth controllers.EnvelopeMonthResponse
 	for _, tt := range tests {
 		r := test.Request(suite.T(), "GET", tt.path, "")
 		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
@@ -179,12 +231,10 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 }
 
 func (suite *TestSuiteEnv) TestEnvelopeMonthInvalid() {
-	var envelopeList controllers.EnvelopeListResponse
-	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/envelopes", "")
-	test.DecodeResponse(suite.T(), &r, &envelopeList)
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 
 	// Test that non-parseable requests produce an error
-	r = test.Request(suite.T(), "GET", fmt.Sprintf("http://example.com/v1/envelopes/%s/Stonks!", envelopeList.Data[0].ID), "")
+	r := test.Request(suite.T(), "GET", fmt.Sprintf("%s/Stonks!", envelope.Data.Links.Self), "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 

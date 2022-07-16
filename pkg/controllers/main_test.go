@@ -4,12 +4,10 @@ import (
 	"log"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/glebarez/sqlite"
-	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -46,130 +44,4 @@ func (suite *TestSuiteEnv) SetupTest() {
 	if err != nil {
 		log.Fatalf("Database migration failed with: %s", err.Error())
 	}
-
-	budget := models.Budget{
-		BudgetCreate: models.BudgetCreate{
-			Name: "Testing Budget",
-			Note: "GNU: Terry Pratchett",
-		},
-	}
-	database.DB.Create(&budget)
-
-	bankAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			Name:     "Bank Account",
-			BudgetID: budget.ID,
-			OnBudget: true,
-		},
-	}
-	database.DB.Create(&bankAccount)
-
-	cashAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			Name:     "Cash Account",
-			BudgetID: budget.ID,
-			OnBudget: false,
-		},
-	}
-	database.DB.Create(&cashAccount)
-
-	externalAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			Name:     "External Account",
-			BudgetID: budget.ID,
-			External: true,
-		},
-	}
-	database.DB.Create(&externalAccount)
-
-	category := models.Category{
-		CategoryCreate: models.CategoryCreate{
-			Name:     "Running costs",
-			BudgetID: budget.ID,
-			Note:     "For e.g. groceries and energy bills",
-		},
-	}
-	database.DB.Create(&category)
-
-	envelope := models.Envelope{
-		EnvelopeCreate: models.EnvelopeCreate{
-			Name:       "Utilities",
-			CategoryID: category.ID,
-			Note:       "Energy & Water",
-		},
-	}
-	database.DB.Create(&envelope)
-
-	allocationJan := models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-			Month:      1,
-			Year:       2022,
-			Amount:     decimal.NewFromFloat(20.99),
-		},
-	}
-	database.DB.Create(&allocationJan)
-
-	allocationFeb := models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-			Month:      2,
-			Year:       2022,
-			Amount:     decimal.NewFromFloat(47.12),
-		},
-	}
-	database.DB.Create(&allocationFeb)
-
-	allocationMar := models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-			Month:      3,
-			Year:       2022,
-			Amount:     decimal.NewFromFloat(31.17),
-		},
-	}
-	database.DB.Create(&allocationMar)
-
-	waterBillTransactionJan := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
-			Amount:               decimal.NewFromFloat(10.0),
-			Note:                 "Water bill for January",
-			BudgetID:             budget.ID,
-			SourceAccountID:      bankAccount.ID,
-			DestinationAccountID: externalAccount.ID,
-			EnvelopeID:           envelope.ID,
-			Reconciled:           true,
-		},
-	}
-	database.DB.Create(&waterBillTransactionJan)
-
-	waterBillTransactionFeb := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
-			Amount:               decimal.NewFromFloat(5.0),
-			Note:                 "Water bill for February",
-			BudgetID:             budget.ID,
-			SourceAccountID:      bankAccount.ID,
-			DestinationAccountID: externalAccount.ID,
-			EnvelopeID:           envelope.ID,
-			Reconciled:           false,
-		},
-	}
-	database.DB.Create(&waterBillTransactionFeb)
-
-	waterBillTransactionMar := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC),
-			Amount:               decimal.NewFromFloat(15.0),
-			Note:                 "Water bill for March",
-			BudgetID:             budget.ID,
-			SourceAccountID:      bankAccount.ID,
-			DestinationAccountID: externalAccount.ID,
-			EnvelopeID:           envelope.ID,
-			Reconciled:           false,
-		},
-	}
-
-	database.DB.Create(&waterBillTransactionMar)
 }

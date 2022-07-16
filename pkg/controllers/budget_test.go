@@ -24,18 +24,15 @@ func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetRes
 }
 
 func (suite *TestSuiteEnv) TestGetBudgets() {
+	_ = createTestBudget(suite.T(), models.BudgetCreate{})
+
 	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/budgets", "")
 
 	var response controllers.BudgetListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
 
 	assert.Equal(suite.T(), 200, recorder.Code)
-	if !assert.Len(suite.T(), response.Data, 1) {
-		assert.FailNow(suite.T(), "Response does not have exactly 1 item")
-	}
-
-	assert.Equal(suite.T(), "Testing Budget", response.Data[0].Name)
-	assert.Equal(suite.T(), "GNU: Terry Pratchett", response.Data[0].Note)
+	assert.Len(suite.T(), response.Data, 1)
 
 	diff := time.Since(response.Data[0].CreatedAt)
 	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
@@ -157,22 +154,72 @@ func (suite *TestSuiteEnv) TestCreateBudgetNoBody() {
 
 // TestBudgetMonth verifies that the monthly calculations are correct.
 func (suite *TestSuiteEnv) TestBudgetMonth() {
-	var budgetList controllers.BudgetListResponse
-	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
-	test.DecodeResponse(suite.T(), &r, &budgetList)
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
+	account := createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID})
+	externalAccount := createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID, External: true})
 
-	if !assert.Len(suite.T(), budgetList.Data, 1) {
-		assert.FailNow(suite.T(), "Response length does not match!", "BudgetList does not have exactly 1 item, it has %v", len(budgetList.Data))
-	}
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelope.Data.ID,
+		Month:      1,
+		Year:       2022,
+		Amount:     decimal.NewFromFloat(20.99),
+	})
 
-	var budgetMonth controllers.BudgetMonthResponse
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelope.Data.ID,
+		Month:      2,
+		Year:       2022,
+		Amount:     decimal.NewFromFloat(47.12),
+	})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelope.Data.ID,
+		Month:      3,
+		Year:       2022,
+		Amount:     decimal.NewFromFloat(31.17),
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(10.0),
+		Note:                 "Water bill for January",
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      account.Data.ID,
+		DestinationAccountID: externalAccount.Data.ID,
+		EnvelopeID:           envelope.Data.ID,
+		Reconciled:           true,
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(5.0),
+		Note:                 "Water bill for February",
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      account.Data.ID,
+		DestinationAccountID: externalAccount.Data.ID,
+		EnvelopeID:           envelope.Data.ID,
+		Reconciled:           true,
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(15.0),
+		Note:                 "Water bill for March",
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      account.Data.ID,
+		DestinationAccountID: externalAccount.Data.ID,
+		EnvelopeID:           envelope.Data.ID,
+		Reconciled:           true,
+	})
 
 	tests := []struct {
 		path     string
 		response controllers.BudgetMonthResponse
 	}{
 		{
-			fmt.Sprintf("http://example.com/v1/budgets/%s/2022-01", budgetList.Data[0].ID),
+			fmt.Sprintf("%s/2022-01", budget.Data.Links.Self),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -189,7 +236,7 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 			},
 		},
 		{
-			fmt.Sprintf("http://example.com/v1/budgets/%s/2022-02", budgetList.Data[0].ID),
+			fmt.Sprintf("%s/2022-02", budget.Data.Links.Self),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
@@ -206,7 +253,7 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 			},
 		},
 		{
-			fmt.Sprintf("http://example.com/v1/budgets/%s/2022-03", budgetList.Data[0].ID),
+			fmt.Sprintf("%s/2022-03", budget.Data.Links.Self),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
 					Month: time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
@@ -224,20 +271,22 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 		},
 	}
 
+	var budgetMonth controllers.BudgetMonthResponse
 	for _, tt := range tests {
 		r := test.Request(suite.T(), "GET", tt.path, "")
 		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
 		test.DecodeResponse(suite.T(), &r, &budgetMonth)
 
-		if !assert.Len(suite.T(), budgetMonth.Data.Envelopes, len(tt.response.Data.Envelopes)) {
-			assert.FailNow(suite.T(), "Response length does not match!", "Response does not have exactly %v item(s)", len(tt.response.Data.Envelopes))
+		// assert.FailNow(suite.T(), "BudgetMonth", budgetMonth)
+
+		if !assert.Len(suite.T(), budgetMonth.Data.Envelopes, 1) {
+			assert.FailNow(suite.T(), "Response length does not match!", "Response does not have exactly 1 item")
 		}
 
-		for i, envelope := range budgetMonth.Data.Envelopes {
-			assert.True(suite.T(), envelope.Spent.Equal(tt.response.Data.Envelopes[i].Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Spent, envelope.Spent, budgetMonth.Data)
-			assert.True(suite.T(), envelope.Balance.Equal(tt.response.Data.Envelopes[i].Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Balance, envelope.Balance, budgetMonth.Data)
-			assert.True(suite.T(), envelope.Allocation.Equal(tt.response.Data.Envelopes[i].Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[i].Allocation, envelope.Allocation, budgetMonth.Data)
-		}
+		envelope := budgetMonth.Data.Envelopes[0]
+		assert.True(suite.T(), envelope.Spent.Equal(tt.response.Data.Envelopes[0].Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[0].Spent, envelope.Spent, budgetMonth.Data)
+		assert.True(suite.T(), envelope.Balance.Equal(tt.response.Data.Envelopes[0].Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[0].Balance, envelope.Balance, budgetMonth.Data)
+		assert.True(suite.T(), envelope.Allocation.Equal(tt.response.Data.Envelopes[0].Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[0].Allocation, envelope.Allocation, budgetMonth.Data)
 	}
 }
 
@@ -249,22 +298,18 @@ func (suite *TestSuiteEnv) TestBudgetMonthNonExistent() {
 
 // TestBudgetMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func (suite *TestSuiteEnv) TestBudgetMonthZero() {
-	var budgetList controllers.BudgetListResponse
-	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
-	test.DecodeResponse(suite.T(), &r, &budgetList)
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 
-	r = test.Request(suite.T(), "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/0001-01", budgetList.Data[0].ID), "")
+	r := test.Request(suite.T(), "GET", fmt.Sprintf("%s/0001-01", budget.Data.Links.Self), "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
 // TestBudgetMonthInvalid tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func (suite *TestSuiteEnv) TestBudgetMonthInvalid() {
-	var budgetList controllers.BudgetListResponse
-	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
-	test.DecodeResponse(suite.T(), &r, &budgetList)
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 
-	r = test.Request(suite.T(), "GET", fmt.Sprintf("http://example.com/v1/budgets/%s/December-2020", budgetList.Data[0].ID), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	recorder := test.Request(suite.T(), "GET", fmt.Sprintf("%s/December-2020", budget.Data.Links.Self), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestUpdateBudget() {
