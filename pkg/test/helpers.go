@@ -18,6 +18,7 @@ import (
 // is allowed to differ from the time at which it is checked.
 //
 // As CreatedAt and UpdatedAt are automatically set by gorm, we need a tolerance here.
+// This is in nanoseconds, so we multiply by 1000000000 for seconds.
 const TOLERANCE time.Duration = 1000000000 * 60
 
 type APIResponse struct {

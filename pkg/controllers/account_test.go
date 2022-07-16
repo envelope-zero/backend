@@ -3,13 +3,11 @@ package controllers_test
 import (
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/pkg/test"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,51 +26,14 @@ func createTestAccount(t *testing.T, c models.AccountCreate) controllers.Account
 }
 
 func (suite *TestSuiteEnv) TestGetAccounts() {
-	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts", "")
+	_ = createTestAccount(suite.T(), models.AccountCreate{})
 
 	var response controllers.AccountListResponse
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 	test.DecodeResponse(suite.T(), &recorder, &response)
 
-	assert.Equal(suite.T(), 200, recorder.Code)
-	if !assert.Len(suite.T(), response.Data, 3) {
-		assert.FailNow(suite.T(), "Response does not have exactly 3 items")
-	}
-
-	bankAccount := response.Data[0]
-	assert.Equal(suite.T(), "Bank Account", bankAccount.Name)
-	assert.Equal(suite.T(), true, bankAccount.OnBudget)
-	assert.Equal(suite.T(), false, bankAccount.External)
-
-	cashAccount := response.Data[1]
-	assert.Equal(suite.T(), "Cash Account", cashAccount.Name)
-	assert.Equal(suite.T(), false, cashAccount.OnBudget)
-	assert.Equal(suite.T(), false, cashAccount.External)
-
-	externalAccount := response.Data[2]
-	assert.Equal(suite.T(), "External Account", externalAccount.Name)
-	assert.Equal(suite.T(), false, externalAccount.OnBudget)
-	assert.Equal(suite.T(), true, externalAccount.External)
-
-	for _, account := range response.Data {
-		assert.LessOrEqual(suite.T(), time.Since(account.CreatedAt), test.TOLERANCE)
-		assert.LessOrEqual(suite.T(), time.Since(account.UpdatedAt), test.TOLERANCE)
-	}
-
-	if !decimal.NewFromFloat(-30).Equal(bankAccount.Balance) {
-		assert.Fail(suite.T(), "Account balance does not equal -30", bankAccount.Balance)
-	}
-
-	if !decimal.NewFromFloat(-10).Equal(bankAccount.ReconciledBalance) {
-		assert.Fail(suite.T(), "Account reconciled balance does not equal -10", bankAccount.ReconciledBalance)
-	}
-
-	if !cashAccount.ReconciledBalance.IsZero() {
-		assert.Fail(suite.T(), "Account reconciled balance does not equal 0", cashAccount.ReconciledBalance)
-	}
-
-	if !decimal.NewFromFloat(10).Equal(externalAccount.ReconciledBalance) {
-		assert.Fail(suite.T(), "Account reconciled balance does not equal 10", externalAccount.ReconciledBalance)
-	}
+	assert.Len(suite.T(), response.Data, 1)
 }
 
 func (suite *TestSuiteEnv) TestNoAccountNotFound() {

@@ -28,15 +28,19 @@ func createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.A
 }
 
 func (suite *TestSuiteEnv) TestGetAllocations() {
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:  1,
+		Year:   2022,
+		Amount: decimal.NewFromFloat(20.99),
+	})
+
 	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/allocations", "")
 
 	var response controllers.AllocationListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
 
-	assert.Equal(suite.T(), 200, recorder.Code)
-	if !assert.Len(suite.T(), response.Data, 3) {
-		assert.FailNow(suite.T(), "Response does not have exactly 3 items")
-	}
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	assert.Len(suite.T(), response.Data, 1)
 
 	assert.Equal(suite.T(), uint8(1), response.Data[0].Month)
 	assert.Equal(suite.T(), uint(2022), response.Data[0].Year)

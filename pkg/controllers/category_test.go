@@ -27,18 +27,15 @@ func createTestCategory(t *testing.T, c models.CategoryCreate) controllers.Categ
 }
 
 func (suite *TestSuiteEnv) TestGetCategories() {
+	_ = createTestCategory(suite.T(), models.CategoryCreate{})
+
 	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories", "")
 
 	var response controllers.CategoryListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
 
 	assert.Equal(suite.T(), 200, recorder.Code)
-	if !assert.Len(suite.T(), response.Data, 1) {
-		assert.FailNow(suite.T(), "Response does not have exactly 1 item")
-	}
-
-	assert.Equal(suite.T(), "Running costs", response.Data[0].Name)
-	assert.Equal(suite.T(), "For e.g. groceries and energy bills", response.Data[0].Note)
+	assert.Len(suite.T(), response.Data, 1)
 
 	diff := time.Since(response.Data[0].CreatedAt)
 	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
