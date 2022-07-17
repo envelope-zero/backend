@@ -1,7 +1,9 @@
 package controllers_test
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/envelope-zero/backend/pkg/controllers"
@@ -36,9 +38,83 @@ func (suite *TestSuiteEnv) TestGetAccounts() {
 	assert.Len(suite.T(), response.Data, 1)
 }
 
+func (suite *TestSuiteEnv) TestGetAccountsInvalidQuery() {
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts?onBudget=NotABoolean", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	recorder = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts?budget=8593-not-a-uuid", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestGetAccountsFilter() {
+	b1 := createTestBudget(suite.T(), models.BudgetCreate{})
+	b2 := createTestBudget(suite.T(), models.BudgetCreate{})
+
+	a1 := createTestAccount(suite.T(), models.AccountCreate{
+		Name:     "Exact Account Match",
+		Note:     "This is a specific note",
+		BudgetID: b1.Data.ID,
+		OnBudget: true,
+		External: false,
+	})
+
+	a2 := createTestAccount(suite.T(), models.AccountCreate{
+		Name:     "External Account Filter",
+		Note:     "This is a specific note",
+		BudgetID: b2.Data.ID,
+		OnBudget: true,
+		External: true,
+	})
+
+	a3 := createTestAccount(suite.T(), models.AccountCreate{
+		Name:     "External Account Filter",
+		Note:     "A different note",
+		BudgetID: b1.Data.ID,
+		OnBudget: false,
+		External: true,
+	})
+
+	tests := []struct {
+		name  string
+		query string
+		len   int
+	}{
+		{"Name single", "name=Exact Account Match", 1},
+		{"Name multiple", "name=External Account Filter", 2},
+		{"Note", "note=A different note", 1},
+		{"Budget", fmt.Sprintf("budget=%s", b1.Data.ID), 2},
+		{"On budget", "onBudget=true", 1},
+		{"Off budget", "onBudget=false", 2},
+		{"External", "external=true", 2},
+		{"Internal", "external=false", 1},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var re controllers.BudgetListResponse
+			r := test.Request(t, http.MethodGet, fmt.Sprintf("/v1/accounts?%s", tt.query), "")
+			test.AssertHTTPStatus(t, http.StatusOK, &r)
+			test.DecodeResponse(t, &r, &re)
+
+			var accountNames []string
+			for _, d := range re.Data {
+				accountNames = append(accountNames, d.Name)
+			}
+			assert.Equal(t, tt.len, len(re.Data), "Existing accounts: %#v", strings.Join(accountNames, ", "))
+		})
+	}
+
+	for _, r := range []controllers.BudgetResponse{b1, b2} {
+		test.Request(suite.T(), http.MethodDelete, r.Data.Links.Self, "")
+	}
+
+	for _, r := range []controllers.AccountResponse{a1, a2, a3} {
+		test.Request(suite.T(), http.MethodDelete, r.Data.Links.Self, "")
+	}
+}
+
 func (suite *TestSuiteEnv) TestNoAccountNotFound() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts/39633f90-3d9f-4b1e-ac24-c341c432a6e3", "")
-
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 

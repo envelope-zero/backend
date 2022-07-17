@@ -39,7 +39,8 @@ type BudgetMonthResponse struct {
 }
 
 type BudgetQueryFilter struct {
-	QueryFilter
+	Name     string `form:"name"`
+	Note     string `form:"note"`
 	Currency string `form:"currency"`
 }
 
@@ -117,16 +118,14 @@ func CreateBudget(c *gin.Context) {
 // @Failure      500       {object}  httputil.HTTPError
 // @Router       /v1/budgets [get]
 // @Router       /v1/budgets [get]
-// @Param        name      query  string  false  "Name of the budget"
-// @Param        note      query  string  false  "Note for the budget"
-// @Param        currency  query  string  false  "Currency the budget is in"
+// @Param        name      query  string  false  "Filter by name"
+// @Param        note      query  string  false  "Filter by note"
+// @Param        currency  query  string  false  "Filter by currency"
 func GetBudgets(c *gin.Context) {
 	var f BudgetQueryFilter
 
-	// We should find something that is not parseable and test this line
-	if err := c.Bind(&f); err != nil {
-		return
-	}
+	// Every parameter is bound into a string, so this will always succeed
+	_ = c.Bind(&f)
 
 	var budgets []models.Budget
 	database.DB.Where(&models.Budget{

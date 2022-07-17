@@ -83,3 +83,17 @@ func TestErrorInvalidUUID(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "not a valid UUID")
 }
+
+func TestErrorUnparseableData(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httputil.ErrorInvalidQueryString(c)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "unparseable data")
+}

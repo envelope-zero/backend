@@ -72,6 +72,38 @@
                     "Accounts"
                 ],
                 "summary": "List accounts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by budget ID",
+                        "name": "budget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by on/off-budget",
+                        "name": "onBudget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter internal/external",
+                        "name": "external",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -585,19 +617,19 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Name of the budget",
+                        "description": "Filter by name",
                         "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Note for the budget",
+                        "description": "Filter by note",
                         "name": "note",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Currency the budget is in",
+                        "description": "Filter by currency",
                         "name": "currency",
                         "in": "query"
                     }
@@ -1798,7 +1830,7 @@
                 },
                 "transactions": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/transactions?account♫=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                    "example": "https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
                 }
             }
         },

@@ -51,3 +51,7 @@ type HTTPError struct {
 func ErrorInvalidUUID(c *gin.Context) {
 	NewError(c, http.StatusBadRequest, errors.New("The specified resource ID is not a valid UUID"))
 }
+
+func ErrorInvalidQueryString(c *gin.Context) {
+	NewError(c, http.StatusBadRequest, errors.New("The query string contains unparseable data. Please check the values"))
+}
