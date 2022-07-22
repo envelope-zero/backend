@@ -2,21 +2,48 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/internal/router"
 	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
+	// gin uses debug as the default mode, we use release for
+	// security reasons
+	ginMode, ok := os.LookupEnv("GIN_MODE")
+	if !ok {
+		gin.SetMode("release")
+	} else {
+		gin.SetMode(ginMode)
+	}
+
+	// Log format can be explicitly set.
+	// If it is not set, it defaults to human readable for development
+	// and JSON for release
+	logFormat, ok := os.LookupEnv("LOG_FORMAT")
+	output := io.Writer(os.Stdout)
+	if (!ok && gin.IsDebugging()) || (ok && logFormat == "human") {
+		output = zerolog.ConsoleWriter{Out: os.Stdout}
+	}
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if gin.IsDebugging() {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+	log.Logger = log.Output(output).With().Timestamp().Logger()
+
 	// Check with database driver to use. If DB_HOST is set, assume postgresql
-	_, ok := os.LookupEnv("DB_HOST")
+	_, ok = os.LookupEnv("DB_HOST")
 
 	var dsn string
 	var dialector func(dsn string) gorm.Dialector
