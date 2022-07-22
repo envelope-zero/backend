@@ -19,14 +19,14 @@ type Transaction struct {
 }
 
 type TransactionCreate struct {
-	Date                 time.Time       `json:"date,omitempty"`
-	Amount               decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)"`
-	Note                 string          `json:"note,omitempty"`
-	BudgetID             uuid.UUID       `json:"budgetId,omitempty"`
-	SourceAccountID      uuid.UUID       `json:"sourceAccountId,omitempty"`
-	DestinationAccountID uuid.UUID       `json:"destinationAccountId,omitempty"`
-	EnvelopeID           uuid.UUID       `json:"envelopeId,omitempty"`
-	Reconciled           bool            `json:"reconciled"`
+	Date                 time.Time       `json:"date,omitempty" example:"1815-12-10T18:43:00.271152Z"`
+	Amount               decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)" example:"14.03" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
+	Note                 string          `json:"note,omitempty" example:"Lunch" default:""`
+	BudgetID             uuid.UUID       `json:"budgetId,omitempty" example:"55eecbd8-7c46-4b06-ada9-f287802fb05e"`
+	SourceAccountID      uuid.UUID       `json:"sourceAccountId,omitempty" example:"fd81dc45-a3a2-468e-a6fa-b2618f30aa45"`
+	DestinationAccountID uuid.UUID       `json:"destinationAccountId,omitempty" example:"8e16b456-a719-48ce-9fec-e115cfa7cbcc"`
+	EnvelopeID           uuid.UUID       `json:"envelopeId,omitempty" example:"2649c965-7999-4873-ae16-89d5d5fa972e"`
+	Reconciled           bool            `json:"reconciled" example:"true" default:"false"`
 }
 
 // AfterFind updates the timestamps to use UTC as

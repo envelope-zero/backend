@@ -1787,7 +1787,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 2735.17
                 },
                 "budgetId": {
                     "type": "string",
@@ -1798,11 +1799,13 @@ const docTemplate = `{
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "external": {
                     "type": "boolean",
-                    "example": true
+                    "default": false,
+                    "example": false
                 },
                 "id": {
                     "type": "string",
@@ -1813,19 +1816,21 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "example": "Checking"
+                    "example": "Cash"
                 },
                 "note": {
                     "type": "string",
-                    "example": "My bank account"
+                    "example": "Money in my wallet"
                 },
                 "onBudget": {
                     "description": "Always false when external: true",
                     "type": "boolean",
-                    "example": false
+                    "default": false,
+                    "example": true
                 },
                 "reconciledBalance": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 2539.57
                 },
                 "updatedAt": {
                     "type": "string",
@@ -1869,17 +1874,24 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "number"
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
                 },
                 "createdAt": {
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "envelopeId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
                 },
                 "id": {
                     "type": "string",
@@ -1889,14 +1901,18 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.AllocationLinks"
                 },
                 "month": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 12,
+                    "minimum": 1,
+                    "example": 6
                 },
                 "updatedAt": {
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 },
                 "year": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 2022
                 }
             }
         },
@@ -1932,7 +1948,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 3423.42
                 },
                 "createdAt": {
                     "type": "string",
@@ -1943,7 +1960,8 @@ const docTemplate = `{
                     "example": "€"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "id": {
                     "type": "string",
@@ -1954,11 +1972,11 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "example": "My First Budget"
+                    "example": "Morre's Budget"
                 },
                 "note": {
                     "type": "string",
-                    "example": "A description so I remember what this was for"
+                    "example": "My personal expenses"
                 },
                 "updatedAt": {
                     "type": "string",
@@ -1978,8 +1996,9 @@ const docTemplate = `{
                     "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "month": {
+                    "description": "This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/2022-03"
+                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
                 },
                 "self": {
                     "type": "string",
@@ -2022,14 +2041,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
                 },
                 "createdAt": {
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "id": {
                     "type": "string",
@@ -2039,10 +2060,12 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.CategoryLinks"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Saving"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
                 },
                 "updatedAt": {
                     "type": "string",
@@ -2086,14 +2109,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "categoryId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
                 },
                 "createdAt": {
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "id": {
                     "type": "string",
@@ -2103,10 +2128,12 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.EnvelopeLinks"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Groceries"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
                 },
                 "updatedAt": {
                     "type": "string",
@@ -2122,8 +2149,9 @@ const docTemplate = `{
                     "example": "https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                 },
                 "month": {
+                    "description": "This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
                     "type": "string",
-                    "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/2019-03"
+                    "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
                 },
                 "self": {
                     "type": "string",
@@ -2162,26 +2190,36 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "number"
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 14.03
                 },
                 "budgetId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
                 },
                 "createdAt": {
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "1815-12-10T18:43:00.271152Z"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "destinationAccountId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
                 },
                 "envelopeId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
                 },
                 "id": {
                     "type": "string",
@@ -2191,13 +2229,17 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.TransactionLinks"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Lunch"
                 },
                 "reconciled": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
                 },
                 "sourceAccountId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
                 },
                 "updatedAt": {
                     "type": "string",
@@ -2233,18 +2275,6 @@ const docTemplate = `{
                 }
             }
         },
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
         "httputil.HTTPError": {
             "type": "object",
             "properties": {
@@ -2263,20 +2293,22 @@ const docTemplate = `{
                 },
                 "external": {
                     "type": "boolean",
-                    "example": true
+                    "default": false,
+                    "example": false
                 },
                 "name": {
                     "type": "string",
-                    "example": "Checking"
+                    "example": "Cash"
                 },
                 "note": {
                     "type": "string",
-                    "example": "My bank account"
+                    "example": "Money in my wallet"
                 },
                 "onBudget": {
                     "description": "Always false when external: true",
                     "type": "boolean",
-                    "example": false
+                    "default": false,
+                    "example": true
                 }
             }
         },
@@ -2284,16 +2316,26 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "number"
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
                 },
                 "envelopeId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
                 },
                 "month": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 12,
+                    "minimum": 1,
+                    "example": 6
                 },
                 "year": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 2022
                 }
             }
         },
@@ -2306,11 +2348,11 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "example": "My First Budget"
+                    "example": "Morre's Budget"
                 },
                 "note": {
                     "type": "string",
-                    "example": "A description so I remember what this was for"
+                    "example": "My personal expenses"
                 }
             }
         },
@@ -2324,16 +2366,19 @@ const docTemplate = `{
                     }
                 },
                 "id": {
+                    "description": "The ID of the Envelope",
                     "type": "string",
-                    "example": "23"
+                    "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
                 },
                 "month": {
+                    "description": "This is always set to 00:00 UTC on the first of the month.",
                     "type": "string",
-                    "example": "2006-05-04T15:02:01.000000Z"
+                    "example": "2006-05-01T00:00:00.000000Z"
                 },
                 "name": {
+                    "description": "The name of the Envelope",
                     "type": "string",
-                    "example": "A test envelope"
+                    "example": "Groceries"
                 }
             }
         },
@@ -2341,13 +2386,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Saving"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
                 }
             }
         },
@@ -2355,13 +2403,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "categoryId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Groceries"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
                 }
             }
         },
@@ -2369,22 +2420,31 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "allocation": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 85.44
                 },
                 "balance": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 12.32
                 },
                 "id": {
-                    "type": "string"
+                    "description": "The ID of the Envelope",
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
                 },
                 "month": {
-                    "type": "string"
+                    "description": "This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
                 },
                 "name": {
-                    "type": "string"
+                    "description": "The name of the Envelope",
+                    "type": "string",
+                    "example": "Groceries"
                 },
                 "spent": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 73.12
                 }
             }
         },
@@ -2392,28 +2452,41 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "number"
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 14.03
                 },
                 "budgetId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
                 },
                 "date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "1815-12-10T18:43:00.271152Z"
                 },
                 "destinationAccountId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
                 },
                 "envelopeId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Lunch"
                 },
                 "reconciled": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
                 },
                 "sourceAccountId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
                 }
             }
         },
