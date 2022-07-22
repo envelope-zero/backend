@@ -16,19 +16,19 @@ type Envelope struct {
 }
 
 type EnvelopeCreate struct {
-	Name       string    `json:"name,omitempty"`
-	CategoryID uuid.UUID `json:"categoryId"`
-	Note       string    `json:"note,omitempty"`
+	Name       string    `json:"name,omitempty" example:"Groceries" default:""`
+	CategoryID uuid.UUID `json:"categoryId" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"`
+	Note       string    `json:"note,omitempty" example:"For stuff bought at supermarkets and drugstores" default:""`
 }
 
 // EnvelopeMonth contains data about an Envelope for a specific month.
 type EnvelopeMonth struct {
-	ID         uuid.UUID       `json:"id"`
-	Name       string          `json:"name"`
-	Month      time.Time       `json:"month"`
-	Spent      decimal.Decimal `json:"spent"`
-	Balance    decimal.Decimal `json:"balance"`
-	Allocation decimal.Decimal `json:"allocation"`
+	ID         uuid.UUID       `json:"id" example:"10b9705d-3356-459e-9d5a-28d42a6c4547"` // The ID of the Envelope
+	Name       string          `json:"name" example:"Groceries"`                          // The name of the Envelope
+	Month      time.Time       `json:"month" example:"1969-06-01T00:00:00.000000Z"`       // This is always set to 00:00 UTC on the first of the month.
+	Spent      decimal.Decimal `json:"spent" example:"73.12"`
+	Balance    decimal.Decimal `json:"balance" example:"12.32"`
+	Allocation decimal.Decimal `json:"allocation" example:"85.44"`
 }
 
 // Spent returns the amount spent for the month the time.Time instance is in.

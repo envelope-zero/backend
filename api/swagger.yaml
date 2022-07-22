@@ -2,6 +2,7 @@ definitions:
   controllers.Account:
     properties:
       balance:
+        example: 2735.17
         type: number
       budgetId:
         example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
@@ -10,9 +11,11 @@ definitions:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
       external:
-        example: true
+        default: false
+        example: false
         type: boolean
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
@@ -20,16 +23,18 @@ definitions:
       links:
         $ref: '#/definitions/controllers.AccountLinks'
       name:
-        example: Checking
+        example: Cash
         type: string
       note:
-        example: My bank account
+        example: Money in my wallet
         type: string
       onBudget:
+        default: false
         description: 'Always false when external: true'
-        example: false
+        example: true
         type: boolean
       reconciledBalance:
+        example: 2539.57
         type: number
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
@@ -59,13 +64,21 @@ definitions:
   controllers.Allocation:
     properties:
       amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       createdAt:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
       envelopeId:
+        example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
         type: string
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
@@ -73,11 +86,15 @@ definitions:
       links:
         $ref: '#/definitions/controllers.AllocationLinks'
       month:
+        example: 6
+        maximum: 12
+        minimum: 1
         type: integer
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
       year:
+        example: 2022
         type: integer
     type: object
   controllers.AllocationLinks:
@@ -101,6 +118,7 @@ definitions:
   controllers.Budget:
     properties:
       balance:
+        example: 3423.42
         type: number
       createdAt:
         example: "2022-04-02T19:28:44.491514Z"
@@ -109,17 +127,18 @@ definitions:
         example: €
         type: string
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
         $ref: '#/definitions/controllers.BudgetLinks'
       name:
-        example: My First Budget
+        example: Morre's Budget
         type: string
       note:
-        example: A description so I remember what this was for
+        example: My personal expenses
         type: string
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
@@ -134,7 +153,9 @@ definitions:
         example: https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       month:
-        example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/2022-03
+        description: This will always end in 'YYYY-MM' for clients to use replace
+          with actual numbers.
+        example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
         type: string
       self:
         example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
@@ -163,20 +184,24 @@ definitions:
   controllers.Category:
     properties:
       budgetId:
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
         type: string
       createdAt:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
         $ref: '#/definitions/controllers.CategoryLinks'
       name:
+        example: Saving
         type: string
       note:
+        example: All envelopes for long-term saving
         type: string
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
@@ -206,20 +231,24 @@ definitions:
   controllers.Envelope:
     properties:
       categoryId:
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
         type: string
       createdAt:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
         $ref: '#/definitions/controllers.EnvelopeLinks'
       name:
+        example: Groceries
         type: string
       note:
+        example: For stuff bought at supermarkets and drugstores
         type: string
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
@@ -231,7 +260,9 @@ definitions:
         example: https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
         type: string
       month:
-        example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/2019-03
+        description: This will always end in 'YYYY-MM' for clients to use replace
+          with actual numbers.
+        example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
         type: string
       self:
         example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
@@ -257,19 +288,30 @@ definitions:
   controllers.Transaction:
     properties:
       amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 14.03
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       budgetId:
+        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
         type: string
       createdAt:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       date:
+        example: "1815-12-10T18:43:00.271152Z"
         type: string
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
       destinationAccountId:
+        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
         type: string
       envelopeId:
+        example: 2649c965-7999-4873-ae16-89d5d5fa972e
         type: string
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
@@ -277,10 +319,14 @@ definitions:
       links:
         $ref: '#/definitions/controllers.TransactionLinks'
       note:
+        example: Lunch
         type: string
       reconciled:
+        default: false
+        example: true
         type: boolean
       sourceAccountId:
+        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
         type: string
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
@@ -304,14 +350,6 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Transaction'
     type: object
-  gorm.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
-    type: object
   httputil.HTTPError:
     properties:
       error:
@@ -324,28 +362,41 @@ definitions:
         example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       external:
-        example: true
+        default: false
+        example: false
         type: boolean
       name:
-        example: Checking
+        example: Cash
         type: string
       note:
-        example: My bank account
+        example: Money in my wallet
         type: string
       onBudget:
+        default: false
         description: 'Always false when external: true'
-        example: false
+        example: true
         type: boolean
     type: object
   models.AllocationCreate:
     properties:
       amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       envelopeId:
+        example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
         type: string
       month:
+        example: 6
+        maximum: 12
+        minimum: 1
         type: integer
       year:
+        example: 2022
         type: integer
     type: object
   models.BudgetCreate:
@@ -354,10 +405,10 @@ definitions:
         example: €
         type: string
       name:
-        example: My First Budget
+        example: Morre's Budget
         type: string
       note:
-        example: A description so I remember what this was for
+        example: My personal expenses
         type: string
     type: object
   models.BudgetMonth:
@@ -367,65 +418,97 @@ definitions:
           $ref: '#/definitions/models.EnvelopeMonth'
         type: array
       id:
-        example: "23"
+        description: The ID of the Envelope
+        example: 1e777d24-3f5b-4c43-8000-04f65f895578
         type: string
       month:
-        example: "2006-05-04T15:02:01.000000Z"
+        description: This is always set to 00:00 UTC on the first of the month.
+        example: "2006-05-01T00:00:00.000000Z"
         type: string
       name:
-        example: A test envelope
+        description: The name of the Envelope
+        example: Groceries
         type: string
     type: object
   models.CategoryCreate:
     properties:
       budgetId:
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
         type: string
       name:
+        example: Saving
         type: string
       note:
+        example: All envelopes for long-term saving
         type: string
     type: object
   models.EnvelopeCreate:
     properties:
       categoryId:
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
         type: string
       name:
+        example: Groceries
         type: string
       note:
+        example: For stuff bought at supermarkets and drugstores
         type: string
     type: object
   models.EnvelopeMonth:
     properties:
       allocation:
+        example: 85.44
         type: number
       balance:
+        example: 12.32
         type: number
       id:
+        description: The ID of the Envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
         type: string
       month:
+        description: This is always set to 00:00 UTC on the first of the month.
+        example: "1969-06-01T00:00:00.000000Z"
         type: string
       name:
+        description: The name of the Envelope
+        example: Groceries
         type: string
       spent:
+        example: 73.12
         type: number
     type: object
   models.TransactionCreate:
     properties:
       amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 14.03
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       budgetId:
+        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
         type: string
       date:
+        example: "1815-12-10T18:43:00.271152Z"
         type: string
       destinationAccountId:
+        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
         type: string
       envelopeId:
+        example: 2649c965-7999-4873-ae16-89d5d5fa972e
         type: string
       note:
+        example: Lunch
         type: string
       reconciled:
+        default: false
+        example: true
         type: boolean
       sourceAccountId:
+        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
         type: string
     type: object
   router.RootLinks:

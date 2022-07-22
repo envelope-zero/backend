@@ -12,16 +12,16 @@ type Account struct {
 	Model
 	AccountCreate
 	Budget            Budget          `json:"-"`
-	Balance           decimal.Decimal `json:"balance" gorm:"-"`
-	ReconciledBalance decimal.Decimal `json:"reconciledBalance" gorm:"-"`
+	Balance           decimal.Decimal `json:"balance" gorm:"-" example:"2735.17"`
+	ReconciledBalance decimal.Decimal `json:"reconciledBalance" gorm:"-" example:"2539.57"`
 }
 
 type AccountCreate struct {
-	Name     string    `json:"name,omitempty" example:"Checking"`
-	Note     string    `json:"note,omitempty" example:"My bank account"`
+	Name     string    `json:"name,omitempty" example:"Cash" default:""`
+	Note     string    `json:"note,omitempty" example:"Money in my wallet" default:""`
 	BudgetID uuid.UUID `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	OnBudget bool      `json:"onBudget" example:"false"` // Always false when external: true
-	External bool      `json:"external" example:"true"`
+	OnBudget bool      `json:"onBudget" example:"true" default:"false"` // Always false when external: true
+	External bool      `json:"external" example:"false" default:"false"`
 }
 
 func (a Account) WithCalculations() Account {
