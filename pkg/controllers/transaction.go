@@ -195,6 +195,11 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 
+	updateFields, err := httputil.GetBodyFields(c, models.TransactionCreate{})
+	if err != nil {
+		return
+	}
+
 	var data models.Transaction
 	if err := httputil.BindData(c, &data); err != nil {
 		return
@@ -211,7 +216,12 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	database.DB.Model(&transaction).Updates(data)
+	err = database.DB.Model(&transaction).Select("", updateFields...).Updates(data).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
+
 	transactionObject, _ := getTransactionObject(c, p)
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
@@ -258,7 +268,7 @@ func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, e
 		},
 	}).Error
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		httputil.ErrorHandler(c, err)
 		return models.Transaction{}, err
 	}
 

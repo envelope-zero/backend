@@ -140,20 +140,40 @@ func (suite *TestSuiteEnv) TestCreateCategoryNoBody() {
 func (suite *TestSuiteEnv) TestUpdateCategory() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
 
-	recorder := test.Request(suite.T(), "PATCH", category.Data.Links.Self, `{ "name": "Updated new category for testing" }`)
+	recorder := test.Request(suite.T(), "PATCH", category.Data.Links.Self, map[string]any{
+		"name": "Updated new category for testing",
+		"note": "",
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 
 	var updatedCategory controllers.CategoryResponse
 	test.DecodeResponse(suite.T(), &recorder, &updatedCategory)
 
-	assert.Equal(suite.T(), category.Data.Note, updatedCategory.Data.Note)
+	assert.Equal(suite.T(), "", updatedCategory.Data.Note)
 	assert.Equal(suite.T(), "Updated new category for testing", updatedCategory.Data.Name)
 }
 
-func (suite *TestSuiteEnv) TestUpdateCategoryBroken() {
+func (suite *TestSuiteEnv) TestUpdateCategoryBrokenJSON() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
 
 	recorder := test.Request(suite.T(), "PATCH", category.Data.Links.Self, `{ "name": 2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateCategoryInvalidType() {
+	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
+
+	recorder := test.Request(suite.T(), http.MethodPatch, category.Data.Links.Self, map[string]any{
+		"name": 2,
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateCategoryInvalidBudgetID() {
+	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
+
+	// Sets the BudgetID to uuid.Nil
+	recorder := test.Request(suite.T(), http.MethodPatch, category.Data.Links.Self, models.CategoryCreate{})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 

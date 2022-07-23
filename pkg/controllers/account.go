@@ -146,7 +146,7 @@ func GetAccounts(c *gin.Context) {
 	}
 
 	// Get the set parameters in the query string
-	queryFields := httputil.GetFields(c.Request.URL, filter)
+	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, err := filter.ToCreate(c)
@@ -220,12 +220,22 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
+	updateFields, err := httputil.GetBodyFields(c, models.AccountCreate{})
+	if err != nil {
+		return
+	}
+
 	var data models.Account
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 
-	database.DB.Model(&account).Updates(data)
+	err = database.DB.Model(&account).Select("", updateFields...).Updates(data).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
+
 	accountObject, _ := getAccountObject(c, account.ID)
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
@@ -273,7 +283,7 @@ func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, error) {
 		},
 	}).First(&account).Error
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		httputil.ErrorHandler(c, err)
 		return models.Account{}, err
 	}
 

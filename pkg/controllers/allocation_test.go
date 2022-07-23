@@ -119,12 +119,19 @@ func (suite *TestSuiteEnv) TestCreateAllocationNonExistingEnvelope() {
 }
 
 func (suite *TestSuiteEnv) TestCreateDuplicateAllocation() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/allocations", models.AllocationCreate{Year: 2022, Month: 2})
+	allocation := createTestAllocation(suite.T(), models.AllocationCreate{Year: 2022, Month: 2})
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/allocations", models.AllocationCreate{
+		EnvelopeID: allocation.Data.EnvelopeID,
+		Month:      allocation.Data.Month,
+		Year:       allocation.Data.Year,
+	})
+
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestCreateAllocationNoMonth() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/allocations", models.AllocationCreate{Year: 2022, Month: 17})
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/allocations", models.AllocationCreate{EnvelopeID: envelope.Data.ID, Year: 2022})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -146,7 +153,9 @@ func (suite *TestSuiteEnv) TestGetAllocation() {
 func (suite *TestSuiteEnv) TestUpdateAllocation() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Year: 2100, Month: 6})
 
-	r := test.Request(suite.T(), "PATCH", a.Data.Links.Self, models.AllocationCreate{Year: 2022})
+	r := test.Request(suite.T(), "PATCH", a.Data.Links.Self, map[string]any{
+		"year": 2022,
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
 
 	var updatedAllocation controllers.AllocationResponse
@@ -155,10 +164,42 @@ func (suite *TestSuiteEnv) TestUpdateAllocation() {
 	assert.Equal(suite.T(), uint(2022), updatedAllocation.Data.Year)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAllocationBroken() {
+func (suite *TestSuiteEnv) TestUpdateAllocationZeroValues() {
+	a := createTestAllocation(suite.T(), models.AllocationCreate{Year: 2100, Month: 6})
+
+	r := test.Request(suite.T(), "PATCH", a.Data.Links.Self, map[string]any{
+		"year":  0,
+		"month": 8,
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+
+	var updatedAllocation controllers.AllocationResponse
+	test.DecodeResponse(suite.T(), &r, &updatedAllocation)
+
+	assert.Equal(suite.T(), uint(0), updatedAllocation.Data.Year, "Year is not updated correctly")
+}
+
+func (suite *TestSuiteEnv) TestUpdateAllocationBrokenJSON() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Year: 2100, Month: 6})
 
 	r := test.Request(suite.T(), "PATCH", a.Data.Links.Self, `{ "name": 2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
+func (suite *TestSuiteEnv) TestUpdateAllocationInvalidType() {
+	a := createTestAllocation(suite.T(), models.AllocationCreate{Year: 2100, Month: 6})
+
+	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
+		"year": "A long time ago in a galaxy far, far away",
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
+func (suite *TestSuiteEnv) TestUpdateAllocationInvalidCategoryID() {
+	a := createTestAllocation(suite.T(), models.AllocationCreate{Year: 2100, Month: 6})
+
+	// Sets the EnvelopeID to uuid.Nil
+	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, models.AllocationCreate{Month: 6, Year: 2100})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 

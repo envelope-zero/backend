@@ -199,14 +199,23 @@ func UpdateAllocation(c *gin.Context) {
 		return
 	}
 
+	updateFields, err := httputil.GetBodyFields(c, models.AllocationCreate{})
+	if err != nil {
+		return
+	}
+
 	var data models.Allocation
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 
-	database.DB.Model(&allocation).Updates(data)
-	allocationObject, _ := getAllocationObject(c, allocation.ID)
+	err = database.DB.Model(&allocation).Select("", updateFields...).Updates(data).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
 
+	allocationObject, _ := getAllocationObject(c, allocation.ID)
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
@@ -252,7 +261,7 @@ func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, err
 		},
 	}).Error
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		httputil.ErrorHandler(c, err)
 		return models.Allocation{}, err
 	}
 

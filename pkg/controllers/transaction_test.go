@@ -186,21 +186,40 @@ func (suite *TestSuiteEnv) TestGetTransaction() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateTransaction() {
-	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(584.42)})
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(584.42), Note: "Test note for transaction"})
 
-	recorder := test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "note": "Updated new transaction for testing" }`)
+	recorder := test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, map[string]any{
+		"note": "",
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 
 	var updatedTransaction controllers.TransactionResponse
 	test.DecodeResponse(suite.T(), &recorder, &updatedTransaction)
 
-	assert.Equal(suite.T(), "Updated new transaction for testing", updatedTransaction.Data.Note)
+	assert.Equal(suite.T(), "", updatedTransaction.Data.Note)
 }
 
-func (suite *TestSuiteEnv) TestUpdateTransactionBroken() {
+func (suite *TestSuiteEnv) TestUpdateTransactionBrokenJSON() {
 	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(5883.53)})
 
-	recorder := test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "note": 2" }`)
+	recorder := test.Request(suite.T(), "PATCH", transaction.Data.Links.Self, `{ "amount": 2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateTransactionInvalidType() {
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(5883.53)})
+
+	recorder := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, map[string]any{
+		"amount": false,
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateTransactionInvalidBudgetID() {
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(5883.53)})
+
+	// Sets the BudgetID to uuid.Nil
+	recorder := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, models.TransactionCreate{})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
