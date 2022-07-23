@@ -19,7 +19,7 @@ func createTestEnvelope(t *testing.T, c models.EnvelopeCreate) controllers.Envel
 		c.CategoryID = createTestCategory(t, models.CategoryCreate{Name: "Testing category"}).Data.ID
 	}
 
-	r := test.Request(t, "POST", "http://example.com/v1/envelopes", c)
+	r := test.Request(t, http.MethodPost, "http://example.com/v1/envelopes", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
 	var e controllers.EnvelopeResponse
@@ -31,7 +31,7 @@ func createTestEnvelope(t *testing.T, c models.EnvelopeCreate) controllers.Envel
 func (suite *TestSuiteEnv) TestGetEnvelopes() {
 	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/envelopes", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/envelopes", "")
 
 	var response controllers.EnvelopeListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
@@ -54,7 +54,7 @@ func (suite *TestSuiteEnv) TestGetEnvelope() {
 }
 
 func (suite *TestSuiteEnv) TestNoEnvelopeNotFound() {
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/envelopes/828f2483-dabd-4267-a223-e34b5f171978", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/envelopes/828f2483-dabd-4267-a223-e34b5f171978", "")
 
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
@@ -104,17 +104,17 @@ func (suite *TestSuiteEnv) TestCreateEnvelopeNoCategory() {
 }
 
 func (suite *TestSuiteEnv) TestCreateBrokenEnvelope() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/envelopes", `{ "createdAt": "New Envelope", "note": "More tests for envelopes to ensure less brokenness something" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/envelopes", `{ "createdAt": "New Envelope", "note": "More tests for envelopes to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestCreateEnvelopeNonExistingCategory() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/envelopes", `{ "categoryId": "5f0cd7b9-9788-4871-96f8-c816c9ae338a" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/envelopes", `{ "categoryId": "5f0cd7b9-9788-4871-96f8-c816c9ae338a" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestCreateEnvelopeNoBody() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/envelopes", "")
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/envelopes", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -218,7 +218,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 
 	var envelopeMonth controllers.EnvelopeMonthResponse
 	for _, tt := range tests {
-		r := test.Request(suite.T(), "GET", tt.path, "")
+		r := test.Request(suite.T(), http.MethodGet, tt.path, "")
 		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
 
 		test.DecodeResponse(suite.T(), &r, &envelopeMonth)
@@ -234,7 +234,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthInvalid() {
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 
 	// Test that non-parseable requests produce an error
-	r := test.Request(suite.T(), "GET", fmt.Sprintf("%s/Stonks!", envelope.Data.Links.Self), "")
+	r := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("%s/Stonks!", envelope.Data.Links.Self), "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
@@ -248,7 +248,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthZero() {
 func (suite *TestSuiteEnv) TestUpdateEnvelope() {
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
 
-	recorder := test.Request(suite.T(), "PATCH", envelope.Data.Links.Self, map[string]any{
+	recorder := test.Request(suite.T(), http.MethodPatch, envelope.Data.Links.Self, map[string]any{
 		"name": "Updated new envelope for testing",
 		"note": "",
 	})
@@ -263,7 +263,7 @@ func (suite *TestSuiteEnv) TestUpdateEnvelope() {
 
 func (suite *TestSuiteEnv) TestUpdateEnvelopeBrokenJSON() {
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
-	recorder := test.Request(suite.T(), "PATCH", envelope.Data.Links.Self, `{ "name": 2" }`)
+	recorder := test.Request(suite.T(), http.MethodPatch, envelope.Data.Links.Self, `{ "name": 2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -284,7 +284,7 @@ func (suite *TestSuiteEnv) TestUpdateEnvelopeInvalidCategoryID() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateNonExistingEnvelope() {
-	recorder := test.Request(suite.T(), "PATCH", "http://example.com/v1/envelopes/dcf472ba-a64e-4f0f-900e-a789319e432c", `{ "name": "2" }`)
+	recorder := test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/envelopes/dcf472ba-a64e-4f0f-900e-a789319e432c", `{ "name": "2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
@@ -295,12 +295,12 @@ func (suite *TestSuiteEnv) TestDeleteEnvelope() {
 }
 
 func (suite *TestSuiteEnv) TestDeleteNonExistingEnvelope() {
-	recorder := test.Request(suite.T(), "DELETE", "http://example.com/v1/envelopes/21a300da-d8b4-478d-8e85-95cb7982cbca", "")
+	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/envelopes/21a300da-d8b4-478d-8e85-95cb7982cbca", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestDeleteEnvelopeWithBody() {
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{Name: "Delete this envelope"})
-	recorder := test.Request(suite.T(), "DELETE", envelope.Data.Links.Self, `{ "name": "test name 23" }`)
+	recorder := test.Request(suite.T(), http.MethodDelete, envelope.Data.Links.Self, `{ "name": "test name 23" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }

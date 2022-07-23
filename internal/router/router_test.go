@@ -141,7 +141,7 @@ func TestOptions(t *testing.T) {
 			r.ServeHTTP(w, c.Request)
 
 			assert.Equal(t, http.StatusNoContent, w.Code)
-			assert.Equal(t, "GET", w.Header().Get("allow"))
+			assert.Equal(t, http.MethodGet, w.Header().Get("allow"))
 		})
 	}
 }
