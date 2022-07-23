@@ -1995,6 +1995,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
+                "envelopes": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
                 "month": {
                     "description": "This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
                     "type": "string",

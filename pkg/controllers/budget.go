@@ -30,6 +30,7 @@ type BudgetLinks struct {
 	Self         string `json:"self" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Categories   string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Month        string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"` // This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
 }
@@ -343,6 +344,7 @@ func getBudgetLinks(c *gin.Context, id uuid.UUID) BudgetLinks {
 		Self:         url,
 		Accounts:     httputil.RequestPathV1(c) + fmt.Sprintf("/accounts?budget=%s", id),
 		Categories:   httputil.RequestPathV1(c) + fmt.Sprintf("/categories?budget=%s", id),
+		Envelopes:    httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes?budget=%s", id),
 		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?budget=%s", id),
 		Month:        url + "/YYYY-MM",
 	}
