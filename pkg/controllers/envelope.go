@@ -30,9 +30,10 @@ type EnvelopeMonthResponse struct {
 }
 
 type EnvelopeLinks struct {
-	Self        string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
-	Allocations string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
-	Month       string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"` // This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
+	Self         string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
+	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
+	Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"` // This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
+	Transactions string `json:"transacations" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
 }
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -313,8 +314,9 @@ func getEnvelopeLinks(c *gin.Context, id uuid.UUID) EnvelopeLinks {
 	url := httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes/%s", id)
 
 	return EnvelopeLinks{
-		Self:        url,
-		Allocations: url + "/allocations",
-		Month:       url + "/YYYY-MM",
+		Self:         url,
+		Allocations:  url + "/allocations",
+		Month:        url + "/YYYY-MM",
+		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?envelope=%s", id),
 	}
 }
