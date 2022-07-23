@@ -614,7 +614,7 @@ paths:
       - General
   /v1/accounts:
     get:
-      description: Returns a list of all accounts
+      description: Returns a list of accounts
       parameters:
       - description: Filter by name
         in: query
@@ -672,7 +672,7 @@ paths:
       tags:
       - Accounts
     post:
-      description: Create a new account
+      description: Creates a new account
       parameters:
       - description: Account
         in: body
@@ -702,7 +702,7 @@ paths:
       - Accounts
   /v1/accounts/{accountId}:
     delete:
-      description: Deletes the specified account.
+      description: Deletes an account
       parameters:
       - description: ID formatted as string
         in: path
@@ -812,7 +812,7 @@ paths:
       - Accounts
   /v1/allocations:
     get:
-      description: Returns all allocations for an envelope
+      description: Returns a list of allocations
       produces:
       - application/json
       responses:
@@ -830,7 +830,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Get all allocations for an envelope
+      summary: Get allocations
       tags:
       - Allocations
     options:
@@ -874,7 +874,7 @@ paths:
       - Allocations
   /v1/allocations/{allocationId}:
     delete:
-      description: Deletes an existing allocation
+      description: Deletes an allocation
       parameters:
       - description: ID formatted as string
         in: path
@@ -894,11 +894,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete an allocation
+      summary: Delete allocation
       tags:
       - Allocations
     get:
-      description: Returns an allocation by its ID
+      description: Returns a specific allocation
       parameters:
       - description: ID formatted as string
         in: path
@@ -943,8 +943,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update an existing allocation. Only values to be updated need to
-        be specified.
+      description: Update an allocation. Only values to be updated need to be specified.
       parameters:
       - description: ID formatted as string
         in: path
@@ -974,12 +973,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Update an allocation
+      summary: Update allocation
       tags:
       - Allocations
   /v1/budgets:
     get:
-      description: Returns list of budgets
+      description: Returns a list of budgets
       parameters:
       - description: Filter by name
         in: query
@@ -1004,7 +1003,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: List all budgets
+      summary: List budgets
       tags:
       - Budgets
     options:
@@ -1046,12 +1045,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Create a budget
+      summary: Create budget
       tags:
       - Budgets
   /v1/budgets/{budgetId}:
     delete:
-      description: Deletes an existing budget
+      description: Deletes a budget
       parameters:
       - description: ID formatted as string
         in: path
@@ -1071,7 +1070,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete a budget
+      summary: Delete budget
       tags:
       - Budgets
     get:
@@ -1099,7 +1098,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Get a budget
+      summary: Get budget
       tags:
       - Budgets
     options:
@@ -1161,7 +1160,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Update a budget
+      summary: Update budget
       tags:
       - Budgets
   /v1/budgets/{budgetId}/{month}:
@@ -1200,7 +1199,7 @@ paths:
       - Budgets
   /v1/categories:
     get:
-      description: Returns the full list of all categories for a specific budget
+      description: Returns a list of categories
       produces:
       - application/json
       responses:
@@ -1218,7 +1217,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Get all categories for a budget
+      summary: Get categories
       tags:
       - Categories
     options:
@@ -1237,7 +1236,7 @@ paths:
       tags:
       - Categories
     post:
-      description: Create a new category for a specific budget
+      description: Creates a new category
       parameters:
       - description: Category
         in: body
@@ -1267,7 +1266,7 @@ paths:
       - Categories
   /v1/categories/{categoryId}:
     delete:
-      description: Deletes an existing category
+      description: Deletes a category
       parameters:
       - description: ID formatted as string
         in: path
@@ -1287,11 +1286,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete a category
+      summary: Delete category
       tags:
       - Categories
     get:
-      description: Returns a category by its ID
+      description: Returns a specific category
       parameters:
       - description: ID formatted as string
         in: path
@@ -1373,12 +1372,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Update a category
+      summary: Update category
       tags:
       - Categories
   /v1/envelopes:
     get:
-      description: Returns the full list of all envelopes for a specific category
+      description: Returns a list of envelopes
       produces:
       - application/json
       responses:
@@ -1396,7 +1395,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Get all envelopes for a category
+      summary: Get envelopes
       tags:
       - Envelopes
     options:
@@ -1409,7 +1408,7 @@ paths:
       tags:
       - Envelopes
     post:
-      description: Create a new envelope for a specific category
+      description: Creates a new envelope
       parameters:
       - description: Envelope
         in: body
@@ -1439,7 +1438,7 @@ paths:
       - Envelopes
   /v1/envelopes/{envelopeId}:
     delete:
-      description: Deletes an existing envelope
+      description: Deletes an envelope
       parameters:
       - description: ID formatted as string
         in: path
@@ -1459,11 +1458,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete an envelope
+      summary: Delete envelope
       tags:
       - Envelopes
     get:
-      description: Returns an envelope by its ID
+      description: Returns a specific envelope
       parameters:
       - description: ID formatted as string
         in: path
@@ -1508,7 +1507,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update an existing envelope. Only values to be updated need to
+      description: Updates an existing envelope. Only values to be updated need to
         be specified.
       parameters:
       - description: ID formatted as string
@@ -1539,7 +1538,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Update an envelope
+      summary: Update envelope
       tags:
       - Envelopes
   /v1/envelopes/{envelopeId}/{month}:
@@ -1578,7 +1577,7 @@ paths:
       - Envelopes
   /v1/transactions:
     get:
-      description: Returns all transactions for a specific budget
+      description: Returns a list of transactions
       produces:
       - application/json
       responses:
@@ -1596,7 +1595,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Get all transactions
+      summary: Get transactions
       tags:
       - Transactions
     options:
@@ -1609,7 +1608,7 @@ paths:
       tags:
       - Transactions
     post:
-      description: Create a new transaction
+      description: Creates a new transaction
       parameters:
       - description: Transaction
         in: body
@@ -1639,7 +1638,7 @@ paths:
       - Transactions
   /v1/transactions/{transactionId}:
     delete:
-      description: Deletes an existing transaction
+      description: Deletes a transaction
       parameters:
       - description: ID formatted as string
         in: path
@@ -1659,11 +1658,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete a transaction
+      summary: Delete transaction
       tags:
       - Transactions
     get:
-      description: Returns a transaction by its ID
+      description: Returns a specific transaction
       parameters:
       - description: ID formatted as string
         in: path
@@ -1708,7 +1707,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update an existing transaction. Only values to be updated need
+      description: Updates an existing transaction. Only values to be updated need
         to be specified.
       parameters:
       - description: ID formatted as string
@@ -1739,7 +1738,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputil.HTTPError'
-      summary: Update a transaction
+      summary: Update transaction
       tags:
       - Transactions
   /version:

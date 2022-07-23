@@ -74,7 +74,7 @@ func OptionsCategoryDetail(c *gin.Context) {
 }
 
 // @Summary      Create category
-// @Description  Create a new category for a specific budget
+// @Description  Creates a new category
 // @Tags         Categories
 // @Produce      json
 // @Success      201  {object}  CategoryResponse
@@ -102,8 +102,8 @@ func CreateCategory(c *gin.Context) {
 	c.JSON(http.StatusCreated, CategoryResponse{Data: categoryObject})
 }
 
-// @Summary      Get all categories for a budget
-// @Description  Returns the full list of all categories for a specific budget
+// @Summary      Get categories
+// @Description  Returns a list of categories
 // @Tags         Categories
 // @Produce      json
 // @Success      200  {object}  CategoryListResponse
@@ -130,7 +130,7 @@ func GetCategories(c *gin.Context) {
 }
 
 // @Summary      Get category
-// @Description  Returns a category by its ID
+// @Description  Returns a specific category
 // @Tags         Categories
 // @Produce      json
 // @Success      200  {object}  CategoryResponse
@@ -154,7 +154,7 @@ func GetCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
 
-// @Summary      Update a category
+// @Summary      Update category
 // @Description  Update an existing category. Only values to be updated need to be specified.
 // @Tags         Categories
 // @Accept       json
@@ -188,8 +188,8 @@ func UpdateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
 
-// @Summary      Delete a category
-// @Description  Deletes an existing category
+// @Summary      Delete category
+// @Description  Deletes a category
 // @Tags         Categories
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError

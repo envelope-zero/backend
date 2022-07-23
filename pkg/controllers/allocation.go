@@ -123,8 +123,8 @@ func CreateAllocation(c *gin.Context) {
 	c.JSON(http.StatusCreated, AllocationResponse{Data: allocationObject})
 }
 
-// @Summary      Get all allocations for an envelope
-// @Description  Returns all allocations for an envelope
+// @Summary      Get allocations
+// @Description  Returns a list of allocations
 // @Tags         Allocations
 // @Produce      json
 // @Success      200  {object}  AllocationListResponse
@@ -151,7 +151,7 @@ func GetAllocations(c *gin.Context) {
 }
 
 // @Summary      Get allocation
-// @Description  Returns an allocation by its ID
+// @Description  Returns a specific allocation
 // @Tags         Allocations
 // @Produce      json
 // @Success      200  {object}  AllocationResponse
@@ -175,8 +175,8 @@ func GetAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
-// @Summary      Update an allocation
-// @Description  Update an existing allocation. Only values to be updated need to be specified.
+// @Summary      Update allocation
+// @Description  Update an allocation. Only values to be updated need to be specified.
 // @Tags         Allocations
 // @Accept       json
 // @Produce      json
@@ -210,8 +210,8 @@ func UpdateAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
-// @Summary      Delete an allocation
-// @Description  Deletes an existing allocation
+// @Summary      Delete allocation
+// @Description  Deletes an allocation
 // @Tags         Allocations
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError

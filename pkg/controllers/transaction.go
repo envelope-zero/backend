@@ -69,7 +69,7 @@ func OptionsTransactionDetail(c *gin.Context) {
 }
 
 // @Summary      Create transaction
-// @Description  Create a new transaction
+// @Description  Creates a new transaction
 // @Tags         Transactions
 // @Produce      json
 // @Success      201  {object}  TransactionResponse
@@ -120,8 +120,8 @@ func CreateTransaction(c *gin.Context) {
 	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
 }
 
-// @Summary      Get all transactions
-// @Description  Returns all transactions for a specific budget
+// @Summary      Get transactions
+// @Description  Returns a list of transactions
 // @Tags         Transactions
 // @Produce      json
 // @Success      200  {object}  TransactionListResponse
@@ -147,7 +147,7 @@ func GetTransactions(c *gin.Context) {
 }
 
 // @Summary      Get transaction
-// @Description  Returns a transaction by its ID
+// @Description  Returns a specific transaction
 // @Tags         Transactions
 // @Produce      json
 // @Success      200  {object}  TransactionResponse
@@ -171,8 +171,8 @@ func GetTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
-// @Summary      Update a transaction
-// @Description  Update an existing transaction. Only values to be updated need to be specified.
+// @Summary      Update transaction
+// @Description  Updates an existing transaction. Only values to be updated need to be specified.
 // @Tags         Transactions
 // @Accept       json
 // @Produce      json
@@ -216,8 +216,8 @@ func UpdateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
-// @Summary      Delete a transaction
-// @Description  Deletes an existing transaction
+// @Summary      Delete transaction
+// @Description  Deletes a transaction
 // @Tags         Transactions
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError
