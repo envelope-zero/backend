@@ -76,7 +76,7 @@ const docTemplate = `{
         },
         "/v1/accounts": {
             "get": {
-                "description": "Returns a list of all accounts",
+                "description": "Returns a list of accounts",
                 "produces": [
                     "application/json"
                 ],
@@ -141,7 +141,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new account",
+                "description": "Creates a new account",
                 "produces": [
                     "application/json"
                 ],
@@ -250,7 +250,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes the specified account.",
+                "description": "Deletes an account",
                 "produces": [
                     "application/json"
                 ],
@@ -372,14 +372,14 @@ const docTemplate = `{
         },
         "/v1/allocations": {
             "get": {
-                "description": "Returns all allocations for an envelope",
+                "description": "Returns a list of allocations",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Allocations"
                 ],
-                "summary": "Get all allocations for an envelope",
+                "summary": "Get allocations",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -463,7 +463,7 @@ const docTemplate = `{
         },
         "/v1/allocations/{allocationId}": {
             "get": {
-                "description": "Returns an allocation by its ID",
+                "description": "Returns a specific allocation",
                 "produces": [
                     "application/json"
                 ],
@@ -505,11 +505,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes an existing allocation",
+                "description": "Deletes an allocation",
                 "tags": [
                     "Allocations"
                 ],
-                "summary": "Delete an allocation",
+                "summary": "Delete allocation",
                 "parameters": [
                     {
                         "type": "string",
@@ -562,7 +562,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Update an existing allocation. Only values to be updated need to be specified.",
+                "description": "Update an allocation. Only values to be updated need to be specified.",
                 "consumes": [
                     "application/json"
                 ],
@@ -572,7 +572,7 @@ const docTemplate = `{
                 "tags": [
                     "Allocations"
                 ],
-                "summary": "Update an allocation",
+                "summary": "Update allocation",
                 "parameters": [
                     {
                         "type": "string",
@@ -618,14 +618,14 @@ const docTemplate = `{
         },
         "/v1/budgets": {
             "get": {
-                "description": "Returns list of budgets",
+                "description": "Returns a list of budgets",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Budgets"
                 ],
-                "summary": "List all budgets",
+                "summary": "List budgets",
                 "parameters": [
                     {
                         "type": "string",
@@ -672,7 +672,7 @@ const docTemplate = `{
                 "tags": [
                     "Budgets"
                 ],
-                "summary": "Create a budget",
+                "summary": "Create budget",
                 "parameters": [
                     {
                         "description": "Budget",
@@ -733,7 +733,7 @@ const docTemplate = `{
                 "tags": [
                     "Budgets"
                 ],
-                "summary": "Get a budget",
+                "summary": "Get budget",
                 "parameters": [
                     {
                         "type": "string",
@@ -768,11 +768,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes an existing budget",
+                "description": "Deletes a budget",
                 "tags": [
                     "Budgets"
                 ],
-                "summary": "Delete a budget",
+                "summary": "Delete budget",
                 "parameters": [
                     {
                         "type": "string",
@@ -850,7 +850,7 @@ const docTemplate = `{
                 "tags": [
                     "Budgets"
                 ],
-                "summary": "Update a budget",
+                "summary": "Update budget",
                 "parameters": [
                     {
                         "type": "string",
@@ -947,14 +947,14 @@ const docTemplate = `{
         },
         "/v1/categories": {
             "get": {
-                "description": "Returns the full list of all categories for a specific budget",
+                "description": "Returns a list of categories",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Categories"
                 ],
-                "summary": "Get all categories for a budget",
+                "summary": "Get categories",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -980,7 +980,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new category for a specific budget",
+                "description": "Creates a new category",
                 "produces": [
                     "application/json"
                 ],
@@ -1047,7 +1047,7 @@ const docTemplate = `{
         },
         "/v1/categories/{categoryId}": {
             "get": {
-                "description": "Returns a category by its ID",
+                "description": "Returns a specific category",
                 "produces": [
                     "application/json"
                 ],
@@ -1089,11 +1089,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes an existing category",
+                "description": "Deletes a category",
                 "tags": [
                     "Categories"
                 ],
-                "summary": "Delete a category",
+                "summary": "Delete category",
                 "parameters": [
                     {
                         "type": "string",
@@ -1165,7 +1165,7 @@ const docTemplate = `{
                 "tags": [
                     "Categories"
                 ],
-                "summary": "Update a category",
+                "summary": "Update category",
                 "parameters": [
                     {
                         "type": "string",
@@ -1211,14 +1211,14 @@ const docTemplate = `{
         },
         "/v1/envelopes": {
             "get": {
-                "description": "Returns the full list of all envelopes for a specific category",
+                "description": "Returns a list of envelopes",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Envelopes"
                 ],
-                "summary": "Get all envelopes for a category",
+                "summary": "Get envelopes",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1244,7 +1244,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new envelope for a specific category",
+                "description": "Creates a new envelope",
                 "produces": [
                     "application/json"
                 ],
@@ -1302,7 +1302,7 @@ const docTemplate = `{
         },
         "/v1/envelopes/{envelopeId}": {
             "get": {
-                "description": "Returns an envelope by its ID",
+                "description": "Returns a specific envelope",
                 "produces": [
                     "application/json"
                 ],
@@ -1344,11 +1344,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes an existing envelope",
+                "description": "Deletes an envelope",
                 "tags": [
                     "Envelopes"
                 ],
-                "summary": "Delete an envelope",
+                "summary": "Delete envelope",
                 "parameters": [
                     {
                         "type": "string",
@@ -1401,7 +1401,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Update an existing envelope. Only values to be updated need to be specified.",
+                "description": "Updates an existing envelope. Only values to be updated need to be specified.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1411,7 +1411,7 @@ const docTemplate = `{
                 "tags": [
                     "Envelopes"
                 ],
-                "summary": "Update an envelope",
+                "summary": "Update envelope",
                 "parameters": [
                     {
                         "type": "string",
@@ -1508,14 +1508,14 @@ const docTemplate = `{
         },
         "/v1/transactions": {
             "get": {
-                "description": "Returns all transactions for a specific budget",
+                "description": "Returns a list of transactions",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Transactions"
                 ],
-                "summary": "Get all transactions",
+                "summary": "Get transactions",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1541,7 +1541,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new transaction",
+                "description": "Creates a new transaction",
                 "produces": [
                     "application/json"
                 ],
@@ -1599,7 +1599,7 @@ const docTemplate = `{
         },
         "/v1/transactions/{transactionId}": {
             "get": {
-                "description": "Returns a transaction by its ID",
+                "description": "Returns a specific transaction",
                 "produces": [
                     "application/json"
                 ],
@@ -1641,11 +1641,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes an existing transaction",
+                "description": "Deletes a transaction",
                 "tags": [
                     "Transactions"
                 ],
-                "summary": "Delete a transaction",
+                "summary": "Delete transaction",
                 "parameters": [
                     {
                         "type": "string",
@@ -1698,7 +1698,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Update an existing transaction. Only values to be updated need to be specified.",
+                "description": "Updates an existing transaction. Only values to be updated need to be specified.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1708,7 +1708,7 @@ const docTemplate = `{
                 "tags": [
                     "Transactions"
                 ],
-                "summary": "Update a transaction",
+                "summary": "Update transaction",
                 "parameters": [
                     {
                         "type": "string",

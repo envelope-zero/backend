@@ -75,7 +75,7 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 }
 
 // @Summary      Create envelope
-// @Description  Create a new envelope for a specific category
+// @Description  Creates a new envelope
 // @Tags         Envelopes
 // @Produce      json
 // @Success      201  {object}  EnvelopeResponse
@@ -103,8 +103,8 @@ func CreateEnvelope(c *gin.Context) {
 	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelopeObject})
 }
 
-// @Summary      Get all envelopes for a category
-// @Description  Returns the full list of all envelopes for a specific category
+// @Summary      Get envelopes
+// @Description  Returns a list of envelopes
 // @Tags         Envelopes
 // @Produce      json
 // @Success      200  {object}  EnvelopeListResponse
@@ -131,7 +131,7 @@ func GetEnvelopes(c *gin.Context) {
 }
 
 // @Summary      Get envelope
-// @Description  Returns an envelope by its ID
+// @Description  Returns a specific envelope
 // @Tags         Envelopes
 // @Produce      json
 // @Success      200  {object}  EnvelopeResponse
@@ -188,8 +188,8 @@ func GetEnvelopeMonth(c *gin.Context) {
 	c.JSON(http.StatusOK, EnvelopeMonthResponse{Data: envelope.Month(month.Month)})
 }
 
-// @Summary      Update an envelope
-// @Description  Update an existing envelope. Only values to be updated need to be specified.
+// @Summary      Update envelope
+// @Description  Updates an existing envelope. Only values to be updated need to be specified.
 // @Tags         Envelopes
 // @Accept       json
 // @Produce      json
@@ -222,8 +222,8 @@ func UpdateEnvelope(c *gin.Context) {
 	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
 
-// @Summary      Delete an envelope
-// @Description  Deletes an existing envelope
+// @Summary      Delete envelope
+// @Description  Deletes an envelope
 // @Tags         Envelopes
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError

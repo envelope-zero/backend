@@ -96,7 +96,7 @@ func OptionsAccountDetail(c *gin.Context) {
 }
 
 // @Summary      Create account
-// @Description  Create a new account
+// @Description  Creates a new account
 // @Tags         Accounts
 // @Produce      json
 // @Success      201  {object}  AccountResponse
@@ -125,7 +125,7 @@ func CreateAccount(c *gin.Context) {
 }
 
 // @Summary      List accounts
-// @Description  Returns a list of all accounts
+// @Description  Returns a list of accounts
 // @Tags         Accounts
 // @Produce      json
 // @Success      200  {object}  AccountListResponse
@@ -231,7 +231,7 @@ func UpdateAccount(c *gin.Context) {
 }
 
 // @Summary      Delete account
-// @Description  Deletes the specified account.
+// @Description  Deletes an account
 // @Tags         Accounts
 // @Produce      json
 // @Success      204

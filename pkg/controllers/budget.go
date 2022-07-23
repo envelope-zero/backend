@@ -87,7 +87,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// @Summary      Create a budget
+// @Summary      Create budget
 // @Description  Creates a new budget
 // @Tags         Budgets
 // @Accept       json
@@ -110,8 +110,8 @@ func CreateBudget(c *gin.Context) {
 	c.JSON(http.StatusCreated, BudgetResponse{Data: budgetObject})
 }
 
-// @Summary      List all budgets
-// @Description  Returns list of budgets
+// @Summary      List budgets
+// @Description  Returns a list of budgets
 // @Tags         Budgets
 // @Produce      json
 // @Success      200  {object}  BudgetListResponse
@@ -149,7 +149,7 @@ func GetBudgets(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetListResponse{Data: budgetObjects})
 }
 
-// @Summary      Get a budget
+// @Summary      Get budget
 // @Description  Returns a specific budget
 // @Tags         Budgets
 // @Produce      json
@@ -237,7 +237,7 @@ func GetBudgetMonth(c *gin.Context) {
 	}})
 }
 
-// @Summary      Update a budget
+// @Summary      Update budget
 // @Description  Update an existing budget. Only values to be updated need to be specified.
 // @Tags         Budgets
 // @Accept       json
@@ -271,8 +271,8 @@ func UpdateBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
 }
 
-// @Summary      Delete a budget
-// @Description  Deletes an existing budget
+// @Summary      Delete budget
+// @Description  Deletes a budget
 // @Tags         Budgets
 // @Success      204
 // @Failure      400  {object}  httputil.HTTPError
