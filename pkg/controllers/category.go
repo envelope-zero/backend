@@ -22,7 +22,8 @@ type CategoryResponse struct {
 
 type Category struct {
 	models.Category
-	Links CategoryLinks `json:"links"`
+	Links     CategoryLinks `json:"links"`
+	Envelopes []Envelope    `json:"envelopes"`
 }
 
 type CategoryLinks struct {
@@ -254,9 +255,15 @@ func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, error) {
 		return Category{}, err
 	}
 
+	envelopes, err := getEnvelopeObjects(c, id)
+	if err != nil {
+		return Category{}, err
+	}
+
 	return Category{
 		resource,
 		getCategoryLinks(c, id),
+		envelopes,
 	}, nil
 }
 
