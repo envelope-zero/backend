@@ -296,7 +296,7 @@ func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, error
 		return []Envelope{}, err
 	}
 
-	var envelopeObjects []Envelope
+	envelopeObjects := make([]Envelope, 0)
 	for _, envelope := range envelopes {
 		o, _ := getEnvelopeObject(c, envelope.ID)
 		envelopeObjects = append(envelopeObjects, o)

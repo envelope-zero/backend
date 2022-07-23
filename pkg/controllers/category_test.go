@@ -59,6 +59,20 @@ func (suite *TestSuiteEnv) TestGetCategoriesEnvelopes() {
 	assert.Len(suite.T(), response.Data[0].Envelopes, 2)
 }
 
+func (suite *TestSuiteEnv) TestGetCategoriesNoEnvelopesEmptyArray() {
+	_ = createTestCategory(suite.T(), models.CategoryCreate{})
+
+	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories", "")
+
+	var response controllers.CategoryListResponse
+	test.DecodeResponse(suite.T(), &recorder, &response)
+
+	assert.Equal(suite.T(), 200, recorder.Code)
+	assert.Len(suite.T(), response.Data, 1)
+	assert.NotNil(suite.T(), response.Data[0].Envelopes, "Envelopes must be an empty array when no envelopes are present, not nil")
+	assert.Len(suite.T(), response.Data[0].Envelopes, 0)
+}
+
 func (suite *TestSuiteEnv) TestGetCategory() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Catch me if you can!"})
 	recorder := test.Request(suite.T(), http.MethodGet, category.Data.Links.Self, "")
