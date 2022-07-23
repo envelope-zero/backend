@@ -199,6 +199,15 @@ func (suite *TestSuiteEnv) TestUpdateTransaction() {
 	assert.Equal(suite.T(), "", updatedTransaction.Data.Note)
 }
 
+func (suite *TestSuiteEnv) TestUpdateTransactionSourceDestinationEqual() {
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Note: "More tests something something", Amount: decimal.NewFromFloat(1253.17)})
+
+	r := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, map[string]any{
+		"destinationAccountId": transaction.Data.SourceAccountID,
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
 func (suite *TestSuiteEnv) TestUpdateTransactionBrokenJSON() {
 	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(5883.53)})
 
