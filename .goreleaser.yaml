@@ -6,7 +6,7 @@ builds:
       - windows
       - darwin
     ldflags:
-      - -X github.com/envelope-zero/backend/internal/router.version=${VERSION}
+      - -X github.com/envelope-zero/backend/internal/router.version={{.Version}}
 archives:
   - replacements:
       darwin: Darwin
