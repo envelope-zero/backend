@@ -2166,6 +2166,10 @@ const docTemplate = `{
                 "self": {
                     "type": "string",
                     "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                },
+                "transacations": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                 }
             }
         },
