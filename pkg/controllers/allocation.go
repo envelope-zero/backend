@@ -4,11 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/gin-contrib/requestid"
 	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
@@ -94,28 +91,9 @@ func CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	result := database.DB.Create(&allocation)
-
-	if result.Error != nil {
-		// By default, we assume a server error
-		errMessage := "There was an error processing your request, please contact your server administrator"
-		status := http.StatusInternalServerError
-
-		// Set helpful error messages for known errors
-		if strings.Contains(result.Error.Error(), "UNIQUE constraint failed: allocations.month, allocations.year") {
-			errMessage = "You can not create multiple allocations for the same month"
-			status = http.StatusBadRequest
-		} else if strings.Contains(result.Error.Error(), "CHECK constraint failed: month_valid") {
-			errMessage = "The month must be between 1 and 12"
-			status = http.StatusBadRequest
-		}
-
-		// Print the error to the server log if it’s a server error
-		if status == http.StatusInternalServerError {
-			log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", result.Error, result.Error.Error())
-		}
-
-		httputil.NewError(c, status, errors.New(errMessage))
+	err = database.DB.Create(&allocation).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
 		return
 	}
 
