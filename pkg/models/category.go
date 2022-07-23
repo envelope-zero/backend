@@ -10,7 +10,7 @@ type Category struct {
 }
 
 type CategoryCreate struct {
-	Name     string    `json:"name,omitempty" example:"Saving" default:""`
+	Name     string    `json:"name" example:"Saving" default:""`
 	BudgetID uuid.UUID `json:"budgetId" example:"52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"`
-	Note     string    `json:"note,omitempty" example:"All envelopes for long-term saving" default:""`
+	Note     string    `json:"note" example:"All envelopes for long-term saving" default:""`
 }

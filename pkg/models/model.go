@@ -12,7 +12,7 @@ type Model struct {
 	ID        uuid.UUID       `json:"id" example:"65392deb-5e92-4268-b114-297faad6cdce"`
 	CreatedAt time.Time       `json:"createdAt" example:"2022-04-02T19:28:44.491514Z"`
 	UpdatedAt time.Time       `json:"updatedAt" example:"2022-04-17T20:14:01.048145Z"`
-	DeletedAt *gorm.DeletedAt `json:"deletedAt,omitempty" gorm:"index" example:"2022-04-22T21:01:05.058161Z" swaggertype:"primitive,string"`
+	DeletedAt *gorm.DeletedAt `json:"deletedAt" gorm:"index" example:"2022-04-22T21:01:05.058161Z" swaggertype:"primitive,string"`
 }
 
 // AfterFind updates the timestamps to use UTC as
