@@ -16,9 +16,9 @@ type Envelope struct {
 }
 
 type EnvelopeCreate struct {
-	Name       string    `json:"name,omitempty" example:"Groceries" default:""`
+	Name       string    `json:"name" example:"Groceries" default:""`
 	CategoryID uuid.UUID `json:"categoryId" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"`
-	Note       string    `json:"note,omitempty" example:"For stuff bought at supermarkets and drugstores" default:""`
+	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`
 }
 
 // EnvelopeMonth contains data about an Envelope for a specific month.

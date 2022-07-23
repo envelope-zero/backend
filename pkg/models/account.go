@@ -17,8 +17,8 @@ type Account struct {
 }
 
 type AccountCreate struct {
-	Name     string    `json:"name,omitempty" example:"Cash" default:""`
-	Note     string    `json:"note,omitempty" example:"Money in my wallet" default:""`
+	Name     string    `json:"name" example:"Cash" default:""`
+	Note     string    `json:"note" example:"Money in my wallet" default:""`
 	BudgetID uuid.UUID `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	OnBudget bool      `json:"onBudget" example:"true" default:"false"` // Always false when external: true
 	External bool      `json:"external" example:"false" default:"false"`
