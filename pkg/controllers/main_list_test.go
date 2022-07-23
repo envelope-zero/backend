@@ -10,10 +10,10 @@ var methodNotAllowedTests = []struct {
 	path   string
 	method string
 }{
-	{"/", "POST"},
-	{"/", "DELETE"},
-	{"http://example.com/v1", "POST"},
-	{"http://example.com/v1", "DELETE"},
+	{"/", http.MethodPost},
+	{"/", http.MethodDelete},
+	{"http://example.com/v1", http.MethodPost},
+	{"http://example.com/v1", http.MethodDelete},
 	{"http://example.com/v1/budgets", "HEAD"},
 	{"http://example.com/v1/budgets", "PUT"},
 }

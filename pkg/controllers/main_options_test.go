@@ -11,9 +11,9 @@ var optionsHeaderTests = []struct {
 	path     string
 	expected string
 }{
-	{"/", "GET"},
-	{"/version", "GET"},
-	{"http://example.com/v1", "GET"},
+	{"/", http.MethodGet},
+	{"/version", http.MethodGet},
+	{"http://example.com/v1", http.MethodGet},
 	{"http://example.com/v1/budgets", "GET, POST"},
 	{"http://example.com/v1/budgets/1", "GET, PATCH, DELETE"},
 	{"http://example.com/v1/accounts", "GET, POST"},
@@ -30,7 +30,7 @@ var optionsHeaderTests = []struct {
 
 func (suite *TestSuiteEnv) TestOptionsHeader() {
 	for _, tt := range optionsHeaderTests {
-		recorder := test.Request(suite.T(), "OPTIONS", tt.path, "")
+		recorder := test.Request(suite.T(), http.MethodOptions, tt.path, "")
 
 		assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Status for %v is wrong, expected %d, got %d", tt.path, http.StatusNoContent, recorder.Code)
 		assert.Equal(suite.T(), recorder.Header().Get("allow"), tt.expected)

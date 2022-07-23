@@ -26,7 +26,7 @@ func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetRes
 func (suite *TestSuiteEnv) TestGetBudgets() {
 	_ = createTestBudget(suite.T(), models.BudgetCreate{})
 
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/budgets", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
 
 	var response controllers.BudgetListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
@@ -89,7 +89,7 @@ func (suite *TestSuiteEnv) TestGetBudgetsFilter() {
 }
 
 func (suite *TestSuiteEnv) TestNoBudgetNotFound() {
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
 
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
@@ -130,25 +130,25 @@ func (suite *TestSuiteEnv) TestBudgetInvalidIDs() {
 }
 
 func (suite *TestSuiteEnv) TestCreateBudget() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budgetObject, savedObject controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budgetObject)
 
-	recorder = test.Request(suite.T(), "GET", budgetObject.Data.Links.Self, "")
+	recorder = test.Request(suite.T(), http.MethodGet, budgetObject.Data.Links.Self, "")
 	test.DecodeResponse(suite.T(), &recorder, &savedObject)
 
 	assert.Equal(suite.T(), savedObject, budgetObject)
 }
 
 func (suite *TestSuiteEnv) TestCreateBrokenBudget() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestCreateBudgetNoBody() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", "")
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -273,7 +273,7 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 
 	var budgetMonth controllers.BudgetMonthResponse
 	for _, tt := range tests {
-		r := test.Request(suite.T(), "GET", tt.path, "")
+		r := test.Request(suite.T(), http.MethodGet, tt.path, "")
 		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
 		test.DecodeResponse(suite.T(), &r, &budgetMonth)
 
@@ -292,7 +292,7 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
 func (suite *TestSuiteEnv) TestBudgetMonthNonExistent() {
-	r := test.Request(suite.T(), "GET", "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
+	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &r)
 }
 
@@ -300,7 +300,7 @@ func (suite *TestSuiteEnv) TestBudgetMonthNonExistent() {
 func (suite *TestSuiteEnv) TestBudgetMonthZero() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 
-	r := test.Request(suite.T(), "GET", fmt.Sprintf("%s/0001-01", budget.Data.Links.Self), "")
+	r := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("%s/0001-01", budget.Data.Links.Self), "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
@@ -308,18 +308,18 @@ func (suite *TestSuiteEnv) TestBudgetMonthZero() {
 func (suite *TestSuiteEnv) TestBudgetMonthInvalid() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 
-	recorder := test.Request(suite.T(), "GET", fmt.Sprintf("%s/December-2020", budget.Data.Links.Self), "")
+	recorder := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("%s/December-2020", budget.Data.Links.Self), "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestUpdateBudget() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(suite.T(), "PATCH", budget.Data.Links.Self, map[string]any{
+	recorder = test.Request(suite.T(), http.MethodPatch, budget.Data.Links.Self, map[string]any{
 		"name": "Updated new budget",
 		"note": "",
 	})
@@ -333,18 +333,18 @@ func (suite *TestSuiteEnv) TestUpdateBudget() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateBudgetBrokenJSON() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(suite.T(), "PATCH", budget.Data.Links.Self, `{ "name": 2" }`)
+	recorder = test.Request(suite.T(), http.MethodPatch, budget.Data.Links.Self, `{ "name": 2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestUpdateBudgetInvalidType() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
@@ -357,33 +357,33 @@ func (suite *TestSuiteEnv) TestUpdateBudgetInvalidType() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateNonExistingBudget() {
-	recorder := test.Request(suite.T(), "PATCH", "http://example.com/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
+	recorder := test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestDeleteBudget() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(suite.T(), "DELETE", budget.Data.Links.Self, "")
+	recorder = test.Request(suite.T(), http.MethodDelete, budget.Data.Links.Self, "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestDeleteNonExistingBudget() {
-	recorder := test.Request(suite.T(), "DELETE", "http://example.com/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
+	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestDeleteBudgetWithBody() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(suite.T(), "DELETE", budget.Data.Links.Self, `{ "name": "test name 23" }`)
+	recorder = test.Request(suite.T(), http.MethodDelete, budget.Data.Links.Self, `{ "name": "test name 23" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }

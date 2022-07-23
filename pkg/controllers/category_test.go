@@ -29,7 +29,7 @@ func createTestCategory(t *testing.T, c models.CategoryCreate) controllers.Categ
 func (suite *TestSuiteEnv) TestGetCategories() {
 	_ = createTestCategory(suite.T(), models.CategoryCreate{})
 
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/categories", "")
 
 	var response controllers.CategoryListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
@@ -49,7 +49,7 @@ func (suite *TestSuiteEnv) TestGetCategoriesEnvelopes() {
 	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
 	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
 
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/categories", "")
 
 	var response controllers.CategoryListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
@@ -62,7 +62,7 @@ func (suite *TestSuiteEnv) TestGetCategoriesEnvelopes() {
 func (suite *TestSuiteEnv) TestGetCategoriesNoEnvelopesEmptyArray() {
 	_ = createTestCategory(suite.T(), models.CategoryCreate{})
 
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/categories", "")
 
 	var response controllers.CategoryListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
@@ -81,7 +81,7 @@ func (suite *TestSuiteEnv) TestGetCategory() {
 }
 
 func (suite *TestSuiteEnv) TestNoCategoryNotFound() {
-	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories/4e743e94-6a4b-44d6-aba5-d77c87103ff7", "")
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/categories/4e743e94-6a4b-44d6-aba5-d77c87103ff7", "")
 
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
@@ -123,24 +123,24 @@ func (suite *TestSuiteEnv) TestCreateCategory() {
 }
 
 func (suite *TestSuiteEnv) TestCreateBrokenCategory() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "createdAt": "New Category", "note": "More tests for categories to ensure less brokenness something" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/categories", `{ "createdAt": "New Category", "note": "More tests for categories to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestCreateBudgetDoesNotExist() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", `{ "budgetId": "f8c74664-9b79-4e15-8d3d-4618f3e3c230" }`)
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/categories", `{ "budgetId": "f8c74664-9b79-4e15-8d3d-4618f3e3c230" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestCreateCategoryNoBody() {
-	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/categories", "")
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/categories", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestUpdateCategory() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
 
-	recorder := test.Request(suite.T(), "PATCH", category.Data.Links.Self, map[string]any{
+	recorder := test.Request(suite.T(), http.MethodPatch, category.Data.Links.Self, map[string]any{
 		"name": "Updated new category for testing",
 		"note": "",
 	})
@@ -156,7 +156,7 @@ func (suite *TestSuiteEnv) TestUpdateCategory() {
 func (suite *TestSuiteEnv) TestUpdateCategoryBrokenJSON() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
 
-	recorder := test.Request(suite.T(), "PATCH", category.Data.Links.Self, `{ "name": 2" }`)
+	recorder := test.Request(suite.T(), http.MethodPatch, category.Data.Links.Self, `{ "name": 2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
@@ -178,25 +178,25 @@ func (suite *TestSuiteEnv) TestUpdateCategoryInvalidBudgetID() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateNonExistingCategory() {
-	recorder := test.Request(suite.T(), "PATCH", "http://example.com/v1/categories/f9288848-517e-4b8c-9f14-b3d849ca275b", `{ "name": "2" }`)
+	recorder := test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/categories/f9288848-517e-4b8c-9f14-b3d849ca275b", `{ "name": "2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestDeleteCategory() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Delete me now!"})
 
-	recorder := test.Request(suite.T(), "DELETE", category.Data.Links.Self, "")
+	recorder := test.Request(suite.T(), http.MethodDelete, category.Data.Links.Self, "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestDeleteNonExistingCategory() {
-	recorder := test.Request(suite.T(), "DELETE", "http://example.com/v1/categories/a2aa0569-5ac5-42e1-8563-7c61194cc7d9", "")
+	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/categories/a2aa0569-5ac5-42e1-8563-7c61194cc7d9", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestDeleteCategoryWithBody() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Delete me now!"})
 
-	recorder := test.Request(suite.T(), "DELETE", category.Data.Links.Self, `{ "name": "test name 23" }`)
+	recorder := test.Request(suite.T(), http.MethodDelete, category.Data.Links.Self, `{ "name": "test name 23" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }

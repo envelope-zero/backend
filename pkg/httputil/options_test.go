@@ -21,7 +21,7 @@ func TestOptionsGet(t *testing.T) {
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 
-	assert.Equal(t, "GET", w.Header().Get("allow"))
+	assert.Equal(t, http.MethodGet, w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
