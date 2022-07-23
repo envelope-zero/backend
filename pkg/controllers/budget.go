@@ -262,12 +262,22 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
+	updateFields, err := httputil.GetBodyFields(c, models.BudgetCreate{})
+	if err != nil {
+		return
+	}
+
 	var data models.Budget
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 
-	database.DB.Model(&budget).Updates(data)
+	err = database.DB.Model(&budget).Select("", updateFields...).Updates(data).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
+
 	budgetObject, _ := getBudgetObject(c, budget.ID)
 	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
 }
@@ -314,7 +324,7 @@ func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 		},
 	}).First(&budget).Error
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		httputil.ErrorHandler(c, err)
 		return models.Budget{}, err
 	}
 

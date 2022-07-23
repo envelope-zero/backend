@@ -187,24 +187,53 @@ func (suite *TestSuiteEnv) TestGetAccountTransactionsNonExistingAccount() {
 }
 
 func (suite *TestSuiteEnv) TestUpdateAccount() {
-	a := createTestAccount(suite.T(), models.AccountCreate{Name: "Original name"})
+	a := createTestAccount(suite.T(), models.AccountCreate{Name: "Original name", OnBudget: true})
 
-	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, models.AccountCreate{Name: "Updated new account for testing"})
+	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
+		"name":     "Updated new account for testing",
+		"note":     "",
+		"onBudget": false,
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
 
 	var u controllers.AccountResponse
 	test.DecodeResponse(suite.T(), &r, &u)
 
 	assert.Equal(suite.T(), "Updated new account for testing", u.Data.Name)
+	assert.Equal(suite.T(), "", u.Data.Note)
+	assert.Equal(suite.T(), false, u.Data.OnBudget)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAccountBroken() {
+func (suite *TestSuiteEnv) TestUpdateAccountBrokenJSON() {
 	a := createTestAccount(suite.T(), models.AccountCreate{
 		Name: "New Account",
 		Note: "More tests something something",
 	})
 
 	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, `{ "name": 2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
+func (suite *TestSuiteEnv) TestUpdateAccountInvalidType() {
+	a := createTestAccount(suite.T(), models.AccountCreate{
+		Name: "New Account",
+		Note: "More tests something something",
+	})
+
+	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
+		"name": 2,
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
+func (suite *TestSuiteEnv) TestUpdateAccountInvalidBudgetID() {
+	a := createTestAccount(suite.T(), models.AccountCreate{
+		Name: "New Account",
+		Note: "More tests something something",
+	})
+
+	// Sets the BudgetID to uuid.Nil
+	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, models.AccountCreate{})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 

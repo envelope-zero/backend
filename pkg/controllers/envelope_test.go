@@ -248,19 +248,38 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthZero() {
 func (suite *TestSuiteEnv) TestUpdateEnvelope() {
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
 
-	recorder := test.Request(suite.T(), "PATCH", envelope.Data.Links.Self, `{ "name": "Updated new envelope for testing" }`)
+	recorder := test.Request(suite.T(), "PATCH", envelope.Data.Links.Self, map[string]any{
+		"name": "Updated new envelope for testing",
+		"note": "",
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 
 	var updatedEnvelope controllers.EnvelopeResponse
 	test.DecodeResponse(suite.T(), &recorder, &updatedEnvelope)
 
-	assert.Equal(suite.T(), envelope.Data.Note, updatedEnvelope.Data.Note)
+	assert.Equal(suite.T(), "", updatedEnvelope.Data.Note)
 	assert.Equal(suite.T(), "Updated new envelope for testing", updatedEnvelope.Data.Name)
 }
 
-func (suite *TestSuiteEnv) TestUpdateEnvelopeBroken() {
+func (suite *TestSuiteEnv) TestUpdateEnvelopeBrokenJSON() {
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
 	recorder := test.Request(suite.T(), "PATCH", envelope.Data.Links.Self, `{ "name": 2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateEnvelopeInvalidType() {
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
+	recorder := test.Request(suite.T(), http.MethodPatch, envelope.Data.Links.Self, map[string]any{
+		"name": 2,
+	})
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateEnvelopeInvalidCategoryID() {
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
+
+	// Sets the CategoryID to uuid.Nil
+	recorder := test.Request(suite.T(), http.MethodPatch, envelope.Data.Links.Self, models.EnvelopeCreate{})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 

@@ -178,12 +178,22 @@ func UpdateCategory(c *gin.Context) {
 		return
 	}
 
+	updateFields, err := httputil.GetBodyFields(c, models.CategoryCreate{})
+	if err != nil {
+		return
+	}
+
 	var data models.Category
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 
-	database.DB.Model(&category).Updates(data)
+	err = database.DB.Model(&category).Select("", updateFields...).Updates(data).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
+
 	categoryObject, _ := getCategoryObject(c, category.ID)
 	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
@@ -229,7 +239,7 @@ func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) 
 		},
 	}).First(&category).Error
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		httputil.ErrorHandler(c, err)
 		return models.Category{}, err
 	}
 

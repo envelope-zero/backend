@@ -319,17 +319,20 @@ func (suite *TestSuiteEnv) TestUpdateBudget() {
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
-	recorder = test.Request(suite.T(), "PATCH", budget.Data.Links.Self, `{ "name": "Updated new budget" }`)
+	recorder = test.Request(suite.T(), "PATCH", budget.Data.Links.Self, map[string]any{
+		"name": "Updated new budget",
+		"note": "",
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
 
 	var updatedBudget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &updatedBudget)
 
-	assert.Equal(suite.T(), budget.Data.Note, updatedBudget.Data.Note)
+	assert.Equal(suite.T(), "", updatedBudget.Data.Note)
 	assert.Equal(suite.T(), "Updated new budget", updatedBudget.Data.Name)
 }
 
-func (suite *TestSuiteEnv) TestUpdateBudgetBroken() {
+func (suite *TestSuiteEnv) TestUpdateBudgetBrokenJSON() {
 	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
@@ -337,6 +340,19 @@ func (suite *TestSuiteEnv) TestUpdateBudgetBroken() {
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
 	recorder = test.Request(suite.T(), "PATCH", budget.Data.Links.Self, `{ "name": 2" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateBudgetInvalidType() {
+	recorder := test.Request(suite.T(), "POST", "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+
+	var budget controllers.BudgetResponse
+	test.DecodeResponse(suite.T(), &recorder, &budget)
+
+	recorder = test.Request(suite.T(), http.MethodPatch, budget.Data.Links.Self, map[string]any{
+		"name": 2,
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 

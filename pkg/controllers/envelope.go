@@ -213,12 +213,22 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
+	updateFields, err := httputil.GetBodyFields(c, models.EnvelopeCreate{})
+	if err != nil {
+		return
+	}
+
 	var data models.Envelope
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
 
-	database.DB.Model(&envelope).Updates(data)
+	err = database.DB.Model(&envelope).Select("", updateFields...).Updates(data).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
+
 	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
 	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
@@ -265,7 +275,7 @@ func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) 
 		},
 	}).First(&envelope).Error
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		httputil.ErrorHandler(c, err)
 		return models.Envelope{}, err
 	}
 
@@ -293,7 +303,7 @@ func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, error
 		},
 	}).Find(&envelopes).Error
 	if err != nil {
-		httputil.FetchErrorHandler(c, err)
+		httputil.ErrorHandler(c, err)
 		return []Envelope{}, err
 	}
 

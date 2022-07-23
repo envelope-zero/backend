@@ -2,6 +2,7 @@ package httputil_test
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/test"
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/go-sqlite"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -20,7 +22,7 @@ func TestFetchErrorHandlerErrRecordNotFound(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.FetchErrorHandler(c, gorm.ErrRecordNotFound)
+		httputil.ErrorHandler(c, gorm.ErrRecordNotFound)
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
@@ -33,7 +35,7 @@ func TestFetchErrorHandlerStrconvNumError(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.FetchErrorHandler(c, &strconv.NumError{})
+		httputil.ErrorHandler(c, &strconv.NumError{})
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
@@ -47,7 +49,7 @@ func TestFetchErrorHandlerTimeParseError(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.FetchErrorHandler(c, &time.ParseError{})
+		httputil.ErrorHandler(c, &time.ParseError{})
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
@@ -56,12 +58,40 @@ func TestFetchErrorHandlerTimeParseError(t *testing.T) {
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "parsing time")
 }
 
+func TestFetchErrorHandlerSQLiteErrorUnknown(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httputil.ErrorHandler(c, &sqlite.Error{})
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "A database error")
+}
+
+func TestFetchErrorHandlerEOF(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httputil.ErrorHandler(c, io.EOF)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "request body must not be empty")
+}
+
 func TestFetchErrorHandlerInternalServerError(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.FetchErrorHandler(c, errors.New("Some random error"))
+		httputil.ErrorHandler(c, errors.New("Some random error"))
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)

@@ -3,22 +3,38 @@ package httputil
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/go-sqlite"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
-// FetchErrorHandler handles errors for fetching data from the database.
-func FetchErrorHandler(c *gin.Context, err error) {
+// ErrorHandler handles errors for fetching data from the database.
+func ErrorHandler(c *gin.Context, err error) {
 	// No record found => 404
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.AbortWithStatus(http.StatusNotFound)
+
+		// Database error
+	} else if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
+		if strings.Contains(err.Error(), "constraint failed: FOREIGN KEY constraint failed") {
+			NewError(c, http.StatusBadRequest, errors.New("A resource ID you specfied did not identify an existing resource"))
+		} else {
+			log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
+			NewError(c, http.StatusInternalServerError, fmt.Errorf("A database error occured during your reuqest, please contact your server administrator. The request id is '%v', send this to your server administrator to help them finding the problem", requestid.Get(c)))
+		}
+
+		// End of file reached when reading
+	} else if errors.Is(io.EOF, err) {
+		NewError(c, http.StatusBadRequest, errors.New("request body must not be empty"))
 
 		// Number parsing error => 400
 	} else if reflect.TypeOf(err) == reflect.TypeOf(&strconv.NumError{}) {
