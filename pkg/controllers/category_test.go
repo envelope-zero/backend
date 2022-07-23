@@ -44,6 +44,21 @@ func (suite *TestSuiteEnv) TestGetCategories() {
 	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
 }
 
+func (suite *TestSuiteEnv) TestGetCategoriesEnvelopes() {
+	category := createTestCategory(suite.T(), models.CategoryCreate{})
+	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+
+	recorder := test.Request(suite.T(), "GET", "http://example.com/v1/categories", "")
+
+	var response controllers.CategoryListResponse
+	test.DecodeResponse(suite.T(), &recorder, &response)
+
+	assert.Equal(suite.T(), 200, recorder.Code)
+	assert.Len(suite.T(), response.Data, 1)
+	assert.Len(suite.T(), response.Data[0].Envelopes, 2)
+}
+
 func (suite *TestSuiteEnv) TestGetCategory() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Catch me if you can!"})
 	recorder := test.Request(suite.T(), http.MethodGet, category.Data.Links.Self, "")

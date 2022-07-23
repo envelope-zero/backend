@@ -283,6 +283,28 @@ func getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, error) {
 	}, nil
 }
 
+func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, error) {
+	var envelopes []models.Envelope
+
+	err := database.DB.Where(&models.Envelope{
+		EnvelopeCreate: models.EnvelopeCreate{
+			CategoryID: categoryID,
+		},
+	}).Find(&envelopes).Error
+	if err != nil {
+		httputil.FetchErrorHandler(c, err)
+		return []Envelope{}, err
+	}
+
+	var envelopeObjects []Envelope
+	for _, envelope := range envelopes {
+		o, _ := getEnvelopeObject(c, envelope.ID)
+		envelopeObjects = append(envelopeObjects, o)
+	}
+
+	return envelopeObjects, nil
+}
+
 // getEnvelopeLinks returns a BudgetLinks struct.
 //
 // This function is only needed for getEnvelopeObject as we cannot create an instance of Envelope

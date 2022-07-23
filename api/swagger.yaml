@@ -192,6 +192,10 @@ definitions:
       deletedAt:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
+      envelopes:
+        items:
+          $ref: '#/definitions/controllers.Envelope'
+        type: array
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string

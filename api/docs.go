@@ -2052,6 +2052,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
+                "envelopes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.Envelope"
+                    }
+                },
                 "id": {
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
