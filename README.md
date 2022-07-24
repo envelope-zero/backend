@@ -15,7 +15,9 @@ To see all planned features, check the [list of issues with the **enhancement** 
 
 ## Usage
 
-The recommended and only supported way for production deployments is to run the backend with [the OCI image](https://github.com/envelope-zero/backend/pkgs/container/backend).
+### Upgrading
+
+See [docs/upgrading.md](docs/upgrading.md).
 
 ### Configuration
 
@@ -41,11 +43,14 @@ The backend can be configured with the following environment variables. None are
 
 ### Deployment methods
 
+The recommended way for production deployments is to run the backend with [the OCI image](https://github.com/envelope-zero/backend/pkgs/container/backend) or a binary directly.
+For up-to-date binaries, check out the [Releases page](https://github.com/envelope-zero/backend/releases).
+
 If you want to deploy with a method not listed here, you are welcome to open a discussion to ask any questions needed so that this documentation can be improved.
 
 #### On Kubernetes
 
-You can run the backend on any Kubernetes cluster with a supported version using the [morremeyer/generic]() helm chart with the following values:
+You can run the backend on any Kubernetes cluster with a supported version using the [morremeyer/generic](https://github.com/morremeyer/charts/tree/main/charts/generic) helm chart with the following values:
 
 ```yaml
 image:
@@ -56,7 +61,16 @@ image:
 # In this case, you need to make sure the database is regularly backed up!
 persistence:
   enabled: true
-  mountPath: /app/data
+  mountPath: /data
+
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ez-backend # Replace this with the name of your helm release
+            app.kubernetes.io/name: generic
+        topologyKey: "kubernetes.io/hostname"
 
 ports:
   - name: http
