@@ -1,8 +1,10 @@
 package router
 
 import (
+	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -39,6 +41,7 @@ func Router() (*gin.Engine, error) {
 
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
+	r.Use(URLMiddleware())
 	r.Use(logger.SetLogger(
 		logger.WithDefaultLevel(zerolog.InfoLevel),
 		logger.WithClientErrorLevel(zerolog.InfoLevel),
@@ -84,6 +87,20 @@ func Router() (*gin.Engine, error) {
 
 	r.OPTIONS("/version", OptionsVersion)
 
+	// Set API host to user configured values
+	hostProtoEnv, ok := os.LookupEnv("API_HOST_PROTOCOL")
+	if !ok {
+		return nil, errors.New("Environment variable API_HOST_PROTOCOL must be set")
+	}
+	hostProto, err := url.Parse(hostProtoEnv)
+	if err != nil {
+		return nil, errors.New("Environment variable API_HOST_PROTOCOL must be a URL")
+	}
+
+	basePath := os.Getenv("API_BASE_PATH")
+
+	docs.SwaggerInfo.Host = hostProto.String()
+	docs.SwaggerInfo.BasePath = basePath
 	docs.SwaggerInfo.Title = "Envelope Zero"
 	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Description = "The backend for Envelope Zero, a zero based envelope budgeting solution. Check out the source code at https://github.com/envelope-zero/backend."
@@ -125,13 +142,11 @@ type RootLinks struct {
 // @Success      200  {object}  RootResponse
 // @Router       / [get]
 func GetRoot(c *gin.Context) {
-	url := httputil.RequestHost(c)
-
 	c.JSON(http.StatusOK, RootResponse{
 		Links: RootLinks{
-			Docs:    url + "/docs/index.html",
-			Version: url + "/version",
-			V1:      httputil.RequestPathV1(c),
+			Docs:    c.GetString("baseURL") + "/docs/index.html",
+			Version: c.GetString("baseURL") + "/version",
+			V1:      c.GetString("baseURL") + "/v1",
 		},
 	})
 }
@@ -195,12 +210,12 @@ type V1Links struct {
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
-			Budgets:      httputil.RequestPathV1(c) + "/budgets",
-			Accounts:     httputil.RequestPathV1(c) + "/accounts",
-			Categories:   httputil.RequestPathV1(c) + "/categories",
-			Transactions: httputil.RequestPathV1(c) + "/transactions",
-			Envelopes:    httputil.RequestPathV1(c) + "/envelopes",
-			Allocations:  httputil.RequestPathV1(c) + "/allocations",
+			Budgets:      c.GetString("requestURL") + "/v1/budgets",
+			Accounts:     c.GetString("requestURL") + "/v1/accounts",
+			Categories:   c.GetString("requestURL") + "/v1/categories",
+			Transactions: c.GetString("requestURL") + "/v1/transactions",
+			Envelopes:    c.GetString("requestURL") + "/v1/envelopes",
+			Allocations:  c.GetString("requestURL") + "/v1/allocations",
 		},
 	})
 }

@@ -15,22 +15,41 @@ import (
 
 func TestGinMode(t *testing.T) {
 	os.Setenv("GIN_MODE", "debug")
+	os.Setenv("API_HOST_PROTOCOL", "http://example.com")
+
 	_, err := router.Router()
 
 	assert.Nil(t, err, "%T: %v", err, err)
 	assert.True(t, gin.IsDebugging())
 
 	os.Unsetenv("GIN_MODE")
+	os.Unsetenv("API_HOST_PROTOCOL")
+}
+
+func TestEnvUnset(t *testing.T) {
+	_, err := router.Router()
+
+	assert.NotNil(t, err, "API_HOST_PROTOCOL is unset, this must lead to an error")
+}
+
+func TestEnvNoURL(t *testing.T) {
+	os.Setenv("API_HOST_PROTOCOL", "\\:veryMuchNotAURL")
+	_, err := router.Router()
+
+	assert.NotNil(t, err, "API_HOST_PROTOCOL is not an URL, this must lead to an error")
 }
 
 // TestCorsSetting checks that setting of CORS works.
 // It does not check the actual headers as this is already done in testing of the module.
 func TestCorsSetting(t *testing.T) {
 	os.Setenv("CORS_ALLOW_ORIGINS", "http://localhost:3000 https://example.com")
+	os.Setenv("API_HOST_PROTOCOL", "http://example.com")
+
 	_, err := router.Router()
 
 	assert.Nil(t, err)
 	os.Unsetenv("CORS_ALLOW_ORIGINS")
+	os.Unsetenv("API_HOST_PROTOCOL")
 }
 
 func TestGetRoot(t *testing.T) {
@@ -42,11 +61,13 @@ func TestGetRoot(t *testing.T) {
 		router.GetRoot(c)
 	})
 
+	// Test contexts cannot be injected any middleware, therefore
+	// this only tests the path, not the host
 	l := router.RootResponse{
 		Links: router.RootLinks{
-			Docs:    "https://example.com/docs/index.html",
-			Version: "https://example.com/version",
-			V1:      "https://example.com/v1",
+			Docs:    "/docs/index.html",
+			Version: "/version",
+			V1:      "/v1",
 		},
 	}
 
@@ -69,14 +90,16 @@ func TestGetV1(t *testing.T) {
 		router.GetV1(c)
 	})
 
+	// Test contexts cannot be injected any middleware, therefore
+	// this only tests the path, not the host
 	l := router.V1Response{
 		Links: router.V1Links{
-			Budgets:      "http://example.com/v1/budgets",
-			Accounts:     "http://example.com/v1/accounts",
-			Transactions: "http://example.com/v1/transactions",
-			Categories:   "http://example.com/v1/categories",
-			Envelopes:    "http://example.com/v1/envelopes",
-			Allocations:  "http://example.com/v1/allocations",
+			Budgets:      "/v1/budgets",
+			Accounts:     "/v1/accounts",
+			Transactions: "/v1/transactions",
+			Categories:   "/v1/categories",
+			Envelopes:    "/v1/envelopes",
+			Allocations:  "/v1/allocations",
 		},
 	}
 

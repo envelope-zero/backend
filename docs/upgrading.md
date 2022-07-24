@@ -1,6 +1,19 @@
 # Upgrading
 
-If upgrades between versions require manual actions, those are described here
+If upgrades between versions require manual actions, those are described here.
+
+## v0.30.3 to v0.31.0
+
+With [v0.31.0](https://github.com/envelope-zero/backend/releases/tag/v0.31.0), the host name and prefix are not auto-detected anymore. This was done with the `x-forwarded-host` and `x-forwarded-prefix` headers or the reuqest URL itself until now.
+
+From `v0.31.0` on, this is done with the environment variables `API_HOST_PROTOCOL` and `API_BASE_PATH`.
+
+To migrate, do the following:
+
+- Set `API_HOST_PROTOCOL` to the scheme, hostname and port of your instance, e.g. `https://ez.example.com` or `http://localhost:8080`
+- Set `API_BASE_PATH` to the prefix at which the API is available, e.g. `/api`.
+- Upgrade to `v.031.0`
+- You can now unset the http headers `x-forwarded-host` and `x-forwarded-prefix` at your proxy if you want.
 
 ## v0.30.2 to v0.30.3
 

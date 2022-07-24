@@ -292,7 +292,7 @@ func getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, error) {
 // This function is only needed for getTransactionObject as we cannot create an instance of Transaction
 // with mixed named and unnamed parameters.
 func getTransactionLinks(c *gin.Context, id uuid.UUID) TransactionLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/transactions/%s", id)
+	url := fmt.Sprintf("%s/v1/transactions/%s", c.GetString("baseURL"), id)
 
 	return TransactionLinks{
 		Self: url,

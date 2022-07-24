@@ -1,2 +1,3 @@
 [build]
   delay = 3000
+  full_bin = "API_HOST_PROTOCOL=http://localhost:8080 CORS_ALLOW_ORIGINS=http://localhost:3000 ./tmp/main"

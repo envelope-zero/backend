@@ -348,14 +348,14 @@ func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, error) {
 // This function is only needed for getBudgetObject as we cannot create an instance of Budget
 // with mixed named and unnamed parameters.
 func getBudgetLinks(c *gin.Context, id uuid.UUID) BudgetLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/budgets/%s", id)
+	url := fmt.Sprintf("%s/v1/budgets/%s", c.GetString("baseURL"), id)
 
 	return BudgetLinks{
 		Self:         url,
-		Accounts:     httputil.RequestPathV1(c) + fmt.Sprintf("/accounts?budget=%s", id),
-		Categories:   httputil.RequestPathV1(c) + fmt.Sprintf("/categories?budget=%s", id),
-		Envelopes:    httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes?budget=%s", id),
-		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?budget=%s", id),
+		Accounts:     fmt.Sprintf("%s/v1/accounts?budget=%s", c.GetString("baseURL"), id),
+		Categories:   fmt.Sprintf("%s/v1/categories?budget=%s", c.GetString("baseURL"), id),
+		Envelopes:    fmt.Sprintf("%s/v1/envelopes?budget=%s", c.GetString("baseURL"), id),
+		Transactions: fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), id),
 		Month:        url + "/YYYY-MM",
 	}
 }

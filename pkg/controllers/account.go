@@ -307,8 +307,8 @@ func getAccountObject(c *gin.Context, id uuid.UUID) (Account, error) {
 // This function is only needed for getAccountObject as we cannot create an instance of Account
 // with mixed named and unnamed parameters.
 func getAccountLinks(c *gin.Context, id uuid.UUID) AccountLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/accounts/%s", id)
-	t := httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?account=%s", id)
+	url := fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), id)
+	t := fmt.Sprintf("%s/v1/transactions?account=%s", c.GetString("baseURL"), id)
 
 	return AccountLinks{
 		Self:         url,

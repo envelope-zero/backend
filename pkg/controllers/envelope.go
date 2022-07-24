@@ -321,12 +321,12 @@ func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, error
 // This function is only needed for getEnvelopeObject as we cannot create an instance of Envelope
 // with mixed named and unnamed parameters.
 func getEnvelopeLinks(c *gin.Context, id uuid.UUID) EnvelopeLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes/%s", id)
+	url := fmt.Sprintf("%s/v1/envelopes/%s", c.GetString("baseURL"), id)
 
 	return EnvelopeLinks{
 		Self:         url,
 		Allocations:  url + "/allocations",
 		Month:        url + "/YYYY-MM",
-		Transactions: httputil.RequestPathV1(c) + fmt.Sprintf("/transactions?envelope=%s", id),
+		Transactions: fmt.Sprintf("%s/v1/transactions?envelope=%s", c.GetString("baseURL"), id),
 	}
 }
