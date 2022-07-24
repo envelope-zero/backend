@@ -282,10 +282,10 @@ func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, error) {
 // This function is only needed for getCategoryObject as we cannot create an instance of Category
 // with mixed named and unnamed parameters.
 func getCategoryLinks(c *gin.Context, id uuid.UUID) CategoryLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/categories/%s", id)
+	url := fmt.Sprintf("%s/v1/categories/%s", c.GetString("baseURL"), id)
 
 	return CategoryLinks{
 		Self:      url,
-		Envelopes: httputil.RequestPathV1(c) + fmt.Sprintf("/envelopes?category=%s", id),
+		Envelopes: fmt.Sprintf("%s/v1/envelopes?category=%s", c.GetString("baseURL"), id),
 	}
 }

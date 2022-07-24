@@ -23,23 +23,20 @@ See [docs/upgrading.md](docs/upgrading.md).
 
 :warning: If you do not configure a postgresql database, sqlite will automatically be used. Mount a persistent volume to the `/data` directory - this is where the sqlite database is stored. If you do not do this, you will lose all data every time the container is deleted.
 
-If you serve the backend with a reverse proxy under a different path than `/`, note the following:
+The backend can be configured with the following environment variables.
 
-- Your reverse proxy must set the `x-forwarded-host` header so that correct URIs are generated
-- If you do not serve the backend at the prefix `/api` (required by the [frontend](https://github.com/envelope-zero/frontend)), your reverse proxy needs to set the `x-forwarded-prefix` header
-
-The backend can be configured with the following environment variables. None are required.
-
-| Name                 | Type                      | Default                                              | Description                                                                                                                                                       |
-| -------------------- | ------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GIN_MODE`           | One of `release`, `debug` | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment!                                                                              |
-| `PORT`               | `number`                  | `8080`                                               | The port the backend listens on                                                                                                                                   |
-| `LOG_FORMAT`         | One of `json`, `human`    | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                                                                                               |
-| `DB_HOST`            | `string`                  |                                                      | hostname or address of postgresql                                                                                                                                 |
-| `DB_USER`            | `string`                  |                                                      | username for the postgresql connection                                                                                                                            |
-| `DB_PASSWORD`        | `string`                  |                                                      | password for `DB_USER`                                                                                                                                            |
-| `DB_NAME`            | `string`                  |                                                      | name of the database to use                                                                                                                                       |
-| `CORS_ALLOW_ORIGINS` | `string`                  |                                                      | hosts that are allowed to use cross origin requests, separated by spaces. Only set this when your frontend runs on a different host and/or port than the backend! |
+| Name                 | Type                             | Default                                              | Description                                                                                                                                                       |
+| -------------------- | -------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_HOST_PROTOCOL`  | `string` representing a URL      | _none, must be set_                                  | The Scheme, host name, and port (if required) the backend is accessible at                                                                                        |
+| `API_BASE_PATH`      | `string` representing a URL path | `""`                                                 | The path at which the API is accessible, e.g. `/api`. Must be set when the API is on a sub-path. Leave empty otherwise.                                           |
+| `GIN_MODE`           | One of `release`, `debug`        | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment!                                                                              |
+| `PORT`               | `number`                         | `8080`                                               | The port the backend listens on                                                                                                                                   |
+| `LOG_FORMAT`         | One of `json`, `human`           | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                                                                                               |
+| `DB_HOST`            | `string`                         | `""`                                                 | hostname or address of postgresql                                                                                                                                 |
+| `DB_USER`            | `string`                         | `""`                                                 | username for the postgresql connection                                                                                                                            |
+| `DB_PASSWORD`        | `string`                         | `""`                                                 | password for `DB_USER`                                                                                                                                            |
+| `DB_NAME`            | `string`                         | `""`                                                 | name of the database to use                                                                                                                                       |
+| `CORS_ALLOW_ORIGINS` | `string`                         | `""`                                                 | hosts that are allowed to use cross origin requests, separated by spaces. Only set this when your frontend runs on a different host and/or port than the backend! |
 
 ### Deployment methods
 

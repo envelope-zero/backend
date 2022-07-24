@@ -263,7 +263,7 @@ func getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, error) {
 // This function is only needed for getAllocationObject as we cannot create an instance of Allocation
 // with mixed named and unnamed parameters.
 func getAllocationLinks(c *gin.Context, id uuid.UUID) AllocationLinks {
-	url := httputil.RequestPathV1(c) + fmt.Sprintf("/allocations/%s", id)
+	url := fmt.Sprintf("%s/v1/allocations/%s", c.GetString("baseURL"), id)
 
 	return AllocationLinks{
 		Self: url,
