@@ -24,7 +24,7 @@ func TestSuite(t *testing.T) {
 func (suite *TestSuiteEnv) SetupSuite() {
 	os.Setenv("LOG_FORMAT", "human")
 	os.Setenv("GIN_MODE", "debug")
-	os.Setenv("API_HOST_PROTOCOL", "http://example.com")
+	os.Setenv("API_URL", "http://example.com")
 }
 
 // TearDownTest is called after each test in the suite.
