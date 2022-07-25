@@ -91,6 +91,15 @@ func (suite *TestSuiteEnv) TestAccountCalculations() {
 	assert.True(suite.T(), a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
 
 	assert.True(suite.T(), a.ReconciledBalance.Equal(incomingTransaction.Amount), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
+
+	err = database.DB.Delete(&incomingTransaction).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be deleted", err)
+	}
+
+	a = account.WithCalculations()
+	assert.True(suite.T(), a.Balance.Equal(outgoingTransaction.Amount.Neg()), "Balance for account is not correct. Should be: %v but is %v", outgoingTransaction.Amount.Neg(), a.Balance)
+	assert.True(suite.T(), a.ReconciledBalance.Equal(decimal.NewFromFloat(0)), "Reconciled balance for account is not correct. Should be: %v but is %v", decimal.NewFromFloat(0), a.ReconciledBalance)
 }
 
 func (suite *TestSuiteEnv) TestAccountTransactions() {

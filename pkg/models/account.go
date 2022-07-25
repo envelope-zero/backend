@@ -91,12 +91,14 @@ func TransactionsSum(incoming, outgoing Transaction) decimal.Decimal {
 
 	_ = database.DB.Table("transactions").
 		Where(&outgoing).
+		Where("deleted_at is NULL").
 		Select("SUM(amount)").
 		Row().
 		Scan(&outgoingSum)
 
 	_ = database.DB.Table("transactions").
 		Where(&incoming).
+		Where("deleted_at is NULL").
 		Select("SUM(amount)").
 		Row().
 		Scan(&incomingSum)
