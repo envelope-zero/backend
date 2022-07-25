@@ -61,7 +61,7 @@ func Router() (*gin.Engine, error) {
 	// CORS settings
 	allowOrigins, ok := os.LookupEnv("CORS_ALLOW_ORIGINS")
 	if ok {
-		log.Debug().Str("allowOrigins", allowOrigins).Msg("CORS")
+		log.Debug().Str("CORS Allowed Origins", allowOrigins).Msg("Router")
 
 		r.Use(cors.New(cors.Config{
 			AllowOrigins:     strings.Fields(allowOrigins),
@@ -87,20 +87,20 @@ func Router() (*gin.Engine, error) {
 
 	r.OPTIONS("/version", OptionsVersion)
 
-	// Set API host to user configured values
-	hostProtoEnv, ok := os.LookupEnv("API_HOST_PROTOCOL")
+	apiURL, ok := os.LookupEnv("API_URL")
 	if !ok {
-		return nil, errors.New("Environment variable API_HOST_PROTOCOL must be set")
+		return nil, errors.New("Environment variable API_URL must be set")
 	}
-	hostProto, err := url.Parse(hostProtoEnv)
+
+	url, err := url.Parse(apiURL)
 	if err != nil {
-		return nil, errors.New("Environment variable API_HOST_PROTOCOL must be a URL")
+		return nil, errors.New("Environment variable API_URL must be a valid URL")
 	}
 
-	basePath := os.Getenv("API_BASE_PATH")
+	log.Debug().Str("API Base URL", url.String()).Str("Host", url.Host).Str("Path", url.Path).Msg("Router")
 
-	docs.SwaggerInfo.Host = hostProto.String()
-	docs.SwaggerInfo.BasePath = basePath
+	docs.SwaggerInfo.Host = url.Host
+	docs.SwaggerInfo.BasePath = url.Path
 	docs.SwaggerInfo.Title = "Envelope Zero"
 	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Description = "The backend for Envelope Zero, a zero based envelope budgeting solution. Check out the source code at https://github.com/envelope-zero/backend."

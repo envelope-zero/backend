@@ -15,7 +15,7 @@ import (
 
 func TestGinMode(t *testing.T) {
 	os.Setenv("GIN_MODE", "debug")
-	os.Setenv("API_HOST_PROTOCOL", "http://example.com")
+	os.Setenv("API_URL", "http://example.com")
 
 	_, err := router.Router()
 
@@ -23,33 +23,33 @@ func TestGinMode(t *testing.T) {
 	assert.True(t, gin.IsDebugging())
 
 	os.Unsetenv("GIN_MODE")
-	os.Unsetenv("API_HOST_PROTOCOL")
+	os.Unsetenv("API_URL")
 }
 
 func TestEnvUnset(t *testing.T) {
 	_, err := router.Router()
 
-	assert.NotNil(t, err, "API_HOST_PROTOCOL is unset, this must lead to an error")
+	assert.NotNil(t, err, "API_URL is unset, this must lead to an error")
 }
 
 func TestEnvNoURL(t *testing.T) {
-	os.Setenv("API_HOST_PROTOCOL", "\\:veryMuchNotAURL")
+	os.Setenv("API_URL", "\\:veryMuchNotAURL")
 	_, err := router.Router()
 
-	assert.NotNil(t, err, "API_HOST_PROTOCOL is not an URL, this must lead to an error")
+	assert.NotNil(t, err, "API_URL is not an URL, this must lead to an error")
 }
 
 // TestCorsSetting checks that setting of CORS works.
 // It does not check the actual headers as this is already done in testing of the module.
 func TestCorsSetting(t *testing.T) {
 	os.Setenv("CORS_ALLOW_ORIGINS", "http://localhost:3000 https://example.com")
-	os.Setenv("API_HOST_PROTOCOL", "http://example.com")
+	os.Setenv("API_URL", "http://example.com")
 
 	_, err := router.Router()
 
 	assert.Nil(t, err)
 	os.Unsetenv("CORS_ALLOW_ORIGINS")
-	os.Unsetenv("API_HOST_PROTOCOL")
+	os.Unsetenv("API_URL")
 }
 
 func TestGetRoot(t *testing.T) {
