@@ -210,12 +210,12 @@ type V1Links struct {
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
-			Budgets:      c.GetString("requestURL") + "/v1/budgets",
-			Accounts:     c.GetString("requestURL") + "/v1/accounts",
-			Categories:   c.GetString("requestURL") + "/v1/categories",
-			Transactions: c.GetString("requestURL") + "/v1/transactions",
-			Envelopes:    c.GetString("requestURL") + "/v1/envelopes",
-			Allocations:  c.GetString("requestURL") + "/v1/allocations",
+			Budgets:      c.GetString("baseURL") + "/v1/budgets",
+			Accounts:     c.GetString("baseURL") + "/v1/accounts",
+			Categories:   c.GetString("baseURL") + "/v1/categories",
+			Transactions: c.GetString("baseURL") + "/v1/transactions",
+			Envelopes:    c.GetString("baseURL") + "/v1/envelopes",
+			Allocations:  c.GetString("baseURL") + "/v1/allocations",
 		},
 	})
 }

@@ -26,7 +26,6 @@ func URLMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("baseURL", url.String())
-		c.Set("requestURL", url.String()+c.Request.URL.Path)
 		c.Next()
 	}
 }
