@@ -281,6 +281,36 @@ func (suite *TestSuiteEnv) TestUpdateTransactionNegativeAmount() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
+func (suite *TestSuiteEnv) TestUpdateTransactionEmptySourceDestinationAccount() {
+	transaction := createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(382.18)})
+
+	recorder := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, models.TransactionCreate{SourceAccountID: uuid.New()})
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+
+	recorder = test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, models.TransactionCreate{DestinationAccountID: uuid.New()})
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateNoEnvelopeTransactionOutgoing() {
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+
+	c := models.TransactionCreate{
+		BudgetID:             createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
+		SourceAccountID:      createTestAccount(suite.T(), models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: createTestAccount(suite.T(), models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
+		Amount:               decimal.NewFromFloat(984.13),
+	}
+
+	transaction := createTestTransaction(suite.T(), c)
+
+	recorder := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, `{ "envelopeId": null }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	err := test.DecodeError(suite.T(), recorder.Body.Bytes())
+	assert.Equal(suite.T(), "For incoming and outgoing transactions, an envelope is required", err, "request id %s", recorder.Header().Get("x-request-id"))
+}
+
 func (suite *TestSuiteEnv) TestUpdateNonExistingTransaction() {
 	recorder := test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/transactions/6ae3312c-23cf-4225-9a81-4f218ba41b00", `{ "note": "2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)

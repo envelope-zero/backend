@@ -226,6 +226,34 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 
+	// Check the source account
+	sourceAccountID := transaction.SourceAccountID
+	if data.SourceAccountID != uuid.Nil {
+		sourceAccountID = data.SourceAccountID
+	}
+	sourceAccount, err := getAccountResource(c, sourceAccountID)
+	if err != nil {
+		return
+	}
+
+	// Check the destination account
+	destinationAccountID := transaction.DestinationAccountID
+	if data.DestinationAccountID != uuid.Nil {
+		destinationAccountID = data.DestinationAccountID
+	}
+	destinationAccount, err := getAccountResource(c, destinationAccountID)
+	if err != nil {
+		return
+	}
+
+	// Check if the transaction is a transfer. If yes, the envelope can be empty.
+	//
+	// Check that the Envelope ID is set for incoming and outgoing transactions
+	if sourceAccount.External || destinationAccount.External && data.EnvelopeID == nil {
+		httputil.NewError(c, http.StatusBadRequest, errors.New("For incoming and outgoing transactions, an envelope is required"))
+		return
+	}
+
 	err = database.DB.Model(&transaction).Select("", updateFields...).Updates(data).Error
 	if err != nil {
 		httputil.ErrorHandler(c, err)
