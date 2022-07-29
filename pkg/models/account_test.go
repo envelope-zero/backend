@@ -60,7 +60,7 @@ func (suite *TestSuiteEnv) TestAccountCalculations() {
 	incomingTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:             budget.ID,
-			EnvelopeID:           envelope.ID,
+			EnvelopeID:           &envelope.ID,
 			SourceAccountID:      externalAccount.ID,
 			DestinationAccountID: account.ID,
 			Reconciled:           true,
@@ -75,7 +75,7 @@ func (suite *TestSuiteEnv) TestAccountCalculations() {
 	outgoingTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:             budget.ID,
-			EnvelopeID:           envelope.ID,
+			EnvelopeID:           &envelope.ID,
 			SourceAccountID:      account.ID,
 			DestinationAccountID: externalAccount.ID,
 			Amount:               decimal.NewFromFloat(17.45),

@@ -25,8 +25,8 @@ func createTestTransaction(t *testing.T, c models.TransactionCreate) controllers
 		c.DestinationAccountID = createTestAccount(t, models.AccountCreate{Name: "Destination Account"}).Data.ID
 	}
 
-	if c.EnvelopeID == uuid.Nil {
-		c.EnvelopeID = createTestEnvelope(t, models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
+	if c.EnvelopeID == &uuid.Nil {
+		*c.EnvelopeID = createTestEnvelope(t, models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
 	}
 
 	r := test.Request(t, http.MethodPost, "http://example.com/v1/transactions", c)
@@ -104,7 +104,7 @@ func (suite *TestSuiteEnv) TestCreateTransactionMissingReference() {
 		TransactionCreate: models.TransactionCreate{
 			SourceAccountID:      account.Data.ID,
 			DestinationAccountID: account.Data.ID,
-			EnvelopeID:           envelope.Data.ID,
+			EnvelopeID:           &envelope.Data.ID,
 		},
 	})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
@@ -124,7 +124,7 @@ func (suite *TestSuiteEnv) TestCreateTransactionMissingReference() {
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:             budget.Data.ID,
 			DestinationAccountID: account.Data.ID,
-			EnvelopeID:           envelope.Data.ID,
+			EnvelopeID:           &envelope.Data.ID,
 		},
 	})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
@@ -134,7 +134,7 @@ func (suite *TestSuiteEnv) TestCreateTransactionMissingReference() {
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:        budget.Data.ID,
 			SourceAccountID: account.Data.ID,
-			EnvelopeID:      envelope.Data.ID,
+			EnvelopeID:      &envelope.Data.ID,
 		},
 	})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
@@ -160,7 +160,7 @@ func (suite *TestSuiteEnv) TestCreateNegativeAmountTransaction() {
 		BudgetID:             budget.Data.ID,
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: account.Data.ID,
-		EnvelopeID:           envelope.Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
 		Amount:               decimal.NewFromFloat(-17.12),
 		Note:                 "Negative amounts are not allowed, this must fail",
 	})
@@ -170,6 +170,48 @@ func (suite *TestSuiteEnv) TestCreateNegativeAmountTransaction() {
 
 func (suite *TestSuiteEnv) TestCreateNonExistingBudgetTransaction() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", `{ "budgetId": "978e95a0-90f2-4dee-91fd-ee708c30301c", "amount": 32.12, "note": "The budget with this id must exist, so this must fail" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestCreateNoEnvelopeTransactionTransfer() {
+	c := models.TransactionCreate{
+		BudgetID:             createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget for transfer"}).Data.ID,
+		SourceAccountID:      createTestAccount(suite.T(), models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: createTestAccount(suite.T(), models.AccountCreate{Name: "Internal destination account", External: false}).Data.ID,
+		Amount:               decimal.NewFromFloat(500),
+	}
+
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestCreateNoEnvelopeTransactionOutgoing() {
+	c := models.TransactionCreate{
+		BudgetID:             createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget for transfer"}).Data.ID,
+		SourceAccountID:      createTestAccount(suite.T(), models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: createTestAccount(suite.T(), models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
+		Amount:               decimal.NewFromFloat(350),
+	}
+
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	err := test.DecodeError(suite.T(), recorder.Body.Bytes())
+	assert.Equal(suite.T(), "For incoming and outgoing transactions, an envelope is required", err)
+}
+
+func (suite *TestSuiteEnv) TestCreateNonExistingEnvelopeTransactionTransfer() {
+	id := uuid.New()
+
+	c := models.TransactionCreate{
+		BudgetID:             createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget for transfer"}).Data.ID,
+		SourceAccountID:      createTestAccount(suite.T(), models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: createTestAccount(suite.T(), models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
+		Amount:               decimal.NewFromFloat(350),
+		EnvelopeID:           &id,
+	}
+
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 

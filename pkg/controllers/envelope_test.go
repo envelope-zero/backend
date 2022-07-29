@@ -154,7 +154,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 		BudgetID:             budget.Data.ID,
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
-		EnvelopeID:           envelope.Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
 		Reconciled:           true,
 	})
 
@@ -165,7 +165,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 		BudgetID:             budget.Data.ID,
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
-		EnvelopeID:           envelope.Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
 		Reconciled:           true,
 	})
 
@@ -176,7 +176,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 		BudgetID:             budget.Data.ID,
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
-		EnvelopeID:           envelope.Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
 		Reconciled:           true,
 	})
 

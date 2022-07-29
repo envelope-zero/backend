@@ -64,7 +64,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 	transaction := &models.Transaction{
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:             budget.ID,
-			EnvelopeID:           envelope.ID,
+			EnvelopeID:           &envelope.ID,
 			Amount:               spent,
 			SourceAccountID:      internalAccount.ID,
 			DestinationAccountID: externalAccount.ID,
@@ -79,7 +79,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 	transactionIn := &models.Transaction{
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:             budget.ID,
-			EnvelopeID:           envelope.ID,
+			EnvelopeID:           &envelope.ID,
 			Amount:               spent.Neg(),
 			SourceAccountID:      externalAccount.ID,
 			DestinationAccountID: internalAccount.ID,
@@ -104,4 +104,58 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 
 	envelopeMonth = envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(decimal.NewFromFloat(0)), "Month calculation for 2022-01 is wrong: should be %v, but is %v", decimal.NewFromFloat(0), envelopeMonth.Spent)
+}
+
+func (suite *TestSuiteEnv) TestCreateTransactionNoEnvelope() {
+	budget := models.Budget{}
+	err := database.DB.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	internalAccount := &models.Account{
+		AccountCreate: models.AccountCreate{
+			Name:     "Internal Source Account",
+			BudgetID: budget.ID,
+		},
+	}
+	err = database.DB.Create(internalAccount).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	externalAccount := &models.Account{
+		AccountCreate: models.AccountCreate{
+			Name:     "External Destination Account",
+			BudgetID: budget.ID,
+			External: true,
+		},
+	}
+	err = database.DB.Create(&externalAccount).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	category := models.Category{
+		CategoryCreate: models.CategoryCreate{
+			BudgetID: budget.ID,
+		},
+	}
+	err = database.DB.Save(&category).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	transaction := &models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.ID,
+			Amount:               decimal.NewFromFloat(17.32),
+			SourceAccountID:      internalAccount.ID,
+			DestinationAccountID: externalAccount.ID,
+			Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
+		},
+	}
+	err = database.DB.Create(&transaction).Error
+
+	assert.Nil(suite.T(), err, "Transactions must be able to be created without an envelope (to enable internal transfers without an Envelope)")
 }
