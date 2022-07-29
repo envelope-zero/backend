@@ -65,6 +65,16 @@ func OptionsTransactionList(c *gin.Context) {
 // @Param        transactionId  path  string  true  "ID formatted as string"
 // @Router       /v1/transactions/{transactionId} [options]
 func OptionsTransactionDetail(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("transactionId"))
+	if err != nil {
+		httputil.ErrorInvalidUUID(c)
+		return
+	}
+
+	_, err = getTransactionObject(c, p)
+	if err != nil {
+		return
+	}
 	httputil.OptionsGetPatchDelete(c)
 }
 

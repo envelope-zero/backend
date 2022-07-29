@@ -85,6 +85,16 @@ func OptionsBudgetList(c *gin.Context) {
 // @Param        budgetId  path      string  true  "ID formatted as string"
 // @Router       /v1/budgets/{budgetId} [options]
 func OptionsBudgetDetail(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("budgetId"))
+	if err != nil {
+		httputil.ErrorInvalidUUID(c)
+		return
+	}
+
+	_, err = getBudgetObject(c, p)
+	if err != nil {
+		return
+	}
 	httputil.OptionsGetPatchDelete(c)
 }
 

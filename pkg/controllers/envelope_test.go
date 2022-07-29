@@ -28,6 +28,19 @@ func createTestEnvelope(t *testing.T, c models.EnvelopeCreate) controllers.Envel
 	return e
 }
 
+func (suite *TestSuiteEnv) TestOptionsEnvelope() {
+	path := fmt.Sprintf("%s/%s", "http://example.com/v1/envelopes", uuid.New())
+	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/envelopes/NotParseableAsUUID", "")
+	assert.Equal(suite.T(), http.StatusBadRequest, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	path = createTestEnvelope(suite.T(), models.EnvelopeCreate{}).Data.Links.Self
+	recorder = test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+}
+
 func (suite *TestSuiteEnv) TestGetEnvelopes() {
 	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 

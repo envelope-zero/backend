@@ -65,6 +65,16 @@ func OptionsAllocationList(c *gin.Context) {
 // @Param        allocationId  path  string  true  "ID formatted as string"
 // @Router       /v1/allocations/{allocationId} [options]
 func OptionsAllocationDetail(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("allocationId"))
+	if err != nil {
+		httputil.ErrorInvalidUUID(c)
+		return
+	}
+
+	_, err = getAllocationObject(c, p)
+	if err != nil {
+		return
+	}
 	httputil.OptionsGetPatchDelete(c)
 }
 
