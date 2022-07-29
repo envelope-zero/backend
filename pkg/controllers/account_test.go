@@ -27,6 +27,19 @@ func createTestAccount(t *testing.T, c models.AccountCreate) controllers.Account
 	return a
 }
 
+func (suite *TestSuiteEnv) TestOptionsAccount() {
+	path := fmt.Sprintf("%s/%s", "http://example.com/v1/accounts", uuid.New())
+	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/accounts/NotParseableAsUUID", "")
+	assert.Equal(suite.T(), http.StatusBadRequest, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	path = createTestAccount(suite.T(), models.AccountCreate{}).Data.Links.Self
+	recorder = test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+}
+
 func (suite *TestSuiteEnv) TestGetAccounts() {
 	_ = createTestAccount(suite.T(), models.AccountCreate{})
 

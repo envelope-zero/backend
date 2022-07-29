@@ -1,6 +1,7 @@
 package controllers_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -25,6 +26,19 @@ func createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.A
 	test.DecodeResponse(t, &r, &a)
 
 	return a
+}
+
+func (suite *TestSuiteEnv) TestOptionsAllocation() {
+	path := fmt.Sprintf("%s/%s", "http://example.com/v1/allocations", uuid.New())
+	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/allocations/NotParseableAsUUID", "")
+	assert.Equal(suite.T(), http.StatusBadRequest, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	path = createTestAllocation(suite.T(), models.AllocationCreate{Month: 2}).Data.Links.Self
+	recorder = test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteEnv) TestGetAllocations() {

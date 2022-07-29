@@ -72,6 +72,17 @@ func OptionsEnvelopeList(c *gin.Context) {
 // @Param        envelopeId  path  string  true  "ID formatted as string"
 // @Router       /v1/envelopes/{envelopeId} [options]
 func OptionsEnvelopeDetail(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("envelopeId"))
+	if err != nil {
+		httputil.ErrorInvalidUUID(c)
+		return
+	}
+
+	_, err = getEnvelopeObject(c, p)
+	if err != nil {
+		return
+	}
+
 	httputil.OptionsGetPatchDelete(c)
 }
 

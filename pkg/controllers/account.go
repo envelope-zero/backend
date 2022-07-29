@@ -92,6 +92,16 @@ func OptionsAccountList(c *gin.Context) {
 // @Param        accountId  path  string  true  "ID formatted as string"
 // @Router       /v1/accounts/{accountId} [options]
 func OptionsAccountDetail(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("accountId"))
+	if err != nil {
+		httputil.ErrorInvalidUUID(c)
+		return
+	}
+
+	_, err = getAccountObject(c, p)
+	if err != nil {
+		return
+	}
 	httputil.OptionsGetPatchDelete(c)
 }
 

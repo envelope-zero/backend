@@ -9,6 +9,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,6 +22,19 @@ func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetRes
 	test.DecodeResponse(t, &r, &a)
 
 	return a
+}
+
+func (suite *TestSuiteEnv) TestOptionsBudget() {
+	path := fmt.Sprintf("%s/%s", "http://example.com/v1/budgets", uuid.New())
+	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/budgets/NotParseableAsUUID", "")
+	assert.Equal(suite.T(), http.StatusBadRequest, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	path = createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.Self
+	recorder = test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteEnv) TestGetBudgets() {

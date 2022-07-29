@@ -1,6 +1,7 @@
 package controllers_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -36,6 +37,19 @@ func createTestTransaction(t *testing.T, c models.TransactionCreate) controllers
 	test.DecodeResponse(t, &r, &tr)
 
 	return tr
+}
+
+func (suite *TestSuiteEnv) TestOptionsTransaction() {
+	path := fmt.Sprintf("%s/%s", "http://example.com/v1/transactions", uuid.New())
+	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/transactions/NotParseableAsUUID", "")
+	assert.Equal(suite.T(), http.StatusBadRequest, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	path = createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
+	recorder = test.Request(suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteEnv) TestGetTransactions() {

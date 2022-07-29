@@ -70,6 +70,16 @@ func OptionsCategoryList(c *gin.Context) {
 // @Param        categoryId  path  string  true  "ID formatted as string"
 // @Router       /v1/categories/{categoryId} [options]
 func OptionsCategoryDetail(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("categoryId"))
+	if err != nil {
+		httputil.ErrorInvalidUUID(c)
+		return
+	}
+
+	_, err = getCategoryObject(c, p)
+	if err != nil {
+		return
+	}
 	httputil.OptionsGetPatchDelete(c)
 }
 

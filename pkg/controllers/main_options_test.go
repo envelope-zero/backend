@@ -7,32 +7,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var optionsHeaderTests = []struct {
-	path     string
-	expected string
-}{
-	{"/", http.MethodGet},
-	{"/version", http.MethodGet},
-	{"http://example.com/v1", http.MethodGet},
-	{"http://example.com/v1/budgets", "GET, POST"},
-	{"http://example.com/v1/budgets/1", "GET, PATCH, DELETE"},
-	{"http://example.com/v1/accounts", "GET, POST"},
-	{"http://example.com/v1/accounts/1", "GET, PATCH, DELETE"},
-	{"http://example.com/v1/categories", "GET, POST"},
-	{"http://example.com/v1/categories/1", "GET, PATCH, DELETE"},
-	{"http://example.com/v1/envelopes", "GET, POST"},
-	{"http://example.com/v1/envelopes/1", "GET, PATCH, DELETE"},
-	{"http://example.com/v1/allocations", "GET, POST"},
-	{"http://example.com/v1/allocations/1", "GET, PATCH, DELETE"},
-	{"http://example.com/v1/transactions", "GET, POST"},
-	{"http://example.com/v1/transactions/1", "GET, PATCH, DELETE"},
+func (suite *TestSuiteEnv) TestOptionsHeaderGeneral() {
+	optionsHeaderTests := []string{
+		"/",
+		"/version",
+		"http://example.com/v1",
+	}
+
+	for _, path := range optionsHeaderTests {
+		recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+
+		assert.Equal(suite.T(), http.StatusNoContent, recorder.Code)
+		assert.Equal(suite.T(), recorder.Header().Get("allow"), "GET")
+	}
 }
 
-func (suite *TestSuiteEnv) TestOptionsHeader() {
-	for _, tt := range optionsHeaderTests {
-		recorder := test.Request(suite.T(), http.MethodOptions, tt.path, "")
+func (suite *TestSuiteEnv) TestOptionsHeaderResources() {
+	optionsHeaderTests := []string{
+		"http://example.com/v1/budgets",
+		"http://example.com/v1/accounts",
+		"http://example.com/v1/categories",
+		"http://example.com/v1/envelopes",
+		"http://example.com/v1/allocations",
+		"http://example.com/v1/transactions",
+	}
 
-		assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Status for %v is wrong, expected %d, got %d", tt.path, http.StatusNoContent, recorder.Code)
-		assert.Equal(suite.T(), recorder.Header().Get("allow"), tt.expected)
+	for _, path := range optionsHeaderTests {
+		recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+
+		assert.Equal(suite.T(), http.StatusNoContent, recorder.Code)
+		assert.Equal(suite.T(), recorder.Header().Get("allow"), "GET, POST")
 	}
 }
