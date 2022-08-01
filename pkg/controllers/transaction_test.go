@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -105,6 +106,25 @@ func (suite *TestSuiteEnv) TestTransactionInvalidIDs() {
 
 func (suite *TestSuiteEnv) TestCreateTransaction() {
 	_ = createTestTransaction(suite.T(), models.TransactionCreate{Note: "More tests something something", Amount: decimal.NewFromFloat(1253.17)})
+}
+
+func (suite *TestSuiteEnv) TestTransactionSorting() {
+	tFebrurary := createTestTransaction(suite.T(), models.TransactionCreate{Note: "Should be second in the list", Amount: decimal.NewFromFloat(1253.17), Date: time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC)})
+
+	tMarch := createTestTransaction(suite.T(), models.TransactionCreate{Note: "Should be first in the list", Amount: decimal.NewFromFloat(1253.17), Date: time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC)})
+
+	tJanuary := createTestTransaction(suite.T(), models.TransactionCreate{Note: "Should be third in the list", Amount: decimal.NewFromFloat(1253.17), Date: time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC)})
+
+	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/transactions", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+
+	var transactions controllers.TransactionListResponse
+	test.DecodeResponse(suite.T(), &r, &transactions)
+
+	assert.Len(suite.T(), transactions.Data, 3, "There are not exactly three transactions")
+	assert.Equal(suite.T(), tMarch.Data.Date, transactions.Data[0].Date, "The first transaction is not the March transaction")
+	assert.Equal(suite.T(), tFebrurary.Data.Date, transactions.Data[1].Date, "The second transaction is not the February transaction")
+	assert.Equal(suite.T(), tJanuary.Data.Date, transactions.Data[2].Date, "The third transaction is not the January transaction")
 }
 
 func (suite *TestSuiteEnv) TestCreateTransactionMissingReference() {

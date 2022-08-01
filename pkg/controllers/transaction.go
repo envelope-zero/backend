@@ -152,7 +152,7 @@ func CreateTransaction(c *gin.Context) {
 func GetTransactions(c *gin.Context) {
 	var transactions []models.Transaction
 
-	database.DB.Find(&transactions)
+	database.DB.Order("date(date) DESC").Find(&transactions)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
