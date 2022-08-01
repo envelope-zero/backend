@@ -2,6 +2,15 @@
 
 If upgrades between versions require manual actions, those are described here.
 
+## v0.32.0 to v0.33.0
+
+[v0.33.0](https://github.com/envelope-zero/backend/releases/tag/v0.33.0) removes support for postgresql.
+
+If you are currently using postgresql, you need to:
+
+1. Export your data with `pg_dump --data-only`.
+2. Upgrade to `v0.33.0` and then re-import the data with `.read database-dump.sql` to the sqlite database.
+
 ## v0.31.0 to v0.31.1
 
 [v0.31.1](https://github.com/envelope-zero/backend/releases/tag/v0.31.1), fixes buggy behaviour from `v0.31.0` and simplifies base URL configuration at the same time.

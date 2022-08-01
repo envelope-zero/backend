@@ -1,17 +1,6 @@
 version: "3"
 
 services:
-  db:
-    image: postgres:14.4-alpine
-    restart: always
-    environment:
-      - POSTGRES_USER=ez
-      - POSTGRES_PASSWORD=thisisunsafe
-    ports:
-      - 5432:5432
-    volumes:
-      - db:/var/lib/postgresql/data
-
   backend:
     build: .
     depends_on:
@@ -20,10 +9,8 @@ services:
       - 8080:8080
     environment:
       GIN_MODE: debug
-      DB_HOST: db
-      DB_USER: ez
-      DB_PASSWORD: thisisunsafe
-      DB_NAME: postgres
+    volumes:
+      - data:/data
 
 volumes:
-  db:
+  data:
