@@ -7,7 +7,7 @@ require (
 	github.com/gin-contrib/logger v0.2.2
 	github.com/gin-contrib/requestid v0.0.5
 	github.com/gin-gonic/gin v1.8.1
-	github.com/glebarez/go-sqlite v1.17.3
+	github.com/glebarez/go-sqlite v1.18.0
 	github.com/glebarez/sqlite v1.4.6
 	github.com/google/uuid v1.3.0
 	github.com/rs/zerolog v1.27.0
@@ -57,7 +57,7 @@ require (
 	modernc.org/libc v1.16.14 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.1.1 // indirect
-	modernc.org/sqlite v1.17.3 // indirect
+	modernc.org/sqlite v1.18.0 // indirect
 )
 
 replace github.com/envelope-zero/backend/pkg/controllers => ./pkg/controllers
