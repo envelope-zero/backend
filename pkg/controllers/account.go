@@ -72,25 +72,25 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// @Summary      Allowed HTTP verbs
-// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags         Accounts
-// @Success      204
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Router       /v1/accounts [options]
+// @Summary     Allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags        Accounts
+// @Success     204
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Router      /v1/accounts [options]
 func OptionsAccountList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
-// @Summary      Allowed HTTP verbs
-// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags         Accounts
-// @Success      204
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Param        accountId  path  string  true  "ID formatted as string"
-// @Router       /v1/accounts/{accountId} [options]
+// @Summary     Allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags        Accounts
+// @Success     204
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Param       accountId path string true "ID formatted as string"
+// @Router      /v1/accounts/{accountId} [options]
 func OptionsAccountDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
@@ -105,16 +105,16 @@ func OptionsAccountDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// @Summary      Create account
-// @Description  Creates a new account
-// @Tags         Accounts
-// @Produce      json
-// @Success      201  {object}  AccountResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500      {object}  httputil.HTTPError
-// @Param        account  body      models.AccountCreate  true  "Account"
-// @Router       /v1/accounts [post]
+// @Summary     Create account
+// @Description Creates a new account
+// @Tags        Accounts
+// @Produce     json
+// @Success     201 {object} AccountResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500     {object} httputil.HTTPError
+// @Param       account body     models.AccountCreate true "Account"
+// @Router      /v1/accounts [post]
 func CreateAccount(c *gin.Context) {
 	var account models.Account
 
@@ -134,20 +134,20 @@ func CreateAccount(c *gin.Context) {
 	c.JSON(http.StatusCreated, AccountResponse{Data: accountObject})
 }
 
-// @Summary      List accounts
-// @Description  Returns a list of accounts
-// @Tags         Accounts
-// @Produce      json
-// @Success      200  {object}  AccountListResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500  {object}  httputil.HTTPError
-// @Router       /v1/accounts [get]
-// @Param        name      query  string  false  "Filter by name"
-// @Param        note      query  string  false  "Filter by note"
-// @Param        budget    query  string  false  "Filter by budget ID"
-// @Param        onBudget  query  bool    false  "Filter by on/off-budget"
-// @Param        external  query  bool    false  "Filter internal/external"
+// @Summary     List accounts
+// @Description Returns a list of accounts
+// @Tags        Accounts
+// @Produce     json
+// @Success     200 {object} AccountListResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500 {object} httputil.HTTPError
+// @Router      /v1/accounts [get]
+// @Param       name     query string false "Filter by name"
+// @Param       note     query string false "Filter by note"
+// @Param       budget   query string false "Filter by budget ID"
+// @Param       onBudget query bool   false "Filter by on/off-budget"
+// @Param       external query bool   false "Filter internal/external"
 func GetAccounts(c *gin.Context) {
 	var filter AccountQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -182,16 +182,16 @@ func GetAccounts(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountListResponse{Data: accountObjects})
 }
 
-// @Summary      Get account
-// @Description  Returns a specific account
-// @Tags         Accounts
-// @Produce      json
-// @Success      200  {object}  AccountResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500        {object}  httputil.HTTPError
-// @Param        accountId  path      string  true  "ID formatted as string"
-// @Router       /v1/accounts/{accountId} [get]
+// @Summary     Get account
+// @Description Returns a specific account
+// @Tags        Accounts
+// @Produce     json
+// @Success     200 {object} AccountResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500       {object} httputil.HTTPError
+// @Param       accountId path     string true "ID formatted as string"
+// @Router      /v1/accounts/{accountId} [get]
 func GetAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
@@ -207,17 +207,17 @@ func GetAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
 
-// @Summary      Update account
-// @Description  Updates an account. Only values to be updated need to be specified.
-// @Tags         Accounts
-// @Produce      json
-// @Success      200  {object}  AccountResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500        {object}  httputil.HTTPError
-// @Param        accountId  path      string                true  "ID formatted as string"
-// @Param        account    body      models.AccountCreate  true  "Account"
-// @Router       /v1/accounts/{accountId} [patch]
+// @Summary     Update account
+// @Description Updates an account. Only values to be updated need to be specified.
+// @Tags        Accounts
+// @Produce     json
+// @Success     200 {object} AccountResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500       {object} httputil.HTTPError
+// @Param       accountId path     string               true "ID formatted as string"
+// @Param       account   body     models.AccountCreate true "Account"
+// @Router      /v1/accounts/{accountId} [patch]
 func UpdateAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
@@ -250,16 +250,16 @@ func UpdateAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
 
-// @Summary      Delete account
-// @Description  Deletes an account
-// @Tags         Accounts
-// @Produce      json
-// @Success      204
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500        {object}  httputil.HTTPError
-// @Param        accountId  path      string  true  "ID formatted as string"
-// @Router       /v1/accounts/{accountId} [delete]
+// @Summary     Delete account
+// @Description Deletes an account
+// @Tags        Accounts
+// @Produce     json
+// @Success     204
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500       {object} httputil.HTTPError
+// @Param       accountId path     string true "ID formatted as string"
+// @Router      /v1/accounts/{accountId} [delete]
 func DeleteAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {

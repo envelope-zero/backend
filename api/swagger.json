@@ -28,7 +28,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -57,7 +57,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -118,7 +118,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -162,7 +162,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -180,7 +180,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -189,7 +189,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             }
@@ -227,7 +227,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -257,7 +257,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -266,7 +266,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -293,7 +293,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -302,7 +302,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             },
@@ -347,7 +347,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -382,7 +382,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -426,7 +426,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -444,7 +444,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -482,7 +482,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -509,7 +509,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -518,7 +518,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -545,7 +545,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             },
@@ -593,7 +593,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -701,7 +701,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -745,7 +745,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -772,7 +772,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -781,7 +781,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -808,7 +808,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -817,7 +817,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -871,7 +871,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -922,7 +922,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -957,7 +957,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1001,7 +1001,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1019,7 +1019,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1028,7 +1028,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             }
@@ -1066,7 +1066,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1093,7 +1093,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1102,7 +1102,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1129,7 +1129,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1138,7 +1138,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             },
@@ -1186,7 +1186,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1221,7 +1221,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1265,7 +1265,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1283,7 +1283,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -1321,7 +1321,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1348,7 +1348,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1357,7 +1357,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1384,7 +1384,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             },
@@ -1432,7 +1432,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1483,7 +1483,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1518,7 +1518,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1562,7 +1562,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1580,7 +1580,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -1618,7 +1618,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1645,7 +1645,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1654,7 +1654,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1681,7 +1681,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             },
@@ -1729,7 +1729,7 @@
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1764,7 +1764,7 @@
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }

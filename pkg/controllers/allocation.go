@@ -49,21 +49,21 @@ func RegisterAllocationRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// @Summary      Allowed HTTP verbs
-// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags         Allocations
-// @Success      204
-// @Router       /v1/allocations [options]
+// @Summary     Allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags        Allocations
+// @Success     204
+// @Router      /v1/allocations [options]
 func OptionsAllocationList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
-// @Summary      Allowed HTTP verbs
-// @Description  Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags         Allocations
-// @Success      204
-// @Param        allocationId  path  string  true  "ID formatted as string"
-// @Router       /v1/allocations/{allocationId} [options]
+// @Summary     Allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags        Allocations
+// @Success     204
+// @Param       allocationId path string true "ID formatted as string"
+// @Router      /v1/allocations/{allocationId} [options]
 func OptionsAllocationDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
@@ -78,16 +78,16 @@ func OptionsAllocationDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// @Summary      Create allocations
-// @Description  Create a new allocation of funds to an envelope for a specific month
-// @Tags         Allocations
-// @Produce      json
-// @Success      201  {object}  AllocationResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500           {object}  httputil.HTTPError
-// @Param        allocation    body      models.AllocationCreate  true  "Allocation"
-// @Router       /v1/allocations [post]
+// @Summary     Create allocations
+// @Description Create a new allocation of funds to an envelope for a specific month
+// @Tags        Allocations
+// @Produce     json
+// @Success     201 {object} AllocationResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500        {object} httputil.HTTPError
+// @Param       allocation body     models.AllocationCreate true "Allocation"
+// @Router      /v1/allocations [post]
 func CreateAllocation(c *gin.Context) {
 	var allocation models.Allocation
 
@@ -111,15 +111,15 @@ func CreateAllocation(c *gin.Context) {
 	c.JSON(http.StatusCreated, AllocationResponse{Data: allocationObject})
 }
 
-// @Summary      Get allocations
-// @Description  Returns a list of allocations
-// @Tags         Allocations
-// @Produce      json
-// @Success      200  {object}  AllocationListResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500  {object}  httputil.HTTPError
-// @Router       /v1/allocations [get]
+// @Summary     Get allocations
+// @Description Returns a list of allocations
+// @Tags        Allocations
+// @Produce     json
+// @Success     200 {object} AllocationListResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500 {object} httputil.HTTPError
+// @Router      /v1/allocations [get]
 func GetAllocations(c *gin.Context) {
 	var allocations []models.Allocation
 
@@ -138,16 +138,16 @@ func GetAllocations(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationListResponse{Data: allocationObjects})
 }
 
-// @Summary      Get allocation
-// @Description  Returns a specific allocation
-// @Tags         Allocations
-// @Produce      json
-// @Success      200  {object}  AllocationResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500           {object}  httputil.HTTPError
-// @Param        allocationId  path      string  true  "ID formatted as string"
-// @Router       /v1/allocations/{allocationId} [get]
+// @Summary     Get allocation
+// @Description Returns a specific allocation
+// @Tags        Allocations
+// @Produce     json
+// @Success     200 {object} AllocationResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500          {object} httputil.HTTPError
+// @Param       allocationId path     string true "ID formatted as string"
+// @Router      /v1/allocations/{allocationId} [get]
 func GetAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
@@ -163,18 +163,18 @@ func GetAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
-// @Summary      Update allocation
-// @Description  Update an allocation. Only values to be updated need to be specified.
-// @Tags         Allocations
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  AllocationResponse
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500           {object}  httputil.HTTPError
-// @Param        allocationId  path      string                   true  "ID formatted as string"
-// @Param        allocation  body      models.AllocationCreate  true  "Allocation"
-// @Router       /v1/allocations/{allocationId} [patch]
+// @Summary     Update allocation
+// @Description Update an allocation. Only values to be updated need to be specified.
+// @Tags        Allocations
+// @Accept      json
+// @Produce     json
+// @Success     200 {object} AllocationResponse
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500          {object} httputil.HTTPError
+// @Param       allocationId path     string                  true "ID formatted as string"
+// @Param       allocation   body     models.AllocationCreate true "Allocation"
+// @Router      /v1/allocations/{allocationId} [patch]
 func UpdateAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
@@ -207,15 +207,15 @@ func UpdateAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
-// @Summary      Delete allocation
-// @Description  Deletes an allocation
-// @Tags         Allocations
-// @Success      204
-// @Failure      400  {object}  httputil.HTTPError
-// @Failure      404
-// @Failure      500         {object}  httputil.HTTPError
-// @Param        allocationId  path      string  true  "ID formatted as string"
-// @Router       /v1/allocations/{allocationId} [delete]
+// @Summary     Delete allocation
+// @Description Deletes an allocation
+// @Tags        Allocations
+// @Success     204
+// @Failure     400 {object} httputil.HTTPError
+// @Failure     404
+// @Failure     500          {object} httputil.HTTPError
+// @Param       allocationId path     string true "ID formatted as string"
+// @Router      /v1/allocations/{allocationId} [delete]
 func DeleteAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
