@@ -37,7 +37,6 @@
       "description": "The golang CI language version only uses major.minor",
       "matchFiles": [".golangci.yml"],
       "matchPackageNames": ["go"],
-      "extractVersion": "^(?<version>\\d+\\.\\d+)",
       "groupName": "go"
     },
     {
