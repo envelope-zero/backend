@@ -176,22 +176,19 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      1,
-		Year:       2022,
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(20.99),
 	})
 
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      2,
-		Year:       2022,
+		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(47.12),
 	})
 
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      3,
-		Year:       2022,
+		Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(31.17),
 	})
 

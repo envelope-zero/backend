@@ -86,16 +86,14 @@ definitions:
       links:
         $ref: '#/definitions/controllers.AllocationLinks'
       month:
-        example: 6
-        maximum: 12
-        minimum: 1
-        type: integer
+        description: Only year and month of this timestamp are used, everything else
+          is ignored. This will always be set to 00:00 UTC on the first of the specified
+          month
+        example: "2021-12-01T00:00:00.000000Z"
+        type: string
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
-      year:
-        example: 2022
-        type: integer
     type: object
   controllers.AllocationLinks:
     properties:
@@ -401,13 +399,11 @@ definitions:
         example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
         type: string
       month:
-        example: 6
-        maximum: 12
-        minimum: 1
-        type: integer
-      year:
-        example: 2022
-        type: integer
+        description: Only year and month of this timestamp are used, everything else
+          is ignored. This will always be set to 00:00 UTC on the first of the specified
+          month
+        example: "2021-12-01T00:00:00.000000Z"
+        type: string
     type: object
   models.BudgetCreate:
     properties:

@@ -71,8 +71,7 @@ func (e Envelope) Month(t time.Time) EnvelopeMonth {
 	var allocation Allocation
 	database.DB.First(&allocation, &Allocation{
 		AllocationCreate: AllocationCreate{
-			Month: uint8(t.UTC().Month()),
-			Year:  uint(t.UTC().Year()),
+			Month: time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
 		},
 	})
 
@@ -81,7 +80,7 @@ func (e Envelope) Month(t time.Time) EnvelopeMonth {
 	return EnvelopeMonth{
 		ID:         e.ID,
 		Name:       e.Name,
-		Month:      time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
+		Month:      allocation.Month,
 		Spent:      spent,
 		Balance:    balance,
 		Allocation: allocation.Amount,

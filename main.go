@@ -52,6 +52,13 @@ func main() {
 		log.Fatal().Msg(err.Error())
 	}
 
+	// Drop unused constraint in https://github.com/envelope-zero/backend/pull/274
+	// Can be removed after the 1.0.0 release (we will require everyone to upgrade to 1.0.0 and then to further releases).
+	err = database.DB.Migrator().DropConstraint(&models.Allocation{}, "month_valid")
+	if err != nil {
+		log.Debug().Err(err).Msg("Could not drop month_valid constraint on allocations")
+	}
+
 	// Migrate all models so that the schema is correct
 	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
 	if err != nil {
