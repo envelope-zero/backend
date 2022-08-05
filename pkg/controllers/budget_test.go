@@ -59,11 +59,11 @@ func (suite *TestSuiteEnv) TestGetBudgetsFilter() {
 	_ = createTestBudget(suite.T(), models.BudgetCreate{
 		Name:     "Exact String Match",
 		Note:     "This is a specific note",
-		Currency: "€",
+		Currency: "",
 	})
 
 	_ = createTestBudget(suite.T(), models.BudgetCreate{
-		Name:     "Another String",
+		Name:     "",
 		Note:     "This is a specific note",
 		Currency: "$",
 	})
@@ -74,32 +74,30 @@ func (suite *TestSuiteEnv) TestGetBudgetsFilter() {
 		Currency: "€",
 	})
 
+	tests := []struct {
+		name  string
+		query string
+		len   int
+	}{
+		{"Currency: €", "currency=€", 1},
+		{"Currency: $", "currency=$", 1},
+		{"Currency & Name", "currency=€&name=Another String", 1},
+		{"Note", "note=This is a specific note", 2},
+		{"Name", "name=Exact String Match", 1},
+		{"Empty Name with Note", "name=&note=This is a specific note", 1},
+		{"No currency", "currency=", 1},
+		{"No name", "name=", 1},
+	}
+
 	var re controllers.BudgetListResponse
-
-	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?currency=€", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
-	test.DecodeResponse(suite.T(), &r, &re)
-	assert.Equal(suite.T(), 2, len(re.Data))
-
-	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?currency=$", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
-	test.DecodeResponse(suite.T(), &r, &re)
-	assert.Equal(suite.T(), 1, len(re.Data))
-
-	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?currency=€&name=Another String", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
-	test.DecodeResponse(suite.T(), &r, &re)
-	assert.Equal(suite.T(), 1, len(re.Data))
-
-	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?note=This is a specific note", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
-	test.DecodeResponse(suite.T(), &r, &re)
-	assert.Equal(suite.T(), 2, len(re.Data))
-
-	r = test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets?name=Exact String Match", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
-	test.DecodeResponse(suite.T(), &r, &re)
-	assert.Equal(suite.T(), 1, len(re.Data))
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/budgets?%s", tt.query), "")
+			test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+			test.DecodeResponse(suite.T(), &r, &re)
+			assert.Equal(suite.T(), tt.len, len(re.Data))
+		})
+	}
 }
 
 func (suite *TestSuiteEnv) TestNoBudgetNotFound() {

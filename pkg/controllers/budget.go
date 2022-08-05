@@ -133,19 +133,22 @@ func CreateBudget(c *gin.Context) {
 // @Param       note     query string false "Filter by note"
 // @Param       currency query string false "Filter by currency"
 func GetBudgets(c *gin.Context) {
-	var f BudgetQueryFilter
+	var filter BudgetQueryFilter
 
 	// Every parameter is bound into a string, so this will always succeed
-	_ = c.Bind(&f)
+	_ = c.Bind(&filter)
+
+	// Get the fields that we're filtering for
+	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	var budgets []models.Budget
 	database.DB.Where(&models.Budget{
 		BudgetCreate: models.BudgetCreate{
-			Name:     f.Name,
-			Note:     f.Note,
-			Currency: f.Currency,
+			Name:     filter.Name,
+			Note:     filter.Note,
+			Currency: filter.Currency,
 		},
-	}).Find(&budgets)
+	}, queryFields...).Find(&budgets)
 
 	// When there are no budgets, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
