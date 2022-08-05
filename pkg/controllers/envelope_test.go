@@ -16,7 +16,11 @@ import (
 
 func createTestEnvelope(t *testing.T, c models.EnvelopeCreate) controllers.EnvelopeResponse {
 	if c.CategoryID == uuid.Nil {
-		c.CategoryID = createTestCategory(t, models.CategoryCreate{Name: "Testing category"}).Data.ID
+		c.CategoryID = createTestCategory(t, models.CategoryCreate{}).Data.ID
+	}
+
+	if c.Name == "" {
+		c.Name = uuid.NewString()
 	}
 
 	r := test.Request(t, http.MethodPost, "http://example.com/v1/envelopes", c)
@@ -187,6 +191,18 @@ func (suite *TestSuiteEnv) TestCreateEnvelopeNonExistingCategory() {
 
 func (suite *TestSuiteEnv) TestCreateEnvelopeNoBody() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/envelopes", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestCreateEnvelopeDuplicateName() {
+	e := createTestEnvelope(suite.T(), models.EnvelopeCreate{
+		Name: "Unique Category Name",
+	})
+
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/envelopes", models.EnvelopeCreate{
+		CategoryID: e.Data.CategoryID,
+		Name:       e.Data.Name,
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 

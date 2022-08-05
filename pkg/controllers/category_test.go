@@ -18,6 +18,10 @@ func createTestCategory(t *testing.T, c models.CategoryCreate) controllers.Categ
 		c.BudgetID = createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}
 
+	if c.Name == "" {
+		c.Name = uuid.NewString()
+	}
+
 	r := test.Request(t, http.MethodPost, "http://example.com/v1/categories", c)
 	test.AssertHTTPStatus(t, http.StatusCreated, &r)
 
@@ -207,6 +211,18 @@ func (suite *TestSuiteEnv) TestCreateBudgetDoesNotExist() {
 
 func (suite *TestSuiteEnv) TestCreateCategoryNoBody() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/categories", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestCreateCategoryDuplicateName() {
+	c := createTestCategory(suite.T(), models.CategoryCreate{
+		Name: "Unique Category Name",
+	})
+
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/categories", models.CategoryCreate{
+		BudgetID: c.Data.BudgetID,
+		Name:     c.Data.Name,
+	})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
