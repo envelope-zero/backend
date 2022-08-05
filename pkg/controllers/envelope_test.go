@@ -102,7 +102,7 @@ func (suite *TestSuiteEnv) TestGetEnvelopesFilter() {
 		{"Category 2", fmt.Sprintf("category=%s", c2.Data.ID), 2},
 		{"Category Not Existing", "category=e0f9ff7a-9f07-463c-bbd2-0d72d09d3cc6", 0},
 		{"Empty Note", "note=", 0},
-		{"Emtpy Name", "name=", 0},
+		{"Empty Name", "name=", 0},
 		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1},
 	}
 

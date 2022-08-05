@@ -22,7 +22,7 @@ func TestURLMiddlewareContextSet(t *testing.T) {
 		c.String(http.StatusOK, c.GetString("baseURL"))
 	})
 
-	// Make and decode repsonse
+	// Make and decode response
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/envelopes", nil)
 	r.ServeHTTP(w, c.Request)
 
@@ -42,7 +42,7 @@ func TestURLMiddlewareNotAnURL(t *testing.T) {
 		c.String(http.StatusOK, c.GetString("baseURL"))
 	})
 
-	// Make and decode repsonse
+	// Make and decode response
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/envelopes", nil)
 	r.ServeHTTP(w, c.Request)
 
@@ -62,7 +62,7 @@ func TestURLMiddlewareEnvNotSet(t *testing.T) {
 		c.String(http.StatusOK, c.GetString("baseURL"))
 	})
 
-	// Make and decode repsonse
+	// Make and decode response
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/envelopes", nil)
 	r.ServeHTTP(w, c.Request)
 

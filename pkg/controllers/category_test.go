@@ -130,7 +130,7 @@ func (suite *TestSuiteEnv) TestGetCategoriesFilter() {
 		{"Budget 1", fmt.Sprintf("budget=%s", b1.Data.ID), 1},
 		{"Budget Not Existing", "budget=c9e4ee7a-e702-4f92-b168-11a95b22c7aa", 0},
 		{"Empty Note", "note=", 0},
-		{"Emtpy Name", "name=", 0},
+		{"Empty Name", "name=", 0},
 		{"Name & Note", "name=Category Name&note=A note for this category", 1},
 	}
 

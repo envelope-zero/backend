@@ -10,6 +10,7 @@ linters:
     - govet
     - revive
     - whitespace
+    - misspell
 
 linters-settings:
   gofumpt:
