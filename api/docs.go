@@ -40,7 +40,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -69,7 +69,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -130,7 +130,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -174,7 +174,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -192,7 +192,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -201,7 +201,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             }
@@ -239,7 +239,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -269,7 +269,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -278,7 +278,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -305,7 +305,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -314,7 +314,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             },
@@ -359,7 +359,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -394,7 +394,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -438,7 +438,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -456,7 +456,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -494,7 +494,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -521,7 +521,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -530,7 +530,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -557,7 +557,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             },
@@ -605,7 +605,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -713,7 +713,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -757,7 +757,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -784,7 +784,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -793,7 +793,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -820,7 +820,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -829,7 +829,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -883,7 +883,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -934,7 +934,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -969,7 +969,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1013,7 +1013,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1031,7 +1031,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1040,7 +1040,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             }
@@ -1078,7 +1078,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1105,7 +1105,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1114,7 +1114,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1141,7 +1141,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1150,7 +1150,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     }
                 }
             },
@@ -1198,7 +1198,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1233,7 +1233,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1277,7 +1277,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1295,7 +1295,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -1333,7 +1333,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1360,7 +1360,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1369,7 +1369,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1396,7 +1396,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             },
@@ -1444,7 +1444,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1495,7 +1495,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1530,7 +1530,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1574,7 +1574,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1592,7 +1592,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }
@@ -1630,7 +1630,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1657,7 +1657,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1666,7 +1666,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1693,7 +1693,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             },
@@ -1741,7 +1741,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1776,7 +1776,7 @@ const docTemplate = `{
                 "summary": "Allowed HTTP verbs",
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             }

@@ -26,3 +26,11 @@ to enable better overview over changes and enables automated tooling based on co
 ## Tests & test coverage
 
 The test coverage goal is > 95%. Please try to add tests for everything you add to the codebase. If in doubt, you’re always welcome to open an issue and ask for help.
+
+## Common errors
+
+### pre-commit fails in GitHub action
+
+If pre-commit runs successfully on your local machine, but errors in the GitHub action, it's likely that the `swaggo/swag/cmd` module has been updated, but you still have the old version locally.
+
+Run `make setup` again to update and then `pre-commit run --all-files` to fix your commit.
