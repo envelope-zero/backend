@@ -815,6 +815,19 @@ paths:
   /v1/allocations:
     get:
       description: Returns a list of allocations
+      parameters:
+      - description: Filter by month
+        in: query
+        name: month
+        type: string
+      - description: Filter by amount
+        in: query
+        name: amount
+        type: string
+      - description: Filter by envelope ID
+        in: query
+        name: envelope
+        type: string
       produces:
       - application/json
       responses:
@@ -1202,6 +1215,19 @@ paths:
   /v1/categories:
     get:
       description: Returns a list of categories
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
       produces:
       - application/json
       responses:
@@ -1380,6 +1406,19 @@ paths:
   /v1/envelopes:
     get:
       description: Returns a list of envelopes
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category
+        type: string
       produces:
       - application/json
       responses:

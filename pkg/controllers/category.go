@@ -140,6 +140,9 @@ func CreateCategory(c *gin.Context) {
 // @Failure     404
 // @Failure     500 {object} httputil.HTTPError
 // @Router      /v1/categories [get]
+// @Param       name   query string false "Filter by name"
+// @Param       note   query string false "Filter by note"
+// @Param       budget query string false "Filter by budget ID"
 func GetCategories(c *gin.Context) {
 	var filter CategoryQueryFilter
 

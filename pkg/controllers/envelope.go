@@ -36,6 +36,25 @@ type EnvelopeLinks struct {
 	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
 }
 
+type EnvelopeQueryFilter struct {
+	Name       string `form:"name"`
+	CategoryID string `form:"category"`
+	Note       string `form:"note"`
+}
+
+func (e EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, error) {
+	categoryID, err := httputil.UUIDFromString(c, e.CategoryID)
+	if err != nil {
+		return models.EnvelopeCreate{}, err
+	}
+
+	return models.EnvelopeCreate{
+		Name:       e.Name,
+		Note:       e.Note,
+		CategoryID: categoryID,
+	}, nil
+}
+
 // RegisterEnvelopeRoutes registers the routes for envelopes with
 // the RouterGroup that is passed.
 func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
@@ -124,10 +143,27 @@ func CreateEnvelope(c *gin.Context) {
 // @Failure     404
 // @Failure     500 {object} httputil.HTTPError
 // @Router      /v1/envelopes [get]
+// @Param       name     query string false "Filter by name"
+// @Param       note     query string false "Filter by note"
+// @Param       category query string false "Filter by category ID"
 func GetEnvelopes(c *gin.Context) {
-	var envelopes []models.Envelope
+	var filter EnvelopeQueryFilter
 
-	database.DB.Find(&envelopes)
+	// The filters contain only strings, so this will always succeed
+	_ = c.Bind(&filter)
+
+	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+
+	// Convert the QueryFilter to a Create struct
+	create, err := filter.ToCreate(c)
+	if err != nil {
+		return
+	}
+
+	var envelopes []models.Envelope
+	database.DB.Where(&models.Envelope{
+		EnvelopeCreate: create,
+	}, queryFields...).Find(&envelopes)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements

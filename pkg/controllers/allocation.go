@@ -144,6 +144,9 @@ func CreateAllocation(c *gin.Context) {
 // @Failure     404
 // @Failure     500 {object} httputil.HTTPError
 // @Router      /v1/allocations [get]
+// @Param       month    query string false "Filter by month"
+// @Param       amount   query string false "Filter by amount"
+// @Param       envelope query string false "Filter by envelope ID"
 func GetAllocations(c *gin.Context) {
 	var filter AllocationQueryFilter
 	if err := c.Bind(&filter); err != nil {

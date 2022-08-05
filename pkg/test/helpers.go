@@ -68,7 +68,7 @@ func AssertHTTPStatus(t *testing.T, expected int, r *httptest.ResponseRecorder) 
 func DecodeResponse(t *testing.T, r *httptest.ResponseRecorder, target interface{}) {
 	err := json.NewDecoder(r.Body).Decode(target)
 	if err != nil {
-		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into %v, '%v'", r.Body, reflect.TypeOf(target), err)
+		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into %v, '%v', Request ID: %s", r.Body, reflect.TypeOf(target), err, r.Result().Header.Get("x-request-id"))
 	}
 }
 
