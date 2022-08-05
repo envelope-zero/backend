@@ -35,7 +35,7 @@ func ErrorHandler(c *gin.Context, err error) {
 			NewError(c, http.StatusBadRequest, errors.New("You can not create multiple allocations for the same month"))
 		} else {
 			log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
-			NewError(c, http.StatusInternalServerError, fmt.Errorf("A database error occured during your reuqest, please contact your server administrator. The request id is '%v', send this to your server administrator to help them finding the problem", requestid.Get(c)))
+			NewError(c, http.StatusInternalServerError, fmt.Errorf("A database error occurred during your reuqest, please contact your server administrator. The request id is '%v', send this to your server administrator to help them finding the problem", requestid.Get(c)))
 		}
 
 		// End of file reached when reading
