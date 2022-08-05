@@ -16,8 +16,8 @@ type Envelope struct {
 }
 
 type EnvelopeCreate struct {
-	Name       string    `json:"name" example:"Groceries" default:""`
-	CategoryID uuid.UUID `json:"categoryId" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"`
+	Name       string    `json:"name" gorm:"uniqueIndex:envelope_category_name" example:"Groceries" default:""`
+	CategoryID uuid.UUID `json:"categoryId" gorm:"uniqueIndex:envelope_category_name" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"`
 	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`
 }
 

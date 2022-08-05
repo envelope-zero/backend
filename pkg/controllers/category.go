@@ -125,7 +125,11 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	database.DB.Create(&category)
+	err = database.DB.Create(&category).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
 
 	categoryObject, _ := getCategoryObject(c, category.ID)
 	c.JSON(http.StatusCreated, CategoryResponse{Data: categoryObject})

@@ -128,7 +128,11 @@ func CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	database.DB.Create(&envelope)
+	err = database.DB.Create(&envelope).Error
+	if err != nil {
+		httputil.ErrorHandler(c, err)
+		return
+	}
 
 	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
 	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelopeObject})

@@ -29,9 +29,11 @@ func ErrorHandler(c *gin.Context, err error) {
 			NewError(c, http.StatusBadRequest, errors.New("A resource ID you specfied did not identify an existing resource"))
 		} else if strings.Contains(err.Error(), "CHECK constraint failed: source_destination_different") {
 			NewError(c, http.StatusBadRequest, errors.New("Source and destination accounts for a transaction must be different"))
-		} else if strings.Contains(err.Error(), "CHECK constraint failed: month_valid") {
-			NewError(c, http.StatusBadRequest, errors.New("The month must be between 1 and 12"))
-		} else if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month") {
+		} else if strings.Contains(err.Error(), "UNIQUE constraint failed: categories.name, categories.budget_id") {
+			NewError(c, http.StatusBadRequest, errors.New("The category name must be unique for the budget"))
+		} else if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.name, envelopes.category_id") {
+			NewError(c, http.StatusBadRequest, errors.New("The envelope name must be unique for the category"))
+		} else if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month, allocations.envelope_id") {
 			NewError(c, http.StatusBadRequest, errors.New("You can not create multiple allocations for the same month"))
 		} else {
 			log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
