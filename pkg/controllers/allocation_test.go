@@ -138,6 +138,21 @@ func (suite *TestSuiteEnv) TestCreateDuplicateAllocation() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
+func (suite *TestSuiteEnv) TestCreateNonDuplicateAllocationSameMonth() {
+	e1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+	e2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+		EnvelopeID: e1.Data.ID,
+	})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+		EnvelopeID: e2.Data.ID,
+	})
+}
+
 func (suite *TestSuiteEnv) TestCreateAllocationNoBody() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/allocations", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
