@@ -33,13 +33,13 @@ func BindData(c *gin.Context, data interface{}) error {
 // Follow https://github.com/gin-gonic/gin/pull/3045 to see when this gets resolved.
 func UUIDFromString(c *gin.Context, s string) (uuid.UUID, error) {
 	if s == "" {
-		return uuid.UUID{}, nil
+		return uuid.Nil, nil
 	}
 
 	u, err := uuid.Parse(s)
 	if err != nil {
 		ErrorInvalidUUID(c)
-		return uuid.UUID{}, err
+		return uuid.Nil, err
 	}
 
 	return u, nil

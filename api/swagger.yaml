@@ -1619,6 +1619,31 @@ paths:
   /v1/transactions:
     get:
       description: Returns a list of transactions
+      parameters:
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Filter by source account ID
+        in: query
+        name: source
+        type: string
+      - description: Filter by destination account ID
+        in: query
+        name: destination
+        type: string
+      - description: Filter by envelope ID
+        in: query
+        name: envelope
+        type: string
+      - description: Filter by reconcilication state
+        in: query
+        name: reconciled
+        type: boolean
       produces:
       - application/json
       responses:

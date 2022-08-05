@@ -1576,6 +1576,44 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Get transactions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by budget ID",
+                        "name": "budget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by source account ID",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by destination account ID",
+                        "name": "destination",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by envelope ID",
+                        "name": "envelope",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by reconcilication state",
+                        "name": "reconciled",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
