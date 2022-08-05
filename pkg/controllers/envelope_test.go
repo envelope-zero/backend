@@ -59,6 +59,65 @@ func (suite *TestSuiteEnv) TestGetEnvelopes() {
 	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
 }
 
+func (suite *TestSuiteEnv) TestGetEnvelopesInvalidQuery() {
+	tests := []string{
+		"category=DefinitelyACat",
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt, func(t *testing.T) {
+			recorder := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/envelopes?%s", tt), "")
+			test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+		})
+	}
+}
+
+func (suite *TestSuiteEnv) TestGetEnvelopesFilter() {
+	c1 := createTestCategory(suite.T(), models.CategoryCreate{})
+	c2 := createTestCategory(suite.T(), models.CategoryCreate{})
+
+	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{
+		Name:       "Groceries",
+		Note:       "For the stuff bought in supermarkets",
+		CategoryID: c1.Data.ID,
+	})
+
+	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{
+		Name:       "Hairdresser",
+		Note:       "Because… Hair!",
+		CategoryID: c2.Data.ID,
+	})
+
+	_ = createTestEnvelope(suite.T(), models.EnvelopeCreate{
+		Name:       "Stamps",
+		Note:       "Because each stamp needs to go on an envelope",
+		CategoryID: c2.Data.ID,
+	})
+
+	tests := []struct {
+		name  string
+		query string
+		len   int
+	}{
+		{"Category 2", fmt.Sprintf("category=%s", c2.Data.ID), 2},
+		{"Category Not Existing", "category=e0f9ff7a-9f07-463c-bbd2-0d72d09d3cc6", 0},
+		{"Empty Note", "note=", 0},
+		{"Emtpy Name", "name=", 0},
+		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var re controllers.EnvelopeListResponse
+			r := test.Request(t, http.MethodGet, fmt.Sprintf("/v1/envelopes?%s", tt.query), "")
+			test.AssertHTTPStatus(t, http.StatusOK, &r)
+			test.DecodeResponse(t, &r, &re)
+
+			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
+		})
+	}
+}
+
 func (suite *TestSuiteEnv) TestGetEnvelope() {
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 	recorder := test.Request(suite.T(), http.MethodGet, envelope.Data.Links.Self, "")
