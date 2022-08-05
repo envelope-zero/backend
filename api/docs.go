@@ -1901,18 +1901,13 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.AllocationLinks"
                 },
                 "month": {
-                    "type": "integer",
-                    "maximum": 12,
-                    "minimum": 1,
-                    "example": 6
+                    "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
+                    "type": "string",
+                    "example": "2021-12-01T00:00:00.000000Z"
                 },
                 "updatedAt": {
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
-                },
-                "year": {
-                    "type": "integer",
-                    "example": 2022
                 }
             }
         },
@@ -2342,14 +2337,9 @@ const docTemplate = `{
                     "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
                 },
                 "month": {
-                    "type": "integer",
-                    "maximum": 12,
-                    "minimum": 1,
-                    "example": 6
-                },
-                "year": {
-                    "type": "integer",
-                    "example": 2022
+                    "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
+                    "type": "string",
+                    "example": "2021-12-01T00:00:00.000000Z"
                 }
             }
         },

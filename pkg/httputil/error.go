@@ -31,7 +31,7 @@ func ErrorHandler(c *gin.Context, err error) {
 			NewError(c, http.StatusBadRequest, errors.New("Source and destination accounts for a transaction must be different"))
 		} else if strings.Contains(err.Error(), "CHECK constraint failed: month_valid") {
 			NewError(c, http.StatusBadRequest, errors.New("The month must be between 1 and 12"))
-		} else if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month, allocations.year") {
+		} else if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month") {
 			NewError(c, http.StatusBadRequest, errors.New("You can not create multiple allocations for the same month"))
 		} else {
 			log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())

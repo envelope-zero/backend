@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -95,6 +96,9 @@ func CreateAllocation(c *gin.Context) {
 	if err != nil {
 		return
 	}
+
+	// Ignore every field that is not Year or Month
+	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	_, err = getEnvelopeResource(c, allocation.EnvelopeID)
 	if err != nil {
@@ -196,6 +200,9 @@ func UpdateAllocation(c *gin.Context) {
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
+
+	// Ignore every field that is not Year or Month
+	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	err = database.DB.Model(&allocation).Select("", updateFields...).Updates(data).Error
 	if err != nil {

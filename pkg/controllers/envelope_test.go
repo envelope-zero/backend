@@ -141,22 +141,19 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      1,
-		Year:       2022,
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(20.99),
 	})
 
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      2,
-		Year:       2022,
+		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(47.12),
 	})
 
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      3,
-		Year:       2022,
+		Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(31.17),
 	})
 
@@ -235,11 +232,11 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
 
 		test.DecodeResponse(suite.T(), &r, &envelopeMonth)
-		assert.Equal(suite.T(), envelopeMonth.Data.Name, tt.envelopeMonth.Name)
-		assert.Equal(suite.T(), envelopeMonth.Data.Month, tt.envelopeMonth.Month)
-		assert.True(suite.T(), envelopeMonth.Data.Spent.Equal(tt.envelopeMonth.Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.envelopeMonth.Spent, envelopeMonth.Data.Spent, envelopeMonth.Data)
-		assert.True(suite.T(), envelopeMonth.Data.Balance.Equal(tt.envelopeMonth.Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.envelopeMonth.Balance, envelopeMonth.Data.Balance, envelopeMonth.Data)
-		assert.True(suite.T(), envelopeMonth.Data.Allocation.Equal(tt.envelopeMonth.Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month, tt.envelopeMonth.Allocation, envelopeMonth.Data.Allocation, envelopeMonth.Data)
+		assert.Equal(suite.T(), tt.envelopeMonth.Name, envelopeMonth.Data.Name)
+		assert.Equal(suite.T(), time.Date(tt.envelopeMonth.Month.Year(), tt.envelopeMonth.Month.Month(), 1, 0, 0, 0, 0, time.UTC), envelopeMonth.Data.Month)
+		assert.True(suite.T(), envelopeMonth.Data.Spent.Equal(tt.envelopeMonth.Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month.Month(), tt.envelopeMonth.Spent, envelopeMonth.Data.Spent, envelopeMonth.Data)
+		assert.True(suite.T(), envelopeMonth.Data.Balance.Equal(tt.envelopeMonth.Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month.Month(), tt.envelopeMonth.Balance, envelopeMonth.Data.Balance, envelopeMonth.Data)
+		assert.True(suite.T(), envelopeMonth.Data.Allocation.Equal(tt.envelopeMonth.Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", envelopeMonth.Data.Month.Month(), tt.envelopeMonth.Allocation, envelopeMonth.Data.Allocation, envelopeMonth.Data)
 	}
 }
 
