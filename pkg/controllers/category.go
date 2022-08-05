@@ -31,6 +31,25 @@ type CategoryLinks struct {
 	Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"`
 }
 
+type CategoryQueryFilter struct {
+	Name     string `form:"name"`
+	BudgetID string `form:"budget"`
+	Note     string `form:"note"`
+}
+
+func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, error) {
+	budgetID, err := httputil.UUIDFromString(c, f.BudgetID)
+	if err != nil {
+		return models.CategoryCreate{}, err
+	}
+
+	return models.CategoryCreate{
+		Name:     f.Name,
+		BudgetID: budgetID,
+		Note:     f.Note,
+	}, nil
+}
+
 // RegisterCategoryRoutes registers the routes for categories with
 // the RouterGroup that is passed.
 func RegisterCategoryRoutes(r *gin.RouterGroup) {
@@ -122,9 +141,24 @@ func CreateCategory(c *gin.Context) {
 // @Failure     500 {object} httputil.HTTPError
 // @Router      /v1/categories [get]
 func GetCategories(c *gin.Context) {
-	var categories []models.Category
+	var filter CategoryQueryFilter
 
-	database.DB.Find(&categories)
+	// Every parameter is bound into a string, so this will always succeed
+	_ = c.Bind(&filter)
+
+	// Get the fields that we are filtering for
+	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+
+	// Convert the QueryFilter to a Create struct
+	create, err := filter.ToCreate(c)
+	if err != nil {
+		return
+	}
+
+	var categories []models.Category
+	database.DB.Where(&models.Category{
+		CategoryCreate: create,
+	}, queryFields...).Find(&categories)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements

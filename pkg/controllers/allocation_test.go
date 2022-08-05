@@ -68,19 +68,19 @@ func (suite *TestSuiteEnv) TestGetAllocationsFilter() {
 	e1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 	e2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 
-	a1 := createTestAllocation(suite.T(), models.AllocationCreate{
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: e1.Data.ID,
 		Month:      time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(314.1592),
 	})
 
-	a2 := createTestAllocation(suite.T(), models.AllocationCreate{
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: e1.Data.ID,
 		Month:      time.Date(2018, 10, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(1371),
 	})
 
-	a3 := createTestAllocation(suite.T(), models.AllocationCreate{
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: e2.Data.ID,
 		Month:      time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(1204),
@@ -106,14 +106,6 @@ func (suite *TestSuiteEnv) TestGetAllocationsFilter() {
 
 			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
 		})
-	}
-
-	for _, r := range []controllers.EnvelopeResponse{e1, e2} {
-		test.Request(suite.T(), http.MethodDelete, r.Data.Links.Self, "")
-	}
-
-	for _, r := range []controllers.AllocationResponse{a1, a2, a3} {
-		test.Request(suite.T(), http.MethodDelete, r.Data.Links.Self, "")
 	}
 }
 
