@@ -66,6 +66,100 @@ func (suite *TestSuiteEnv) TestGetTransactions() {
 	assert.Len(suite.T(), response.Data, 2)
 }
 
+func (suite *TestSuiteEnv) TestGetTransactionsInvalidQuery() {
+	tests := []string{
+		"budget=DefinitelyACat",
+		"source=MaybeADog",
+		"destination=OrARat?",
+		"envelope=NopeDefinitelyAMole",
+		"date=A long time ago",
+		"amount=Seventeen Cents",
+		"reconciled=I don't think so",
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt, func(t *testing.T) {
+			recorder := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/transactions?%s", tt), "")
+			test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+		})
+	}
+}
+
+func (suite *TestSuiteEnv) TestGetTransactionsFilter() {
+	b := createTestBudget(suite.T(), models.BudgetCreate{})
+
+	a1 := createTestAccount(suite.T(), models.AccountCreate{BudgetID: b.Data.ID})
+	a2 := createTestAccount(suite.T(), models.AccountCreate{BudgetID: b.Data.ID})
+
+	c := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: b.Data.ID})
+
+	e1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})
+	e2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})
+
+	e1ID := &e1.Data.ID
+	e2ID := &e2.Data.ID
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2018, 9, 5, 17, 13, 29, 45256, time.UTC),
+		Amount:               decimal.NewFromFloat(2.718),
+		Note:                 "This was an important expense",
+		BudgetID:             b.Data.ID,
+		EnvelopeID:           e1ID,
+		SourceAccountID:      a1.Data.ID,
+		DestinationAccountID: a2.Data.ID,
+		Reconciled:           false,
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2016, 5, 1, 14, 13, 25, 584575, time.UTC),
+		Amount:               decimal.NewFromFloat(11235.813),
+		Note:                 "Not important",
+		BudgetID:             b.Data.ID,
+		EnvelopeID:           e2ID,
+		SourceAccountID:      a2.Data.ID,
+		DestinationAccountID: a1.Data.ID,
+		Reconciled:           false,
+	})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC),
+		Amount:               decimal.NewFromFloat(2.718),
+		Note:                 "",
+		BudgetID:             b.Data.ID,
+		EnvelopeID:           e1ID,
+		SourceAccountID:      a1.Data.ID,
+		DestinationAccountID: a2.Data.ID,
+		Reconciled:           true,
+	})
+
+	tests := []struct {
+		name  string
+		query string
+		len   int
+	}{
+		{"Exact Date", fmt.Sprintf("date=%s", time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC).Format(time.RFC3339Nano)), 1},
+		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(2.718).String()), 2},
+		{"Note", "note=Not important", 1},
+		{"No note", "note=", 1},
+		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 3},
+		{"Envelope 2", fmt.Sprintf("envelope=%s", e2.Data.ID), 1},
+		{"Non-existing Source Account", "source=3340a084-acf8-4cb4-8f86-9e7f88a86190", 0},
+		{"Destination Account", fmt.Sprintf("destination=%s", a2.Data.ID), 2},
+		{"Reconciled", "reconciled=false", 2},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var re controllers.TransactionListResponse
+			r := test.Request(t, http.MethodGet, fmt.Sprintf("/v1/transactions?%s", tt.query), "")
+			test.AssertHTTPStatus(t, http.StatusOK, &r)
+			test.DecodeResponse(t, &r, &re)
+
+			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
+		})
+	}
+}
+
 func (suite *TestSuiteEnv) TestNoTransactionNotFound() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/transactions/048b061f-3b6b-45ab-b0e9-0f38d2fff0c8", "")
 
@@ -121,7 +215,9 @@ func (suite *TestSuiteEnv) TestTransactionSorting() {
 	var transactions controllers.TransactionListResponse
 	test.DecodeResponse(suite.T(), &r, &transactions)
 
-	assert.Len(suite.T(), transactions.Data, 3, "There are not exactly three transactions")
+	if !assert.Len(suite.T(), transactions.Data, 3, "There are not exactly three transactions") {
+		assert.FailNow(suite.T(), "Number of transactions is wrong, aborting")
+	}
 	assert.Equal(suite.T(), tMarch.Data.Date, transactions.Data[0].Date, "The first transaction is not the March transaction")
 	assert.Equal(suite.T(), tFebrurary.Data.Date, transactions.Data[1].Date, "The second transaction is not the February transaction")
 	assert.Equal(suite.T(), tJanuary.Data.Date, transactions.Data[2].Date, "The third transaction is not the January transaction")

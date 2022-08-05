@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
@@ -28,6 +29,56 @@ type Transaction struct {
 
 type TransactionLinks struct {
 	Self string `json:"self" example:"https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"`
+}
+
+type TransactionQueryFilter struct {
+	Date                 time.Time       `form:"date"`
+	Amount               decimal.Decimal `form:"amount"`
+	Note                 string          `form:"note"`
+	BudgetID             string          `form:"budget"`
+	SourceAccountID      string          `form:"source"`
+	DestinationAccountID string          `form:"destination"`
+	EnvelopeID           string          `form:"envelope"`
+	Reconciled           bool            `form:"reconciled"`
+}
+
+func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, error) {
+	budgetID, err := httputil.UUIDFromString(c, f.BudgetID)
+	if err != nil {
+		return models.TransactionCreate{}, err
+	}
+
+	sourceAccountID, err := httputil.UUIDFromString(c, f.SourceAccountID)
+	if err != nil {
+		return models.TransactionCreate{}, err
+	}
+
+	destinationAccountID, err := httputil.UUIDFromString(c, f.DestinationAccountID)
+	if err != nil {
+		return models.TransactionCreate{}, err
+	}
+
+	envelopeID, err := httputil.UUIDFromString(c, f.EnvelopeID)
+	if err != nil {
+		return models.TransactionCreate{}, err
+	}
+
+	// If the envelopeID is nil, use an actual nil, not uuid.Nil
+	var eID *uuid.UUID = nil
+	if envelopeID != uuid.Nil {
+		eID = &envelopeID
+	}
+
+	return models.TransactionCreate{
+		Date:                 f.Date,
+		Amount:               f.Amount,
+		Note:                 f.Note,
+		BudgetID:             budgetID,
+		SourceAccountID:      sourceAccountID,
+		DestinationAccountID: destinationAccountID,
+		EnvelopeID:           eID,
+		Reconciled:           f.Reconciled,
+	}, nil
 }
 
 // RegisterTransactionRoutes registers the routes for transactions with
@@ -142,10 +193,34 @@ func CreateTransaction(c *gin.Context) {
 // @Failure     404
 // @Failure     500 {object} httputil.HTTPError
 // @Router      /v1/transactions [get]
+// @Param       date        query time.Time       false "Filter by date"
+// @Param       amount      query decimal.Decimal false "Filter by amount"
+// @Param       note        query string          false "Filter by note"
+// @Param       budget      query string          false "Filter by budget ID"
+// @Param       source      query string          false "Filter by source account ID"
+// @Param       destination query string          false "Filter by destination account ID"
+// @Param       envelope    query string          false "Filter by envelope ID"
+// @Param       reconciled  query bool            false "Filter by reconcilication state"
 func GetTransactions(c *gin.Context) {
-	var transactions []models.Transaction
+	var filter TransactionQueryFilter
+	if err := c.Bind(&filter); err != nil {
+		httputil.ErrorInvalidQueryString(c)
+		return
+	}
 
-	database.DB.Order("date(date) DESC").Find(&transactions)
+	// Get the fields set in the filter
+	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+
+	// Convert the QueryFilter to a Create struct
+	create, err := filter.ToCreate(c)
+	if err != nil {
+		return
+	}
+
+	var transactions []models.Transaction
+	database.DB.Order("date(date) DESC").Where(&models.Transaction{
+		TransactionCreate: create,
+	}, queryFields...).Find(&transactions)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
