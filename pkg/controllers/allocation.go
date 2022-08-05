@@ -38,15 +38,15 @@ type AllocationQueryFilter struct {
 	EnvelopeID string          `form:"envelope"`
 }
 
-func (a AllocationQueryFilter) ToCreate(c *gin.Context) (models.AllocationCreate, error) {
-	envelopeID, err := httputil.UUIDFromString(c, a.EnvelopeID)
+func (f AllocationQueryFilter) ToCreate(c *gin.Context) (models.AllocationCreate, error) {
+	envelopeID, err := httputil.UUIDFromString(c, f.EnvelopeID)
 	if err != nil {
 		return models.AllocationCreate{}, err
 	}
 
 	return models.AllocationCreate{
-		Month:      a.Month,
-		Amount:     a.Amount,
+		Month:      f.Month,
+		Amount:     f.Amount,
 		EnvelopeID: envelopeID,
 	}, nil
 }

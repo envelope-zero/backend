@@ -87,6 +87,65 @@ func (suite *TestSuiteEnv) TestGetCategoriesNoEnvelopesEmptyArray() {
 	assert.Len(suite.T(), response.Data[0].Envelopes, 0)
 }
 
+func (suite *TestSuiteEnv) TestGetCategoriesInvalidQuery() {
+	tests := []string{
+		"budget=NotAUUID",
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt, func(t *testing.T) {
+			recorder := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/categories?%s", tt), "")
+			test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+		})
+	}
+}
+
+func (suite *TestSuiteEnv) TestGetCategoriesFilter() {
+	b1 := createTestBudget(suite.T(), models.BudgetCreate{})
+	b2 := createTestBudget(suite.T(), models.BudgetCreate{})
+
+	_ = createTestCategory(suite.T(), models.CategoryCreate{
+		Name:     "Category Name",
+		Note:     "A note for this category",
+		BudgetID: b1.Data.ID,
+	})
+
+	_ = createTestCategory(suite.T(), models.CategoryCreate{
+		Name:     "Saving",
+		Note:     "For later",
+		BudgetID: b2.Data.ID,
+	})
+
+	_ = createTestCategory(suite.T(), models.CategoryCreate{
+		Name:     "Daily stuff",
+		Note:     "Groceries, Drug Store, …",
+		BudgetID: b2.Data.ID,
+	})
+
+	tests := []struct {
+		name  string
+		query string
+		len   int
+	}{
+		{"Budget 1", fmt.Sprintf("budget=%s", b1.Data.ID), 1},
+		{"Budget Not Existing", "budget=c9e4ee7a-e702-4f92-b168-11a95b22c7aa", 0},
+		{"Empty Note", "note=", 0},
+		{"Emtpy Name", "name=", 0},
+		{"Name & Note", "name=Category Name&note=A note for this category", 1},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var re controllers.CategoryListResponse
+			r := test.Request(t, http.MethodGet, fmt.Sprintf("/v1/categories?%s", tt.query), "")
+			test.AssertHTTPStatus(t, http.StatusOK, &r)
+			test.DecodeResponse(t, &r, &re)
+
+			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
+		})
+	}
+}
+
 func (suite *TestSuiteEnv) TestGetCategory() {
 	category := createTestCategory(suite.T(), models.CategoryCreate{Name: "Catch me if you can!"})
 	recorder := test.Request(suite.T(), http.MethodGet, category.Data.Links.Self, "")
