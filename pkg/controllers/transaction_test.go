@@ -228,10 +228,7 @@ func (suite *TestSuiteEnv) TestCreateNoEnvelopeTransactionOutgoing() {
 	}
 
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
-
-	err := test.DecodeError(suite.T(), recorder.Body.Bytes())
-	assert.Equal(suite.T(), "For incoming and outgoing transactions, an envelope is required", err)
+	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestCreateNonExistingEnvelopeTransactionTransfer() {

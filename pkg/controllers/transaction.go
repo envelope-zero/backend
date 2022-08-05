@@ -102,27 +102,20 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	// Check the source account
-	sourceAccount, err := getAccountResource(c, transaction.SourceAccountID)
+	_, err = getAccountResource(c, transaction.SourceAccountID)
 	if err != nil {
 		return
 	}
 
 	// Check the destination account
-	destinationAccount, err := getAccountResource(c, transaction.DestinationAccountID)
+	_, err = getAccountResource(c, transaction.DestinationAccountID)
 	if err != nil {
 		return
 	}
 
-	// Check if the transaction is a transfer. If yes, the envelope can be empty.
-	//
-	// Check that the Envelope ID is set for incoming and outgoing transactions
-	if sourceAccount.External || destinationAccount.External && transaction.EnvelopeID == nil {
-		httputil.NewError(c, http.StatusBadRequest, errors.New("For incoming and outgoing transactions, an envelope is required"))
-		return
-
-		// Check the envelope ID only if it is set. (This will always evaluate to true for incoming and outgoing transactions,
-		// but for transfers, can evaluate to false
-	} else if transaction.EnvelopeID != nil {
+	// Check the envelope ID only if it is set. (This will always evaluate to true for incoming and outgoing transactions,
+	// but for transfers, can evaluate to false
+	if transaction.EnvelopeID != nil {
 		_, err = getEnvelopeResource(c, *transaction.EnvelopeID)
 		if err != nil {
 			return
