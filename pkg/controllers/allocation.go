@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/envelope-zero/backend/pkg/httputil"
@@ -29,6 +30,25 @@ type Allocation struct {
 
 type AllocationLinks struct {
 	Self string `json:"self" example:"https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"`
+}
+
+type AllocationQueryFilter struct {
+	Month      time.Time       `form:"month"`
+	Amount     decimal.Decimal `form:"amount"`
+	EnvelopeID string          `form:"envelope"`
+}
+
+func (a AllocationQueryFilter) ToCreate(c *gin.Context) (models.AllocationCreate, error) {
+	envelopeID, err := httputil.UUIDFromString(c, a.EnvelopeID)
+	if err != nil {
+		return models.AllocationCreate{}, err
+	}
+
+	return models.AllocationCreate{
+		Month:      a.Month,
+		Amount:     a.Amount,
+		EnvelopeID: envelopeID,
+	}, nil
 }
 
 // RegisterAllocationRoutes registers the routes for allocations with
@@ -125,9 +145,25 @@ func CreateAllocation(c *gin.Context) {
 // @Failure     500 {object} httputil.HTTPError
 // @Router      /v1/allocations [get]
 func GetAllocations(c *gin.Context) {
-	var allocations []models.Allocation
+	var filter AllocationQueryFilter
+	if err := c.Bind(&filter); err != nil {
+		httputil.ErrorInvalidQueryString(c)
+		return
+	}
 
-	database.DB.Find(&allocations)
+	// Get the parameters set in the query string
+	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+
+	// Convert the QueryFilter to a Create struct
+	create, err := filter.ToCreate(c)
+	if err != nil {
+		return
+	}
+
+	var allocations []models.Allocation
+	database.DB.Where(&models.Allocation{
+		AllocationCreate: create,
+	}, queryFields...).Find(&allocations)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
