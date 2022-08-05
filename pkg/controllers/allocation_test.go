@@ -64,10 +64,78 @@ func (suite *TestSuiteEnv) TestGetAllocations() {
 	assert.LessOrEqual(suite.T(), time.Since(response.Data[0].UpdatedAt), test.TOLERANCE)
 }
 
+func (suite *TestSuiteEnv) TestGetAllocationsFilter() {
+	e1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+	e2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+
+	a1 := createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: e1.Data.ID,
+		Month:      time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(314.1592),
+	})
+
+	a2 := createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: e1.Data.ID,
+		Month:      time.Date(2018, 10, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(1371),
+	})
+
+	a3 := createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: e2.Data.ID,
+		Month:      time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(1204),
+	})
+
+	tests := []struct {
+		name  string
+		query string
+		len   int
+	}{
+		{"Envelope 1", fmt.Sprintf("envelope=%s", e1.Data.ID), 2},
+		{"Envelope Not Existing", "envelope=f1411c94-0ec6-417a-bb00-9e51d3c1c6e0", 0},
+		{"Amount", "amount=1204", 1},
+		{"Month", fmt.Sprintf("month=%s", time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339)), 2},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var re controllers.AllocationListResponse
+			r := test.Request(t, http.MethodGet, fmt.Sprintf("/v1/allocations?%s", tt.query), "")
+			test.AssertHTTPStatus(t, http.StatusOK, &r)
+			test.DecodeResponse(t, &r, &re)
+
+			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
+		})
+	}
+
+	for _, r := range []controllers.EnvelopeResponse{e1, e2} {
+		test.Request(suite.T(), http.MethodDelete, r.Data.Links.Self, "")
+	}
+
+	for _, r := range []controllers.AllocationResponse{a1, a2, a3} {
+		test.Request(suite.T(), http.MethodDelete, r.Data.Links.Self, "")
+	}
+}
+
 func (suite *TestSuiteEnv) TestNoAllocationNotFound() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/allocations/f8b93ce2-309f-4e99-8886-6ab960df99c3", "")
 
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestGetAllocationsInvalidQuery() {
+	tests := []string{
+		"month=2022 Test Month",
+		"amount=The cake is a lie",
+		"envelope=NotAUUID",
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt, func(t *testing.T) {
+			recorder := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/allocations?%s", tt), "")
+			test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+		})
+	}
 }
 
 func (suite *TestSuiteEnv) TestAllocationInvalidIDs() {
