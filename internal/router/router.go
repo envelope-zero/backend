@@ -121,8 +121,6 @@ func Router() (*gin.Engine, error) {
 	controllers.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
 	controllers.RegisterAllocationRoutes(v1.Group("/allocations"))
 
-	log.Info().Msg("backend startup complete")
-
 	return r, nil
 }
 
