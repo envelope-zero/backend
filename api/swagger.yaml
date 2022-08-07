@@ -1628,6 +1628,11 @@ paths:
         in: query
         name: budget
         type: string
+      - description: Filter by ID of associated account, regardeless of source or
+          destination
+        in: query
+        name: account
+        type: string
       - description: Filter by source account ID
         in: query
         name: source

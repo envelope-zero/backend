@@ -20,6 +20,8 @@ require (
 	gorm.io/gorm v1.23.8
 )
 
+require github.com/google/go-cmp v0.5.8 // indirect
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

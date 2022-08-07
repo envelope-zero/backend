@@ -75,6 +75,7 @@ func (suite *TestSuiteEnv) TestGetTransactionsInvalidQuery() {
 		"date=A long time ago",
 		"amount=Seventeen Cents",
 		"reconciled=I don't think so",
+		"account=ItIsAHippo!",
 	}
 
 	for _, tt := range tests {
@@ -90,6 +91,7 @@ func (suite *TestSuiteEnv) TestGetTransactionsFilter() {
 
 	a1 := createTestAccount(suite.T(), models.AccountCreate{BudgetID: b.Data.ID})
 	a2 := createTestAccount(suite.T(), models.AccountCreate{BudgetID: b.Data.ID})
+	a3 := createTestAccount(suite.T(), models.AccountCreate{BudgetID: b.Data.ID})
 
 	c := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: b.Data.ID})
 
@@ -127,7 +129,7 @@ func (suite *TestSuiteEnv) TestGetTransactionsFilter() {
 		Note:                 "",
 		BudgetID:             b.Data.ID,
 		EnvelopeID:           e1ID,
-		SourceAccountID:      a1.Data.ID,
+		SourceAccountID:      a3.Data.ID,
 		DestinationAccountID: a2.Data.ID,
 		Reconciled:           true,
 	})
@@ -146,6 +148,9 @@ func (suite *TestSuiteEnv) TestGetTransactionsFilter() {
 		{"Non-existing Source Account", "source=3340a084-acf8-4cb4-8f86-9e7f88a86190", 0},
 		{"Destination Account", fmt.Sprintf("destination=%s", a2.Data.ID), 2},
 		{"Reconciled", "reconciled=false", 2},
+		{"Non-existing Account", "account=534a3562-c5e8-46d1-a2e2-e96c00e7efec", 0},
+		{"Existing Account 2", fmt.Sprintf("account=%s", a2.Data.ID), 3},
+		{"Existing Account 1", fmt.Sprintf("account=%s", a1.Data.ID), 2},
 	}
 
 	for _, tt := range tests {

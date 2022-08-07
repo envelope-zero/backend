@@ -1591,6 +1591,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Filter by ID of associated account, regardeless of source or destination",
+                        "name": "account",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Filter by source account ID",
                         "name": "source",
                         "in": "query"

@@ -24,7 +24,11 @@ func GetURLFields(url *url.URL, filter any) []any {
 		field := val.Type().Field(i).Name
 		param := val.Type().Field(i).Tag.Get("form")
 
-		if url.Query().Has(param) {
+		// createField is a struct tag that allows to specify if the field is part
+		// of the fields to filter for on the original struct
+		createField := val.Type().Field(i).Tag.Get("createField")
+
+		if url.Query().Has(param) && createField != "false" {
 			queryFields = append(queryFields, field)
 		}
 	}
