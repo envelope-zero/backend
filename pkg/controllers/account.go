@@ -293,7 +293,7 @@ func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, error) {
 		},
 	}).First(&account).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httputil.NewError(c, http.StatusNotFound, errors.New("No account found for the specified ID"))
 		return models.Account{}, err
 	}
 

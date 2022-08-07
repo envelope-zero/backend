@@ -406,7 +406,7 @@ func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, e
 		},
 	}).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httputil.NewError(c, http.StatusNotFound, errors.New("No transaction found for the specified ID"))
 		return models.Transaction{}, err
 	}
 
