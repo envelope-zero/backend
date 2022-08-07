@@ -164,8 +164,7 @@ func CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	// Check the envelope ID only if it is set. (This will always evaluate to true for incoming and outgoing transactions,
-	// but for transfers, can evaluate to false
+	// Check the envelope ID only if it is set.
 	if transaction.EnvelopeID != nil {
 		_, err = getEnvelopeResource(c, *transaction.EnvelopeID)
 		if err != nil {
@@ -309,7 +308,7 @@ func UpdateTransaction(c *gin.Context) {
 	if data.SourceAccountID != uuid.Nil {
 		sourceAccountID = data.SourceAccountID
 	}
-	sourceAccount, err := getAccountResource(c, sourceAccountID)
+	_, err = getAccountResource(c, sourceAccountID)
 	if err != nil {
 		return
 	}
@@ -319,17 +318,17 @@ func UpdateTransaction(c *gin.Context) {
 	if data.DestinationAccountID != uuid.Nil {
 		destinationAccountID = data.DestinationAccountID
 	}
-	destinationAccount, err := getAccountResource(c, destinationAccountID)
+	_, err = getAccountResource(c, destinationAccountID)
 	if err != nil {
 		return
 	}
 
-	// Check if the transaction is a transfer. If yes, the envelope can be empty.
-	//
-	// Check that the Envelope ID is set for incoming and outgoing transactions
-	if sourceAccount.External || destinationAccount.External && data.EnvelopeID == nil {
-		httputil.NewError(c, http.StatusBadRequest, errors.New("For incoming and outgoing transactions, an envelope is required"))
-		return
+	// Check the envelope ID only if it is set.
+	if data.EnvelopeID != nil {
+		_, err = getEnvelopeResource(c, *data.EnvelopeID)
+		if err != nil {
+			return
+		}
 	}
 
 	err = database.DB.Model(&transaction).Select("", updateFields...).Updates(data).Error
