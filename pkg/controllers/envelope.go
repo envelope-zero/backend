@@ -326,7 +326,7 @@ func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) 
 		},
 	}).First(&envelope).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httputil.NewError(c, http.StatusNotFound, errors.New("No envelope found for the specified ID"))
 		return models.Envelope{}, err
 	}
 

@@ -295,7 +295,7 @@ func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, err
 		},
 	}).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httputil.NewError(c, http.StatusNotFound, errors.New("No allocation found for the specified ID"))
 		return models.Allocation{}, err
 	}
 

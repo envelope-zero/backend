@@ -337,7 +337,7 @@ func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 		},
 	}).First(&budget).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httputil.NewError(c, http.StatusNotFound, errors.New("No budget found for the specified ID"))
 		return models.Budget{}, err
 	}
 

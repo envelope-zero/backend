@@ -290,7 +290,7 @@ func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) 
 		},
 	}).First(&category).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httputil.NewError(c, http.StatusNotFound, errors.New("No category found for the specified ID"))
 		return models.Category{}, err
 	}
 
