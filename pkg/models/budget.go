@@ -1,8 +1,10 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
@@ -28,4 +30,24 @@ type BudgetMonth struct {
 	Name      string          `json:"name" example:"Groceries"`                          // The name of the Envelope
 	Month     time.Time       `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // This is always set to 00:00 UTC on the first of the month.
 	Envelopes []EnvelopeMonth `json:"envelopes"`
+}
+
+// WithCalculations computes all the calculated values.
+func (b Budget) WithCalculations() Budget {
+	// Get all OnBudget accounts for the budget
+	var accounts []Account
+	_ = database.DB.Where(&Account{
+		AccountCreate: AccountCreate{
+			BudgetID: b.ID,
+			OnBudget: true,
+		},
+	}).Find(&accounts)
+
+	// Add all their balances to the budget's balance
+	for _, account := range accounts {
+		fmt.Println(account.WithCalculations().Balance)
+		b.Balance = b.Balance.Add(account.WithCalculations().Balance)
+	}
+
+	return b
 }
