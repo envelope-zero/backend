@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type TransactionListResponse struct {
@@ -40,6 +41,7 @@ type TransactionQueryFilter struct {
 	DestinationAccountID string          `form:"destination"`
 	EnvelopeID           string          `form:"envelope"`
 	Reconciled           bool            `form:"reconciled"`
+	AccountID            string          `form:"account" createField:"false"`
 }
 
 func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, error) {
@@ -196,6 +198,7 @@ func CreateTransaction(c *gin.Context) {
 // @Param       amount      query decimal.Decimal false "Filter by amount"
 // @Param       note        query string          false "Filter by note"
 // @Param       budget      query string          false "Filter by budget ID"
+// @Param       account     query string          false "Filter by ID of associated account, regardeless of source or destination"
 // @Param       source      query string          false "Filter by source account ID"
 // @Param       destination query string          false "Filter by destination account ID"
 // @Param       envelope    query string          false "Filter by envelope ID"
@@ -216,10 +219,30 @@ func GetTransactions(c *gin.Context) {
 		return
 	}
 
-	var transactions []models.Transaction
-	database.DB.Order("date(date) DESC").Where(&models.Transaction{
+	var query *gorm.DB
+	query = database.DB.Order("date(date) DESC").Where(&models.Transaction{
 		TransactionCreate: create,
-	}, queryFields...).Find(&transactions)
+	}, queryFields...)
+
+	if filter.AccountID != "" {
+		accountID, err := httputil.UUIDFromString(c, filter.AccountID)
+		if err != nil {
+			return
+		}
+
+		query = query.Where(&models.Transaction{
+			TransactionCreate: models.TransactionCreate{
+				SourceAccountID: accountID,
+			},
+		}).Or(&models.Transaction{
+			TransactionCreate: models.TransactionCreate{
+				DestinationAccountID: accountID,
+			},
+		})
+	}
+
+	var transactions []models.Transaction
+	query.Find(&transactions)
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements

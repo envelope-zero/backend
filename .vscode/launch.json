@@ -9,7 +9,9 @@
       "cwd": "${workspaceFolder}",
       "program": "${workspaceFolder}/main.go",
       "env": {
-        "GIN_MODE": "debug"
+        "GIN_MODE": "debug",
+        "API_URL": "http://localhost:8080",
+        "CORS_ALLOW_ORIGINS": "http://localhost:3000"
       },
       "console": "integratedTerminal"
     }
