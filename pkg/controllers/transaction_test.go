@@ -432,10 +432,39 @@ func (suite *TestSuiteEnv) TestUpdateNoEnvelopeTransactionOutgoing() {
 	transaction := createTestTransaction(suite.T(), c)
 
 	recorder := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, `{ "envelopeId": null }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+}
 
-	err := test.DecodeError(suite.T(), recorder.Body.Bytes())
-	assert.Equal(suite.T(), "For incoming and outgoing transactions, an envelope is required", err, "request id %s", recorder.Header().Get("x-request-id"))
+func (suite *TestSuiteEnv) TestUpdateEnvelopeTransactionOutgoing() {
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+
+	c := models.TransactionCreate{
+		BudgetID:             createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
+		SourceAccountID:      createTestAccount(suite.T(), models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: createTestAccount(suite.T(), models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
+		Amount:               decimal.NewFromFloat(984.13),
+	}
+
+	transaction := createTestTransaction(suite.T(), c)
+	recorder := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, fmt.Sprintf("{ \"envelopeId\": \"%s\" }", &envelope.Data.ID))
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestUpdateNonExistingEnvelopeTransactionOutgoing() {
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+
+	c := models.TransactionCreate{
+		BudgetID:             createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
+		SourceAccountID:      createTestAccount(suite.T(), models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: createTestAccount(suite.T(), models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
+		Amount:               decimal.NewFromFloat(984.13),
+	}
+
+	transaction := createTestTransaction(suite.T(), c)
+	recorder := test.Request(suite.T(), http.MethodPatch, transaction.Data.Links.Self, `{ "envelopeId": "e6fa8eb5-5f2c-4292-8ef9-02f0c2af1ce4" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestUpdateNonExistingTransaction() {
