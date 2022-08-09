@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"reflect"
 
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
@@ -52,7 +53,7 @@ func GetBodyFields(c *gin.Context, resource any) ([]any, error) {
 	if err := json.Unmarshal(body, &mapBody); err != nil {
 		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
 		e := errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
-		NewError(c, http.StatusBadRequest, e)
+		httperrors.New(c, http.StatusBadRequest, e.Error())
 		return []any{}, e
 	}
 

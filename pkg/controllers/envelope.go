@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -93,7 +94,7 @@ func OptionsEnvelopeList(c *gin.Context) {
 func OptionsEnvelopeDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -110,9 +111,9 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 // @Tags        Envelopes
 // @Produce     json
 // @Success     201 {object} EnvelopeResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500      {object} httputil.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
 // @Param       envelope body     models.EnvelopeCreate true "Envelope"
 // @Router      /v1/envelopes [post]
 func CreateEnvelope(c *gin.Context) {
@@ -130,7 +131,7 @@ func CreateEnvelope(c *gin.Context) {
 
 	err = database.DB.Create(&envelope).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -143,9 +144,9 @@ func CreateEnvelope(c *gin.Context) {
 // @Tags        Envelopes
 // @Produce     json
 // @Success     200 {object} EnvelopeListResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500 {object} httputil.HTTPError
+// @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/envelopes [get]
 // @Param       name     query string false "Filter by name"
 // @Param       note     query string false "Filter by note"
@@ -187,15 +188,15 @@ func GetEnvelopes(c *gin.Context) {
 // @Tags        Envelopes
 // @Produce     json
 // @Success     200 {object} EnvelopeResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       envelopeId path     string true "ID formatted as string"
 // @Router      /v1/envelopes/{envelopeId} [get]
 func GetEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -212,16 +213,16 @@ func GetEnvelope(c *gin.Context) {
 // @Tags        Envelopes
 // @Produce     json
 // @Success     200 {object} EnvelopeMonthResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       envelopeId path     string true "ID formatted as string"
 // @Param       month      path     string true "The month in YYYY-MM format"
 // @Router      /v1/envelopes/{envelopeId}/{month} [get]
 func GetEnvelopeMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -233,7 +234,7 @@ func GetEnvelopeMonth(c *gin.Context) {
 	envelope, _ := getEnvelopeResource(c, p)
 
 	if month.Month.IsZero() {
-		httputil.NewError(c, http.StatusBadRequest, errors.New("You cannot request data for no month"))
+		httperrors.New(c, http.StatusBadRequest, "You cannot request data for no month")
 		return
 	}
 
@@ -246,16 +247,16 @@ func GetEnvelopeMonth(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Success     200 {object} EnvelopeResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       envelopeId path     string                true "ID formatted as string"
 // @Param       envelope   body     models.EnvelopeCreate true "Envelope"
 // @Router      /v1/envelopes/{envelopeId} [patch]
 func UpdateEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -276,7 +277,7 @@ func UpdateEnvelope(c *gin.Context) {
 
 	err = database.DB.Model(&envelope).Select("", updateFields...).Updates(data).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -288,15 +289,15 @@ func UpdateEnvelope(c *gin.Context) {
 // @Description Deletes an envelope
 // @Tags        Envelopes
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       envelopeId path     string true "ID formatted as string"
 // @Router      /v1/envelopes/{envelopeId} [delete]
 func DeleteEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -314,7 +315,7 @@ func DeleteEnvelope(c *gin.Context) {
 func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) {
 	if id == uuid.Nil {
 		err := errors.New("No envelope ID specified")
-		httputil.NewError(c, http.StatusBadRequest, err)
+		httperrors.New(c, http.StatusBadRequest, err.Error())
 		return models.Envelope{}, err
 	}
 
@@ -326,7 +327,7 @@ func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) 
 		},
 	}).First(&envelope).Error
 	if err != nil {
-		httputil.NewError(c, http.StatusNotFound, errors.New("No envelope found for the specified ID"))
+		httperrors.New(c, http.StatusNotFound, "No envelope found for the specified ID")
 		return models.Envelope{}, err
 	}
 
@@ -354,7 +355,7 @@ func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, error
 		},
 	}).Find(&envelopes).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return []Envelope{}, err
 	}
 

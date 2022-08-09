@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/internal/router"
-	"github.com/envelope-zero/backend/pkg/httputil"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -73,7 +73,7 @@ func DecodeResponse(t *testing.T, r *httptest.ResponseRecorder, target interface
 }
 
 func DecodeError(t *testing.T, s []byte) string {
-	var r httputil.HTTPError
+	var r httperrors.HTTPError
 	if err := json.Unmarshal(s, &r); err != nil {
 		assert.Fail(t, "Not valid JSON!", "%s", s)
 	}

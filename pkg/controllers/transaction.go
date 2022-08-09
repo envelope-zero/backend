@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -120,7 +121,7 @@ func OptionsTransactionList(c *gin.Context) {
 func OptionsTransactionDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -136,9 +137,9 @@ func OptionsTransactionDetail(c *gin.Context) {
 // @Tags        Transactions
 // @Produce     json
 // @Success     201 {object} TransactionResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500         {object} httputil.HTTPError
+// @Failure     500         {object} httperrors.HTTPError
 // @Param       transaction body     models.TransactionCreate true "Transaction"
 // @Router      /v1/transactions [post]
 func CreateTransaction(c *gin.Context) {
@@ -175,7 +176,7 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	if !decimal.Decimal.IsPositive(transaction.Amount) {
-		httputil.NewError(c, http.StatusBadRequest, errors.New("The transaction amount must be positive"))
+		httperrors.New(c, http.StatusBadRequest, "The transaction amount must be positive")
 		return
 	}
 
@@ -190,9 +191,9 @@ func CreateTransaction(c *gin.Context) {
 // @Tags        Transactions
 // @Produce     json
 // @Success     200 {object} TransactionListResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500 {object} httputil.HTTPError
+// @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/transactions [get]
 // @Param       date        query time.Time       false "Filter by date"
 // @Param       amount      query decimal.Decimal false "Filter by amount"
@@ -206,7 +207,7 @@ func CreateTransaction(c *gin.Context) {
 func GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {
-		httputil.ErrorInvalidQueryString(c)
+		httperrors.InvalidQueryString(c)
 		return
 	}
 
@@ -261,15 +262,15 @@ func GetTransactions(c *gin.Context) {
 // @Tags        Transactions
 // @Produce     json
 // @Success     200 {object} TransactionResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500           {object} httputil.HTTPError
+// @Failure     500           {object} httperrors.HTTPError
 // @Param       transactionId path     string true "ID formatted as string"
 // @Router      /v1/transactions/{transactionId} [get]
 func GetTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -287,16 +288,16 @@ func GetTransaction(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Success     200 {object} TransactionResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500           {object} httputil.HTTPError
+// @Failure     500           {object} httperrors.HTTPError
 // @Param       transactionId path     string                   true "ID formatted as string"
 // @Param       transaction   body     models.TransactionCreate true "Transaction"
 // @Router      /v1/transactions/{transactionId} [patch]
 func UpdateTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -322,7 +323,7 @@ func UpdateTransaction(c *gin.Context) {
 	}
 
 	if !decimal.Decimal.IsPositive(data.Amount) {
-		httputil.NewError(c, http.StatusBadRequest, errors.New("The transaction amount must positive"))
+		httperrors.New(c, http.StatusBadRequest, "The transaction amount must positive")
 		return
 	}
 
@@ -356,7 +357,7 @@ func UpdateTransaction(c *gin.Context) {
 
 	err = database.DB.Model(&transaction).Select("", updateFields...).Updates(data).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -368,15 +369,15 @@ func UpdateTransaction(c *gin.Context) {
 // @Description Deletes a transaction
 // @Tags        Transactions
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500           {object} httputil.HTTPError
+// @Failure     500           {object} httperrors.HTTPError
 // @Param       transactionId path     string true "ID formatted as string"
 // @Router      /v1/transactions/{transactionId} [delete]
 func DeleteTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -394,7 +395,7 @@ func DeleteTransaction(c *gin.Context) {
 func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, error) {
 	if id == uuid.Nil {
 		err := errors.New("No transaction ID specified")
-		httputil.NewError(c, http.StatusBadRequest, err)
+		httperrors.New(c, http.StatusBadRequest, err.Error())
 		return models.Transaction{}, err
 	}
 
@@ -406,7 +407,7 @@ func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, e
 		},
 	}).Error
 	if err != nil {
-		httputil.NewError(c, http.StatusNotFound, errors.New("No transaction found for the specified ID"))
+		httperrors.New(c, http.StatusNotFound, "No transaction found for the specified ID")
 		return models.Transaction{}, err
 	}
 

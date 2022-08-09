@@ -10,6 +10,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -88,7 +89,7 @@ func OptionsAllocationList(c *gin.Context) {
 func OptionsAllocationDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -104,9 +105,9 @@ func OptionsAllocationDetail(c *gin.Context) {
 // @Tags        Allocations
 // @Produce     json
 // @Success     201 {object} AllocationResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       allocation body     models.AllocationCreate true "Allocation"
 // @Router      /v1/allocations [post]
 func CreateAllocation(c *gin.Context) {
@@ -127,7 +128,7 @@ func CreateAllocation(c *gin.Context) {
 
 	err = database.DB.Create(&allocation).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -140,9 +141,9 @@ func CreateAllocation(c *gin.Context) {
 // @Tags        Allocations
 // @Produce     json
 // @Success     200 {object} AllocationListResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500 {object} httputil.HTTPError
+// @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/allocations [get]
 // @Param       month    query string false "Filter by month"
 // @Param       amount   query string false "Filter by amount"
@@ -150,7 +151,7 @@ func CreateAllocation(c *gin.Context) {
 func GetAllocations(c *gin.Context) {
 	var filter AllocationQueryFilter
 	if err := c.Bind(&filter); err != nil {
-		httputil.ErrorInvalidQueryString(c)
+		httperrors.InvalidQueryString(c)
 		return
 	}
 
@@ -186,15 +187,15 @@ func GetAllocations(c *gin.Context) {
 // @Tags        Allocations
 // @Produce     json
 // @Success     200 {object} AllocationResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500          {object} httputil.HTTPError
+// @Failure     500          {object} httperrors.HTTPError
 // @Param       allocationId path     string true "ID formatted as string"
 // @Router      /v1/allocations/{allocationId} [get]
 func GetAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -212,16 +213,16 @@ func GetAllocation(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Success     200 {object} AllocationResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500          {object} httputil.HTTPError
+// @Failure     500          {object} httperrors.HTTPError
 // @Param       allocationId path     string                  true "ID formatted as string"
 // @Param       allocation   body     models.AllocationCreate true "Allocation"
 // @Router      /v1/allocations/{allocationId} [patch]
 func UpdateAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -245,7 +246,7 @@ func UpdateAllocation(c *gin.Context) {
 
 	err = database.DB.Model(&allocation).Select("", updateFields...).Updates(data).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -257,15 +258,15 @@ func UpdateAllocation(c *gin.Context) {
 // @Description Deletes an allocation
 // @Tags        Allocations
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500          {object} httputil.HTTPError
+// @Failure     500          {object} httperrors.HTTPError
 // @Param       allocationId path     string true "ID formatted as string"
 // @Router      /v1/allocations/{allocationId} [delete]
 func DeleteAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -283,7 +284,7 @@ func DeleteAllocation(c *gin.Context) {
 func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, error) {
 	if id == uuid.Nil {
 		err := errors.New("No allocation ID specified")
-		httputil.NewError(c, http.StatusBadRequest, err)
+		httperrors.New(c, http.StatusBadRequest, err.Error())
 		return models.Allocation{}, err
 	}
 
@@ -295,7 +296,7 @@ func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, err
 		},
 	}).Error
 	if err != nil {
-		httputil.NewError(c, http.StatusNotFound, errors.New("No allocation found for the specified ID"))
+		httperrors.New(c, http.StatusNotFound, "No allocation found for the specified ID")
 		return models.Allocation{}, err
 	}
 
