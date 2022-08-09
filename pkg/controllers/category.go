@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -73,7 +74,7 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags        Categories
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
 // @Router      /v1/categories [options]
 func OptionsCategoryList(c *gin.Context) {
@@ -84,14 +85,14 @@ func OptionsCategoryList(c *gin.Context) {
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags        Categories
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
 // @Param       categoryId path string true "ID formatted as string"
 // @Router      /v1/categories/{categoryId} [options]
 func OptionsCategoryDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -107,9 +108,9 @@ func OptionsCategoryDetail(c *gin.Context) {
 // @Tags        Categories
 // @Produce     json
 // @Success     201 {object} CategoryResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500      {object} httputil.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
 // @Param       category body     models.CategoryCreate true "Category"
 // @Router      /v1/categories [post]
 func CreateCategory(c *gin.Context) {
@@ -127,7 +128,7 @@ func CreateCategory(c *gin.Context) {
 
 	err = database.DB.Create(&category).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -140,9 +141,9 @@ func CreateCategory(c *gin.Context) {
 // @Tags        Categories
 // @Produce     json
 // @Success     200 {object} CategoryListResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500 {object} httputil.HTTPError
+// @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/categories [get]
 // @Param       name   query string false "Filter by name"
 // @Param       note   query string false "Filter by note"
@@ -185,15 +186,15 @@ func GetCategories(c *gin.Context) {
 // @Tags        Categories
 // @Produce     json
 // @Success     200 {object} CategoryResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       categoryId path     string true "ID formatted as string"
 // @Router      /v1/categories/{categoryId} [get]
 func GetCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -211,16 +212,16 @@ func GetCategory(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Success     200 {object} CategoryResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       categoryId path     string                true "ID formatted as string"
 // @Param       category   body     models.CategoryCreate true "Category"
 // @Router      /v1/categories/{categoryId} [patch]
 func UpdateCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -241,7 +242,7 @@ func UpdateCategory(c *gin.Context) {
 
 	err = database.DB.Model(&category).Select("", updateFields...).Updates(data).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -253,15 +254,15 @@ func UpdateCategory(c *gin.Context) {
 // @Description Deletes a category
 // @Tags        Categories
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500        {object} httputil.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
 // @Param       categoryId path     string true "ID formatted as string"
 // @Router      /v1/categories/{categoryId} [delete]
 func DeleteCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -278,7 +279,7 @@ func DeleteCategory(c *gin.Context) {
 func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) {
 	if id == uuid.Nil {
 		err := errors.New("No category ID specified")
-		httputil.NewError(c, http.StatusBadRequest, err)
+		httperrors.New(c, http.StatusBadRequest, err.Error())
 		return models.Category{}, err
 	}
 
@@ -290,7 +291,7 @@ func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) 
 		},
 	}).First(&category).Error
 	if err != nil {
-		httputil.NewError(c, http.StatusNotFound, errors.New("No category found for the specified ID"))
+		httperrors.New(c, http.StatusNotFound, "No category found for the specified ID")
 		return models.Category{}, err
 	}
 

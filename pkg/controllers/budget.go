@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -69,7 +70,7 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags        Budgets
 // @Success     204
-// @Failure     500 {object} httputil.HTTPError
+// @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/budgets [options]
 func OptionsBudgetList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
@@ -79,15 +80,15 @@ func OptionsBudgetList(c *gin.Context) {
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags        Budgets
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500      {object} httputil.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Router      /v1/budgets/{budgetId} [options]
 func OptionsBudgetDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -104,8 +105,8 @@ func OptionsBudgetDetail(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Success     201    {object} BudgetResponse
-// @Failure     400    {object} httputil.HTTPError
-// @Failure     500    {object} httputil.HTTPError
+// @Failure     400    {object} httperrors.HTTPError
+// @Failure     500    {object} httperrors.HTTPError
 // @Param       budget body     models.BudgetCreate true "Budget"
 // @Router      /v1/budgets [post]
 func CreateBudget(c *gin.Context) {
@@ -126,7 +127,7 @@ func CreateBudget(c *gin.Context) {
 // @Tags        Budgets
 // @Produce     json
 // @Success     200 {object} BudgetListResponse
-// @Failure     500 {object} httputil.HTTPError
+// @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/budgets [get]
 // @Router      /v1/budgets [get]
 // @Param       name     query string false "Filter by name"
@@ -168,15 +169,15 @@ func GetBudgets(c *gin.Context) {
 // @Tags        Budgets
 // @Produce     json
 // @Success     200 {object} BudgetResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500      {object} httputil.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Router      /v1/budgets/{budgetId} [get]
 func GetBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -193,16 +194,16 @@ func GetBudget(c *gin.Context) {
 // @Tags        Budgets
 // @Produce     json
 // @Success     200 {object} BudgetMonthResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500      {object} httputil.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month} [get]
 func GetBudgetMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -217,7 +218,7 @@ func GetBudgetMonth(c *gin.Context) {
 	}
 
 	if month.Month.IsZero() {
-		httputil.NewError(c, http.StatusBadRequest, errors.New("You cannot request data for no month"))
+		httperrors.New(c, http.StatusBadRequest, "You cannot request data for no month")
 		return
 	}
 
@@ -257,16 +258,16 @@ func GetBudgetMonth(c *gin.Context) {
 // @Accept      json
 // @Produce     json
 // @Success     200 {object} BudgetResponse
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500      {object} httputil.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string              true "ID formatted as string"
 // @Param       budget   body     models.BudgetCreate true "Budget"
 // @Router      /v1/budgets/{budgetId} [patch]
 func UpdateBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -287,7 +288,7 @@ func UpdateBudget(c *gin.Context) {
 
 	err = database.DB.Model(&budget).Select("", updateFields...).Updates(data).Error
 	if err != nil {
-		httputil.ErrorHandler(c, err)
+		httperrors.Handler(c, err)
 		return
 	}
 
@@ -299,15 +300,15 @@ func UpdateBudget(c *gin.Context) {
 // @Description Deletes a budget
 // @Tags        Budgets
 // @Success     204
-// @Failure     400 {object} httputil.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
-// @Failure     500      {object} httputil.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Router      /v1/budgets/{budgetId} [delete]
 func DeleteBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return
 	}
 
@@ -325,7 +326,7 @@ func DeleteBudget(c *gin.Context) {
 func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 	if id == uuid.Nil {
 		err := errors.New("No budget ID specified")
-		httputil.NewError(c, http.StatusBadRequest, err)
+		httperrors.New(c, http.StatusBadRequest, err.Error())
 		return models.Budget{}, err
 	}
 
@@ -337,7 +338,7 @@ func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 		},
 	}).First(&budget).Error
 	if err != nil {
-		httputil.NewError(c, http.StatusNotFound, errors.New("No budget found for the specified ID"))
+		httperrors.New(c, http.StatusNotFound, "No budget found for the specified ID")
 		return models.Budget{}, err
 	}
 

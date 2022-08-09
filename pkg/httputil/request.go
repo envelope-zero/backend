@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,13 +17,13 @@ func BindData(c *gin.Context, data interface{}) error {
 	if err := c.ShouldBindJSON(&data); err != nil {
 		if errors.Is(io.EOF, err) {
 			e := errors.New("request body must not be empty")
-			NewError(c, http.StatusBadRequest, e)
+			httperrors.New(c, http.StatusBadRequest, e.Error())
 			return e
 		}
 
 		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
 		e := errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
-		NewError(c, http.StatusBadRequest, e)
+		httperrors.New(c, http.StatusBadRequest, e.Error())
 		return e
 	}
 
@@ -38,7 +39,7 @@ func UUIDFromString(c *gin.Context, s string) (uuid.UUID, error) {
 
 	u, err := uuid.Parse(s)
 	if err != nil {
-		ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 		return uuid.Nil, err
 	}
 

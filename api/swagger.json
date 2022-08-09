@@ -114,7 +114,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -123,7 +123,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -158,7 +158,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -167,7 +167,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -185,7 +185,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -223,7 +223,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -232,7 +232,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -262,7 +262,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -271,7 +271,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -298,7 +298,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -343,7 +343,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -352,7 +352,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -398,7 +398,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -407,7 +407,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -442,7 +442,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -451,7 +451,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -498,7 +498,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -507,7 +507,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -534,7 +534,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -543,7 +543,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -609,7 +609,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -618,7 +618,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -664,7 +664,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -702,13 +702,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -726,7 +726,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -761,7 +761,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -770,7 +770,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -797,7 +797,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -806,7 +806,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -833,7 +833,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -842,7 +842,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -887,7 +887,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -896,7 +896,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -938,7 +938,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -947,7 +947,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -993,7 +993,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1002,7 +1002,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1037,7 +1037,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1046,7 +1046,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1064,7 +1064,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1102,7 +1102,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1111,7 +1111,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1138,7 +1138,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1147,7 +1147,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1174,7 +1174,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1222,7 +1222,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1231,7 +1231,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1277,7 +1277,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1286,7 +1286,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1321,7 +1321,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1330,7 +1330,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1377,7 +1377,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1386,7 +1386,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1413,7 +1413,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1422,7 +1422,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1488,7 +1488,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1497,7 +1497,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1539,7 +1539,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1548,7 +1548,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1618,7 +1618,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1627,7 +1627,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1662,7 +1662,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1671,7 +1671,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1718,7 +1718,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1727,7 +1727,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1754,7 +1754,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1763,7 +1763,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -1829,7 +1829,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
                     "404": {
@@ -1838,7 +1838,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     }
                 }
@@ -2376,7 +2376,7 @@
                 }
             }
         },
-        "httputil.HTTPError": {
+        "httperrors.HTTPError": {
             "type": "object",
             "properties": {
                 "error": {

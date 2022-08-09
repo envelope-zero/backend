@@ -358,7 +358,7 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Transaction'
     type: object
-  httputil.HTTPError:
+  httperrors.HTTPError:
     properties:
       error:
         example: An ID specified in the query string was not a valid uint64
@@ -648,13 +648,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: List accounts
       tags:
       - Accounts
@@ -667,7 +667,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
       summary: Allowed HTTP verbs
@@ -692,13 +692,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Create account
       tags:
       - Accounts
@@ -719,13 +719,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete account
       tags:
       - Accounts
@@ -747,13 +747,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get account
       tags:
       - Accounts
@@ -772,7 +772,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
       summary: Allowed HTTP verbs
@@ -802,13 +802,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Update account
       tags:
       - Accounts
@@ -838,13 +838,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get allocations
       tags:
       - Allocations
@@ -877,13 +877,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Create allocations
       tags:
       - Allocations
@@ -902,13 +902,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete allocation
       tags:
       - Allocations
@@ -930,13 +930,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get allocation
       tags:
       - Allocations
@@ -981,13 +981,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Update allocation
       tags:
       - Allocations
@@ -1017,7 +1017,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: List budgets
       tags:
       - Budgets
@@ -1030,7 +1030,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Budgets
@@ -1055,11 +1055,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Create budget
       tags:
       - Budgets
@@ -1078,13 +1078,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete budget
       tags:
       - Budgets
@@ -1106,13 +1106,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get budget
       tags:
       - Budgets
@@ -1131,13 +1131,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Budgets
@@ -1168,13 +1168,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Update budget
       tags:
       - Budgets
@@ -1202,13 +1202,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get Budget month data
       tags:
       - Budgets
@@ -1238,13 +1238,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get categories
       tags:
       - Categories
@@ -1257,7 +1257,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
       summary: Allowed HTTP verbs
@@ -1282,13 +1282,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Create category
       tags:
       - Categories
@@ -1307,13 +1307,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete category
       tags:
       - Categories
@@ -1335,13 +1335,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get category
       tags:
       - Categories
@@ -1360,7 +1360,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
       summary: Allowed HTTP verbs
@@ -1393,13 +1393,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Update category
       tags:
       - Categories
@@ -1429,13 +1429,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get envelopes
       tags:
       - Envelopes
@@ -1467,13 +1467,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Create envelope
       tags:
       - Envelopes
@@ -1492,13 +1492,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete envelope
       tags:
       - Envelopes
@@ -1520,13 +1520,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get envelope
       tags:
       - Envelopes
@@ -1572,13 +1572,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Update envelope
       tags:
       - Envelopes
@@ -1606,13 +1606,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get Envelope month data
       tags:
       - Envelopes
@@ -1659,13 +1659,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get transactions
       tags:
       - Transactions
@@ -1697,13 +1697,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Create transaction
       tags:
       - Transactions
@@ -1722,13 +1722,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete transaction
       tags:
       - Transactions
@@ -1750,13 +1750,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get transaction
       tags:
       - Transactions
@@ -1802,13 +1802,13 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Update transaction
       tags:
       - Transactions

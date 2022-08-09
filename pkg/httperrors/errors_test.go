@@ -1,15 +1,14 @@
-package httputil_test
+package httperrors_test
 
 import (
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/httputil"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/test"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
@@ -22,7 +21,7 @@ func TestFetchErrorHandlerErrRecordNotFound(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorHandler(c, gorm.ErrRecordNotFound)
+		httperrors.Handler(c, gorm.ErrRecordNotFound)
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
@@ -30,26 +29,12 @@ func TestFetchErrorHandlerErrRecordNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
-func TestFetchErrorHandlerStrconvNumError(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-
-	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorHandler(c, &strconv.NumError{})
-	})
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
-	r.ServeHTTP(w, c.Request)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, "An ID specified in the query string was not a valid uint64", test.DecodeError(t, w.Body.Bytes()))
-}
-
 func TestFetchErrorHandlerTimeParseError(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorHandler(c, &time.ParseError{})
+		httperrors.Handler(c, &time.ParseError{})
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
@@ -63,7 +48,7 @@ func TestFetchErrorHandlerSQLiteErrorUnknown(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorHandler(c, &sqlite.Error{})
+		httperrors.Handler(c, &sqlite.Error{})
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
@@ -77,13 +62,13 @@ func TestFetchErrorHandlerEOF(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorHandler(c, io.EOF)
+		httperrors.Handler(c, io.EOF)
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "request body must not be empty")
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "The request body must not be empty")
 }
 
 func TestFetchErrorHandlerInternalServerError(t *testing.T) {
@@ -91,13 +76,13 @@ func TestFetchErrorHandlerInternalServerError(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorHandler(c, errors.New("Some random error"))
+		httperrors.Handler(c, errors.New("Some random error"))
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "an error occurred on the server during your request")
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "An error occurred on the server during your request")
 }
 
 func TestErrorInvalidUUID(t *testing.T) {
@@ -105,7 +90,7 @@ func TestErrorInvalidUUID(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorInvalidUUID(c)
+		httperrors.InvalidUUID(c)
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
@@ -119,11 +104,33 @@ func TestErrorUnparseableData(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.GET("/", func(ctx *gin.Context) {
-		httputil.ErrorInvalidQueryString(c)
+		httperrors.InvalidQueryString(c)
 	})
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "unparseable data")
+}
+
+func TestDatabaseErrorMessages(t *testing.T) {
+	tests := []struct {
+		code int
+		err  string
+		msg  string
+	}{
+		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "Source and destination accounts for a transaction must be different"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "The category name must be unique for the budget"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "The envelope name must be unique for the category"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "You can not create multiple allocations for the same month"},
+		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "A resource ID you specfied did not identify an existing resource."},
+		{http.StatusInternalServerError, "This is a very weird error", "A database error occurred during your request"},
+	}
+
+	for _, tt := range tests {
+		err := errors.New(tt.err)
+		code, msg := httperrors.DBErrorMessage(err)
+		assert.Equal(t, tt.code, code)
+		assert.Equal(t, tt.msg, msg)
+	}
 }
