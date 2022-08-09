@@ -2467,6 +2467,10 @@ const docTemplate = `{
         "models.BudgetMonth": {
             "type": "object",
             "properties": {
+                "budgeted": {
+                    "type": "number",
+                    "example": 2100
+                },
                 "envelopes": {
                     "type": "array",
                     "items": {

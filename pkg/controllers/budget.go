@@ -12,6 +12,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type BudgetListResponse struct {
@@ -221,6 +222,8 @@ func GetBudgetMonth(c *gin.Context) {
 		httperrors.New(c, http.StatusBadRequest, "You cannot request data for no month")
 		return
 	}
+	// Set the month to the first of the month at midnight
+	month.Month = time.Date(month.Month.Year(), month.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	var envelopes []models.Envelope
 
@@ -244,10 +247,31 @@ func GetBudgetMonth(c *gin.Context) {
 		envelopeMonths = append(envelopeMonths, envelope.Month(month.Month))
 	}
 
+	// Get all allocations for all Envelopes for the month
+	var allocations []models.Allocation
+	for _, envelope := range envelopes {
+		var a models.Allocation
+		database.DB.Where(&models.Allocation{
+			AllocationCreate: models.AllocationCreate{
+				EnvelopeID: envelope.ID,
+				Month:      month.Month,
+			},
+		}).First(&a)
+
+		allocations = append(allocations, a)
+	}
+
+	// Calculate the budgeted sum
+	var budgeted decimal.Decimal
+	for _, allocation := range allocations {
+		budgeted = budgeted.Add(allocation.Amount)
+	}
+
 	c.JSON(http.StatusOK, BudgetMonthResponse{Data: models.BudgetMonth{
 		ID:        budget.ID,
 		Name:      budget.Name,
 		Month:     time.Date(month.Month.UTC().Year(), month.Month.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
+		Budgeted:  budgeted,
 		Envelopes: envelopeMonths,
 	}})
 }
