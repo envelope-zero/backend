@@ -299,6 +299,33 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 	}
 }
 
+func (suite *TestSuiteEnv) TestBudgetMonthBudgeted() {
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
+	envelopeZero := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Zero"})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelopeZero.Data.ID,
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(19.01),
+	})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		EnvelopeID: envelope.Data.ID,
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(20.99),
+	})
+
+	var budgetMonth controllers.BudgetMonthResponse
+
+	r := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("%s/2022-01", budget.Data.Links.Self), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.DecodeResponse(suite.T(), &r, &budgetMonth)
+
+	assert.True(suite.T(), budgetMonth.Data.Budgeted.Equal(decimal.NewFromFloat(40)), "Calculation of budgeted sum for a month is off. Should be 40, is %s", budgetMonth.Data.Budgeted)
+}
+
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
 func (suite *TestSuiteEnv) TestBudgetMonthNonExistent() {
 	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")

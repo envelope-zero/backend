@@ -419,6 +419,9 @@ definitions:
     type: object
   models.BudgetMonth:
     properties:
+      budgeted:
+        example: 2100
+        type: number
       envelopes:
         items:
           $ref: '#/definitions/models.EnvelopeMonth'
