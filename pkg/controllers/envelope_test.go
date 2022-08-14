@@ -299,6 +299,17 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 				Allocation: decimal.NewFromFloat(31.17),
 			},
 		},
+		// This month should be all zeroes, but have otherwise correct settings
+		{
+			fmt.Sprintf("%s/1998-10", envelope.Data.Links.Self),
+			models.EnvelopeMonth{
+				Name:       "Utilities",
+				Month:      time.Date(1998, 10, 1, 0, 0, 0, 0, time.UTC),
+				Spent:      decimal.NewFromFloat(0),
+				Balance:    decimal.NewFromFloat(0),
+				Allocation: decimal.NewFromFloat(0),
+			},
+		},
 	}
 
 	var envelopeMonth controllers.EnvelopeMonthResponse
@@ -321,6 +332,11 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthInvalid() {
 	// Test that non-parseable requests produce an error
 	r := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("%s/Stonks!", envelope.Data.Links.Self), "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+}
+
+func (suite *TestSuiteEnv) TestEnvelopeMonthNoEnvelope() {
+	r := test.Request(suite.T(), http.MethodGet, "https://example.com/v1/envelopes/510ffa95-e445-43cc-8abc-da8e2c20ea5c/2022-04", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &r)
 }
 
 // TestEnvelopeMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.

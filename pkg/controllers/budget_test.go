@@ -510,3 +510,115 @@ func (suite *TestSuiteEnv) TestDeleteAllocationsMonthFailures() {
 	recorder = test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
+
+func (suite *TestSuiteEnv) TestSetAllocationsMonthBudgeted() {
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	envelope2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+
+	allocation1 := createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(30),
+		EnvelopeID: envelope1.Data.ID,
+	})
+
+	allocation2 := createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(40),
+		EnvelopeID: envelope2.Data.ID,
+	})
+
+	// Update in budgeted mode allocations
+	recorder := test.Request(suite.T(), http.MethodPost, strings.Replace(budget.Data.Links.MonthAllocations, "YYYY-MM", "2022-02", 1), controllers.BudgetAllocationMode{Mode: controllers.AllocateLastMonthBudget})
+	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+
+	// Verify the allocation for the first envelope
+	requestString := strings.Replace(envelope1.Data.Links.Month, "YYYY-MM", "2022-02", 1)
+	recorder = test.Request(suite.T(), http.MethodGet, requestString, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	var envelope1Month controllers.EnvelopeMonthResponse
+	test.DecodeResponse(suite.T(), &recorder, &envelope1Month)
+	suite.Assert().True(allocation1.Data.Amount.Equal(envelope1Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", allocation1.Data.Amount, envelope1Month.Data.Allocation, recorder.Header().Get("x-request-id"))
+
+	// Verify the allocation for the second envelope
+	recorder = test.Request(suite.T(), http.MethodGet, strings.Replace(envelope2.Data.Links.Month, "YYYY-MM", "2022-02", 1), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	var envelope2Month controllers.EnvelopeMonthResponse
+	test.DecodeResponse(suite.T(), &recorder, &envelope2Month)
+	suite.Assert().True(allocation2.Data.Amount.Equal(envelope2Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", allocation2.Data.Amount, envelope2Month.Data.Allocation, recorder.Header().Get("x-request-id"))
+}
+
+func (suite *TestSuiteEnv) TestSetAllocationsMonthSpend() {
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	cashAccount := createTestAccount(suite.T(), models.AccountCreate{External: false})
+	externalAccount := createTestAccount(suite.T(), models.AccountCreate{External: true})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	envelope2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(30),
+		EnvelopeID: envelope1.Data.ID,
+	})
+
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(40),
+		EnvelopeID: envelope2.Data.ID,
+	})
+
+	eID := &envelope1.Data.ID
+	transaction1 := createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 1, 15, 14, 43, 27, 0, time.UTC),
+		EnvelopeID:           eID,
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      cashAccount.Data.ID,
+		DestinationAccountID: externalAccount.Data.ID,
+		Amount:               decimal.NewFromFloat(15),
+	})
+
+	// Update in budgeted mode allocations
+	recorder := test.Request(suite.T(), http.MethodPost, strings.Replace(budget.Data.Links.MonthAllocations, "YYYY-MM", "2022-02", 1), controllers.BudgetAllocationMode{Mode: controllers.AllocateLastMonthSpend})
+	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+
+	// Verify the allocation for the first envelope
+	requestString := strings.Replace(envelope1.Data.Links.Month, "YYYY-MM", "2022-02", 1)
+	recorder = test.Request(suite.T(), http.MethodGet, requestString, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	var envelope1Month controllers.EnvelopeMonthResponse
+	test.DecodeResponse(suite.T(), &recorder, &envelope1Month)
+	suite.Assert().True(transaction1.Data.Amount.Equal(envelope1Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", transaction1.Data.Amount, envelope1Month.Data.Allocation, recorder.Header().Get("x-request-id"))
+
+	// Verify the allocation for the second envelope
+	recorder = test.Request(suite.T(), http.MethodGet, strings.Replace(envelope2.Data.Links.Month, "YYYY-MM", "2022-02", 1), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	var envelope2Month controllers.EnvelopeMonthResponse
+	test.DecodeResponse(suite.T(), &recorder, &envelope2Month)
+	suite.Assert().True(envelope2Month.Data.Allocation.Equal(decimal.NewFromFloat(0)), "Expected: 0, got %s, Request ID: %s", envelope2Month.Data.Allocation, recorder.Header().Get("x-request-id"))
+}
+
+func (suite *TestSuiteEnv) TestSetAllocationsMonthFailures() {
+	budgetAllocationsLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
+
+	// Bad Request for invalid UUID
+	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Bad Request for invalid months
+	recorder = test.Request(suite.T(), http.MethodPost, budgetAllocationsLink, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Not found for non-existing budget
+	recorder = test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+
+	// Bad Request for invalid json in body
+	recorder = test.Request(suite.T(), http.MethodPost, strings.Replace(budgetAllocationsLink, "YYYY-MM", "2022-01", 1), `{ "mode": INVALID_JSON" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Bad Request for invalid mode
+	recorder = test.Request(suite.T(), http.MethodPost, strings.Replace(budgetAllocationsLink, "YYYY-MM", "2022-01", 1), `{ "mode": "UNKNOWN_MODE" }`)
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+}

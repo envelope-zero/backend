@@ -21,7 +21,21 @@ type HTTPError struct {
 }
 
 // Generate a struct containing the HTTP error on the fly.
-func New(c *gin.Context, status int, msg string) {
+func New(c *gin.Context, status int, msgAndArgs ...any) {
+	// Format msgAndArgs in a final string.
+	// This is taken almost exactly from https://github.com/stretchr/testify/blob/181cea6eab8b2de7071383eca4be32a424db38dd/assert/assertions.go#L181
+	msg := ""
+	if len(msgAndArgs) == 1 {
+		if msgAsStr, ok := msgAndArgs[0].(string); ok {
+			msg = msgAsStr
+		}
+		msg = fmt.Sprintf("%+v", msg)
+	}
+
+	if len(msgAndArgs) > 1 {
+		msg = fmt.Sprintf(msgAndArgs[0].(string), msgAndArgs[1:]...)
+	}
+
 	c.JSON(status, HTTPError{
 		Error: msg,
 	})
@@ -59,7 +73,7 @@ func DBErrorMessage(err error) (int, string) {
 
 		// General message when a field references a non-existing resource
 	} else if strings.Contains(err.Error(), "constraint failed: FOREIGN KEY constraint failed") {
-		return http.StatusBadRequest, "A resource ID you specfied did not identify an existing resource."
+		return http.StatusBadRequest, "There is no resource for the ID you specificed in the reference to another resource."
 
 		// A general error we do not know more about
 	} else {

@@ -6,6 +6,7 @@ import (
 	"github.com/envelope-zero/backend/internal/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 // Envelope represents an envelope in your budget.
@@ -65,24 +66,33 @@ func (e Envelope) Spent(t time.Time) decimal.Decimal {
 }
 
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth for them.
-func (e Envelope) Month(t time.Time) EnvelopeMonth {
+func (e Envelope) Month(t time.Time) (EnvelopeMonth, error) {
 	spent := e.Spent(t)
+	month := time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC)
 
-	var allocation Allocation
-	database.DB.First(&allocation, &Allocation{
-		AllocationCreate: AllocationCreate{
-			Month: time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
-		},
-	})
-
-	balance := allocation.Amount.Add(spent)
-
-	return EnvelopeMonth{
+	envelopeMonth := EnvelopeMonth{
 		ID:         e.ID,
 		Name:       e.Name,
-		Month:      allocation.Month,
+		Month:      month,
 		Spent:      spent,
-		Balance:    balance,
-		Allocation: allocation.Amount,
+		Balance:    decimal.NewFromFloat(0),
+		Allocation: decimal.NewFromFloat(0),
 	}
+
+	var allocation Allocation
+	err := database.DB.First(&allocation, &Allocation{
+		AllocationCreate: AllocationCreate{
+			EnvelopeID: e.ID,
+			Month:      month,
+		},
+	}).Error
+
+	// If an unexpected error occurs, return
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return EnvelopeMonth{}, err
+	}
+
+	envelopeMonth.Balance = allocation.Amount.Add(spent)
+	envelopeMonth.Allocation = allocation.Amount
+	return envelopeMonth, nil
 }

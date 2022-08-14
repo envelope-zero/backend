@@ -12,6 +12,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/test"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -137,7 +138,7 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "The category name must be unique for the budget"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "The envelope name must be unique for the category"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "You can not create multiple allocations for the same month"},
-		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "A resource ID you specfied did not identify an existing resource."},
+		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "There is no resource for the ID you specificed in the reference to another resource."},
 		{http.StatusInternalServerError, "This is a very weird error", "A database error occurred during your request"},
 	}
 
@@ -147,4 +148,32 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		assert.Equal(t, tt.code, code)
 		assert.Equal(t, tt.msg, msg)
 	}
+}
+
+func TestNewPlainString(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httperrors.New(c, http.StatusBadRequest, "Non-formatted test message")
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, "Non-formatted test message", test.DecodeError(t, w.Body.Bytes()))
+}
+
+func TestNewFormatString(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httperrors.New(c, http.StatusBadRequest, "This is a formatting string with parameters that contain %#v and %s", "a string", decimal.NewFromFloat(3.141))
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, "This is a formatting string with parameters that contain \"a string\" and 3.141", test.DecodeError(t, w.Body.Bytes()))
 }
