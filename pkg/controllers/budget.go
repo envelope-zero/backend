@@ -113,7 +113,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
-// @Router      /v1/budgets/{budgetId}/{month} [get]
+// @Router      /v1/budgets/{budgetId}/{month} [options]
 func OptionsBudgetMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -144,7 +144,7 @@ func OptionsBudgetMonth(c *gin.Context) {
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
-// @Router      /v1/budgets/{budgetId}/{month}/allocations [get]
+// @Router      /v1/budgets/{budgetId}/{month}/allocations [options]
 func OptionsBudgetMonthAllocations(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -414,7 +414,7 @@ func DeleteBudget(c *gin.Context) {
 
 // @Summary     Delete allocations for a month
 // @Description Deletes all allocation for the specified month
-// @Tags        Budget
+// @Tags        Budgets
 // @Success     204
 // @Failure     400 {object} httperrors.HTTPError
 // @Failure     500      {object} httperrors.HTTPError

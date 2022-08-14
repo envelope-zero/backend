@@ -963,10 +963,8 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/v1/budgets/{budgetId}/{month}/allocations": {
-            "get": {
+            },
+            "options": {
                 "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
                 "tags": [
                     "Budgets"
@@ -1008,11 +1006,13 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/budgets/{budgetId}/{month}/allocations": {
             "delete": {
                 "description": "Deletes all allocation for the specified month",
                 "tags": [
-                    "Budget"
+                    "Budgets"
                 ],
                 "summary": "Delete allocations for a month",
                 "parameters": [
@@ -1040,6 +1040,49 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",

@@ -1220,6 +1220,36 @@ paths:
       summary: Get Budget month data
       tags:
       - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: budgetId
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
   /v1/budgets/{budgetId}/{month}/allocations:
     delete:
       description: Deletes all allocation for the specified month
@@ -1247,8 +1277,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete allocations for a month
       tags:
-      - Budget
-    get:
+      - Budgets
+    options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
