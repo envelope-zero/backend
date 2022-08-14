@@ -25,7 +25,13 @@ to enable better overview over changes and enables automated tooling based on co
 
 ## Tests & test coverage
 
-The test coverage goal is > 95%. Please try to add tests for everything you add to the codebase. If in doubt, you’re always welcome to open an issue and ask for help.
+We try to test as much as possible. However, tests are only one indicator for a functioning codebase.
+We do not aim to cover 100% of code, but use test coverage as a helpful indicator to point out code paths we should test.
+
+Please do:
+
+- try to add tests for everything you add to the codebase. If you're unsure about how to test, please open a pull request and ask for input so we can work on it together!
+- add regression tests for bug fixes
 
 ## Common errors
 
