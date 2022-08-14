@@ -38,6 +38,8 @@ func main() {
 		output = zerolog.ConsoleWriter{Out: os.Stdout}
 	}
 
+	// General settings for logging
+	zerolog.TimeFieldFormat = time.RFC3339Nano
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if gin.IsDebugging() {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
