@@ -21,3 +21,8 @@ func OptionsGetPatchDelete(c *gin.Context) {
 	c.Header("allow", "GET, PATCH, DELETE")
 	c.Render(http.StatusNoContent, render.JSON{})
 }
+
+func OptionsDelete(c *gin.Context) {
+	c.Header("allow", "DELETE")
+	c.Render(http.StatusNoContent, render.JSON{})
+}

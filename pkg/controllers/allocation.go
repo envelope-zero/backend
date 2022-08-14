@@ -275,7 +275,8 @@ func DeleteAllocation(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(&allocation)
+	// Allocations are hard deleted instantly to avoid conflicts for the UNIQUE(id,month)
+	database.DB.Unscoped().Delete(&allocation)
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }

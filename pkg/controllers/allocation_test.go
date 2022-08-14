@@ -285,10 +285,15 @@ func (suite *TestSuiteEnv) TestUpdateNonExistingAllocation() {
 }
 
 func (suite *TestSuiteEnv) TestDeleteAllocation() {
-	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC)})
+	e := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
+	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC), EnvelopeID: e.Data.ID})
 	r := test.Request(suite.T(), http.MethodDelete, a.Data.Links.Self, "")
 
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &r)
+
+	// Regression Test: Verify that allocations are hard deleted instantly to avoid problems
+	// with the UNIQUE(id,month)
+	_ = createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC), EnvelopeID: e.Data.ID})
 }
 
 func (suite *TestSuiteEnv) TestDeleteNonExistingAllocation() {

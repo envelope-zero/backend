@@ -228,6 +228,7 @@ func GetEnvelopeMonth(c *gin.Context) {
 
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
+		httperrors.InvalidMonth(c)
 		return
 	}
 
