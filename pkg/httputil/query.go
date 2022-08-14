@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -44,8 +44,8 @@ func GetURLFields(url *url.URL, filter any) []any {
 // be called before any of gin's c.*Bind methods.
 func GetBodyFields(c *gin.Context, resource any) ([]any, error) {
 	// Copy the body to be able to use it multiple times
-	body, _ := ioutil.ReadAll(c.Request.Body)
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	body, _ := io.ReadAll(c.Request.Body)
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	// Parse the body into a map to have all fields available
 	var mapBody map[string]any
