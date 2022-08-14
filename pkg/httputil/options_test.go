@@ -16,7 +16,6 @@ func TestOptionsGet(t *testing.T) {
 
 	r.GET("/", httputil.OptionsGet)
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
@@ -31,7 +30,6 @@ func TestOptionsPost(t *testing.T) {
 
 	r.GET("/", httputil.OptionsGetPost)
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
@@ -46,11 +44,24 @@ func TestOptionsGetPatchDelete(t *testing.T) {
 
 	r.GET("/", httputil.OptionsGetPatchDelete)
 
-	// Check without reverse proxy headers
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 
 	assert.Equal(t, "GET, PATCH, DELETE", w.Header().Get("allow"))
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
+func TestOptionsDelete(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", httputil.OptionsDelete)
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	c.Request.Host = "example.com"
+	r.ServeHTTP(w, c.Request)
+
+	assert.Equal(t, "DELETE", w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }

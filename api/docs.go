@@ -965,6 +965,91 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/budgets/{budgetId}/{month}/allocations": {
+            "get": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes all allocation for the specified month",
+                "tags": [
+                    "Budget"
+                ],
+                "summary": "Delete allocations for a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Budget ID formatted as string",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/categories": {
             "get": {
                 "description": "Returns a list of categories",
@@ -2099,9 +2184,14 @@ const docTemplate = `{
                     "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "month": {
-                    "description": "This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
+                    "description": "This 'YYYY-MM' for clients to use replace with the actual year and month.",
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
+                },
+                "monthAllocations": {
+                    "description": "This uses 'YYYY-MM' for clients to use replace with the actual year and month.",
+                    "type": "string",
+                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations"
                 },
                 "self": {
                     "type": "string",

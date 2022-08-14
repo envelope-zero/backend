@@ -35,6 +35,10 @@ func InvalidQueryString(c *gin.Context) {
 	New(c, http.StatusBadRequest, "The query string contains unparseable data. Please check the values")
 }
 
+func InvalidMonth(c *gin.Context) {
+	New(c, http.StatusBadRequest, "Could not parse the specified month, did you use YYYY-MM format?")
+}
+
 // DBErrorMessage returns an error message and status code appropriate to the error that has occurred.
 func DBErrorMessage(err error) (int, string) {
 	// Source and destination accounts need to be different

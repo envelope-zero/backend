@@ -154,9 +154,14 @@ definitions:
         example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       month:
-        description: This will always end in 'YYYY-MM' for clients to use replace
-          with actual numbers.
+        description: This 'YYYY-MM' for clients to use replace with the actual year
+          and month.
         example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
+        type: string
+      monthAllocations:
+        description: This uses 'YYYY-MM' for clients to use replace with the actual
+          year and month.
+        example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations
         type: string
       self:
         example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
@@ -1213,6 +1218,64 @@ paths:
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
       summary: Get Budget month data
+      tags:
+      - Budgets
+  /v1/budgets/{budgetId}/{month}/allocations:
+    delete:
+      description: Deletes all allocation for the specified month
+      parameters:
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      - description: Budget ID formatted as string
+        in: path
+        name: budgetId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete allocations for a month
+      tags:
+      - Budget
+    get:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: budgetId
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
       tags:
       - Budgets
   /v1/categories:

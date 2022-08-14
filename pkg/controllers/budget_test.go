@@ -3,6 +3,7 @@ package controllers_test
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -35,6 +36,46 @@ func (suite *TestSuiteEnv) TestOptionsBudget() {
 	path = createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.Self
 	recorder = test.Request(suite.T(), http.MethodOptions, path, "")
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+}
+
+func (suite *TestSuiteEnv) TestOptionsBudgetMonth() {
+	budgetLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.Month
+
+	recorder := test.Request(suite.T(), http.MethodOptions, strings.Replace(budgetLink, "YYYY-MM", "1970-01", 1), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	assert.Equal(suite.T(), recorder.Header().Get("allow"), "GET")
+
+	// Bad Request for invalid UUID
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/budgets/nouuid/2022-01", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Bad Request for invalid month
+	recorder = test.Request(suite.T(), http.MethodOptions, budgetLink, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Not found for non-existing budget
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/budgets/5b95e1a9-522d-4a36-9074-32f7c2ff0513/1980-06", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestOptionsBudgetMonthAllocations() {
+	budgetAllocationsLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
+
+	recorder := test.Request(suite.T(), http.MethodOptions, strings.Replace(budgetAllocationsLink, "YYYY-MM", "1970-01", 1), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	assert.Equal(suite.T(), recorder.Header().Get("allow"), "DELETE")
+
+	// Bad Request for invalid UUID
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Bad Request for invalid months
+	recorder = test.Request(suite.T(), http.MethodOptions, budgetAllocationsLink, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Not found for non-existing budget
+	recorder = test.Request(suite.T(), http.MethodOptions, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
 func (suite *TestSuiteEnv) TestGetBudgets() {
@@ -422,4 +463,50 @@ func (suite *TestSuiteEnv) TestDeleteBudgetWithBody() {
 
 	recorder = test.Request(suite.T(), http.MethodDelete, budget.Data.Links.Self, `{ "name": "test name 23" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestDeleteAllocationsMonth() {
+	budget := createTestBudget(suite.T(), models.BudgetCreate{})
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	envelope2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+
+	allocation1 := createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(15.42),
+		EnvelopeID: envelope1.Data.ID,
+	})
+
+	allocation2 := createTestAllocation(suite.T(), models.AllocationCreate{
+		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Amount:     decimal.NewFromFloat(15.42),
+		EnvelopeID: envelope2.Data.ID,
+	})
+
+	// Clear allocations
+	recorder := test.Request(suite.T(), http.MethodDelete, strings.Replace(budget.Data.Links.MonthAllocations, "YYYY-MM", "2022-01", 1), "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+
+	// Verify that allocations are deleted
+	recorder = test.Request(suite.T(), http.MethodGet, allocation1.Data.Links.Self, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+
+	recorder = test.Request(suite.T(), http.MethodGet, allocation2.Data.Links.Self, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+}
+
+func (suite *TestSuiteEnv) TestDeleteAllocationsMonthFailures() {
+	budgetAllocationsLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
+
+	// Bad Request for invalid UUID
+	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Bad Request for invalid months
+	recorder = test.Request(suite.T(), http.MethodDelete, budgetAllocationsLink, "")
+	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+
+	// Not found for non-existing budget
+	recorder = test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }

@@ -29,12 +29,13 @@ type Budget struct {
 }
 
 type BudgetLinks struct {
-	Self         string `json:"self" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Categories   string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Month        string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"` // This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
+	Self             string `json:"self" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Accounts         string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Categories       string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Envelopes        string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Transactions     string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	Month            string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"`                        // This 'YYYY-MM' for clients to use replace with the actual year and month.
+	MonthAllocations string `json:"monthAllocations" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations"` // This uses 'YYYY-MM' for clients to use replace with the actual year and month.
 }
 
 type BudgetMonthResponse struct {
@@ -61,7 +62,10 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 	{
 		r.OPTIONS("/:budgetId", OptionsBudgetDetail)
 		r.GET("/:budgetId", GetBudget)
+		r.OPTIONS("/:budgetId/:month", OptionsBudgetMonth)
 		r.GET("/:budgetId/:month", GetBudgetMonth)
+		r.OPTIONS("/:budgetId/:month/allocations", OptionsBudgetMonthAllocations)
+		r.DELETE("/:budgetId/:month/allocations", DeleteAllocationsMonth)
 		r.PATCH("/:budgetId", UpdateBudget)
 		r.DELETE("/:budgetId", DeleteBudget)
 	}
@@ -81,7 +85,7 @@ func OptionsBudgetList(c *gin.Context) {
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags        Budgets
 // @Success     204
-// @Failure     400 {object} httperrors.HTTPError
+// @Failure     400      {object} httperrors.HTTPError
 // @Failure     404
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
@@ -98,6 +102,67 @@ func OptionsBudgetDetail(c *gin.Context) {
 		return
 	}
 	httputil.OptionsGetPatchDelete(c)
+}
+
+// @Summary     Allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags        Budgets
+// @Success     204
+// @Failure     400 {object} httperrors.HTTPError
+// @Failure     404
+// @Failure     500      {object} httperrors.HTTPError
+// @Param       budgetId path     string true "ID formatted as string"
+// @Param       month    path     string true "The month in YYYY-MM format"
+// @Router      /v1/budgets/{budgetId}/{month} [get]
+func OptionsBudgetMonth(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("budgetId"))
+	if err != nil {
+		httperrors.InvalidUUID(c)
+		return
+	}
+
+	var month URIMonth
+	if err := c.BindUri(&month); err != nil {
+		httperrors.InvalidMonth(c)
+		return
+	}
+
+	_, err = getBudgetObject(c, p)
+	if err != nil {
+		return
+	}
+	httputil.OptionsGet(c)
+}
+
+// @Summary     Allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags        Budgets
+// @Success     204
+// @Failure     400 {object} httperrors.HTTPError
+// @Failure     404
+// @Failure     500      {object} httperrors.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
+// @Param       budgetId path     string true "ID formatted as string"
+// @Param       month    path     string true "The month in YYYY-MM format"
+// @Router      /v1/budgets/{budgetId}/{month}/allocations [get]
+func OptionsBudgetMonthAllocations(c *gin.Context) {
+	p, err := uuid.Parse(c.Param("budgetId"))
+	if err != nil {
+		httperrors.InvalidUUID(c)
+		return
+	}
+
+	var month URIMonth
+	if err := c.BindUri(&month); err != nil {
+		httperrors.InvalidMonth(c)
+		return
+	}
+
+	_, err = getBudgetObject(c, p)
+	if err != nil {
+		return
+	}
+	httputil.OptionsDelete(c)
 }
 
 // @Summary     Create budget
@@ -215,6 +280,7 @@ func GetBudgetMonth(c *gin.Context) {
 
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
+		httperrors.InvalidMonth(c)
 		return
 	}
 
@@ -346,6 +412,63 @@ func DeleteBudget(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
+// @Summary     Delete allocations for a month
+// @Description Deletes all allocation for the specified month
+// @Tags        Budget
+// @Success     204
+// @Failure     400 {object} httperrors.HTTPError
+// @Failure     500      {object} httperrors.HTTPError
+// @Param       month    path     string true "The month in YYYY-MM format"
+// @Param       budgetId path     string true "Budget ID formatted as string"
+// @Router      /v1/budgets/{budgetId}/{month}/allocations [delete]
+func DeleteAllocationsMonth(c *gin.Context) {
+	budgetID, err := uuid.Parse(c.Param("budgetId"))
+	if err != nil {
+		httperrors.InvalidUUID(c)
+		return
+	}
+
+	// If the budget does not exist, abort the request
+	_, err = getBudgetResource(c, budgetID)
+	if err != nil {
+		return
+	}
+
+	var month URIMonth
+	if err := c.BindUri(&month); err != nil {
+		httperrors.InvalidMonth(c)
+		return
+	}
+
+	// As URIMonth has a time_format of YYYY-MM, it is parsed without timezone
+	// by gorm. Therefore, we need to create a new time.Time object.
+	queryMonth := time.Date(month.Month.Year(), month.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	// We query for all allocations here
+	var allocations []models.Allocation
+	err = database.DB.
+		Joins("JOIN envelopes ON envelopes.id = allocations.envelope_id").
+		Joins("JOIN categories ON categories.id = envelopes.category_id").
+		Joins("JOIN budgets on budgets.id = categories.budget_id").
+		Where(models.Allocation{AllocationCreate: models.AllocationCreate{Month: queryMonth}}).
+		Where("budgets.id = ?", budgetID).
+		Find(&allocations).Error
+	if err != nil {
+		httperrors.Handler(c, err)
+		return
+	}
+
+	for _, allocation := range allocations {
+		err = database.DB.Unscoped().Delete(&allocation).Error
+		if err != nil {
+			httperrors.Handler(c, err)
+			return
+		}
+	}
+
+	c.JSON(http.StatusNoContent, gin.H{})
+}
+
 // getBudgetResource is the internal helper to verify permissions and return a budget.
 func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 	if id == uuid.Nil {
@@ -389,11 +512,12 @@ func getBudgetLinks(c *gin.Context, id uuid.UUID) BudgetLinks {
 	url := fmt.Sprintf("%s/v1/budgets/%s", c.GetString("baseURL"), id)
 
 	return BudgetLinks{
-		Self:         url,
-		Accounts:     fmt.Sprintf("%s/v1/accounts?budget=%s", c.GetString("baseURL"), id),
-		Categories:   fmt.Sprintf("%s/v1/categories?budget=%s", c.GetString("baseURL"), id),
-		Envelopes:    fmt.Sprintf("%s/v1/envelopes?budget=%s", c.GetString("baseURL"), id),
-		Transactions: fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), id),
-		Month:        url + "/YYYY-MM",
+		Self:             url,
+		Accounts:         fmt.Sprintf("%s/v1/accounts?budget=%s", c.GetString("baseURL"), id),
+		Categories:       fmt.Sprintf("%s/v1/categories?budget=%s", c.GetString("baseURL"), id),
+		Envelopes:        fmt.Sprintf("%s/v1/envelopes?budget=%s", c.GetString("baseURL"), id),
+		Transactions:     fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), id),
+		Month:            url + "/YYYY-MM",
+		MonthAllocations: url + "/YYYY-MM/allocations",
 	}
 }

@@ -113,6 +113,20 @@ func TestErrorUnparseableData(t *testing.T) {
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "unparseable data")
 }
 
+func TestErrorInvalidMonth(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httperrors.InvalidMonth(c)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "did you use YYYY-MM format?")
+}
+
 func TestDatabaseErrorMessages(t *testing.T) {
 	tests := []struct {
 		code int
