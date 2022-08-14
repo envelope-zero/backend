@@ -6,11 +6,11 @@ coverage:
     project:
       default:
         target: auto
-        threshold: 0.3%
+        threshold: 3%
         if_ci_failed: error
         only_pulls: false
 
     patch:
       default:
         target: auto
-        threshold: 20%
+        threshold: 25%
