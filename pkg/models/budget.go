@@ -30,6 +30,7 @@ type BudgetMonth struct {
 	Name      string          `json:"name" example:"Groceries"`                          // The name of the Envelope
 	Month     time.Time       `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // This is always set to 00:00 UTC on the first of the month.
 	Budgeted  decimal.Decimal `json:"budgeted" example:"2100"`
+	Income    decimal.Decimal `json:"income" example:"2317.34"`
 	Envelopes []EnvelopeMonth `json:"envelopes"`
 }
 
@@ -51,4 +52,32 @@ func (b Budget) WithCalculations() Budget {
 	}
 
 	return b
+}
+
+// Income returns the income for a budget in a given month.
+func (b Budget) Income(t time.Time) (decimal.Decimal, error) {
+	var income decimal.NullDecimal
+
+	err := database.DB.
+		Select("SUM(amount)").
+		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
+		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+		Where("source_account.external = 1").
+		Where("destination_account.external = 0").
+		Where("transactions.envelope_id IS NULL").
+		Where("strftime('%m', transactions.date) = ?", fmt.Sprintf("%02d", t.Month())).
+		Where("strftime('%Y', transactions.date) = ?", fmt.Sprintf("%d", t.Year())).
+		Table("transactions").
+		Find(&income).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	// If no transactions are found, the value is nil
+	if !income.Valid {
+		return decimal.NewFromFloat(0), nil
+	}
+
+	return income.Decimal, nil
 }

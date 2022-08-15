@@ -351,10 +351,18 @@ func GetBudgetMonth(c *gin.Context) {
 		budgeted = budgeted.Add(allocation.Amount)
 	}
 
+	// Calculate the income
+	income, err := budget.Income(month.Month)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, BudgetMonthResponse{Data: models.BudgetMonth{
 		ID:        budget.ID,
 		Name:      budget.Name,
-		Month:     time.Date(month.Month.UTC().Year(), month.Month.UTC().Month(), 1, 0, 0, 0, 0, time.UTC),
+		Month:     month.Month,
+		Income:    income,
 		Budgeted:  budgeted,
 		Envelopes: envelopeMonths,
 	}})
@@ -598,7 +606,7 @@ func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
 		return models.Budget{}, err
 	}
 
-	return budget, nil
+	return budget.WithCalculations(), nil
 }
 
 func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, error) {

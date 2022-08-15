@@ -2661,6 +2661,10 @@
                     "type": "string",
                     "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
                 },
+                "income": {
+                    "type": "number",
+                    "example": 2317.34
+                },
                 "month": {
                     "description": "This is always set to 00:00 UTC on the first of the month.",
                     "type": "string",

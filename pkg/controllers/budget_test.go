@@ -264,6 +264,16 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 		Reconciled:           true,
 	})
 
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		Date:                 time.Date(2022, 3, 1, 7, 38, 17, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(1500),
+		Note:                 "Income for march",
+		BudgetID:             budget.Data.ID,
+		SourceAccountID:      externalAccount.Data.ID,
+		DestinationAccountID: account.Data.ID,
+		EnvelopeID:           nil,
+	})
+
 	tests := []struct {
 		path     string
 		response controllers.BudgetMonthResponse
@@ -272,7 +282,8 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 			fmt.Sprintf("%s/2022-01", budget.Data.Links.Self),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
-					Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+					Month:  time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+					Income: decimal.NewFromFloat(0),
 					Envelopes: []models.EnvelopeMonth{
 						{
 							Name:       "Utilities",
@@ -289,7 +300,8 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 			fmt.Sprintf("%s/2022-02", budget.Data.Links.Self),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
-					Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+					Month:  time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+					Income: decimal.NewFromFloat(0),
 					Envelopes: []models.EnvelopeMonth{
 						{
 							Name:       "Utilities",
@@ -306,7 +318,8 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 			fmt.Sprintf("%s/2022-03", budget.Data.Links.Self),
 			controllers.BudgetMonthResponse{
 				Data: models.BudgetMonth{
-					Month: time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+					Month:  time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+					Income: decimal.NewFromFloat(1500),
 					Envelopes: []models.EnvelopeMonth{
 						{
 							Name:       "Utilities",
@@ -327,16 +340,18 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
 		test.DecodeResponse(suite.T(), &r, &budgetMonth)
 
-		// assert.FailNow(suite.T(), "BudgetMonth", budgetMonth)
+		// Verify income calculation
+		assert.True(suite.T(), budgetMonth.Data.Income.Equal(tt.response.Data.Income))
 
 		if !assert.Len(suite.T(), budgetMonth.Data.Envelopes, 1) {
 			assert.FailNow(suite.T(), "Response length does not match!", "Response does not have exactly 1 item")
 		}
 
+		expected := tt.response.Data.Envelopes[0]
 		envelope := budgetMonth.Data.Envelopes[0]
-		assert.True(suite.T(), envelope.Spent.Equal(tt.response.Data.Envelopes[0].Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[0].Spent, envelope.Spent, budgetMonth.Data)
-		assert.True(suite.T(), envelope.Balance.Equal(tt.response.Data.Envelopes[0].Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[0].Balance, envelope.Balance, budgetMonth.Data)
-		assert.True(suite.T(), envelope.Allocation.Equal(tt.response.Data.Envelopes[0].Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, tt.response.Data.Envelopes[0].Allocation, envelope.Allocation, budgetMonth.Data)
+		assert.True(suite.T(), envelope.Spent.Equal(expected.Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, expected.Spent, envelope.Spent, budgetMonth.Data)
+		assert.True(suite.T(), envelope.Balance.Equal(expected.Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, expected.Balance, envelope.Balance, budgetMonth.Data)
+		assert.True(suite.T(), envelope.Allocation.Equal(expected.Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", budgetMonth.Data.Month, expected.Allocation, envelope.Allocation, budgetMonth.Data)
 	}
 }
 
