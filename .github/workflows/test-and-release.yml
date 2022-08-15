@@ -1,54 +1,40 @@
-name: go test & release
+name: test & release
 
 on:
-  pull_request:
   push:
-    branches:
-      - main
     tags:
-      - "*"
+      - "v*"
 
 permissions:
   contents: write
   packages: write
 
 jobs:
-  go-test:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
-
-      - uses: actions/setup-go@v3
-        with:
-          # renovate: go-version
-          go-version: 1.18.4
+      - name: Check out repository
+        uses: actions/checkout@v3.0.2
 
       - name: go test
-        run: |
-          go test -v ./... -race -covermode=atomic -coverprofile=coverage.out
+        uses: ./.github/actions/go-test
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: coverage.out
-
-  goreleaser:
+  release:
+    needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-    needs: go-test
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.0.2
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v3.2.1
         with:
           # renovate: go-version
           go-version: 1.18.4
 
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v2.0.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}

@@ -33,6 +33,12 @@ Please do:
 - try to add tests for everything you add to the codebase. If you're unsure about how to test, please open a pull request and ask for input so we can work on it together!
 - add regression tests for bug fixes
 
+## Releases
+
+Releases are fully automated and happen on every feature and bug fix that is merged into the `main` branch.
+
+Maintainers can manually trigger the release of a new version by creating the corresponding tag and pushing it. This is used to release new versions that only contain updates of dependencies.
+
 ## Common errors
 
 ### pre-commit fails in GitHub action

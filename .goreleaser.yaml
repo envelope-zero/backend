@@ -5,22 +5,40 @@ builds:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm64
     ldflags:
       - -X github.com/envelope-zero/backend/internal/router.version={{.Version}}
+
 archives:
   - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
       amd64: x86_64
-checksum:
-  name_template: "checksums.txt"
+
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
+
 changelog:
-  sort: asc
+  use: github
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+
+    - title: Others
+      order: 2
+
+    - title: "Dependency updates"
+      regexp: "^.*chore(deps):+.*$"
+      order: 3
+
   filters:
+    # Commit messages matching the regexp listed here will be removed from
+    # the changelog
     exclude:
       - "^docs:"
       - "^test:"
