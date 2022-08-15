@@ -441,6 +441,9 @@ definitions:
         description: The ID of the Envelope
         example: 1e777d24-3f5b-4c43-8000-04f65f895578
         type: string
+      income:
+        example: 2317.34
+        type: number
       month:
         description: This is always set to 00:00 UTC on the first of the month.
         example: "2006-05-01T00:00:00.000000Z"
