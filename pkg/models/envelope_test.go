@@ -91,10 +91,12 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	envelopeMonth := envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	envelopeMonth, err := envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)
 
-	envelopeMonth = envelope.Month(time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC))
+	envelopeMonth, err = envelope.Month(time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC))
+	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
 	err = database.DB.Delete(&transaction).Error
@@ -102,7 +104,8 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	envelopeMonth = envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	envelopeMonth, err = envelope.Month(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(decimal.NewFromFloat(0)), "Month calculation for 2022-01 is wrong: should be %v, but is %v", decimal.NewFromFloat(0), envelopeMonth.Spent)
 }
 

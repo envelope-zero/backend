@@ -232,14 +232,24 @@ func GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelope, _ := getEnvelopeResource(c, p)
+	envelope, err := getEnvelopeResource(c, p)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return
+	}
 
 	if month.Month.IsZero() {
 		httperrors.New(c, http.StatusBadRequest, "You cannot request data for no month")
 		return
 	}
 
-	c.JSON(http.StatusOK, EnvelopeMonthResponse{Data: envelope.Month(month.Month)})
+	envelopeMonth, err := envelope.Month(month.Month)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, EnvelopeMonthResponse{Data: envelopeMonth})
 }
 
 // @Summary     Update envelope

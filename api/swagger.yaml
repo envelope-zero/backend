@@ -142,6 +142,12 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.BudgetAllocationMode:
+    properties:
+      mode:
+        example: ALLOCATE_LAST_MONTH_SPEND
+        type: string
+    type: object
   controllers.BudgetLinks:
     properties:
       accounts:
@@ -154,13 +160,13 @@ definitions:
         example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       month:
-        description: This 'YYYY-MM' for clients to use replace with the actual year
-          and month.
+        description: This 'YYYY-MM' for clients to replace with the actual year and
+          month.
         example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
         type: string
       monthAllocations:
-        description: This uses 'YYYY-MM' for clients to use replace with the actual
-          year and month.
+        description: This uses 'YYYY-MM' for clients to replace with the actual year
+          and month.
         example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations
         type: string
       self:
@@ -1306,6 +1312,40 @@ paths:
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    post:
+      description: Sets allocations for a month for all envelopes that do not have
+        an allocation yet
+      parameters:
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      - description: Budget ID formatted as string
+        in: path
+        name: budgetId
+        required: true
+        type: string
+      - description: Budget
+        in: body
+        name: mode
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.BudgetAllocationMode'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Set allocations for a month
       tags:
       - Budgets
   /v1/categories:

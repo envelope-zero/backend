@@ -1009,6 +1009,55 @@ const docTemplate = `{
             }
         },
         "/v1/budgets/{budgetId}/{month}/allocations": {
+            "post": {
+                "description": "Sets allocations for a month for all envelopes that do not have an allocation yet",
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Set allocations for a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Budget ID formatted as string",
+                        "name": "budgetId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Budget",
+                        "name": "mode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetAllocationMode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Deletes all allocation for the specified month",
                 "tags": [
@@ -2211,6 +2260,15 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.BudgetAllocationMode": {
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "example": "ALLOCATE_LAST_MONTH_SPEND"
+                }
+            }
+        },
         "controllers.BudgetLinks": {
             "type": "object",
             "properties": {
@@ -2227,12 +2285,12 @@ const docTemplate = `{
                     "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "month": {
-                    "description": "This 'YYYY-MM' for clients to use replace with the actual year and month.",
+                    "description": "This 'YYYY-MM' for clients to replace with the actual year and month.",
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
                 },
                 "monthAllocations": {
-                    "description": "This uses 'YYYY-MM' for clients to use replace with the actual year and month.",
+                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations"
                 },
