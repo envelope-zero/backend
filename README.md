@@ -82,7 +82,7 @@ ingress:
 
 ## Supported Versions
 
-This project is under heavy development. Therefore, only the latest release is supported.
+As the backend is constantly developed, only the latest minor version is supported (versions are `MAJOR.MINOR.PATCH`). If you encounter an issue, please update to the latest version of the backend and verify that it still exists in that version.
 
 Please check the [releases page](https://github.com/envelope-zero/backend/releases) for the latest release.
 
