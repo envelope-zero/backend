@@ -13,7 +13,6 @@ var methodNotAllowedTests = []struct {
 	{"/", http.MethodPost},
 	{"/", http.MethodDelete},
 	{"http://example.com/v1", http.MethodPost},
-	{"http://example.com/v1", http.MethodDelete},
 	{"http://example.com/v1/budgets", "HEAD"},
 	{"http://example.com/v1/budgets", "PUT"},
 }

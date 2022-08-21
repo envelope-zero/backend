@@ -17,6 +17,11 @@ func OptionsGetPost(c *gin.Context) {
 	c.Render(http.StatusNoContent, render.JSON{})
 }
 
+func OptionsGetDelete(c *gin.Context) {
+	c.Header("allow", "GET, DELETE")
+	c.Render(http.StatusNoContent, render.JSON{})
+}
+
 func OptionsGetPatchDelete(c *gin.Context) {
 	c.Header("allow", "GET, PATCH, DELETE")
 	c.Render(http.StatusNoContent, render.JSON{})

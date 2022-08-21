@@ -7,21 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteEnv) TestOptionsHeaderGeneral() {
-	optionsHeaderTests := []string{
-		"/",
-		"/version",
-		"http://example.com/v1",
-	}
-
-	for _, path := range optionsHeaderTests {
-		recorder := test.Request(suite.T(), http.MethodOptions, path, "")
-
-		assert.Equal(suite.T(), http.StatusNoContent, recorder.Code)
-		assert.Equal(suite.T(), recorder.Header().Get("allow"), "GET")
-	}
-}
-
 func (suite *TestSuiteEnv) TestOptionsHeaderResources() {
 	optionsHeaderTests := []string{
 		"http://example.com/v1/budgets",

@@ -557,7 +557,7 @@ definitions:
         example: https://example.com/api/v1/accounts
         type: string
       allocations:
-        example: https://example.com/api/v1/allocations3
+        example: https://example.com/api/v1/allocations
         type: string
       budgets:
         example: https://example.com/api/v1/budgets
@@ -612,6 +612,18 @@ paths:
       tags:
       - General
   /v1:
+    delete:
+      description: Permanently deletes all resources
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete everything
+      tags:
+      - v1
     get:
       description: Returns general information about the v1 API
       responses:
@@ -621,7 +633,7 @@ paths:
             $ref: '#/definitions/router.V1Response'
       summary: v1 API
       tags:
-      - General
+      - v1
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
@@ -630,7 +642,7 @@ paths:
           description: No Content
       summary: Allowed HTTP verbs
       tags:
-      - General
+      - v1
   /v1/accounts:
     get:
       description: Returns a list of accounts
