@@ -52,6 +52,20 @@ func TestOptionsGetPatchDelete(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
+func TestOptionsGetDelete(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", httputil.OptionsGetDelete)
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	c.Request.Host = "example.com"
+	r.ServeHTTP(w, c.Request)
+
+	assert.Equal(t, "GET, DELETE", w.Header().Get("allow"))
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
 func TestOptionsDelete(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)

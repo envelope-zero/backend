@@ -142,12 +142,13 @@ func TestOptions(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		path string
-		f    func(*gin.Context)
+		path     string
+		f        func(*gin.Context)
+		expected string
 	}{
-		{"/", router.OptionsRoot},
-		{"/version", router.OptionsVersion},
-		{"/v1", router.OptionsV1},
+		{"/", router.OptionsRoot, "GET"},
+		{"/version", router.OptionsVersion, "GET"},
+		{"/v1", router.OptionsV1, "GET, DELETE"},
 	}
 
 	for _, tt := range tests {
@@ -164,7 +165,7 @@ func TestOptions(t *testing.T) {
 			r.ServeHTTP(w, c.Request)
 
 			assert.Equal(t, http.StatusNoContent, w.Code)
-			assert.Equal(t, http.MethodGet, w.Header().Get("allow"))
+			assert.Equal(t, tt.expected, w.Header().Get("allow"))
 		})
 	}
 }

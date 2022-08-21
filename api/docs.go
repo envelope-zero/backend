@@ -49,7 +49,7 @@ const docTemplate = `{
             "get": {
                 "description": "Returns general information about the v1 API",
                 "tags": [
-                    "General"
+                    "v1"
                 ],
                 "summary": "v1 API",
                 "responses": {
@@ -61,10 +61,28 @@ const docTemplate = `{
                     }
                 }
             },
+            "delete": {
+                "description": "Permanently deletes all resources",
+                "tags": [
+                    "v1"
+                ],
+                "summary": "Delete everything",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
             "options": {
                 "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
                 "tags": [
-                    "General"
+                    "v1"
                 ],
                 "summary": "Allowed HTTP verbs",
                 "responses": {
@@ -2831,7 +2849,7 @@ const docTemplate = `{
                 },
                 "allocations": {
                     "type": "string",
-                    "example": "https://example.com/api/v1/allocations3"
+                    "example": "https://example.com/api/v1/allocations"
                 },
                 "budgets": {
                     "type": "string",

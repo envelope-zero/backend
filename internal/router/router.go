@@ -111,6 +111,7 @@ func Router() (*gin.Engine, error) {
 	v1 := r.Group("/v1")
 	{
 		v1.GET("", GetV1)
+		v1.DELETE("", controllers.DeleteAll)
 		v1.OPTIONS("", OptionsV1)
 	}
 
@@ -197,12 +198,12 @@ type V1Links struct {
 	Categories   string `json:"categories" example:"https://example.com/api/v1/categories"`
 	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"`
 	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`
-	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations3"`
+	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`
 }
 
 // @Summary     v1 API
 // @Description Returns general information about the v1 API
-// @Tags        General
+// @Tags        v1
 // @Success     200 {object} V1Response
 // @Router      /v1 [get]
 func GetV1(c *gin.Context) {
@@ -220,9 +221,9 @@ func GetV1(c *gin.Context) {
 
 // @Summary     Allowed HTTP verbs
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags        General
+// @Tags        v1
 // @Success     204
 // @Router      /v1 [options]
 func OptionsV1(c *gin.Context) {
-	httputil.OptionsGet(c)
+	httputil.OptionsGetDelete(c)
 }
