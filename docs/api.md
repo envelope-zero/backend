@@ -11,7 +11,7 @@ This document contains the API design. It is aimed at developers and to support 
 
 ## API responses
 
-All API responses either have an empty body (only for HTTP 204 and some HTTP 404 responses) or the body consists of only JSON.
+All API responses either have an empty body (only for HTTP 204 responses) or the body consists of only JSON.
 
 All API responses have **either** a `data` or an `error` top level key. They can’t appear at the same time.
 
