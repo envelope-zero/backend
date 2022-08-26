@@ -31,6 +31,7 @@ type BudgetMonth struct {
 	Month     time.Time       `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // This is always set to 00:00 UTC on the first of the month.
 	Budgeted  decimal.Decimal `json:"budgeted" example:"2100"`
 	Income    decimal.Decimal `json:"income" example:"2317.34"`
+	Available decimal.Decimal `json:"available" example:"217.34"`
 	Envelopes []EnvelopeMonth `json:"envelopes"`
 }
 
@@ -86,6 +87,26 @@ func (b Budget) Income(t time.Time) (decimal.Decimal, error) {
 	}
 
 	return income.Decimal, nil
+}
+
+// Available calculates the amount that is available to be budgeted in the specified monht.
+func (b Budget) Available(month time.Time) (decimal.Decimal, error) {
+	income, err := b.TotalIncome(month)
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	overspent, err := b.Overspent(month)
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	budgeted, err := b.TotalBudgeted(month)
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	return income.Sub(overspent).Sub(budgeted), nil
 }
 
 // TotalIncome calculates the total income over all time.
@@ -169,7 +190,7 @@ func (b Budget) Overspent(month time.Time) (decimal.Decimal, error) {
 
 	var overspent decimal.Decimal
 	for _, envelope := range envelopes {
-		spent := envelope.Spent(month)
+		spent := envelope.Spent(month.AddDate(0, -1, 0))
 		if spent.IsNegative() {
 			overspent = overspent.Add(spent.Neg())
 		}
