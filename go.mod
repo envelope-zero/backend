@@ -15,7 +15,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a
 	github.com/swaggo/gin-swagger v1.5.2
-	github.com/swaggo/swag v1.8.4
+	github.com/swaggo/swag v1.8.5
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
 	gorm.io/gorm v1.23.8
 )
