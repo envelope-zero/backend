@@ -36,6 +36,8 @@ type BudgetMonth struct {
 
 // WithCalculations computes all the calculated values.
 func (b Budget) WithCalculations() Budget {
+	b.Balance = decimal.Zero
+
 	// Get all OnBudget accounts for the budget
 	var accounts []Account
 	_ = database.DB.Where(&Account{
@@ -47,7 +49,6 @@ func (b Budget) WithCalculations() Budget {
 
 	// Add all their balances to the budget's balance
 	for _, account := range accounts {
-		fmt.Println(account.WithCalculations().Balance)
 		b.Balance = b.Balance.Add(account.WithCalculations().Balance)
 	}
 
