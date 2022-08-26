@@ -138,7 +138,23 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	salaryTransaction := models.Transaction{
+	salaryTransactionFebruary := models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			Date:                 marchFifteenthTwentyTwentyTwo,
+			BudgetID:             budget.ID,
+			EnvelopeID:           nil,
+			SourceAccountID:      employerAccount.ID,
+			DestinationAccountID: bankAccount.ID,
+			Reconciled:           true,
+			Amount:               decimal.NewFromFloat(1800),
+		},
+	}
+	err = database.DB.Save(&salaryTransactionFebruary).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	salaryTransactionMarch := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
 			Date:                 marchFifteenthTwentyTwentyTwo,
 			BudgetID:             budget.ID,
@@ -149,7 +165,7 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 			Amount:               decimal.NewFromFloat(2800),
 		},
 	}
-	err = database.DB.Save(&salaryTransaction).Error
+	err = database.DB.Save(&salaryTransactionMarch).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -216,18 +232,18 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 
 	budget = budget.WithCalculations()
 
-	shouldBalance := decimal.NewFromFloat(5469.38)
+	shouldBalance := decimal.NewFromFloat(7269.38)
 	assert.True(suite.T(), budget.Balance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, budget.Balance)
 
 	// Verify income for used budget in March
-	shouldIncome := decimal.NewFromFloat(2800)
+	shouldIncome := decimal.NewFromFloat(4600)
 	income, err := budget.Income(marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncome), "Income is %s, should be %s", income, shouldIncome)
 
 	// Verify total income for used budget
-	shouldIncomeTotal := decimal.NewFromFloat(5600)
-	income, err = budget.TotalIncome()
+	shouldIncomeTotal := decimal.NewFromFloat(4600)
+	income, err = budget.TotalIncome(marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncomeTotal), "Income is %s, should be %s", income, shouldIncomeTotal)
 
@@ -237,7 +253,7 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify total income for empty budget
-	income, err = emptyBudget.TotalIncome()
+	income, err = emptyBudget.TotalIncome(marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
@@ -281,7 +297,7 @@ func (suite *TestSuiteEnv) TestTotalIncomeNoTransactions() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	income, err := budget.TotalIncome()
+	income, err := budget.TotalIncome(time.Date(2031, 3, 17, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }

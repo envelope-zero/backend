@@ -88,7 +88,11 @@ func (b Budget) Income(t time.Time) (decimal.Decimal, error) {
 }
 
 // TotalIncome calculates the total income over all time.
-func (b Budget) TotalIncome() (decimal.Decimal, error) {
+func (b Budget) TotalIncome(month time.Time) (decimal.Decimal, error) {
+	// Only use the year and month values, everything else is reset to the start
+	// Add a month to also factor in all allocations in the requested month
+	month = time.Date(month.Year(), month.AddDate(0, 1, 0).Month(), 1, 0, 0, 0, 0, time.UTC)
+
 	var income decimal.NullDecimal
 	err := database.DB.
 		Select("SUM(amount)").
@@ -97,6 +101,7 @@ func (b Budget) TotalIncome() (decimal.Decimal, error) {
 		Where("source_account.external = 1").
 		Where("destination_account.external = 0").
 		Where("transactions.envelope_id IS NULL").
+		Where("transactions.date < date(?) ", month).
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{
 				BudgetID: b.ID,
