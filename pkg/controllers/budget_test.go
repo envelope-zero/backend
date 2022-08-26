@@ -637,3 +637,39 @@ func (suite *TestSuiteEnv) TestSetAllocationsMonthFailures() {
 	recorder = test.Request(suite.T(), http.MethodPost, strings.Replace(budgetAllocationsLink, "YYYY-MM", "2022-01", 1), `{ "mode": "UNKNOWN_MODE" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
+
+// TestBudgetBalanceDoubleRegression verifies that the Budget balance is only added once.
+func (suite *TestSuiteEnv) TestBudgetBalanceDoubleRegression() {
+	shouldBalance := decimal.NewFromFloat(1000)
+
+	budget := createTestBudget(suite.T(), models.BudgetCreate{Name: "TestBudgetBalanceDoubleRegression"})
+
+	internalAccount := createTestAccount(suite.T(), models.AccountCreate{
+		BudgetID: budget.Data.ID,
+		OnBudget: true,
+		External: false,
+	})
+
+	externalAccount := createTestAccount(suite.T(), models.AccountCreate{
+		BudgetID: budget.Data.ID,
+		OnBudget: true,
+		External: true,
+	})
+
+	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+
+	_ = createTestTransaction(suite.T(), models.TransactionCreate{
+		BudgetID:             budget.Data.ID,
+		Amount:               shouldBalance,
+		SourceAccountID:      externalAccount.Data.ID,
+		DestinationAccountID: internalAccount.Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
+	})
+
+	var budgetResponse controllers.BudgetResponse
+	recorder := test.Request(suite.T(), http.MethodGet, budget.Data.Links.Self, "")
+	test.DecodeResponse(suite.T(), &recorder, &budgetResponse)
+
+	assert.True(suite.T(), budgetResponse.Data.Balance.Equal(shouldBalance), "Balance is %s, should be %s", budgetResponse.Data.Balance, shouldBalance)
+}

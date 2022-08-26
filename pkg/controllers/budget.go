@@ -616,7 +616,7 @@ func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, error) {
 	}
 
 	return Budget{
-		resource.WithCalculations(),
+		resource,
 		getBudgetLinks(c, resource.ID),
 	}, nil
 }
