@@ -116,3 +116,27 @@ func (b Budget) TotalIncome() (decimal.Decimal, error) {
 
 	return income.Decimal, nil
 }
+
+// TotalBudgeted calculates the total sum that has been budgeted over all time.
+func (b Budget) TotalBudgeted() (decimal.Decimal, error) {
+	var budgeted decimal.NullDecimal
+	err := database.DB.
+		Select("SUM(amount)").
+		Joins("JOIN envelopes ON allocations.envelope_id = envelopes.id AND envelopes.deleted_at IS NULL").
+		Joins("JOIN categories ON envelopes.category_id = categories.id AND categories.deleted_at IS NULL").
+		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
+		Where("budgets.id = ?", b.ID).
+		Table("allocations").
+		Find(&budgeted).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	// If no transactions are found, the value is nil
+	if !budgeted.Valid {
+		return decimal.NewFromFloat(0), nil
+	}
+
+	return budgeted.Decimal, nil
+}
