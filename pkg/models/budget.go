@@ -81,3 +81,28 @@ func (b Budget) Income(t time.Time) (decimal.Decimal, error) {
 
 	return income.Decimal, nil
 }
+
+// TotalIncome calculates the total income over all time.
+func (b Budget) TotalIncome() (decimal.Decimal, error) {
+	var income decimal.NullDecimal
+	err := database.DB.
+		Select("SUM(amount)").
+		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
+		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+		Where("source_account.external = 1").
+		Where("destination_account.external = 0").
+		Where("transactions.envelope_id IS NULL").
+		Table("transactions").
+		Find(&income).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	// If no transactions are found, the value is nil
+	if !income.Valid {
+		return decimal.NewFromFloat(0), nil
+	}
+
+	return income.Decimal, nil
+}
