@@ -200,9 +200,23 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
+	overspendTransaction := models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			Date:                 marchFifteenthTwentyTwentyTwo,
+			BudgetID:             budget.ID,
+			SourceAccountID:      cashAccount.ID,
+			DestinationAccountID: groceryAccount.ID,
+			Amount:               decimal.NewFromFloat(20),
+		},
+	}
+	err = database.DB.Save(&overspendTransaction).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
 	budget = budget.WithCalculations()
 
-	shouldBalance := decimal.NewFromFloat(5489.38)
+	shouldBalance := decimal.NewFromFloat(5469.38)
 	assert.True(suite.T(), budget.Balance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, budget.Balance)
 
 	// Verify income for used budget in March
@@ -238,14 +252,14 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 
 	// Verify overspent calculation for month without spend
-	overpent, err := budget.Overspent(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	overspent, err := budget.Overspent(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), overpent.IsZero(), "Overspent is %s, should be 0", overpent)
+	assert.True(suite.T(), overspent.IsZero(), "Overspent is %s, should be 0", overspent)
 
 	// Verify overspent calculation for month with spend
-	overpent, err = budget.Overspent(marchFifteenthTwentyTwentyTwo)
+	overspent, err = budget.Overspent(marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), overpent.Equal(decimal.NewFromFloat(110.62)), "Overspent is %s, should be 110.62", overpent)
+	assert.True(suite.T(), overspent.Equal(decimal.NewFromFloat(130.62)), "Overspent is %s, should be 130.62", overspent)
 }
 
 func (suite *TestSuiteEnv) TestMonthIncomeNoTransactions() {

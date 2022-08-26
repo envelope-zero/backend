@@ -148,6 +148,10 @@ func (b Budget) TotalBudgeted(month time.Time) (decimal.Decimal, error) {
 
 // Overspent calculates overspend for a specific month.
 func (b Budget) Overspent(month time.Time) (decimal.Decimal, error) {
+	// Only use the year and month values, everything else is reset to the start
+	// Add a month to also factor in all allocations in the requested month
+	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC)
+
 	var envelopes []Envelope
 	err := database.DB.
 		Joins("Category", database.DB.Where(&Category{CategoryCreate: CategoryCreate{BudgetID: b.ID}})).
@@ -163,6 +167,31 @@ func (b Budget) Overspent(month time.Time) (decimal.Decimal, error) {
 		if spent.IsNegative() {
 			overspent = overspent.Add(spent.Neg())
 		}
+	}
+
+	var noEnvelopeSum decimal.NullDecimal
+	err = database.DB.
+		Select("SUM(amount)").
+		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
+		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+		Where("source_account.external = 0").
+		Where("destination_account.external = 1").
+		Where("transactions.envelope_id IS NULL").
+		Where("transactions.date < date(?) ", month.AddDate(0, 1, 0)).
+		Where(&Transaction{
+			TransactionCreate: TransactionCreate{
+				BudgetID: b.ID,
+			},
+		}).
+		Table("transactions").
+		Find(&noEnvelopeSum).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	if noEnvelopeSum.Valid {
+		overspent = overspent.Add(noEnvelopeSum.Decimal)
 	}
 
 	return overspent, nil
