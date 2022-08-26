@@ -67,7 +67,7 @@ func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCrea
 	}
 
 	// If the envelopeID is nil, use an actual nil, not uuid.Nil
-	var eID *uuid.UUID = nil
+	var eID *uuid.UUID
 	if envelopeID != uuid.Nil {
 		eID = &envelopeID
 	}
