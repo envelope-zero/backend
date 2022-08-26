@@ -67,6 +67,11 @@ func (b Budget) Income(t time.Time) (decimal.Decimal, error) {
 		Where("transactions.envelope_id IS NULL").
 		Where("strftime('%m', transactions.date) = ?", fmt.Sprintf("%02d", t.Month())).
 		Where("strftime('%Y', transactions.date) = ?", fmt.Sprintf("%d", t.Year())).
+		Where(&Transaction{
+			TransactionCreate: TransactionCreate{
+				BudgetID: b.ID,
+			},
+		}).
 		Table("transactions").
 		Find(&income).
 		Error
@@ -92,6 +97,11 @@ func (b Budget) TotalIncome() (decimal.Decimal, error) {
 		Where("source_account.external = 1").
 		Where("destination_account.external = 0").
 		Where("transactions.envelope_id IS NULL").
+		Where(&Transaction{
+			TransactionCreate: TransactionCreate{
+				BudgetID: b.ID,
+			},
+		}).
 		Table("transactions").
 		Find(&income).
 		Error
