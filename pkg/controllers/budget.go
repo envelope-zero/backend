@@ -358,6 +358,13 @@ func GetBudgetMonth(c *gin.Context) {
 		return
 	}
 
+	// Get the available sum for budgeting
+	available, err := budget.Available(month.Month)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, BudgetMonthResponse{Data: models.BudgetMonth{
 		ID:        budget.ID,
 		Name:      budget.Name,
@@ -365,6 +372,7 @@ func GetBudgetMonth(c *gin.Context) {
 		Income:    income,
 		Budgeted:  budgeted,
 		Envelopes: envelopeMonths,
+		Available: available,
 	}})
 }
 

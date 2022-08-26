@@ -275,7 +275,11 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 	// Verify overspent calculation for month with spend
 	overspent, err = budget.Overspent(marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), overspent.Equal(decimal.NewFromFloat(130.62)), "Overspent is %s, should be 130.62", overspent)
+	assert.True(suite.T(), overspent.Equal(decimal.NewFromFloat(20)), "Overspent is %s, should be 20", overspent)
+
+	available, err := budget.Available(marchFifteenthTwentyTwentyTwo)
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(4513)), "Available is %s, should be 4513", available)
 }
 
 func (suite *TestSuiteEnv) TestMonthIncomeNoTransactions() {

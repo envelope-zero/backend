@@ -430,6 +430,9 @@ definitions:
     type: object
   models.BudgetMonth:
     properties:
+      available:
+        example: 217.34
+        type: number
       budgeted:
         example: 2100
         type: number
