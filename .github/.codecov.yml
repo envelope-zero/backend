@@ -7,10 +7,10 @@ coverage:
       default:
         target: auto
         threshold: 3%
-        if_ci_failed: error
-        only_pulls: false
+        informational: true
 
     patch:
       default:
         target: auto
         threshold: 25%
+        informational: true
