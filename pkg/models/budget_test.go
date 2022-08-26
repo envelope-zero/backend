@@ -90,6 +90,30 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
+	allocation1 := models.Allocation{
+		AllocationCreate: models.AllocationCreate{
+			EnvelopeID: envelope.ID,
+			Amount:     decimal.NewFromFloat(17.42),
+			Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
+	err = database.DB.Save(&allocation1).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	allocation2 := models.Allocation{
+		AllocationCreate: models.AllocationCreate{
+			EnvelopeID: envelope.ID,
+			Amount:     decimal.NewFromFloat(24.58),
+			Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
+	err = database.DB.Save(&allocation2).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
 	salaryTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
 			Date:                 marchFifteenthTwentyTwentyTwo,
@@ -176,6 +200,16 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 	income, err = emptyBudget.TotalIncome()
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
+
+	// Verify total budgeted for used budget
+	budgeted, err := budget.TotalBudgeted()
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(42)), "Income is %s, should be 42", income)
+
+	// Verify total budgeted for empty budget
+	budgeted, err = emptyBudget.TotalBudgeted()
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", income)
 }
 
 func (suite *TestSuiteEnv) TestMonthIncomeNoTransactions() {
@@ -200,4 +234,16 @@ func (suite *TestSuiteEnv) TestTotalIncomeNoTransactions() {
 	income, err := budget.TotalIncome()
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
+}
+
+func (suite *TestSuiteEnv) TestTotalBudgetedNoTransactions() {
+	budget := models.Budget{}
+	err := database.DB.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	budgeted, err := budget.TotalBudgeted()
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", budgeted)
 }
