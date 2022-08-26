@@ -117,8 +117,12 @@ func (b Budget) TotalIncome() (decimal.Decimal, error) {
 	return income.Decimal, nil
 }
 
-// TotalBudgeted calculates the total sum that has been budgeted over all time.
-func (b Budget) TotalBudgeted() (decimal.Decimal, error) {
+// TotalBudgeted calculates the total sum that has been budgeted before a specific month.
+func (b Budget) TotalBudgeted(month time.Time) (decimal.Decimal, error) {
+	// Only use the year and month values, everything else is reset to the start
+	// Add a month to also factor in all allocations in the requested month
+	month = time.Date(month.Year(), month.AddDate(0, 1, 0).Month(), 1, 0, 0, 0, 0, time.UTC)
+
 	var budgeted decimal.NullDecimal
 	err := database.DB.
 		Select("SUM(amount)").
@@ -126,6 +130,7 @@ func (b Budget) TotalBudgeted() (decimal.Decimal, error) {
 		Joins("JOIN categories ON envelopes.category_id = categories.id AND categories.deleted_at IS NULL").
 		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
 		Where("budgets.id = ?", b.ID).
+		Where("allocations.month < date(?) ", month).
 		Table("allocations").
 		Find(&budgeted).
 		Error
