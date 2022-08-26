@@ -114,6 +114,30 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
+	allocationCurrentMonth := models.Allocation{
+		AllocationCreate: models.AllocationCreate{
+			EnvelopeID: envelope.ID,
+			Amount:     decimal.NewFromFloat(25),
+			Month:      marchFifteenthTwentyTwentyTwo,
+		},
+	}
+	err = database.DB.Save(&allocationCurrentMonth).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	allocationFuture := models.Allocation{
+		AllocationCreate: models.AllocationCreate{
+			EnvelopeID: envelope.ID,
+			Amount:     decimal.NewFromFloat(24.58),
+			Month:      time.Date(2170, 2, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
+	err = database.DB.Save(&allocationFuture).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
 	salaryTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
 			Date:                 marchFifteenthTwentyTwentyTwo,
@@ -204,12 +228,12 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify total budgeted for used budget
-	budgeted, err := budget.TotalBudgeted()
+	budgeted, err := budget.TotalBudgeted(marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(42)), "Budgeted is %s, should be 42", budgeted)
+	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
 
 	// Verify total budgeted for empty budget
-	budgeted, err = emptyBudget.TotalBudgeted()
+	budgeted, err = emptyBudget.TotalBudgeted(marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 
@@ -255,7 +279,7 @@ func (suite *TestSuiteEnv) TestTotalBudgetedNoTransactions() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	budgeted, err := budget.TotalBudgeted()
+	budgeted, err := budget.TotalBudgeted(time.Date(1913, 8, 3, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", budgeted)
 }
