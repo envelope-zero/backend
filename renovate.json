@@ -50,6 +50,11 @@
       "matchPackageNames": ["go", "golang"],
       "groupName": "go",
       "prHeader": ":warning: Only upgrade the go version once the matching swagger version has been released. Check [the Makefile](https://github.com/envelope-zero/backend/blob/main/Makefile) for the current swagger version. Rule: swagger 1.8.4 -> go 1.18.4. This is needed as swagger needs to be rebuild with the exact go version (or newer) that the code that it generates documentation from has been built with."
+    },
+    {
+      "description": "Group swaggo/swag upgrades",
+      "matchPackageNames": ["github.com/swaggo/swag", "swaggo/swag"],
+      "groupName": "swaggo/swag"
     }
   ]
 }
