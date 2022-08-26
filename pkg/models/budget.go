@@ -140,3 +140,25 @@ func (b Budget) TotalBudgeted() (decimal.Decimal, error) {
 
 	return budgeted.Decimal, nil
 }
+
+// Overspent calculates overspend for a specific month.
+func (b Budget) Overspent(month time.Time) (decimal.Decimal, error) {
+	var envelopes []Envelope
+	err := database.DB.
+		Joins("Category", database.DB.Where(&Category{CategoryCreate: CategoryCreate{BudgetID: b.ID}})).
+		Find(&envelopes).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	var overspent decimal.Decimal
+	for _, envelope := range envelopes {
+		spent := envelope.Spent(month)
+		if spent.IsNegative() {
+			overspent = overspent.Add(spent.Neg())
+		}
+	}
+
+	return overspent, nil
+}

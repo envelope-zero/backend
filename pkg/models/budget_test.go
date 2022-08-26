@@ -148,6 +148,7 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 
 	outgoingTransactionBank := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
+			Date:                 marchFifteenthTwentyTwentyTwo,
 			BudgetID:             budget.ID,
 			EnvelopeID:           &envelope.ID,
 			SourceAccountID:      bankAccount.ID,
@@ -162,6 +163,7 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 
 	outgoingTransactionCash := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
+			Date:                 marchFifteenthTwentyTwentyTwo,
 			BudgetID:             budget.ID,
 			EnvelopeID:           &envelope.ID,
 			SourceAccountID:      cashAccount.ID,
@@ -204,12 +206,22 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 	// Verify total budgeted for used budget
 	budgeted, err := budget.TotalBudgeted()
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(42)), "Income is %s, should be 42", income)
+	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(42)), "Budgeted is %s, should be 42", budgeted)
 
 	// Verify total budgeted for empty budget
 	budgeted, err = emptyBudget.TotalBudgeted()
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", income)
+	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
+
+	// Verify overspent calculation for month without spend
+	overpent, err := budget.Overspent(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), overpent.IsZero(), "Overspent is %s, should be 0", overpent)
+
+	// Verify overspent calculation for month with spend
+	overpent, err = budget.Overspent(marchFifteenthTwentyTwentyTwo)
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), overpent.Equal(decimal.NewFromFloat(110.62)), "Overspent is %s, should be 110.62", overpent)
 }
 
 func (suite *TestSuiteEnv) TestMonthIncomeNoTransactions() {
