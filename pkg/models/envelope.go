@@ -62,7 +62,7 @@ func (e Envelope) Spent(t time.Time) decimal.Decimal {
 		}
 	}
 
-	return incomingSum.Sub(outgoingSum)
+	return outgoingSum.Sub(incomingSum)
 }
 
 // Balance calculates the balance of an Envelope in a specific month

@@ -288,7 +288,7 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 						{
 							Name:       "Utilities",
 							Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
-							Spent:      decimal.NewFromFloat(-10),
+							Spent:      decimal.NewFromFloat(10),
 							Balance:    decimal.NewFromFloat(10.99),
 							Allocation: decimal.NewFromFloat(20.99),
 						},
@@ -306,8 +306,8 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 						{
 							Name:       "Utilities",
 							Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
-							Spent:      decimal.NewFromFloat(-5),
 							Balance:    decimal.NewFromFloat(53.11),
+							Spent:      decimal.NewFromFloat(5),
 							Allocation: decimal.NewFromFloat(47.12),
 						},
 					},
@@ -324,8 +324,8 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 						{
 							Name:       "Utilities",
 							Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
-							Spent:      decimal.NewFromFloat(-15),
 							Balance:    decimal.NewFromFloat(69.28),
+							Spent:      decimal.NewFromFloat(15),
 							Allocation: decimal.NewFromFloat(31.17),
 						},
 					},
