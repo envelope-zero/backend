@@ -65,6 +65,72 @@ func (e Envelope) Spent(t time.Time) decimal.Decimal {
 	return incomingSum.Sub(outgoingSum)
 }
 
+// Balance calculates the balance of an Envelope in a specific month
+// This code performs negative and positive rollover. See also
+// https://github.com/envelope-zero/backend/issues/327
+func (e Envelope) Balance(month time.Time) (decimal.Decimal, error) {
+	// We add one month as the balance should include all transactions and the allocation for the present month
+	// With that, we can query for all resources where the date/month is < the month
+	month = time.Date(month.Year(), month.AddDate(0, 1, 0).Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	// Sum of incoming transactions
+	var incoming decimal.NullDecimal
+	err := database.DB.
+		Table("transactions").
+		Select("SUM(amount)").
+		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
+		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+		Where("source_account.external = 1 AND destination_account.external = 0 AND transactions.envelope_id = ?", e.ID).
+		Where("transactions.date < date(?) ", month).
+		Find(&incoming).Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	// If no transactions are found, the value is nil
+	if !incoming.Valid {
+		incoming.Decimal = decimal.Zero
+	}
+
+	// Sum of outgoing transactions
+	var outgoing decimal.NullDecimal
+	err = database.DB.
+		Table("transactions").
+		Select("SUM(amount)").
+		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
+		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+		Where("source_account.external = 0 AND destination_account.external = 1 AND transactions.envelope_id = ?", e.ID).
+		Where("transactions.date < date(?) ", month).
+		Find(&outgoing).Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	// If no transactions are found, the value is nil
+	if !outgoing.Valid {
+		outgoing.Decimal = decimal.Zero
+	}
+
+	var budgeted decimal.NullDecimal
+	err = database.DB.
+		Select("SUM(amount)").
+		Where("allocations.envelope_id = ?", e.ID).
+		Where("allocations.month < date(?) ", month).
+		Table("allocations").
+		Find(&budgeted).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	// If no transactions are found, the value is nil
+	if !budgeted.Valid {
+		budgeted.Decimal = decimal.Zero
+	}
+
+	return budgeted.Decimal.Add(incoming.Decimal).Sub(outgoing.Decimal), nil
+}
+
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth for them.
 func (e Envelope) Month(t time.Time) (EnvelopeMonth, error) {
 	spent := e.Spent(t)
@@ -92,7 +158,11 @@ func (e Envelope) Month(t time.Time) (EnvelopeMonth, error) {
 		return EnvelopeMonth{}, err
 	}
 
-	envelopeMonth.Balance = allocation.Amount.Add(spent)
+	envelopeMonth.Balance, err = e.Balance(month)
+	if err != nil {
+		return EnvelopeMonth{}, err
+	}
+
 	envelopeMonth.Allocation = allocation.Amount
 	return envelopeMonth, nil
 }

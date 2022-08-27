@@ -285,7 +285,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 				Name:       "Utilities",
 				Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 				Spent:      decimal.NewFromFloat(-5),
-				Balance:    decimal.NewFromFloat(42.12),
+				Balance:    decimal.NewFromFloat(53.11),
 				Allocation: decimal.NewFromFloat(47.12),
 			},
 		},
@@ -295,7 +295,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 				Name:       "Utilities",
 				Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 				Spent:      decimal.NewFromFloat(-15),
-				Balance:    decimal.NewFromFloat(16.17),
+				Balance:    decimal.NewFromFloat(69.28),
 				Allocation: decimal.NewFromFloat(31.17),
 			},
 		},
@@ -311,6 +311,8 @@ func (suite *TestSuiteEnv) TestEnvelopeMonth() {
 			},
 		},
 	}
+
+	// Sum alloc: 99.28
 
 	var envelopeMonth controllers.EnvelopeMonthResponse
 	for _, tt := range tests {

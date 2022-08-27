@@ -21,6 +21,8 @@ The key of the budget. Each envelope tracks budget for one specific purpose, e.g
 
 If you do not spend all of the allocated budget, it rolls over to the next month. This allows to allocate a budget for expenses that do not occur that often. Say you have an insurance that is billed yearly for 120€. In this case, you can budget 10€ per month for this insurance. Once the bill arrives, all the needed budget is already allocated.
 
+Contrary to other popular tools, if you overspend on an Envelope, the negative balance also rolls over to the next month and has to be balanced by allocating this amount. It is planned to make this behaviour configurable by budget. If you want to help out in the development of this, see [#327](https://github.com/envelope-zero/backend/issues/327).
+
 ### Transaction
 
 A transaction represents an actual transaction. Paying for groceries, getting paid your salary, gifting somebody money for their wedding, all of those are transactions. Every transaction must be tied to a source account and destination account.
