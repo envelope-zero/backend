@@ -95,11 +95,11 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 
 	envelopeMonth, err := envelope.Month(january)
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)
+	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
 	envelopeMonth, err = envelope.Month(january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
+	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
 	err = database.DB.Delete(&transaction).Error
 	if err != nil {
@@ -216,6 +216,18 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthBalance() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
+	// Used to test the Envelope.Balance method without any transactions
+	envelope2 := &models.Envelope{
+		EnvelopeCreate: models.EnvelopeCreate{
+			Name:       "Testing envelope without any transactions",
+			CategoryID: category.ID,
+		},
+	}
+	err = database.DB.Create(&envelope2).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
 	january := time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	allocationJan := &models.Allocation{
@@ -279,6 +291,11 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthBalance() {
 
 	shouldBalance = decimal.NewFromFloat(45)
 	envelopeMonth, err = envelope.Month(january.AddDate(0, 1, 0))
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
+
+	shouldBalance = decimal.NewFromFloat(0)
+	envelopeMonth, err = envelope2.Month(january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 }

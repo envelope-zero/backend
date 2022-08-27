@@ -575,7 +575,7 @@ func SetAllocationsMonth(c *gin.Context) {
 		// If the mode is the spend of last month, calculate and set it
 		amount := allocation.Amount
 		if data.Mode == AllocateLastMonthSpend {
-			amount = models.Envelope{Model: models.Model{ID: allocation.EnvelopeID}}.Spent(pastMonth).Neg()
+			amount = models.Envelope{Model: models.Model{ID: allocation.EnvelopeID}}.Spent(pastMonth)
 		}
 
 		err = database.DB.Create(&models.Allocation{
