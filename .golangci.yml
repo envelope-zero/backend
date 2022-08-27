@@ -1,6 +1,14 @@
 issues:
   fix: true
 
+  # Relax rules for tests
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+
 linters:
   enable:
     - gocyclo
@@ -16,6 +24,8 @@ linters-settings:
   gofumpt:
     lang-version: "1.18"
     extra-rules: true
+  gocyclo:
+    min-complexity: 15
 
   godot:
     exclude:

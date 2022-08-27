@@ -46,31 +46,7 @@ func main() {
 	}
 	log.Logger = log.Output(output).With().Logger()
 
-	// Create data directory
-	dataDir := filepath.Join(".", "data")
-	err := os.MkdirAll(dataDir, os.ModePerm)
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-
-	// Connect to the database
-	err = database.ConnectDatabase(sqlite.Open, "data/gorm.db?_pragma=foreign_keys(1)")
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-
-	// Drop unused constraint in https://github.com/envelope-zero/backend/pull/274
-	// Can be removed after the 1.0.0 release (we will require everyone to upgrade to 1.0.0 and then to further releases).
-	err = database.DB.Migrator().DropConstraint(&models.Allocation{}, "month_valid")
-	if err != nil {
-		log.Debug().Err(err).Msg("Could not drop month_valid constraint on allocations")
-	}
-
-	// Migrate all models so that the schema is correct
-	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
+	databaseInit()
 
 	r, err := router.Router()
 	if err != nil {
@@ -78,8 +54,8 @@ func main() {
 	}
 
 	// Set the port to the env variable, default to 8080
-	var port string
-	if port = os.Getenv("PORT"); port == "" {
+	port := os.Getenv("PORT")
+	if port == "" {
 		port = ":8080"
 	}
 
@@ -112,4 +88,33 @@ func main() {
 		log.Fatal().Str("event", "Graceful shutdown failed, terminating").Err(err).Msg("Router")
 	}
 	log.Info().Str("event", "Backend stopped").Msg("Router")
+}
+
+// databaseInit initializes the data directory and database.
+func databaseInit() {
+	// Create data directory
+	dataDir := filepath.Join(".", "data")
+	err := os.MkdirAll(dataDir, os.ModePerm)
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+
+	// Connect to the database
+	err = database.ConnectDatabase(sqlite.Open, "data/gorm.db?_pragma=foreign_keys(1)")
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+
+	// Drop unused constraint in https://github.com/envelope-zero/backend/pull/274
+	// Can be removed after the 1.0.0 release (we will require everyone to upgrade to 1.0.0 and then to further releases).
+	err = database.DB.Migrator().DropConstraint(&models.Allocation{}, "month_valid")
+	if err != nil {
+		log.Debug().Err(err).Msg("Could not drop month_valid constraint on allocations")
+	}
+
+	// Migrate all models so that the schema is correct
+	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
 }
