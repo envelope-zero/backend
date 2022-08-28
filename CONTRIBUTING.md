@@ -33,11 +33,16 @@ Please do:
 - try to add tests for everything you add to the codebase. If you're unsure about how to test, please open a pull request and ask for input so we can work on it together!
 - add regression tests for bug fixes
 
-## Releases
+## Releases & Versioning
 
-Releases are fully automated and happen on every feature and bug fix that is merged into the `main` branch.
+Releases are fully automated and happen on every _feature_ and _bug fix_ that is merged into the `main` branch.
 
-Maintainers can manually trigger the release of a new version by creating the corresponding tag and pushing it. This is used to release new versions that only contain updates of dependencies.
+Maintainers can manually trigger the release of a new version by creating the corresponding tag and pushing it.
+This is currently not used as releases are only needed on new features and bug fixes.
+
+Versioning strictly adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) with the following additions:
+
+- If a release with only dependency updates is made, it incerases the `PATCH` version.
 
 ## Common errors
 
