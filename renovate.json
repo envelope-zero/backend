@@ -30,7 +30,8 @@
       "fileMatch": ["^\\.golangci\\.yml"],
       "matchStrings": ["lang-version: \"(?<currentValue>.*)\""],
       "datasourceTemplate": "github-tags",
-      "depNameTemplate": "golang/go"
+      "depNameTemplate": "golang/go",
+      "versioningTemplate": "docker"
     }
   ],
   "packageRules": [
