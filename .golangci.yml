@@ -22,7 +22,7 @@ linters:
 
 linters-settings:
   gofumpt:
-    lang-version: "1.18"
+    lang-version: "1.19"
     extra-rules: true
   gocyclo:
     min-complexity: 15
