@@ -13,14 +13,8 @@
   "regexManagers": [
     {
       "description": "Upgrade go version",
-      "fileMatch": [
-        "(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$",
-        "^\\.golangci\\.yml"
-      ],
-      "matchStrings": [
-        "# renovate: go-version\\s*go-version:\\s*\"?(?<currentValue>.*)\"?",
-        "lang-version: \"(?<currentValue>.*)\""
-      ],
+      "fileMatch": ["(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$"],
+      "matchStrings": ["go-version:\\s(?<currentValue>.*)"],
       "datasourceTemplate": "golang-version",
       "depNameTemplate": "go"
     },
@@ -30,13 +24,20 @@
       "matchStrings": [
         "# renovate:\\sdatasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s.*@(?<currentValue>.*)"
       ]
+    },
+    {
+      "description": "Upgrade go minor for golangci-lint",
+      "fileMatch": ["^\\.golangci\\.yml"],
+      "matchStrings": ["lang-version: \"(?<currentValue>.*)\""],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "golang/go"
     }
   ],
   "packageRules": [
     {
-      "description": "The golang CI language version only uses major.minor",
-      "matchFiles": [".golangci.yml"],
-      "matchPackageNames": ["go"],
+      "description": "Parse go version for golangci-lint from GitHub tags",
+      "extractVersion": "^go(?<version>\\d+\\.\\d+)",
+      "matchPackageNames": ["golang/go"],
       "groupName": "go"
     },
     {
@@ -49,7 +50,7 @@
       "description": "Group go upgrades",
       "matchPackageNames": ["go", "golang"],
       "groupName": "go",
-      "prHeader": ":warning: Only upgrade the go version once the matching swagger version has been released. Check [the Makefile](https://github.com/envelope-zero/backend/blob/main/Makefile) for the current swagger version. Rule: swagger 1.8.4 -> go 1.18.4. This is needed as swagger needs to be rebuild with the exact go version (or newer) that the code that it generates documentation from has been built with."
+      "prHeader": ":warning: Only upgrade the go version once you verified locally that the new go version works with the current swagger version. To do so, upgrade your machine to the new go version and run `pre-commit run --all-files`."
     },
     {
       "description": "Group swaggo/swag upgrades",
