@@ -2,6 +2,10 @@
 
 If upgrades between versions require manual actions, those are described here.
 
+## to any version > v1.0.0
+
+If you are running a version below `v0.35.0`, you _must_ upgrade to `v1.0.0` before you upgrade any further.
+
 ## v0.32.0 to v0.33.0
 
 [v0.33.0](https://github.com/envelope-zero/backend/releases/tag/v0.33.0) removes support for postgresql.
