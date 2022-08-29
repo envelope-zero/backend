@@ -3,7 +3,7 @@ package models_test
 import (
 	"time"
 
-	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/stretchr/testify/assert"
 )

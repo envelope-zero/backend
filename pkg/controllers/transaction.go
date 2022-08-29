@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/envelope-zero/backend/internal/database"
+	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"

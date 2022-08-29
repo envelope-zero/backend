@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/pkg/httperrors"
-	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/envelope-zero/backend/test"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
 	"github.com/shopspring/decimal"

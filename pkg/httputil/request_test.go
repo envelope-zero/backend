@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/envelope-zero/backend/pkg/httputil"
-	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/envelope-zero/backend/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/internal/router"
 	"github.com/envelope-zero/backend/pkg/httperrors"
+	"github.com/envelope-zero/backend/pkg/router"
 	"github.com/stretchr/testify/assert"
 )
 
