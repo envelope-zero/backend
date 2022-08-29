@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/envelope-zero/backend/pkg/models"
-	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/envelope-zero/backend/test"
 	"github.com/shopspring/decimal"
 )
 

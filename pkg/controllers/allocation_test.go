@@ -8,7 +8,7 @@ import (
 
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
-	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/envelope-zero/backend/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

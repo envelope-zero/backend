@@ -3,7 +3,7 @@ package controllers_test
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/pkg/test"
+	"github.com/envelope-zero/backend/test"
 	"github.com/stretchr/testify/assert"
 )
 

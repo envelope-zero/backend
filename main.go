@@ -6,15 +6,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
-	"github.com/envelope-zero/backend/internal/database"
-	"github.com/envelope-zero/backend/internal/router"
+	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/pkg/router"
 	"github.com/gin-gonic/gin"
-	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -46,7 +44,15 @@ func main() {
 	}
 	log.Logger = log.Output(output).With().Logger()
 
-	databaseInit()
+	err := database.Database()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+
+	err = models.MigrateDatabase()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
 
 	r, err := router.Router()
 	if err != nil {
@@ -88,26 +94,4 @@ func main() {
 		log.Fatal().Str("event", "Graceful shutdown failed, terminating").Err(err).Msg("Router")
 	}
 	log.Info().Str("event", "Backend stopped").Msg("Router")
-}
-
-// databaseInit initializes the data directory and database.
-func databaseInit() {
-	// Create data directory
-	dataDir := filepath.Join(".", "data")
-	err := os.MkdirAll(dataDir, os.ModePerm)
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-
-	// Connect to the database
-	err = database.ConnectDatabase(sqlite.Open, "data/gorm.db?_pragma=foreign_keys(1)")
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-
-	// Migrate all models so that the schema is correct
-	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
 }
