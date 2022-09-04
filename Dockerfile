@@ -6,9 +6,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY internal ./internal
-COPY api ./api
-COPY main.go Makefile ./
+COPY . .
 
 ARG VERSION=0.0.0
 RUN CGO_ENABLED=0 make build VERSION=${VERSION}
