@@ -26,8 +26,7 @@ import (
 // This is set at build time, see Makefile.
 var version = "0.0.0"
 
-// Router controls the routes for the API.
-func Router() (*gin.Engine, error) {
+func Config() (*gin.Engine, error) {
 	// Set up the router and middlewares
 	r := gin.New()
 
@@ -78,23 +77,14 @@ func Router() (*gin.Engine, error) {
 	// therefore we don’t need to trust anyone here.
 	_ = r.SetTrustedProxies([]string{})
 
-	/*
-	 *  Route setup
-	 */
-	r.GET("", GetRoot)
-	r.OPTIONS("", OptionsRoot)
-	r.GET("/version", GetVersion)
-
-	r.OPTIONS("/version", OptionsVersion)
-
 	apiURL, ok := os.LookupEnv("API_URL")
 	if !ok {
-		return nil, errors.New("Environment variable API_URL must be set")
+		return nil, errors.New("environment variable API_URL must be set")
 	}
 
 	url, err := url.Parse(apiURL)
 	if err != nil {
-		return nil, errors.New("Environment variable API_URL must be a valid URL")
+		return nil, errors.New("environment variable API_URL must be a valid URL")
 	}
 
 	log.Debug().Str("API Base URL", url.String()).Str("Host", url.Host).Str("Path", url.Path).Msg("Router")
@@ -105,10 +95,23 @@ func Router() (*gin.Engine, error) {
 	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Description = "The backend for Envelope Zero, a zero based envelope budgeting solution. Check out the source code at https://github.com/envelope-zero/backend."
 
-	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	return r, nil
+}
+
+// AttachRoutes attaches the API routes to the router group that is passed in
+// Separating this from RouterConfig() allows us to attach it to different
+// paths for different use cases, e.g. the standalone version.
+func AttachRoutes(group *gin.RouterGroup) {
+	group.GET("", GetRoot)
+	group.OPTIONS("", OptionsRoot)
+	group.GET("/version", GetVersion)
+
+	group.OPTIONS("/version", OptionsVersion)
+
+	group.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// API v1 setup
-	v1 := r.Group("/v1")
+	v1 := group.Group("/v1")
 	{
 		v1.GET("", GetV1)
 		v1.DELETE("", controllers.DeleteAll)
@@ -121,8 +124,6 @@ func Router() (*gin.Engine, error) {
 	controllers.RegisterCategoryRoutes(v1.Group("/categories"))
 	controllers.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
 	controllers.RegisterAllocationRoutes(v1.Group("/allocations"))
-
-	return r, nil
 }
 
 type RootResponse struct {

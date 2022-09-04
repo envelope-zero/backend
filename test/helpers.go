@@ -41,10 +41,11 @@ func Request(t *testing.T, method, url string, body any, headers ...map[string]s
 		}
 	}
 
-	router, err := router.Router()
+	r, err := router.Config()
 	if err != nil {
 		assert.FailNow(t, "Router could not be initialized")
 	}
+	router.AttachRoutes(r.Group("/"))
 
 	recorder := httptest.NewRecorder()
 	req, _ := http.NewRequest(method, url, bytes.NewBuffer(byteStr))
@@ -55,7 +56,7 @@ func Request(t *testing.T, method, url string, body any, headers ...map[string]s
 		}
 	}
 
-	router.ServeHTTP(recorder, req)
+	r.ServeHTTP(recorder, req)
 
 	return *recorder
 }
