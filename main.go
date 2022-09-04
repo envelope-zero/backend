@@ -54,10 +54,13 @@ func main() {
 		log.Fatal().Msg(err.Error())
 	}
 
-	r, err := router.Router()
+	r, err := router.Config()
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
+
+	// Attach the routes to the root URL
+	router.AttachRoutes(r.Group("/"))
 
 	// Set the port to the env variable, default to 8080
 	port := os.Getenv("PORT")

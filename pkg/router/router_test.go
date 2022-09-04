@@ -17,7 +17,8 @@ func TestGinMode(t *testing.T) {
 	os.Setenv("GIN_MODE", "debug")
 	os.Setenv("API_URL", "http://example.com")
 
-	_, err := router.Router()
+	r, err := router.Config()
+	router.AttachRoutes(r.Group("/"))
 
 	assert.Nil(t, err, "%T: %v", err, err)
 	assert.True(t, gin.IsDebugging())
@@ -27,14 +28,14 @@ func TestGinMode(t *testing.T) {
 }
 
 func TestEnvUnset(t *testing.T) {
-	_, err := router.Router()
+	_, err := router.Config()
 
 	assert.NotNil(t, err, "API_URL is unset, this must lead to an error")
 }
 
 func TestEnvNoURL(t *testing.T) {
 	os.Setenv("API_URL", "\\:veryMuchNotAURL")
-	_, err := router.Router()
+	_, err := router.Config()
 
 	assert.NotNil(t, err, "API_URL is not an URL, this must lead to an error")
 }
@@ -45,7 +46,7 @@ func TestCorsSetting(t *testing.T) {
 	os.Setenv("CORS_ALLOW_ORIGINS", "http://localhost:3000 https://example.com")
 	os.Setenv("API_URL", "http://example.com")
 
-	_, err := router.Router()
+	_, err := router.Config()
 
 	assert.Nil(t, err)
 	os.Unsetenv("CORS_ALLOW_ORIGINS")
