@@ -43,7 +43,7 @@
     },
     {
       "description": "Automatically merge minor updates for GitHub actions and go dependencies",
-      "matchManagers": ["github-actions", "gomod"],
+      "matchManagers": ["github-actions", "gomod", "pre-commit", "dockerfile"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
     },
