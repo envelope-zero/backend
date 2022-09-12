@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -125,8 +124,8 @@ func OptionsTransactionDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getTransactionObject(c, p)
-	if err != nil {
+	_, ok := getTransactionObject(c, p)
+	if !ok {
 		return
 	}
 	httputil.OptionsGetPatchDelete(c)
@@ -180,7 +179,9 @@ func CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	database.DB.Create(&transaction)
+	if !queryWithRetry(c, database.DB.Create(&transaction)) {
+		return
+	}
 
 	transactionObject, _ := getTransactionObject(c, transaction.ID)
 	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
@@ -243,7 +244,9 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	var transactions []models.Transaction
-	query.Find(&transactions)
+	if !queryWithRetry(c, query.Find(&transactions)) {
+		return
+	}
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -274,8 +277,8 @@ func GetTransaction(c *gin.Context) {
 		return
 	}
 
-	transactionObject, err := getTransactionObject(c, p)
-	if err != nil {
+	transactionObject, ok := getTransactionObject(c, p)
+	if !ok {
 		return
 	}
 
@@ -301,8 +304,8 @@ func UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, err := getTransactionResource(c, p)
-	if err != nil {
+	transaction, ok := getTransactionResource(c, p)
+	if !ok {
 		return
 	}
 
@@ -332,7 +335,7 @@ func UpdateTransaction(c *gin.Context) {
 	if data.SourceAccountID != uuid.Nil {
 		sourceAccountID = data.SourceAccountID
 	}
-	_, ok := getAccountResource(c, sourceAccountID)
+	_, ok = getAccountResource(c, sourceAccountID)
 	if !ok {
 		return
 	}
@@ -355,9 +358,7 @@ func UpdateTransaction(c *gin.Context) {
 		}
 	}
 
-	err = database.DB.Model(&transaction).Select("", updateFields...).Updates(data).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Model(&transaction).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -381,49 +382,48 @@ func DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, err := getTransactionResource(c, p)
-	if err != nil {
+	transaction, ok := getTransactionResource(c, p)
+	if !ok {
 		return
 	}
 
-	database.DB.Delete(&transaction)
+	if !queryWithRetry(c, database.DB.Delete(&transaction)) {
+		return
+	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // getTransactionResource verifies that the request URI is valid for the transaction and returns it.
-func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, error) {
+func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, bool) {
 	if id == uuid.Nil {
-		err := errors.New("No transaction ID specified")
-		httperrors.New(c, http.StatusBadRequest, err.Error())
-		return models.Transaction{}, err
+		httperrors.New(c, http.StatusBadRequest, "no transaction ID specified")
+		return models.Transaction{}, false
 	}
 
 	var transaction models.Transaction
 
-	err := database.DB.First(&transaction, &models.Transaction{
+	if !queryWithRetry(c, database.DB.First(&transaction, &models.Transaction{
 		Model: models.Model{
 			ID: id,
 		},
-	}).Error
-	if err != nil {
-		httperrors.New(c, http.StatusNotFound, "No transaction found for the specified ID")
-		return models.Transaction{}, err
+	}), "No transaction found for the specified ID") {
+		return models.Transaction{}, false
 	}
 
-	return transaction, nil
+	return transaction, true
 }
 
-func getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, error) {
-	resource, err := getTransactionResource(c, id)
-	if err != nil {
-		return Transaction{}, err
+func getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, bool) {
+	resource, ok := getTransactionResource(c, id)
+	if !ok {
+		return Transaction{}, false
 	}
 
 	return Transaction{
 		resource,
 		getTransactionLinks(c, id),
-	}, nil
+	}, true
 }
 
 // getTransactionLinks returns a TransactionLinks struct.

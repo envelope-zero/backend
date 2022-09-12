@@ -41,3 +41,9 @@ func (suite *TestSuiteClosedDB) TestEnvelopes() {
 	test.AssertHTTPStatus(suite.T(), http.StatusInternalServerError, &recorder)
 	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
 }
+
+func (suite *TestSuiteClosedDB) TestTransactions() {
+	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/transactions", "")
+	test.AssertHTTPStatus(suite.T(), http.StatusInternalServerError, &recorder)
+	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
+}
