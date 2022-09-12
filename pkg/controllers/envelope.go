@@ -124,8 +124,8 @@ func CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	_, err = getCategoryResource(c, envelope.CategoryID)
-	if err != nil {
+	_, ok := getCategoryResource(c, envelope.CategoryID)
+	if !ok {
 		return
 	}
 
