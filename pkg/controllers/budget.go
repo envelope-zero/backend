@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -110,8 +109,8 @@ func OptionsBudgetDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getBudgetObject(c, p)
-	if err != nil {
+	_, ok := getBudgetObject(c, p)
+	if !ok {
 		return
 	}
 	httputil.OptionsGetPatchDelete(c)
@@ -140,8 +139,8 @@ func OptionsBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	_, err = getBudgetObject(c, p)
-	if err != nil {
+	_, ok := getBudgetObject(c, p)
+	if !ok {
 		return
 	}
 	httputil.OptionsGet(c)
@@ -171,8 +170,8 @@ func OptionsBudgetMonthAllocations(c *gin.Context) {
 		return
 	}
 
-	_, err = getBudgetObject(c, p)
-	if err != nil {
+	_, ok := getBudgetObject(c, p)
+	if !ok {
 		return
 	}
 	httputil.OptionsDelete(c)
@@ -195,9 +194,15 @@ func CreateBudget(c *gin.Context) {
 		return
 	}
 
-	database.DB.Create(&budget)
+	if !queryWithRetry(c, database.DB.Create(&budget)) {
+		return
+	}
 
-	budgetObject, _ := getBudgetObject(c, budget.ID)
+	budgetObject, ok := getBudgetObject(c, budget.ID)
+	if !ok {
+		return
+	}
+
 	c.JSON(http.StatusCreated, BudgetResponse{Data: budgetObject})
 }
 
@@ -222,13 +227,16 @@ func GetBudgets(c *gin.Context) {
 	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	var budgets []models.Budget
-	database.DB.Where(&models.Budget{
+
+	if !queryWithRetry(c, database.DB.Where(&models.Budget{
 		BudgetCreate: models.BudgetCreate{
 			Name:     filter.Name,
 			Note:     filter.Note,
 			Currency: filter.Currency,
 		},
-	}, queryFields...).Find(&budgets)
+	}, queryFields...).Find(&budgets)) {
+		return
+	}
 
 	// When there are no budgets, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -260,8 +268,8 @@ func GetBudget(c *gin.Context) {
 		return
 	}
 
-	budgetObject, err := getBudgetObject(c, p)
-	if err != nil {
+	budgetObject, ok := getBudgetObject(c, p)
+	if !ok {
 		return
 	}
 
@@ -286,8 +294,8 @@ func GetBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	budget, err := getBudgetResource(c, p)
-	if err != nil {
+	budget, ok := getBudgetResource(c, p)
+	if !ok {
 		return
 	}
 
@@ -312,11 +320,13 @@ func GetBudgetMonth(c *gin.Context) {
 	for _, category := range categories {
 		var e []models.Envelope
 
-		database.DB.Where(&models.Envelope{
+		if !queryWithRetry(c, database.DB.Where(&models.Envelope{
 			EnvelopeCreate: models.EnvelopeCreate{
 				CategoryID: category.ID,
 			},
-		}).Find(&e)
+		}).Find(&e)) {
+			return
+		}
 
 		envelopes = append(envelopes, e...)
 	}
@@ -335,12 +345,15 @@ func GetBudgetMonth(c *gin.Context) {
 	var allocations []models.Allocation
 	for _, envelope := range envelopes {
 		var a models.Allocation
-		database.DB.Where(&models.Allocation{
+
+		if !queryWithRetry(c, database.DB.Where(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: envelope.ID,
 				Month:      month.Month,
 			},
-		}).First(&a)
+		}).Find(&a)) {
+			return
+		}
 
 		allocations = append(allocations, a)
 	}
@@ -395,8 +408,8 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	budget, err := getBudgetResource(c, p)
-	if err != nil {
+	budget, ok := getBudgetResource(c, p)
+	if !ok {
 		return
 	}
 
@@ -410,13 +423,15 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	err = database.DB.Model(&budget).Select("", updateFields...).Updates(data).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Model(&budget).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	budgetObject, _ := getBudgetObject(c, budget.ID)
+	budgetObject, ok := getBudgetObject(c, budget.ID)
+	if !ok {
+		httperrors.Handler(c, err)
+		return
+	}
 	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
 }
 
@@ -436,12 +451,14 @@ func DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	budget, err := getBudgetResource(c, p)
-	if err != nil {
+	budget, ok := getBudgetResource(c, p)
+	if !ok {
 		return
 	}
 
-	database.DB.Delete(&budget)
+	if !queryWithRetry(c, database.DB.Delete(&budget)) {
+		return
+	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
@@ -463,8 +480,8 @@ func DeleteAllocationsMonth(c *gin.Context) {
 	}
 
 	// If the budget does not exist, abort the request
-	_, err = getBudgetResource(c, budgetID)
-	if err != nil {
+	_, ok := getBudgetResource(c, budgetID)
+	if !ok {
 		return
 	}
 
@@ -480,22 +497,19 @@ func DeleteAllocationsMonth(c *gin.Context) {
 
 	// We query for all allocations here
 	var allocations []models.Allocation
-	err = database.DB.
+
+	if !queryWithRetry(c, database.DB.
 		Joins("JOIN envelopes ON envelopes.id = allocations.envelope_id").
 		Joins("JOIN categories ON categories.id = envelopes.category_id").
 		Joins("JOIN budgets on budgets.id = categories.budget_id").
 		Where(models.Allocation{AllocationCreate: models.AllocationCreate{Month: queryMonth}}).
 		Where("budgets.id = ?", budgetID).
-		Find(&allocations).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+		Find(&allocations)) {
 		return
 	}
 
 	for _, allocation := range allocations {
-		err = database.DB.Unscoped().Delete(&allocation).Error
-		if err != nil {
-			httperrors.Handler(c, err)
+		if !queryWithRetry(c, database.DB.Unscoped().Delete(&allocation)) {
 			return
 		}
 	}
@@ -521,8 +535,8 @@ func SetAllocationsMonth(c *gin.Context) {
 	}
 
 	// If the budget does not exist, abort the request
-	_, err = getBudgetResource(c, budgetID)
-	if err != nil {
+	_, ok := getBudgetResource(c, budgetID)
+	if !ok {
 		return
 	}
 
@@ -560,13 +574,11 @@ func SetAllocationsMonth(c *gin.Context) {
 
 	// Get all envelope IDs and allocation amounts where there is no allocation
 	// for the request month, but one for the last month
-	err = database.DB.
+	if !queryWithRetry(c, database.DB.
 		Joins("JOIN allocations ON allocations.envelope_id = envelopes.id AND allocations.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
 		Select("envelopes.id, allocations.amount").
 		Table("envelopes").
-		Find(&envelopesAmount).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+		Find(&envelopesAmount)) {
 		return
 	}
 
@@ -578,15 +590,13 @@ func SetAllocationsMonth(c *gin.Context) {
 			amount = models.Envelope{Model: models.Model{ID: allocation.EnvelopeID}}.Spent(pastMonth)
 		}
 
-		err = database.DB.Create(&models.Allocation{
+		if !queryWithRetry(c, database.DB.Create(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: allocation.EnvelopeID,
 				Amount:     amount,
 				Month:      requestMonth,
 			},
-		}).Error
-		if err != nil {
-			httperrors.Handler(c, err)
+		})) {
 			return
 		}
 	}
@@ -595,38 +605,37 @@ func SetAllocationsMonth(c *gin.Context) {
 }
 
 // getBudgetResource is the internal helper to verify permissions and return a budget.
-func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, error) {
+//
+// It returns a Budget and a boolean indicating success.
+func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, bool) {
 	if id == uuid.Nil {
-		err := errors.New("No budget ID specified")
-		httperrors.New(c, http.StatusBadRequest, err.Error())
-		return models.Budget{}, err
+		httperrors.New(c, http.StatusBadRequest, "No budget ID specified")
+		return models.Budget{}, false
 	}
 
 	var budget models.Budget
 
-	err := database.DB.Where(&models.Budget{
+	if !queryWithRetry(c, database.DB.Where(&models.Budget{
 		Model: models.Model{
 			ID: id,
 		},
-	}).First(&budget).Error
-	if err != nil {
-		httperrors.New(c, http.StatusNotFound, "No budget found for the specified ID")
-		return models.Budget{}, err
+	}).First(&budget), "No budget found for the specified ID") {
+		return models.Budget{}, false
 	}
 
-	return budget.WithCalculations(), nil
+	return budget.WithCalculations(), true
 }
 
-func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, error) {
-	resource, err := getBudgetResource(c, id)
-	if err != nil {
-		return Budget{}, err
+func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool) {
+	resource, ok := getBudgetResource(c, id)
+	if !ok {
+		return Budget{}, false
 	}
 
 	return Budget{
 		resource,
 		getBudgetLinks(c, resource.ID),
-	}, nil
+	}, true
 }
 
 // getBudgetLinks returns a BudgetLinks struct.

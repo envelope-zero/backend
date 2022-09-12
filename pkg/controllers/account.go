@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -99,8 +98,8 @@ func OptionsAccountDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getAccountObject(c, p)
-	if err != nil {
+	_, ok := getAccountObject(c, p)
+	if !ok {
 		return
 	}
 	httputil.OptionsGetPatchDelete(c)
@@ -124,12 +123,14 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// Check if the budget that the account shoud belong to exists
-	_, err := getBudgetResource(c, account.BudgetID)
-	if err != nil {
+	_, ok := getBudgetResource(c, account.BudgetID)
+	if !ok {
 		return
 	}
 
-	database.DB.Create(&account)
+	if !queryWithRetry(c, database.DB.Create(&account)) {
+		return
+	}
 
 	accountObject, _ := getAccountObject(c, account.ID)
 	c.JSON(http.StatusCreated, AccountResponse{Data: accountObject})
@@ -166,9 +167,11 @@ func GetAccounts(c *gin.Context) {
 	}
 
 	var accounts []models.Account
-	database.DB.Where(&models.Account{
+	if !queryWithRetry(c, database.DB.Where(&models.Account{
 		AccountCreate: create,
-	}, queryFields...).Find(&accounts)
+	}, queryFields...).Find(&accounts)) {
+		return
+	}
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -200,8 +203,8 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
-	accountObject, err := getAccountObject(c, p)
-	if err != nil {
+	accountObject, ok := getAccountObject(c, p)
+	if !ok {
 		return
 	}
 
@@ -226,8 +229,8 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	account, err := getAccountResource(c, p)
-	if err != nil {
+	account, ok := getAccountResource(c, p)
+	if !ok {
 		return
 	}
 
@@ -241,9 +244,7 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	err = database.DB.Model(&account).Select("", updateFields...).Updates(data).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Model(&account).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -268,49 +269,48 @@ func DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	account, err := getAccountResource(c, p)
-	if err != nil {
+	account, ok := getAccountResource(c, p)
+	if !ok {
 		return
 	}
 
-	database.DB.Delete(&account)
+	if !queryWithRetry(c, database.DB.Delete(&account)) {
+		return
+	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // getAccountResource is the internal helper to verify permissions and return an account.
-func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, error) {
+func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, bool) {
 	if id == uuid.Nil {
-		err := errors.New("No account ID specified")
-		httperrors.New(c, http.StatusBadRequest, err.Error())
-		return models.Account{}, err
+		httperrors.New(c, http.StatusBadRequest, "no account ID specified")
+		return models.Account{}, false
 	}
 
 	var account models.Account
 
-	err := database.DB.Where(&models.Account{
+	if !queryWithRetry(c, database.DB.Where(&models.Account{
 		Model: models.Model{
 			ID: id,
 		},
-	}).First(&account).Error
-	if err != nil {
-		httperrors.New(c, http.StatusNotFound, "No account found for the specified ID")
-		return models.Account{}, err
+	}).First(&account), "No account found for the specified ID") {
+		return models.Account{}, false
 	}
 
-	return account, nil
+	return account, true
 }
 
-func getAccountObject(c *gin.Context, id uuid.UUID) (Account, error) {
-	resource, err := getAccountResource(c, id)
-	if err != nil {
-		return Account{}, err
+func getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
+	resource, ok := getAccountResource(c, id)
+	if !ok {
+		return Account{}, false
 	}
 
 	return Account{
 		resource.WithCalculations(),
 		getAccountLinks(c, resource.ID),
-	}, nil
+	}, true
 }
 
 // getAccountLinks returns an AccountLinks struct.

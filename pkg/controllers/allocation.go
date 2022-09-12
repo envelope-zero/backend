@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -93,8 +92,8 @@ func OptionsAllocationDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getAllocationObject(c, p)
-	if err != nil {
+	_, ok := getAllocationObject(c, p)
+	if !ok {
 		return
 	}
 	httputil.OptionsGetPatchDelete(c)
@@ -121,14 +120,12 @@ func CreateAllocation(c *gin.Context) {
 	// Ignore every field that is not Year or Month
 	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
-	_, err = getEnvelopeResource(c, allocation.EnvelopeID)
-	if err != nil {
+	_, ok := getEnvelopeResource(c, allocation.EnvelopeID)
+	if !ok {
 		return
 	}
 
-	err = database.DB.Create(&allocation).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Create(&allocation)) {
 		return
 	}
 
@@ -165,9 +162,11 @@ func GetAllocations(c *gin.Context) {
 	}
 
 	var allocations []models.Allocation
-	database.DB.Where(&models.Allocation{
+	if !queryWithRetry(c, database.DB.Where(&models.Allocation{
 		AllocationCreate: create,
-	}, queryFields...).Find(&allocations)
+	}, queryFields...).Find(&allocations)) {
+		return
+	}
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -199,8 +198,8 @@ func GetAllocation(c *gin.Context) {
 		return
 	}
 
-	allocationObject, err := getAllocationObject(c, p)
-	if err != nil {
+	allocationObject, ok := getAllocationObject(c, p)
+	if !ok {
 		return
 	}
 
@@ -226,8 +225,8 @@ func UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	allocation, err := getAllocationResource(c, p)
-	if err != nil {
+	allocation, ok := getAllocationResource(c, p)
+	if !ok {
 		return
 	}
 
@@ -244,9 +243,7 @@ func UpdateAllocation(c *gin.Context) {
 	// Ignore every field that is not Year or Month
 	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
-	err = database.DB.Model(&allocation).Select("", updateFields...).Updates(data).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Model(&allocation).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -270,50 +267,49 @@ func DeleteAllocation(c *gin.Context) {
 		return
 	}
 
-	allocation, err := getAllocationResource(c, p)
-	if err != nil {
+	allocation, ok := getAllocationResource(c, p)
+	if !ok {
 		return
 	}
 
 	// Allocations are hard deleted instantly to avoid conflicts for the UNIQUE(id,month)
-	database.DB.Unscoped().Delete(&allocation)
+	if !queryWithRetry(c, database.DB.Unscoped().Delete(&allocation)) {
+		return
+	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // getAllocationResource verifies that the request URI is valid for the transaction and returns it.
-func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, error) {
+func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, bool) {
 	if id == uuid.Nil {
-		err := errors.New("No allocation ID specified")
-		httperrors.New(c, http.StatusBadRequest, err.Error())
-		return models.Allocation{}, err
+		httperrors.New(c, http.StatusBadRequest, "no allocation ID specified")
+		return models.Allocation{}, false
 	}
 
 	var allocation models.Allocation
 
-	err := database.DB.First(&allocation, &models.Allocation{
+	if !queryWithRetry(c, database.DB.First(&allocation, &models.Allocation{
 		Model: models.Model{
 			ID: id,
 		},
-	}).Error
-	if err != nil {
-		httperrors.New(c, http.StatusNotFound, "No allocation found for the specified ID")
-		return models.Allocation{}, err
+	}), "No allocation found for the specified ID") {
+		return models.Allocation{}, false
 	}
 
-	return allocation, nil
+	return allocation, true
 }
 
-func getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, error) {
-	resource, err := getAllocationResource(c, id)
-	if err != nil {
-		return Allocation{}, err
+func getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, bool) {
+	resource, ok := getAllocationResource(c, id)
+	if !ok {
+		return Allocation{}, false
 	}
 
 	return Allocation{
 		resource,
 		getAllocationLinks(c, id),
-	}, nil
+	}, true
 }
 
 // getAllocationLinks returns a BudgetLinks struct.

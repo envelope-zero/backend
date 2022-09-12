@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteEnv) TestBudgetCalculations() {
+func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	marchFifteenthTwentyTwentyTwo := time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC)
 
 	budget := models.Budget{}
@@ -282,7 +282,7 @@ func (suite *TestSuiteEnv) TestBudgetCalculations() {
 	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(4513)), "Available is %s, should be 4513", available)
 }
 
-func (suite *TestSuiteEnv) TestMonthIncomeNoTransactions() {
+func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
 	budget := models.Budget{}
 	err := database.DB.Save(&budget).Error
 	if err != nil {
@@ -294,7 +294,7 @@ func (suite *TestSuiteEnv) TestMonthIncomeNoTransactions() {
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }
 
-func (suite *TestSuiteEnv) TestTotalIncomeNoTransactions() {
+func (suite *TestSuiteStandard) TestTotalIncomeNoTransactions() {
 	budget := models.Budget{}
 	err := database.DB.Save(&budget).Error
 	if err != nil {
@@ -306,7 +306,7 @@ func (suite *TestSuiteEnv) TestTotalIncomeNoTransactions() {
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }
 
-func (suite *TestSuiteEnv) TestTotalBudgetedNoTransactions() {
+func (suite *TestSuiteStandard) TestTotalBudgetedNoTransactions() {
 	budget := models.Budget{}
 	err := database.DB.Save(&budget).Error
 	if err != nil {

@@ -17,7 +17,7 @@ var methodNotAllowedTests = []struct {
 	{"http://example.com/v1/budgets", "PUT"},
 }
 
-func (suite *TestSuiteEnv) TestMethodNotAllowed() {
+func (suite *TestSuiteStandard) TestMethodNotAllowed() {
 	for _, tt := range methodNotAllowedTests {
 		recorder := test.Request(suite.T(), tt.method, tt.path, "")
 

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -96,8 +95,8 @@ func OptionsCategoryDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getCategoryObject(c, p)
-	if err != nil {
+	_, ok := getCategoryObject(c, p)
+	if !ok {
 		return
 	}
 	httputil.OptionsGetPatchDelete(c)
@@ -121,14 +120,12 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	_, err = getBudgetResource(c, category.BudgetID)
-	if err != nil {
+	_, ok := getBudgetResource(c, category.BudgetID)
+	if !ok {
 		return
 	}
 
-	err = database.DB.Create(&category).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Create(&category)) {
 		return
 	}
 
@@ -164,9 +161,11 @@ func GetCategories(c *gin.Context) {
 	}
 
 	var categories []models.Category
-	database.DB.Where(&models.Category{
+	if !queryWithRetry(c, database.DB.Where(&models.Category{
 		CategoryCreate: create,
-	}, queryFields...).Find(&categories)
+	}, queryFields...).Find(&categories)) {
+		return
+	}
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -198,8 +197,8 @@ func GetCategory(c *gin.Context) {
 		return
 	}
 
-	categoryObject, err := getCategoryObject(c, p)
-	if err != nil {
+	categoryObject, ok := getCategoryObject(c, p)
+	if !ok {
 		return
 	}
 
@@ -225,8 +224,8 @@ func UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	category, err := getCategoryResource(c, p)
-	if err != nil {
+	category, ok := getCategoryResource(c, p)
+	if !ok {
 		return
 	}
 
@@ -240,9 +239,7 @@ func UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	err = database.DB.Model(&category).Select("", updateFields...).Updates(data).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Model(&category).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -266,67 +263,68 @@ func DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	category, err := getCategoryResource(c, p)
-	if err != nil {
+	category, ok := getCategoryResource(c, p)
+	if !ok {
 		return
 	}
 
-	database.DB.Delete(&category)
+	if !queryWithRetry(c, database.DB.Delete(&category)) {
+		return
+	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, error) {
+func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, bool) {
 	if id == uuid.Nil {
-		err := errors.New("No category ID specified")
-		httperrors.New(c, http.StatusBadRequest, err.Error())
-		return models.Category{}, err
+		httperrors.New(c, http.StatusBadRequest, "No category ID specified")
+		return models.Category{}, false
 	}
 
 	var category models.Category
 
-	err := database.DB.Where(&models.Category{
+	if !queryWithRetry(c, database.DB.Where(&models.Category{
 		Model: models.Model{
 			ID: id,
 		},
-	}).First(&category).Error
-	if err != nil {
-		httperrors.New(c, http.StatusNotFound, "No category found for the specified ID")
-		return models.Category{}, err
+	}).First(&category), "No category found for the specified ID") {
+		return models.Category{}, false
 	}
 
-	return category, nil
+	return category, true
 }
 
 // getCategoryResources returns all categories for the requested budget.
-func getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, error) {
+func getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, bool) {
 	var categories []models.Category
 
-	database.DB.Where(&models.Category{
+	if !queryWithRetry(c, database.DB.Where(&models.Category{
 		CategoryCreate: models.CategoryCreate{
 			BudgetID: id,
 		},
-	}).Find(&categories)
-
-	return categories, nil
-}
-
-func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, error) {
-	resource, err := getCategoryResource(c, id)
-	if err != nil {
-		return Category{}, err
+	}).Find(&categories)) {
+		return []models.Category{}, false
 	}
 
-	envelopes, err := getEnvelopeObjects(c, id)
-	if err != nil {
-		return Category{}, err
+	return categories, true
+}
+
+func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
+	resource, ok := getCategoryResource(c, id)
+	if !ok {
+		return Category{}, false
+	}
+
+	envelopes, ok := getEnvelopeObjects(c, id)
+	if !ok {
+		return Category{}, false
 	}
 
 	return Category{
 		resource,
 		getCategoryLinks(c, id),
 		envelopes,
-	}, nil
+	}, true
 }
 
 // getCategoryLinks returns a BudgetLinks struct.

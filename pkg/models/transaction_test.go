@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteEnv) TestTransactionFindTimeUTC() {
+func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{
@@ -25,7 +25,7 @@ func (suite *TestSuiteEnv) TestTransactionFindTimeUTC() {
 	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
 }
 
-func (suite *TestSuiteEnv) TestTransactionSaveTimeUTC() {
+func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{}

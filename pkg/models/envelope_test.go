@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
+func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 	budget := models.Budget{}
 	err := database.DB.Save(&budget).Error
 	if err != nil {
@@ -111,7 +111,7 @@ func (suite *TestSuiteEnv) TestEnvelopeMonthSum() {
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(decimal.NewFromFloat(0)), "Month calculation for 2022-01 is wrong: should be %v, but is %v", decimal.NewFromFloat(0), envelopeMonth.Spent)
 }
 
-func (suite *TestSuiteEnv) TestCreateTransactionNoEnvelope() {
+func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 	budget := models.Budget{}
 	err := database.DB.Save(&budget).Error
 	if err != nil {
@@ -165,7 +165,7 @@ func (suite *TestSuiteEnv) TestCreateTransactionNoEnvelope() {
 	assert.Nil(suite.T(), err, "Transactions must be able to be created without an envelope (to enable internal transfers without an Envelope and income transactions)")
 }
 
-func (suite *TestSuiteEnv) TestEnvelopeMonthBalance() {
+func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	budget := models.Budget{}
 	err := database.DB.Save(&budget).Error
 	if err != nil {

@@ -30,6 +30,20 @@ func TestFetchErrorHandlerErrRecordNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
+func TestFetchErrorHandlerErrRecordNotFoundAdditionalMessage(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httperrors.Handler(c, gorm.ErrRecordNotFound, "No flabargl found for the ID you specified")
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "flabargl")
+}
+
 func TestFetchErrorHandlerTimeParseError(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
@@ -70,6 +84,20 @@ func TestFetchErrorHandlerEOF(t *testing.T) {
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "The request body must not be empty")
+}
+
+func TestFetchErrorHandlerDatabaseClosed(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		httperrors.Handler(c, errors.New("sql: database is closed"))
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "problem with the database connection")
 }
 
 func TestFetchErrorHandlerInternalServerError(t *testing.T) {
@@ -140,6 +168,7 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "You can not create multiple allocations for the same month"},
 		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "There is no resource for the ID you specificed in the reference to another resource."},
 		{http.StatusInternalServerError, "This is a very weird error", "A database error occurred during your request"},
+		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "The database is currently in read-only mode, please try again later."},
 	}
 
 	for _, tt := range tests {
