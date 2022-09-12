@@ -308,18 +308,8 @@ func getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, bool) {
 
 	return Allocation{
 		resource,
-		getAllocationLinks(c, id),
+		AllocationLinks{
+			Self: fmt.Sprintf("%s/v1/allocations/%s", c.GetString("baseURL"), id),
+		},
 	}, true
-}
-
-// getAllocationLinks returns a BudgetLinks struct.
-//
-// This function is only needed for getAllocationObject as we cannot create an instance of Allocation
-// with mixed named and unnamed parameters.
-func getAllocationLinks(c *gin.Context, id uuid.UUID) AllocationLinks {
-	url := fmt.Sprintf("%s/v1/allocations/%s", c.GetString("baseURL"), id)
-
-	return AllocationLinks{
-		Self: url,
-	}
 }

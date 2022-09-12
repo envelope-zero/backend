@@ -422,18 +422,8 @@ func getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, bool) {
 
 	return Transaction{
 		resource,
-		getTransactionLinks(c, id),
+		TransactionLinks{
+			Self: fmt.Sprintf("%s/v1/transactions/%s", c.GetString("baseURL"), id),
+		},
 	}, true
-}
-
-// getTransactionLinks returns a TransactionLinks struct.
-//
-// This function is only needed for getTransactionObject as we cannot create an instance of Transaction
-// with mixed named and unnamed parameters.
-func getTransactionLinks(c *gin.Context, id uuid.UUID) TransactionLinks {
-	url := fmt.Sprintf("%s/v1/transactions/%s", c.GetString("baseURL"), id)
-
-	return TransactionLinks{
-		Self: url,
-	}
 }

@@ -309,20 +309,9 @@ func getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
 
 	return Account{
 		resource.WithCalculations(),
-		getAccountLinks(c, resource.ID),
+		AccountLinks{
+			Self:         fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), resource.ID),
+			Transactions: fmt.Sprintf("%s/v1/transactions?account=%s", c.GetString("baseURL"), resource.ID),
+		},
 	}, true
-}
-
-// getAccountLinks returns an AccountLinks struct.
-//
-// This function is only needed for getAccountObject as we cannot create an instance of Account
-// with mixed named and unnamed parameters.
-func getAccountLinks(c *gin.Context, id uuid.UUID) AccountLinks {
-	url := fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), id)
-	t := fmt.Sprintf("%s/v1/transactions?account=%s", c.GetString("baseURL"), id)
-
-	return AccountLinks{
-		Self:         url,
-		Transactions: t,
-	}
 }
