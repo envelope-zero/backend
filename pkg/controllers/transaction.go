@@ -156,20 +156,20 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	// Check the source account
-	_, err := getAccountResource(c, transaction.SourceAccountID)
-	if err != nil {
+	_, ok = getAccountResource(c, transaction.SourceAccountID)
+	if !ok {
 		return
 	}
 
 	// Check the destination account
-	_, err = getAccountResource(c, transaction.DestinationAccountID)
-	if err != nil {
+	_, ok = getAccountResource(c, transaction.DestinationAccountID)
+	if !ok {
 		return
 	}
 
 	// Check the envelope ID only if it is set.
 	if transaction.EnvelopeID != nil {
-		_, err = getEnvelopeResource(c, *transaction.EnvelopeID)
+		_, err := getEnvelopeResource(c, *transaction.EnvelopeID)
 		if err != nil {
 			return
 		}
@@ -332,8 +332,8 @@ func UpdateTransaction(c *gin.Context) {
 	if data.SourceAccountID != uuid.Nil {
 		sourceAccountID = data.SourceAccountID
 	}
-	_, err = getAccountResource(c, sourceAccountID)
-	if err != nil {
+	_, ok := getAccountResource(c, sourceAccountID)
+	if !ok {
 		return
 	}
 
@@ -342,8 +342,8 @@ func UpdateTransaction(c *gin.Context) {
 	if data.DestinationAccountID != uuid.Nil {
 		destinationAccountID = data.DestinationAccountID
 	}
-	_, err = getAccountResource(c, destinationAccountID)
-	if err != nil {
+	_, ok = getAccountResource(c, destinationAccountID)
+	if !ok {
 		return
 	}
 
