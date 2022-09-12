@@ -322,20 +322,10 @@ func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
 
 	return Category{
 		resource,
-		getCategoryLinks(c, id),
+		CategoryLinks{
+			Self:      fmt.Sprintf("%s/v1/categories/%s", c.GetString("baseURL"), id),
+			Envelopes: fmt.Sprintf("%s/v1/envelopes?category=%s", c.GetString("baseURL"), id),
+		},
 		envelopes,
 	}, true
-}
-
-// getCategoryLinks returns a BudgetLinks struct.
-//
-// This function is only needed for getCategoryObject as we cannot create an instance of Category
-// with mixed named and unnamed parameters.
-func getCategoryLinks(c *gin.Context, id uuid.UUID) CategoryLinks {
-	url := fmt.Sprintf("%s/v1/categories/%s", c.GetString("baseURL"), id)
-
-	return CategoryLinks{
-		Self:      url,
-		Envelopes: fmt.Sprintf("%s/v1/envelopes?category=%s", c.GetString("baseURL"), id),
-	}
 }

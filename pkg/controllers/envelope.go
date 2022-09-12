@@ -347,9 +347,16 @@ func getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, bool) {
 		return Envelope{}, false
 	}
 
+	url := fmt.Sprintf("%s/v1/envelopes/%s", c.GetString("baseURL"), id)
+
 	return Envelope{
 		resource,
-		getEnvelopeLinks(c, id),
+		EnvelopeLinks{
+			Self:         url,
+			Allocations:  url + "/allocations",
+			Month:        url + "/YYYY-MM",
+			Transactions: fmt.Sprintf("%s/v1/transactions?envelope=%s", c.GetString("baseURL"), id),
+		},
 	}, true
 }
 
@@ -371,19 +378,4 @@ func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, bool)
 	}
 
 	return envelopeObjects, true
-}
-
-// getEnvelopeLinks returns a BudgetLinks struct.
-//
-// This function is only needed for getEnvelopeObject as we cannot create an instance of Envelope
-// with mixed named and unnamed parameters.
-func getEnvelopeLinks(c *gin.Context, id uuid.UUID) EnvelopeLinks {
-	url := fmt.Sprintf("%s/v1/envelopes/%s", c.GetString("baseURL"), id)
-
-	return EnvelopeLinks{
-		Self:         url,
-		Allocations:  url + "/allocations",
-		Month:        url + "/YYYY-MM",
-		Transactions: fmt.Sprintf("%s/v1/transactions?envelope=%s", c.GetString("baseURL"), id),
-	}
 }

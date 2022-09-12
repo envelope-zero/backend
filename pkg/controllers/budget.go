@@ -632,26 +632,18 @@ func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool) {
 		return Budget{}, false
 	}
 
-	return Budget{
-		resource,
-		getBudgetLinks(c, resource.ID),
-	}, true
-}
-
-// getBudgetLinks returns a BudgetLinks struct.
-//
-// This function is only needed for getBudgetObject as we cannot create an instance of Budget
-// with mixed named and unnamed parameters.
-func getBudgetLinks(c *gin.Context, id uuid.UUID) BudgetLinks {
 	url := fmt.Sprintf("%s/v1/budgets/%s", c.GetString("baseURL"), id)
 
-	return BudgetLinks{
-		Self:             url,
-		Accounts:         fmt.Sprintf("%s/v1/accounts?budget=%s", c.GetString("baseURL"), id),
-		Categories:       fmt.Sprintf("%s/v1/categories?budget=%s", c.GetString("baseURL"), id),
-		Envelopes:        fmt.Sprintf("%s/v1/envelopes?budget=%s", c.GetString("baseURL"), id),
-		Transactions:     fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), id),
-		Month:            url + "/YYYY-MM",
-		MonthAllocations: url + "/YYYY-MM/allocations",
-	}
+	return Budget{
+		resource,
+		BudgetLinks{
+			Self:             url,
+			Accounts:         fmt.Sprintf("%s/v1/accounts?budget=%s", c.GetString("baseURL"), resource.ID),
+			Categories:       fmt.Sprintf("%s/v1/categories?budget=%s", c.GetString("baseURL"), resource.ID),
+			Envelopes:        fmt.Sprintf("%s/v1/envelopes?budget=%s", c.GetString("baseURL"), resource.ID),
+			Transactions:     fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), resource.ID),
+			Month:            url + "/YYYY-MM",
+			MonthAllocations: url + "/YYYY-MM/allocations",
+		},
+	}, true
 }
