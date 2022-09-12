@@ -75,6 +75,11 @@ func DBErrorMessage(err error) (int, string) {
 	} else if strings.Contains(err.Error(), "constraint failed: FOREIGN KEY constraint failed") {
 		return http.StatusBadRequest, "There is no resource for the ID you specificed in the reference to another resource."
 
+		// Database is read only or file has been deleted
+	} else if strings.Contains(err.Error(), "attempt to write a readonly database (1032)") {
+		log.Error().Msgf("Database is in read-only mode. This might be due to the file being deleted: %#v", err)
+		return http.StatusInternalServerError, "The database is currently in read-only mode, please try again later."
+
 		// A general error we do not know more about
 	} else {
 		log.Error().Msgf("%T: %v", err, err.Error())
@@ -83,15 +88,26 @@ func DBErrorMessage(err error) (int, string) {
 }
 
 // Handler handles errors for fetching data from the database.
-func Handler(c *gin.Context, err error) {
+func Handler(c *gin.Context, err error, notFoundMsg ...string) {
 	// No record found => 404
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		New(c, http.StatusNotFound, "There is no resource for the ID you specified")
+		// Allow the specification of more exact messages when no resource is found
+		msg := "There is no resource for the ID you specified"
+		if len(notFoundMsg) > 0 {
+			msg = notFoundMsg[0]
+		}
+
+		New(c, http.StatusNotFound, msg)
 
 		// Database error
 	} else if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
 		code, msg := DBErrorMessage(err)
 		New(c, code, msg)
+
+		// Database connection has not been opened or has been closed already
+	} else if strings.Contains(err.Error(), "sql: database is closed") {
+		log.Error().Msgf("Database connection is closed: %#v", err)
+		New(c, http.StatusInternalServerError, "There is a problem with the database connection, please try again later.")
 
 		// End of file reached when reading
 	} else if errors.Is(io.EOF, err) {

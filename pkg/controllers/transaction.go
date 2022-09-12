@@ -150,13 +150,13 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	// Check if the budget that the transaction shoud belong to exists
-	_, err := getBudgetResource(c, transaction.BudgetID)
-	if err != nil {
+	_, ok := getBudgetResource(c, transaction.BudgetID)
+	if !ok {
 		return
 	}
 
 	// Check the source account
-	_, err = getAccountResource(c, transaction.SourceAccountID)
+	_, err := getAccountResource(c, transaction.SourceAccountID)
 	if err != nil {
 		return
 	}

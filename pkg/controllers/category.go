@@ -121,8 +121,8 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	_, err = getBudgetResource(c, category.BudgetID)
-	if err != nil {
+	_, ok := getBudgetResource(c, category.BudgetID)
+	if !ok {
 		return
 	}
 

@@ -9,8 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/database"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/router"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -44,12 +43,8 @@ func main() {
 	}
 	log.Logger = log.Output(output).With().Logger()
 
-	err := database.Database()
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-
-	err = models.MigrateDatabase()
+	// Connect to and migrate the database
+	err := controllers.TryDBConnect(nil)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}

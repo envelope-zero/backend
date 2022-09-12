@@ -17,7 +17,7 @@ type TestSuiteStandard struct {
 }
 
 // Pseudo-Test run by go test that runs the test suite.
-func TestSuite(t *testing.T) {
+func TestStandard(t *testing.T) {
 	suite.Run(t, new(TestSuiteStandard))
 }
 
@@ -29,7 +29,10 @@ func (suite *TestSuiteStandard) SetupSuite() {
 
 // TearDownTest is called after each test in the suite.
 func (suite *TestSuiteStandard) TearDownTest() {
-	sqlDB, _ := database.DB.DB()
+	sqlDB, err := database.DB.DB()
+	if err != nil {
+		log.Fatalf("Database connection for teardown failed with: %s", err.Error())
+	}
 	sqlDB.Close()
 }
 
@@ -37,7 +40,7 @@ func (suite *TestSuiteStandard) TearDownTest() {
 func (suite *TestSuiteStandard) SetupTest() {
 	err := database.ConnectDatabase(sqlite.Open, ":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
-		log.Fatalf("Database connection failed with: %s", err.Error())
+		log.Fatalf("Database initialization failed with: %s", err.Error())
 	}
 
 	// Migrate all models so that the schema is correct
@@ -45,4 +48,44 @@ func (suite *TestSuiteStandard) SetupTest() {
 	if err != nil {
 		log.Fatalf("Database migration failed with: %s", err.Error())
 	}
+}
+
+// TestSuiteClosedDB is used for tests against an already
+// closed database connection.
+type TestSuiteClosedDB struct {
+	suite.Suite
+}
+
+// Pseudo-Test run by go test that runs the test suite.
+func TestClosedDB(t *testing.T) {
+	suite.Run(t, new(TestSuiteClosedDB))
+}
+
+func (suite *TestSuiteClosedDB) SetupSuite() {
+	os.Setenv("LOG_FORMAT", "human")
+	os.Setenv("GIN_MODE", "debug")
+	os.Setenv("API_URL", "http://example.com")
+}
+
+// SetupTest is called before each test in the suite.
+func (suite *TestSuiteClosedDB) SetupTest() {
+	err := database.ConnectDatabase(sqlite.Open, ":memory:?_pragma=foreign_keys(1)")
+	if err != nil {
+		log.Fatalf("Database initialization failed with: %s", err.Error())
+	}
+
+	sqlDB, err := database.DB.DB()
+	if err != nil {
+		log.Fatalf("Database connection failed with: %s", err.Error())
+	}
+	sqlDB.Close()
+}
+
+// TearDownTest is called after each test in the suite.
+func (suite *TestSuiteClosedDB) TearDownTest() {
+	sqlDB, err := database.DB.DB()
+	if err != nil {
+		log.Fatalf("Database connection for teardown failed with: %s", err.Error())
+	}
+	sqlDB.Close()
 }

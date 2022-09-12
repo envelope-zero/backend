@@ -124,8 +124,8 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// Check if the budget that the account shoud belong to exists
-	_, err := getBudgetResource(c, account.BudgetID)
-	if err != nil {
+	_, ok := getBudgetResource(c, account.BudgetID)
+	if !ok {
 		return
 	}
 
