@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteEnv) TestAccountCalculations() {
+func (suite *TestSuiteStandard) TestAccountCalculations() {
 	budget := models.Budget{}
 	err := database.DB.Save(&budget).Error
 	if err != nil {
@@ -102,14 +102,14 @@ func (suite *TestSuiteEnv) TestAccountCalculations() {
 	assert.True(suite.T(), a.ReconciledBalance.Equal(decimal.NewFromFloat(0)), "Reconciled balance for account is not correct. Should be: %v but is %v", decimal.NewFromFloat(0), a.ReconciledBalance)
 }
 
-func (suite *TestSuiteEnv) TestAccountTransactions() {
+func (suite *TestSuiteStandard) TestAccountTransactions() {
 	account := models.Account{}
 
 	transactions := account.Transactions()
 	assert.Len(suite.T(), transactions, 0)
 }
 
-func (suite *TestSuiteEnv) TestAccountOnBudget() {
+func (suite *TestSuiteStandard) TestAccountOnBudget() {
 	account := models.Account{
 		AccountCreate: models.AccountCreate{
 			OnBudget: true,

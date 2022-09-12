@@ -27,7 +27,7 @@ func createTestAccount(t *testing.T, c models.AccountCreate) controllers.Account
 	return a
 }
 
-func (suite *TestSuiteEnv) TestOptionsAccount() {
+func (suite *TestSuiteStandard) TestOptionsAccount() {
 	path := fmt.Sprintf("%s/%s", "http://example.com/v1/accounts", uuid.New())
 	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
 	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
@@ -40,7 +40,7 @@ func (suite *TestSuiteEnv) TestOptionsAccount() {
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
-func (suite *TestSuiteEnv) TestGetAccounts() {
+func (suite *TestSuiteStandard) TestGetAccounts() {
 	_ = createTestAccount(suite.T(), models.AccountCreate{})
 
 	var response controllers.AccountListResponse
@@ -51,7 +51,7 @@ func (suite *TestSuiteEnv) TestGetAccounts() {
 	assert.Len(suite.T(), response.Data, 1)
 }
 
-func (suite *TestSuiteEnv) TestGetAccountsInvalidQuery() {
+func (suite *TestSuiteStandard) TestGetAccountsInvalidQuery() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts?onBudget=NotABoolean", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 
@@ -59,7 +59,7 @@ func (suite *TestSuiteEnv) TestGetAccountsInvalidQuery() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestGetAccountsFilter() {
+func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 	b1 := createTestBudget(suite.T(), models.BudgetCreate{})
 	b2 := createTestBudget(suite.T(), models.BudgetCreate{})
 
@@ -126,12 +126,12 @@ func (suite *TestSuiteEnv) TestGetAccountsFilter() {
 	}
 }
 
-func (suite *TestSuiteEnv) TestNoAccountNotFound() {
+func (suite *TestSuiteStandard) TestNoAccountNotFound() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts/39633f90-3d9f-4b1e-ac24-c341c432a6e3", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestAccountInvalidIDs() {
+func (suite *TestSuiteStandard) TestAccountInvalidIDs() {
 	/*
 	 *  GET
 	 */
@@ -163,43 +163,43 @@ func (suite *TestSuiteEnv) TestAccountInvalidIDs() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestCreateAccount() {
+func (suite *TestSuiteStandard) TestCreateAccount() {
 	_ = createTestAccount(suite.T(), models.AccountCreate{Name: "Test account for creation"})
 }
 
-func (suite *TestSuiteEnv) TestCreateAccountNoBudget() {
+func (suite *TestSuiteStandard) TestCreateAccountNoBudget() {
 	r := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/accounts", models.Account{})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestCreateBrokenAccount() {
+func (suite *TestSuiteStandard) TestCreateBrokenAccount() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/accounts", `{ "createdAt": "New Account", "note": "More tests for accounts to ensure less brokenness something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateAccountNoBody() {
+func (suite *TestSuiteStandard) TestCreateAccountNoBody() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/accounts", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateAccountNonExistingBudget() {
+func (suite *TestSuiteStandard) TestCreateAccountNonExistingBudget() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/accounts", models.AccountCreate{BudgetID: uuid.New()})
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestGetAccount() {
+func (suite *TestSuiteStandard) TestGetAccount() {
 	a := createTestAccount(suite.T(), models.AccountCreate{})
 
 	r := test.Request(suite.T(), http.MethodGet, a.Data.Links.Self, "")
 	assert.Equal(suite.T(), http.StatusOK, r.Code)
 }
 
-func (suite *TestSuiteEnv) TestGetAccountTransactionsNonExistingAccount() {
+func (suite *TestSuiteStandard) TestGetAccountTransactionsNonExistingAccount() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts/57372/transactions", "")
 	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAccount() {
+func (suite *TestSuiteStandard) TestUpdateAccount() {
 	a := createTestAccount(suite.T(), models.AccountCreate{Name: "Original name", OnBudget: true})
 
 	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
@@ -217,7 +217,7 @@ func (suite *TestSuiteEnv) TestUpdateAccount() {
 	assert.Equal(suite.T(), false, u.Data.OnBudget)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAccountBrokenJSON() {
+func (suite *TestSuiteStandard) TestUpdateAccountBrokenJSON() {
 	a := createTestAccount(suite.T(), models.AccountCreate{
 		Name: "New Account",
 		Note: "More tests something something",
@@ -227,7 +227,7 @@ func (suite *TestSuiteEnv) TestUpdateAccountBrokenJSON() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAccountInvalidType() {
+func (suite *TestSuiteStandard) TestUpdateAccountInvalidType() {
 	a := createTestAccount(suite.T(), models.AccountCreate{
 		Name: "New Account",
 		Note: "More tests something something",
@@ -239,7 +239,7 @@ func (suite *TestSuiteEnv) TestUpdateAccountInvalidType() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAccountInvalidBudgetID() {
+func (suite *TestSuiteStandard) TestUpdateAccountInvalidBudgetID() {
 	a := createTestAccount(suite.T(), models.AccountCreate{
 		Name: "New Account",
 		Note: "More tests something something",
@@ -250,12 +250,12 @@ func (suite *TestSuiteEnv) TestUpdateAccountInvalidBudgetID() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestUpdateNonExistingAccount() {
+func (suite *TestSuiteStandard) TestUpdateNonExistingAccount() {
 	recorder := test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/accounts/9b81de41-eead-451d-bc6b-31fceedd236c", models.AccountCreate{Name: "This account does not exist"})
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteAccountsAndEmptyList() {
+func (suite *TestSuiteStandard) TestDeleteAccountsAndEmptyList() {
 	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/accounts", "")
 
 	var l controllers.AccountListResponse
@@ -274,12 +274,12 @@ func (suite *TestSuiteEnv) TestDeleteAccountsAndEmptyList() {
 	assert.Empty(suite.T(), l.Data)
 }
 
-func (suite *TestSuiteEnv) TestDeleteNonExistingAccount() {
+func (suite *TestSuiteStandard) TestDeleteNonExistingAccount() {
 	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/accounts/77b70a75-4bb3-4d1d-90cf-5b7a61f452f5", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteAccountWithBody() {
+func (suite *TestSuiteStandard) TestDeleteAccountWithBody() {
 	a := createTestAccount(suite.T(), models.AccountCreate{Name: "Delete me now!"})
 
 	r := test.Request(suite.T(), http.MethodDelete, a.Data.Links.Self, models.AccountCreate{Name: "Some other account"})

@@ -25,7 +25,7 @@ func createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetRes
 	return a
 }
 
-func (suite *TestSuiteEnv) TestOptionsBudget() {
+func (suite *TestSuiteStandard) TestOptionsBudget() {
 	path := fmt.Sprintf("%s/%s", "http://example.com/v1/budgets", uuid.New())
 	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
 	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
@@ -38,7 +38,7 @@ func (suite *TestSuiteEnv) TestOptionsBudget() {
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
-func (suite *TestSuiteEnv) TestOptionsBudgetMonth() {
+func (suite *TestSuiteStandard) TestOptionsBudgetMonth() {
 	budgetLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.Month
 
 	recorder := test.Request(suite.T(), http.MethodOptions, strings.Replace(budgetLink, "YYYY-MM", "1970-01", 1), "")
@@ -58,7 +58,7 @@ func (suite *TestSuiteEnv) TestOptionsBudgetMonth() {
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestOptionsBudgetMonthAllocations() {
+func (suite *TestSuiteStandard) TestOptionsBudgetMonthAllocations() {
 	budgetAllocationsLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
 
 	recorder := test.Request(suite.T(), http.MethodOptions, strings.Replace(budgetAllocationsLink, "YYYY-MM", "1970-01", 1), "")
@@ -78,7 +78,7 @@ func (suite *TestSuiteEnv) TestOptionsBudgetMonthAllocations() {
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestGetBudgets() {
+func (suite *TestSuiteStandard) TestGetBudgets() {
 	_ = createTestBudget(suite.T(), models.BudgetCreate{})
 
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
@@ -96,7 +96,7 @@ func (suite *TestSuiteEnv) TestGetBudgets() {
 	assert.LessOrEqual(suite.T(), diff, test.TOLERANCE)
 }
 
-func (suite *TestSuiteEnv) TestGetBudgetsFilter() {
+func (suite *TestSuiteStandard) TestGetBudgetsFilter() {
 	_ = createTestBudget(suite.T(), models.BudgetCreate{
 		Name:     "Exact String Match",
 		Note:     "This is a specific note",
@@ -141,13 +141,13 @@ func (suite *TestSuiteEnv) TestGetBudgetsFilter() {
 	}
 }
 
-func (suite *TestSuiteEnv) TestNoBudgetNotFound() {
+func (suite *TestSuiteStandard) TestNoBudgetNotFound() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
 
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestBudgetInvalidIDs() {
+func (suite *TestSuiteStandard) TestBudgetInvalidIDs() {
 	/*
 	 *  GET
 	 */
@@ -182,7 +182,7 @@ func (suite *TestSuiteEnv) TestBudgetInvalidIDs() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestCreateBudget() {
+func (suite *TestSuiteStandard) TestCreateBudget() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
@@ -195,18 +195,18 @@ func (suite *TestSuiteEnv) TestCreateBudget() {
 	assert.Equal(suite.T(), savedObject, budgetObject)
 }
 
-func (suite *TestSuiteEnv) TestCreateBrokenBudget() {
+func (suite *TestSuiteStandard) TestCreateBrokenBudget() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateBudgetNoBody() {
+func (suite *TestSuiteStandard) TestCreateBudgetNoBody() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
 // TestBudgetMonth verifies that the monthly calculations are correct.
-func (suite *TestSuiteEnv) TestBudgetMonth() {
+func (suite *TestSuiteStandard) TestBudgetMonth() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
@@ -355,7 +355,7 @@ func (suite *TestSuiteEnv) TestBudgetMonth() {
 	}
 }
 
-func (suite *TestSuiteEnv) TestBudgetMonthBudgeted() {
+func (suite *TestSuiteStandard) TestBudgetMonthBudgeted() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
@@ -383,13 +383,13 @@ func (suite *TestSuiteEnv) TestBudgetMonthBudgeted() {
 }
 
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
-func (suite *TestSuiteEnv) TestBudgetMonthNonExistent() {
+func (suite *TestSuiteStandard) TestBudgetMonthNonExistent() {
 	r := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &r)
 }
 
 // TestBudgetMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
-func (suite *TestSuiteEnv) TestBudgetMonthZero() {
+func (suite *TestSuiteStandard) TestBudgetMonthZero() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 
 	r := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("%s/0001-01", budget.Data.Links.Self), "")
@@ -397,14 +397,14 @@ func (suite *TestSuiteEnv) TestBudgetMonthZero() {
 }
 
 // TestBudgetMonthInvalid tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
-func (suite *TestSuiteEnv) TestBudgetMonthInvalid() {
+func (suite *TestSuiteStandard) TestBudgetMonthInvalid() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 
 	recorder := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("%s/December-2020", budget.Data.Links.Self), "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestUpdateBudget() {
+func (suite *TestSuiteStandard) TestUpdateBudget() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
@@ -424,7 +424,7 @@ func (suite *TestSuiteEnv) TestUpdateBudget() {
 	assert.Equal(suite.T(), "Updated new budget", updatedBudget.Data.Name)
 }
 
-func (suite *TestSuiteEnv) TestUpdateBudgetBrokenJSON() {
+func (suite *TestSuiteStandard) TestUpdateBudgetBrokenJSON() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
@@ -435,7 +435,7 @@ func (suite *TestSuiteEnv) TestUpdateBudgetBrokenJSON() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestUpdateBudgetInvalidType() {
+func (suite *TestSuiteStandard) TestUpdateBudgetInvalidType() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
@@ -448,12 +448,12 @@ func (suite *TestSuiteEnv) TestUpdateBudgetInvalidType() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestUpdateNonExistingBudget() {
+func (suite *TestSuiteStandard) TestUpdateNonExistingBudget() {
 	recorder := test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteBudget() {
+func (suite *TestSuiteStandard) TestDeleteBudget() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
@@ -464,12 +464,12 @@ func (suite *TestSuiteEnv) TestDeleteBudget() {
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteNonExistingBudget() {
+func (suite *TestSuiteStandard) TestDeleteNonExistingBudget() {
 	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteBudgetWithBody() {
+func (suite *TestSuiteStandard) TestDeleteBudgetWithBody() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
 
@@ -480,7 +480,7 @@ func (suite *TestSuiteEnv) TestDeleteBudgetWithBody() {
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteAllocationsMonth() {
+func (suite *TestSuiteStandard) TestDeleteAllocationsMonth() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
@@ -510,7 +510,7 @@ func (suite *TestSuiteEnv) TestDeleteAllocationsMonth() {
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteAllocationsMonthFailures() {
+func (suite *TestSuiteStandard) TestDeleteAllocationsMonthFailures() {
 	budgetAllocationsLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
 
 	// Bad Request for invalid UUID
@@ -526,7 +526,7 @@ func (suite *TestSuiteEnv) TestDeleteAllocationsMonthFailures() {
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestSetAllocationsMonthBudgeted() {
+func (suite *TestSuiteStandard) TestSetAllocationsMonthBudgeted() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 	category := createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
@@ -564,7 +564,7 @@ func (suite *TestSuiteEnv) TestSetAllocationsMonthBudgeted() {
 	suite.Assert().True(allocation2.Data.Amount.Equal(envelope2Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", allocation2.Data.Amount, envelope2Month.Data.Allocation, recorder.Header().Get("x-request-id"))
 }
 
-func (suite *TestSuiteEnv) TestSetAllocationsMonthSpend() {
+func (suite *TestSuiteStandard) TestSetAllocationsMonthSpend() {
 	budget := createTestBudget(suite.T(), models.BudgetCreate{})
 	cashAccount := createTestAccount(suite.T(), models.AccountCreate{External: false})
 	externalAccount := createTestAccount(suite.T(), models.AccountCreate{External: true})
@@ -614,7 +614,7 @@ func (suite *TestSuiteEnv) TestSetAllocationsMonthSpend() {
 	suite.Assert().True(envelope2Month.Data.Allocation.Equal(decimal.NewFromFloat(0)), "Expected: 0, got %s, Request ID: %s", envelope2Month.Data.Allocation, recorder.Header().Get("x-request-id"))
 }
 
-func (suite *TestSuiteEnv) TestSetAllocationsMonthFailures() {
+func (suite *TestSuiteStandard) TestSetAllocationsMonthFailures() {
 	budgetAllocationsLink := createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
 
 	// Bad Request for invalid UUID
@@ -639,7 +639,7 @@ func (suite *TestSuiteEnv) TestSetAllocationsMonthFailures() {
 }
 
 // TestBudgetBalanceDoubleRegression verifies that the Budget balance is only added once.
-func (suite *TestSuiteEnv) TestBudgetBalanceDoubleRegression() {
+func (suite *TestSuiteStandard) TestBudgetBalanceDoubleRegression() {
 	shouldBalance := decimal.NewFromFloat(1000)
 
 	budget := createTestBudget(suite.T(), models.BudgetCreate{Name: "TestBudgetBalanceDoubleRegression"})

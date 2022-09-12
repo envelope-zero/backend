@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (suite *TestSuiteEnv) TestModelTimeUTC() {
+func (suite *TestSuiteStandard) TestModelTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	model := models.Model{

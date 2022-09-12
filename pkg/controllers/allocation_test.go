@@ -28,7 +28,7 @@ func createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.A
 	return a
 }
 
-func (suite *TestSuiteEnv) TestOptionsAllocation() {
+func (suite *TestSuiteStandard) TestOptionsAllocation() {
 	path := fmt.Sprintf("%s/%s", "http://example.com/v1/allocations", uuid.New())
 	recorder := test.Request(suite.T(), http.MethodOptions, path, "")
 	assert.Equal(suite.T(), http.StatusNotFound, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
@@ -41,7 +41,7 @@ func (suite *TestSuiteEnv) TestOptionsAllocation() {
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
-func (suite *TestSuiteEnv) TestGetAllocations() {
+func (suite *TestSuiteStandard) TestGetAllocations() {
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{
 		Month:  time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 		Amount: decimal.NewFromFloat(20.99),
@@ -64,7 +64,7 @@ func (suite *TestSuiteEnv) TestGetAllocations() {
 	assert.LessOrEqual(suite.T(), time.Since(response.Data[0].UpdatedAt), test.TOLERANCE)
 }
 
-func (suite *TestSuiteEnv) TestGetAllocationsFilter() {
+func (suite *TestSuiteStandard) TestGetAllocationsFilter() {
 	e1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 	e2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 
@@ -109,13 +109,13 @@ func (suite *TestSuiteEnv) TestGetAllocationsFilter() {
 	}
 }
 
-func (suite *TestSuiteEnv) TestNoAllocationNotFound() {
+func (suite *TestSuiteStandard) TestNoAllocationNotFound() {
 	recorder := test.Request(suite.T(), http.MethodGet, "http://example.com/v1/allocations/f8b93ce2-309f-4e99-8886-6ab960df99c3", "")
 
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestGetAllocationsInvalidQuery() {
+func (suite *TestSuiteStandard) TestGetAllocationsInvalidQuery() {
 	tests := []string{
 		"month=2022 Test Month",
 		"amount=The cake is a lie",
@@ -130,7 +130,7 @@ func (suite *TestSuiteEnv) TestGetAllocationsInvalidQuery() {
 	}
 }
 
-func (suite *TestSuiteEnv) TestAllocationInvalidIDs() {
+func (suite *TestSuiteStandard) TestAllocationInvalidIDs() {
 	/*
 	 *  GET
 	 */
@@ -162,7 +162,7 @@ func (suite *TestSuiteEnv) TestAllocationInvalidIDs() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestCreateAllocation() {
+func (suite *TestSuiteStandard) TestCreateAllocation() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{
 		Month:  time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC),
 		Amount: decimal.NewFromFloat(15.42),
@@ -173,22 +173,22 @@ func (suite *TestSuiteEnv) TestCreateAllocation() {
 	}
 }
 
-func (suite *TestSuiteEnv) TestCreateAllocationNoEnvelope() {
+func (suite *TestSuiteStandard) TestCreateAllocationNoEnvelope() {
 	r := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/allocations", models.Allocation{})
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestCreateBrokenAllocation() {
+func (suite *TestSuiteStandard) TestCreateBrokenAllocation() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/allocations", `{ "createdAt": "New Allocation" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateAllocationNonExistingEnvelope() {
+func (suite *TestSuiteStandard) TestCreateAllocationNonExistingEnvelope() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/allocations", models.AllocationCreate{EnvelopeID: uuid.New()})
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateDuplicateAllocation() {
+func (suite *TestSuiteStandard) TestCreateDuplicateAllocation() {
 	allocation := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC)})
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/allocations", models.AllocationCreate{
 		EnvelopeID: allocation.Data.EnvelopeID,
@@ -198,7 +198,7 @@ func (suite *TestSuiteEnv) TestCreateDuplicateAllocation() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestCreateNonDuplicateAllocationSameMonth() {
+func (suite *TestSuiteStandard) TestCreateNonDuplicateAllocationSameMonth() {
 	e1 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 	e2 := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 
@@ -213,12 +213,12 @@ func (suite *TestSuiteEnv) TestCreateNonDuplicateAllocationSameMonth() {
 	})
 }
 
-func (suite *TestSuiteEnv) TestCreateAllocationNoBody() {
+func (suite *TestSuiteStandard) TestCreateAllocationNoBody() {
 	recorder := test.Request(suite.T(), http.MethodPost, "http://example.com/v1/allocations", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestGetAllocation() {
+func (suite *TestSuiteStandard) TestGetAllocation() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{
 		Month: time.Date(2022, 8, 1, 0, 0, 0, 0, time.UTC),
 	})
@@ -227,7 +227,7 @@ func (suite *TestSuiteEnv) TestGetAllocation() {
 	assert.Equal(suite.T(), http.StatusOK, r.Code)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAllocation() {
+func (suite *TestSuiteStandard) TestUpdateAllocation() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2100, 6, 1, 0, 0, 0, 0, time.UTC)})
 
 	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
@@ -241,7 +241,7 @@ func (suite *TestSuiteEnv) TestUpdateAllocation() {
 	assert.Equal(suite.T(), 2022, updatedAllocation.Data.Month.Year())
 }
 
-func (suite *TestSuiteEnv) TestUpdateAllocationZeroValues() {
+func (suite *TestSuiteStandard) TestUpdateAllocationZeroValues() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2100, 8, 1, 0, 0, 0, 0, time.UTC)})
 
 	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
@@ -255,14 +255,14 @@ func (suite *TestSuiteEnv) TestUpdateAllocationZeroValues() {
 	assert.Equal(suite.T(), 0, updatedAllocation.Data.Month.Year(), "Year is not updated correctly")
 }
 
-func (suite *TestSuiteEnv) TestUpdateAllocationBrokenJSON() {
+func (suite *TestSuiteStandard) TestUpdateAllocationBrokenJSON() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2054, 5, 1, 0, 0, 0, 0, time.UTC)})
 
 	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, `{ "name": 2" }`)
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAllocationInvalidType() {
+func (suite *TestSuiteStandard) TestUpdateAllocationInvalidType() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2062, 3, 1, 0, 0, 0, 0, time.UTC)})
 
 	r := test.Request(suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
@@ -271,7 +271,7 @@ func (suite *TestSuiteEnv) TestUpdateAllocationInvalidType() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestUpdateAllocationInvalidEnvelopeID() {
+func (suite *TestSuiteStandard) TestUpdateAllocationInvalidEnvelopeID() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2099, 11, 1, 0, 0, 0, 0, time.UTC)})
 
 	// Sets the EnvelopeID to uuid.Nil by not specifying it
@@ -279,12 +279,12 @@ func (suite *TestSuiteEnv) TestUpdateAllocationInvalidEnvelopeID() {
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }
 
-func (suite *TestSuiteEnv) TestUpdateNonExistingAllocation() {
+func (suite *TestSuiteStandard) TestUpdateNonExistingAllocation() {
 	recorder := test.Request(suite.T(), http.MethodPatch, "http://example.com/v1/allocations/df684988-31df-444c-8aaa-b53195d55d6e", models.AllocationCreate{Month: time.Date(2142, 3, 1, 0, 0, 0, 0, time.UTC)})
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteAllocation() {
+func (suite *TestSuiteStandard) TestDeleteAllocation() {
 	e := createTestEnvelope(suite.T(), models.EnvelopeCreate{})
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC), EnvelopeID: e.Data.ID})
 	r := test.Request(suite.T(), http.MethodDelete, a.Data.Links.Self, "")
@@ -296,19 +296,19 @@ func (suite *TestSuiteEnv) TestDeleteAllocation() {
 	_ = createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC), EnvelopeID: e.Data.ID})
 }
 
-func (suite *TestSuiteEnv) TestDeleteNonExistingAllocation() {
+func (suite *TestSuiteStandard) TestDeleteNonExistingAllocation() {
 	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/allocations/34ac51a7-431c-454b-ba29-feaefeae70d5", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
 }
 
-func (suite *TestSuiteEnv) TestDeleteAllocationWithBody() {
+func (suite *TestSuiteStandard) TestDeleteAllocationWithBody() {
 	a := createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2067, 3, 1, 0, 0, 0, 0, time.UTC)})
 
 	r := test.Request(suite.T(), http.MethodDelete, a.Data.Links.Self, models.AllocationCreate{Month: time.Date(2067, 3, 1, 0, 0, 0, 0, time.UTC)})
 	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &r)
 }
 
-func (suite *TestSuiteEnv) TestDeleteNullAllocation() {
+func (suite *TestSuiteStandard) TestDeleteNullAllocation() {
 	r := test.Request(suite.T(), http.MethodDelete, "http://example.com/v1/allocations/00000000-0000-0000-0000-000000000000", "")
 	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
 }

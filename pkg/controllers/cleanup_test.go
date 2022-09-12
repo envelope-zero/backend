@@ -8,7 +8,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (suite *TestSuiteEnv) TestCleanup() {
+func (suite *TestSuiteStandard) TestCleanup() {
 	_ = createTestBudget(suite.T(), models.BudgetCreate{})
 	_ = createTestAccount(suite.T(), models.AccountCreate{})
 	_ = createTestCategory(suite.T(), models.CategoryCreate{})

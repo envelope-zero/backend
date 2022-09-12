@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteEnv) TestOptionsHeaderResources() {
+func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 	optionsHeaderTests := []string{
 		"http://example.com/v1/budgets",
 		"http://example.com/v1/accounts",

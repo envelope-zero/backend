@@ -12,29 +12,29 @@ import (
 )
 
 // Environment for the test suite. Used to save the database connection.
-type TestSuiteEnv struct {
+type TestSuiteStandard struct {
 	suite.Suite
 }
 
 // Pseudo-Test run by go test that runs the test suite.
 func TestSuite(t *testing.T) {
-	suite.Run(t, new(TestSuiteEnv))
+	suite.Run(t, new(TestSuiteStandard))
 }
 
-func (suite *TestSuiteEnv) SetupSuite() {
+func (suite *TestSuiteStandard) SetupSuite() {
 	os.Setenv("LOG_FORMAT", "human")
 	os.Setenv("GIN_MODE", "debug")
 	os.Setenv("API_URL", "http://example.com")
 }
 
 // TearDownTest is called after each test in the suite.
-func (suite *TestSuiteEnv) TearDownTest() {
+func (suite *TestSuiteStandard) TearDownTest() {
 	sqlDB, _ := database.DB.DB()
 	sqlDB.Close()
 }
 
 // SetupTest is called before each test in the suite.
-func (suite *TestSuiteEnv) SetupTest() {
+func (suite *TestSuiteStandard) SetupTest() {
 	err := database.ConnectDatabase(sqlite.Open, ":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
 		log.Fatalf("Database connection failed with: %s", err.Error())

@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteEnv) TestMigrateDatabase() {
+func (suite *TestSuiteStandard) TestMigrateDatabase() {
 	err := models.MigrateDatabase()
 	assert.Nil(suite.T(), err)
 }
