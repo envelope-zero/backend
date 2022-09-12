@@ -22,3 +22,13 @@ runs:
       uses: codecov/codecov-action@v3
       with:
         files: coverage.out
+
+      # This builds the binary and starts it. If it does not exit within 3 seconds, consider it
+      # successful
+      #
+      # With this, we prevent regressions like in 9c9e365c6ada93d94e90eae85704f14b8afaa4c9.
+    - name: Verify binary works
+      shell: bash
+      run: |
+        make build
+        API_URL=https://example.com/api timeout 3 ./backend || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
