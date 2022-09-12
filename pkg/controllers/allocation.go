@@ -120,8 +120,8 @@ func CreateAllocation(c *gin.Context) {
 	// Ignore every field that is not Year or Month
 	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
-	_, err = getEnvelopeResource(c, allocation.EnvelopeID)
-	if err != nil {
+	_, ok := getEnvelopeResource(c, allocation.EnvelopeID)
+	if !ok {
 		return
 	}
 

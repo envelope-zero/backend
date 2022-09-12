@@ -315,8 +315,8 @@ func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
 		return Category{}, false
 	}
 
-	envelopes, err := getEnvelopeObjects(c, id)
-	if err != nil {
+	envelopes, ok := getEnvelopeObjects(c, id)
+	if !ok {
 		return Category{}, false
 	}
 

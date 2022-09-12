@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -98,8 +97,8 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getEnvelopeObject(c, p)
-	if err != nil {
+	_, ok := getEnvelopeObject(c, p)
+	if !ok {
 		return
 	}
 
@@ -129,9 +128,7 @@ func CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	err = database.DB.Create(&envelope).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Create(&envelope)) {
 		return
 	}
 
@@ -166,9 +163,11 @@ func GetEnvelopes(c *gin.Context) {
 	}
 
 	var envelopes []models.Envelope
-	database.DB.Where(&models.Envelope{
+	if !queryWithRetry(c, database.DB.Where(&models.Envelope{
 		EnvelopeCreate: create,
-	}, queryFields...).Find(&envelopes)
+	}, queryFields...).Find(&envelopes)) {
+		return
+	}
 
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
@@ -200,8 +199,8 @@ func GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelopeObject, err := getEnvelopeObject(c, p)
-	if err != nil {
+	envelopeObject, ok := getEnvelopeObject(c, p)
+	if !ok {
 		return
 	}
 
@@ -232,8 +231,8 @@ func GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelope, err := getEnvelopeResource(c, p)
-	if err != nil {
+	envelope, ok := getEnvelopeResource(c, p)
+	if !ok {
 		httperrors.Handler(c, err)
 		return
 	}
@@ -271,8 +270,8 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, err := getEnvelopeResource(c, p)
-	if err != nil {
+	envelope, ok := getEnvelopeResource(c, p)
+	if !ok {
 		return
 	}
 
@@ -286,9 +285,7 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	err = database.DB.Model(&envelope).Select("", updateFields...).Updates(data).Error
-	if err != nil {
-		httperrors.Handler(c, err)
+	if !queryWithRetry(c, database.DB.Model(&envelope).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -312,62 +309,59 @@ func DeleteEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, err := getEnvelopeResource(c, p)
-	if err != nil {
+	envelope, ok := getEnvelopeResource(c, p)
+	if !ok {
 		return
 	}
 
-	database.DB.Delete(&envelope)
+	if !queryWithRetry(c, database.DB.Delete(&envelope)) {
+		return
+	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 // getEnvelopeResource verifies that the envelope from the URL parameters exists and returns it.
-func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, error) {
+func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, bool) {
 	if id == uuid.Nil {
-		err := errors.New("No envelope ID specified")
-		httperrors.New(c, http.StatusBadRequest, err.Error())
-		return models.Envelope{}, err
+		httperrors.New(c, http.StatusBadRequest, "no envelope ID specified")
+		return models.Envelope{}, false
 	}
 
 	var envelope models.Envelope
 
-	err := database.DB.Where(&models.Envelope{
+	if !queryWithRetry(c, database.DB.Where(&models.Envelope{
 		Model: models.Model{
 			ID: id,
 		},
-	}).First(&envelope).Error
-	if err != nil {
-		httperrors.New(c, http.StatusNotFound, "No envelope found for the specified ID")
-		return models.Envelope{}, err
+	}).First(&envelope), "No envelope found for the specified ID") {
+		return models.Envelope{}, false
 	}
 
-	return envelope, nil
+	return envelope, true
 }
 
-func getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, error) {
-	resource, err := getEnvelopeResource(c, id)
-	if err != nil {
-		return Envelope{}, err
+func getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, bool) {
+	resource, ok := getEnvelopeResource(c, id)
+	if !ok {
+		return Envelope{}, false
 	}
 
 	return Envelope{
 		resource,
 		getEnvelopeLinks(c, id),
-	}, nil
+	}, true
 }
 
-func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, error) {
+func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, bool) {
 	var envelopes []models.Envelope
 
-	err := database.DB.Where(&models.Envelope{
+	if !queryWithRetry(c, database.DB.Where(&models.Envelope{
 		EnvelopeCreate: models.EnvelopeCreate{
 			CategoryID: categoryID,
 		},
-	}).Find(&envelopes).Error
-	if err != nil {
-		httperrors.Handler(c, err)
-		return []Envelope{}, err
+	}).Find(&envelopes)) {
+		return []Envelope{}, false
 	}
 
 	envelopeObjects := make([]Envelope, 0)
@@ -376,7 +370,7 @@ func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, error
 		envelopeObjects = append(envelopeObjects, o)
 	}
 
-	return envelopeObjects, nil
+	return envelopeObjects, true
 }
 
 // getEnvelopeLinks returns a BudgetLinks struct.

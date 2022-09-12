@@ -169,8 +169,8 @@ func CreateTransaction(c *gin.Context) {
 
 	// Check the envelope ID only if it is set.
 	if transaction.EnvelopeID != nil {
-		_, err := getEnvelopeResource(c, *transaction.EnvelopeID)
-		if err != nil {
+		_, ok := getEnvelopeResource(c, *transaction.EnvelopeID)
+		if !ok {
 			return
 		}
 	}
@@ -349,8 +349,8 @@ func UpdateTransaction(c *gin.Context) {
 
 	// Check the envelope ID only if it is set.
 	if data.EnvelopeID != nil {
-		_, err = getEnvelopeResource(c, *data.EnvelopeID)
-		if err != nil {
+		_, ok := getEnvelopeResource(c, *data.EnvelopeID)
+		if !ok {
 			return
 		}
 	}
