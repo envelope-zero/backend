@@ -2,12 +2,10 @@ package router
 
 import (
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
-	"time"
 
 	docs "github.com/envelope-zero/backend/api"
 	"github.com/envelope-zero/backend/pkg/controllers"
@@ -45,10 +43,9 @@ func Config() (*gin.Engine, error) {
 		logger.WithDefaultLevel(zerolog.InfoLevel),
 		logger.WithClientErrorLevel(zerolog.InfoLevel),
 		logger.WithServerErrorLevel(zerolog.ErrorLevel),
-		logger.WithLogger(func(c *gin.Context, out io.Writer, latency time.Duration) zerolog.Logger {
-			return log.Logger.With().
+		logger.WithLogger(func(c *gin.Context, logger zerolog.Logger) zerolog.Logger {
+			return logger.With().
 				Str("request-id", requestid.Get(c)).
-				Dur("latency", latency).
 				Str("method", c.Request.Method).
 				Str("path", c.Request.URL.Path).
 				Int("status", c.Writer.Status()).
