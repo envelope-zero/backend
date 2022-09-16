@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -53,20 +52,20 @@ func (f AllocationQueryFilter) ToCreate(c *gin.Context) (models.AllocationCreate
 
 // RegisterAllocationRoutes registers the routes for allocations with
 // the RouterGroup that is passed.
-func RegisterAllocationRoutes(r *gin.RouterGroup) {
+func (co Controller) RegisterAllocationRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", OptionsAllocationList)
-		r.GET("", GetAllocations)
-		r.POST("", CreateAllocation)
+		r.OPTIONS("", co.OptionsAllocationList)
+		r.GET("", co.GetAllocations)
+		r.POST("", co.CreateAllocation)
 	}
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:allocationId", OptionsAllocationDetail)
-		r.GET("/:allocationId", GetAllocation)
-		r.PATCH("/:allocationId", UpdateAllocation)
-		r.DELETE("/:allocationId", DeleteAllocation)
+		r.OPTIONS("/:allocationId", co.OptionsAllocationDetail)
+		r.GET("/:allocationId", co.GetAllocation)
+		r.PATCH("/:allocationId", co.UpdateAllocation)
+		r.DELETE("/:allocationId", co.DeleteAllocation)
 	}
 }
 
@@ -75,7 +74,7 @@ func RegisterAllocationRoutes(r *gin.RouterGroup) {
 // @Tags        Allocations
 // @Success     204
 // @Router      /v1/allocations [options]
-func OptionsAllocationList(c *gin.Context) {
+func (co Controller) OptionsAllocationList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
@@ -85,14 +84,14 @@ func OptionsAllocationList(c *gin.Context) {
 // @Success     204
 // @Param       allocationId path string true "ID formatted as string"
 // @Router      /v1/allocations/{allocationId} [options]
-func OptionsAllocationDetail(c *gin.Context) {
+func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := getAllocationObject(c, p)
+	_, ok := co.getAllocationObject(c, p)
 	if !ok {
 		return
 	}
@@ -109,7 +108,7 @@ func OptionsAllocationDetail(c *gin.Context) {
 // @Failure     500        {object} httperrors.HTTPError
 // @Param       allocation body     models.AllocationCreate true "Allocation"
 // @Router      /v1/allocations [post]
-func CreateAllocation(c *gin.Context) {
+func (co Controller) CreateAllocation(c *gin.Context) {
 	var allocation models.Allocation
 
 	err := httputil.BindData(c, &allocation)
@@ -120,16 +119,16 @@ func CreateAllocation(c *gin.Context) {
 	// Ignore every field that is not Year or Month
 	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
-	_, ok := getEnvelopeResource(c, allocation.EnvelopeID)
+	_, ok := co.getEnvelopeResource(c, allocation.EnvelopeID)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Create(&allocation)) {
+	if !queryWithRetry(c, co.DB.Create(&allocation)) {
 		return
 	}
 
-	allocationObject, _ := getAllocationObject(c, allocation.ID)
+	allocationObject, _ := co.getAllocationObject(c, allocation.ID)
 	c.JSON(http.StatusCreated, AllocationResponse{Data: allocationObject})
 }
 
@@ -145,7 +144,7 @@ func CreateAllocation(c *gin.Context) {
 // @Param       month    query string false "Filter by month"
 // @Param       amount   query string false "Filter by amount"
 // @Param       envelope query string false "Filter by envelope ID"
-func GetAllocations(c *gin.Context) {
+func (co Controller) GetAllocations(c *gin.Context) {
 	var filter AllocationQueryFilter
 	if err := c.Bind(&filter); err != nil {
 		httperrors.InvalidQueryString(c)
@@ -162,7 +161,7 @@ func GetAllocations(c *gin.Context) {
 	}
 
 	var allocations []models.Allocation
-	if !queryWithRetry(c, database.DB.Where(&models.Allocation{
+	if !queryWithRetry(c, co.DB.Where(&models.Allocation{
 		AllocationCreate: create,
 	}, queryFields...).Find(&allocations)) {
 		return
@@ -174,7 +173,7 @@ func GetAllocations(c *gin.Context) {
 	allocationObjects := make([]Allocation, 0)
 
 	for _, allocation := range allocations {
-		o, _ := getAllocationObject(c, allocation.ID)
+		o, _ := co.getAllocationObject(c, allocation.ID)
 		allocationObjects = append(allocationObjects, o)
 	}
 
@@ -191,14 +190,14 @@ func GetAllocations(c *gin.Context) {
 // @Failure     500          {object} httperrors.HTTPError
 // @Param       allocationId path     string true "ID formatted as string"
 // @Router      /v1/allocations/{allocationId} [get]
-func GetAllocation(c *gin.Context) {
+func (co Controller) GetAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	allocationObject, ok := getAllocationObject(c, p)
+	allocationObject, ok := co.getAllocationObject(c, p)
 	if !ok {
 		return
 	}
@@ -218,14 +217,14 @@ func GetAllocation(c *gin.Context) {
 // @Param       allocationId path     string                  true "ID formatted as string"
 // @Param       allocation   body     models.AllocationCreate true "Allocation"
 // @Router      /v1/allocations/{allocationId} [patch]
-func UpdateAllocation(c *gin.Context) {
+func (co Controller) UpdateAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	allocation, ok := getAllocationResource(c, p)
+	allocation, ok := co.getAllocationResource(c, p)
 	if !ok {
 		return
 	}
@@ -243,11 +242,11 @@ func UpdateAllocation(c *gin.Context) {
 	// Ignore every field that is not Year or Month
 	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
-	if !queryWithRetry(c, database.DB.Model(&allocation).Select("", updateFields...).Updates(data)) {
+	if !queryWithRetry(c, co.DB.Model(&allocation).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	allocationObject, _ := getAllocationObject(c, allocation.ID)
+	allocationObject, _ := co.getAllocationObject(c, allocation.ID)
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
@@ -260,20 +259,20 @@ func UpdateAllocation(c *gin.Context) {
 // @Failure     500          {object} httperrors.HTTPError
 // @Param       allocationId path     string true "ID formatted as string"
 // @Router      /v1/allocations/{allocationId} [delete]
-func DeleteAllocation(c *gin.Context) {
+func (co Controller) DeleteAllocation(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	allocation, ok := getAllocationResource(c, p)
+	allocation, ok := co.getAllocationResource(c, p)
 	if !ok {
 		return
 	}
 
 	// Allocations are hard deleted instantly to avoid conflicts for the UNIQUE(id,month)
-	if !queryWithRetry(c, database.DB.Unscoped().Delete(&allocation)) {
+	if !queryWithRetry(c, co.DB.Unscoped().Delete(&allocation)) {
 		return
 	}
 
@@ -281,7 +280,7 @@ func DeleteAllocation(c *gin.Context) {
 }
 
 // getAllocationResource verifies that the request URI is valid for the transaction and returns it.
-func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, bool) {
+func (co Controller) getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, bool) {
 	if id == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "no allocation ID specified")
 		return models.Allocation{}, false
@@ -289,7 +288,7 @@ func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, boo
 
 	var allocation models.Allocation
 
-	if !queryWithRetry(c, database.DB.First(&allocation, &models.Allocation{
+	if !queryWithRetry(c, co.DB.First(&allocation, &models.Allocation{
 		Model: models.Model{
 			ID: id,
 		},
@@ -300,8 +299,8 @@ func getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, boo
 	return allocation, true
 }
 
-func getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, bool) {
-	resource, ok := getAllocationResource(c, id)
+func (co Controller) getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, bool) {
+	resource, ok := co.getAllocationResource(c, id)
 	if !ok {
 		return Allocation{}, false
 	}

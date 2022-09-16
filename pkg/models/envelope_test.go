@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -11,7 +10,7 @@ import (
 
 func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -22,7 +21,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Create(internalAccount).Error
+	err = suite.db.Create(internalAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -34,7 +33,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 			External: true,
 		},
 	}
-	err = database.DB.Create(&externalAccount).Error
+	err = suite.db.Create(&externalAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -44,7 +43,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Save(&category).Error
+	err = suite.db.Save(&category).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -55,7 +54,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 			CategoryID: category.ID,
 		},
 	}
-	err = database.DB.Create(&envelope).Error
+	err = suite.db.Create(&envelope).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -73,7 +72,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 			Date:                 january,
 		},
 	}
-	err = database.DB.Create(&transaction).Error
+	err = suite.db.Create(&transaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -88,32 +87,32 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 			Date:                 january.AddDate(0, 1, 0),
 		},
 	}
-	err = database.DB.Create(&transactionIn).Error
+	err = suite.db.Create(&transactionIn).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	envelopeMonth, err := envelope.Month(january)
+	envelopeMonth, err := envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
-	envelopeMonth, err = envelope.Month(january.AddDate(0, 1, 0))
+	envelopeMonth, err = envelope.Month(suite.db, january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
-	err = database.DB.Delete(&transaction).Error
+	err = suite.db.Delete(&transaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	envelopeMonth, err = envelope.Month(january)
+	envelopeMonth, err = envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(decimal.NewFromFloat(0)), "Month calculation for 2022-01 is wrong: should be %v, but is %v", decimal.NewFromFloat(0), envelopeMonth.Spent)
 }
 
 func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -124,7 +123,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Create(internalAccount).Error
+	err = suite.db.Create(internalAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -136,7 +135,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 			External: true,
 		},
 	}
-	err = database.DB.Create(&externalAccount).Error
+	err = suite.db.Create(&externalAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -146,7 +145,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Save(&category).Error
+	err = suite.db.Save(&category).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -160,14 +159,14 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 			Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	err = database.DB.Create(&transaction).Error
+	err = suite.db.Create(&transaction).Error
 
 	assert.Nil(suite.T(), err, "Transactions must be able to be created without an envelope (to enable internal transfers without an Envelope and income transactions)")
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -178,7 +177,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Create(internalAccount).Error
+	err = suite.db.Create(internalAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -190,7 +189,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			External: true,
 		},
 	}
-	err = database.DB.Create(&externalAccount).Error
+	err = suite.db.Create(&externalAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -200,7 +199,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Save(&category).Error
+	err = suite.db.Save(&category).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -211,7 +210,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			CategoryID: category.ID,
 		},
 	}
-	err = database.DB.Create(&envelope).Error
+	err = suite.db.Create(&envelope).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -223,7 +222,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			CategoryID: category.ID,
 		},
 	}
-	err = database.DB.Create(&envelope2).Error
+	err = suite.db.Create(&envelope2).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -237,7 +236,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			Amount:     decimal.NewFromFloat(50),
 		},
 	}
-	err = database.DB.Create(&allocationJan).Error
+	err = suite.db.Create(&allocationJan).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -249,7 +248,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			Amount:     decimal.NewFromFloat(40),
 		},
 	}
-	err = database.DB.Create(&allocationFeb).Error
+	err = suite.db.Create(&allocationFeb).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -264,7 +263,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			Date:                 january,
 		},
 	}
-	err = database.DB.Create(&transaction).Error
+	err = suite.db.Create(&transaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -279,23 +278,23 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 			Date:                 january.AddDate(0, 1, 0),
 		},
 	}
-	err = database.DB.Create(&transaction2).Error
+	err = suite.db.Create(&transaction2).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
 	shouldBalance := decimal.NewFromFloat(35)
-	envelopeMonth, err := envelope.Month(january)
+	envelopeMonth, err := envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-01 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 
 	shouldBalance = decimal.NewFromFloat(45)
-	envelopeMonth, err = envelope.Month(january.AddDate(0, 1, 0))
+	envelopeMonth, err = envelope.Month(suite.db, january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 
 	shouldBalance = decimal.NewFromFloat(0)
-	envelopeMonth, err = envelope2.Month(january.AddDate(0, 1, 0))
+	envelopeMonth, err = envelope2.Month(suite.db, january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 }

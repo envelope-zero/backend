@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -85,20 +84,20 @@ func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCrea
 
 // RegisterTransactionRoutes registers the routes for transactions with
 // the RouterGroup that is passed.
-func RegisterTransactionRoutes(r *gin.RouterGroup) {
+func (co Controller) RegisterTransactionRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", OptionsTransactionList)
-		r.GET("", GetTransactions)
-		r.POST("", CreateTransaction)
+		r.OPTIONS("", co.OptionsTransactionList)
+		r.GET("", co.GetTransactions)
+		r.POST("", co.CreateTransaction)
 	}
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:transactionId", OptionsTransactionDetail)
-		r.GET("/:transactionId", GetTransaction)
-		r.PATCH("/:transactionId", UpdateTransaction)
-		r.DELETE("/:transactionId", DeleteTransaction)
+		r.OPTIONS("/:transactionId", co.OptionsTransactionDetail)
+		r.GET("/:transactionId", co.GetTransaction)
+		r.PATCH("/:transactionId", co.UpdateTransaction)
+		r.DELETE("/:transactionId", co.DeleteTransaction)
 	}
 }
 
@@ -107,7 +106,7 @@ func RegisterTransactionRoutes(r *gin.RouterGroup) {
 // @Tags        Transactions
 // @Success     204
 // @Router      /v1/transactions [options]
-func OptionsTransactionList(c *gin.Context) {
+func (co Controller) OptionsTransactionList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
@@ -117,14 +116,14 @@ func OptionsTransactionList(c *gin.Context) {
 // @Success     204
 // @Param       transactionId path string true "ID formatted as string"
 // @Router      /v1/transactions/{transactionId} [options]
-func OptionsTransactionDetail(c *gin.Context) {
+func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := getTransactionObject(c, p)
+	_, ok := co.getTransactionObject(c, p)
 	if !ok {
 		return
 	}
@@ -141,7 +140,7 @@ func OptionsTransactionDetail(c *gin.Context) {
 // @Failure     500         {object} httperrors.HTTPError
 // @Param       transaction body     models.TransactionCreate true "Transaction"
 // @Router      /v1/transactions [post]
-func CreateTransaction(c *gin.Context) {
+func (co Controller) CreateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 
 	if err := httputil.BindData(c, &transaction); err != nil {
@@ -149,26 +148,26 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	// Check if the budget that the transaction shoud belong to exists
-	_, ok := getBudgetResource(c, transaction.BudgetID)
+	_, ok := co.getBudgetResource(c, transaction.BudgetID)
 	if !ok {
 		return
 	}
 
 	// Check the source account
-	_, ok = getAccountResource(c, transaction.SourceAccountID)
+	_, ok = co.getAccountResource(c, transaction.SourceAccountID)
 	if !ok {
 		return
 	}
 
 	// Check the destination account
-	_, ok = getAccountResource(c, transaction.DestinationAccountID)
+	_, ok = co.getAccountResource(c, transaction.DestinationAccountID)
 	if !ok {
 		return
 	}
 
 	// Check the envelope ID only if it is set.
 	if transaction.EnvelopeID != nil {
-		_, ok := getEnvelopeResource(c, *transaction.EnvelopeID)
+		_, ok := co.getEnvelopeResource(c, *transaction.EnvelopeID)
 		if !ok {
 			return
 		}
@@ -179,11 +178,11 @@ func CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Create(&transaction)) {
+	if !queryWithRetry(c, co.DB.Create(&transaction)) {
 		return
 	}
 
-	transactionObject, _ := getTransactionObject(c, transaction.ID)
+	transactionObject, _ := co.getTransactionObject(c, transaction.ID)
 	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
 }
 
@@ -205,7 +204,7 @@ func CreateTransaction(c *gin.Context) {
 // @Param       destination query string          false "Filter by destination account ID"
 // @Param       envelope    query string          false "Filter by envelope ID"
 // @Param       reconciled  query bool            false "Filter by reconcilication state"
-func GetTransactions(c *gin.Context) {
+func (co Controller) GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {
 		httperrors.InvalidQueryString(c)
@@ -222,7 +221,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	var query *gorm.DB
-	query = database.DB.Order("date(date) DESC").Where(&models.Transaction{
+	query = co.DB.Order("date(date) DESC").Where(&models.Transaction{
 		TransactionCreate: create,
 	}, queryFields...)
 
@@ -253,7 +252,7 @@ func GetTransactions(c *gin.Context) {
 	// which will be marshalled to an empty JSON array
 	transactionObjects := make([]Transaction, 0)
 	for _, transaction := range transactions {
-		o, _ := getTransactionObject(c, transaction.ID)
+		o, _ := co.getTransactionObject(c, transaction.ID)
 		transactionObjects = append(transactionObjects, o)
 	}
 
@@ -270,14 +269,14 @@ func GetTransactions(c *gin.Context) {
 // @Failure     500           {object} httperrors.HTTPError
 // @Param       transactionId path     string true "ID formatted as string"
 // @Router      /v1/transactions/{transactionId} [get]
-func GetTransaction(c *gin.Context) {
+func (co Controller) GetTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	transactionObject, ok := getTransactionObject(c, p)
+	transactionObject, ok := co.getTransactionObject(c, p)
 	if !ok {
 		return
 	}
@@ -297,14 +296,14 @@ func GetTransaction(c *gin.Context) {
 // @Param       transactionId path     string                   true "ID formatted as string"
 // @Param       transaction   body     models.TransactionCreate true "Transaction"
 // @Router      /v1/transactions/{transactionId} [patch]
-func UpdateTransaction(c *gin.Context) {
+func (co Controller) UpdateTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	transaction, ok := getTransactionResource(c, p)
+	transaction, ok := co.getTransactionResource(c, p)
 	if !ok {
 		return
 	}
@@ -335,7 +334,7 @@ func UpdateTransaction(c *gin.Context) {
 	if data.SourceAccountID != uuid.Nil {
 		sourceAccountID = data.SourceAccountID
 	}
-	_, ok = getAccountResource(c, sourceAccountID)
+	_, ok = co.getAccountResource(c, sourceAccountID)
 	if !ok {
 		return
 	}
@@ -345,24 +344,24 @@ func UpdateTransaction(c *gin.Context) {
 	if data.DestinationAccountID != uuid.Nil {
 		destinationAccountID = data.DestinationAccountID
 	}
-	_, ok = getAccountResource(c, destinationAccountID)
+	_, ok = co.getAccountResource(c, destinationAccountID)
 	if !ok {
 		return
 	}
 
 	// Check the envelope ID only if it is set.
 	if data.EnvelopeID != nil {
-		_, ok := getEnvelopeResource(c, *data.EnvelopeID)
+		_, ok := co.getEnvelopeResource(c, *data.EnvelopeID)
 		if !ok {
 			return
 		}
 	}
 
-	if !queryWithRetry(c, database.DB.Model(&transaction).Select("", updateFields...).Updates(data)) {
+	if !queryWithRetry(c, co.DB.Model(&transaction).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	transactionObject, _ := getTransactionObject(c, p)
+	transactionObject, _ := co.getTransactionObject(c, p)
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
@@ -375,19 +374,19 @@ func UpdateTransaction(c *gin.Context) {
 // @Failure     500           {object} httperrors.HTTPError
 // @Param       transactionId path     string true "ID formatted as string"
 // @Router      /v1/transactions/{transactionId} [delete]
-func DeleteTransaction(c *gin.Context) {
+func (co Controller) DeleteTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	transaction, ok := getTransactionResource(c, p)
+	transaction, ok := co.getTransactionResource(c, p)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Delete(&transaction)) {
+	if !queryWithRetry(c, co.DB.Delete(&transaction)) {
 		return
 	}
 
@@ -395,7 +394,7 @@ func DeleteTransaction(c *gin.Context) {
 }
 
 // getTransactionResource verifies that the request URI is valid for the transaction and returns it.
-func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, bool) {
+func (co Controller) getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, bool) {
 	if id == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "no transaction ID specified")
 		return models.Transaction{}, false
@@ -403,7 +402,7 @@ func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, b
 
 	var transaction models.Transaction
 
-	if !queryWithRetry(c, database.DB.First(&transaction, &models.Transaction{
+	if !queryWithRetry(c, co.DB.First(&transaction, &models.Transaction{
 		Model: models.Model{
 			ID: id,
 		},
@@ -414,8 +413,8 @@ func getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, b
 	return transaction, true
 }
 
-func getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, bool) {
-	resource, ok := getTransactionResource(c, id)
+func (co Controller) getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, bool) {
+	resource, ok := co.getTransactionResource(c, id)
 	if !ok {
 		return Transaction{}, false
 	}

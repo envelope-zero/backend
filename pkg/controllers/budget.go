@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -61,25 +60,25 @@ type BudgetAllocationMode struct {
 
 // RegisterBudgetRoutes registers the routes for budgets with
 // the RouterGroup that is passed.
-func RegisterBudgetRoutes(r *gin.RouterGroup) {
+func (co Controller) RegisterBudgetRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", OptionsBudgetList)
-		r.GET("", GetBudgets)
-		r.POST("", CreateBudget)
+		r.OPTIONS("", co.OptionsBudgetList)
+		r.GET("", co.GetBudgets)
+		r.POST("", co.CreateBudget)
 	}
 
 	// Budget with ID
 	{
-		r.OPTIONS("/:budgetId", OptionsBudgetDetail)
-		r.GET("/:budgetId", GetBudget)
-		r.OPTIONS("/:budgetId/:month", OptionsBudgetMonth)
-		r.GET("/:budgetId/:month", GetBudgetMonth)
-		r.OPTIONS("/:budgetId/:month/allocations", OptionsBudgetMonthAllocations)
-		r.POST("/:budgetId/:month/allocations", SetAllocationsMonth)
-		r.DELETE("/:budgetId/:month/allocations", DeleteAllocationsMonth)
-		r.PATCH("/:budgetId", UpdateBudget)
-		r.DELETE("/:budgetId", DeleteBudget)
+		r.OPTIONS("/:budgetId", co.OptionsBudgetDetail)
+		r.GET("/:budgetId", co.GetBudget)
+		r.OPTIONS("/:budgetId/:month", co.OptionsBudgetMonth)
+		r.GET("/:budgetId/:month", co.GetBudgetMonth)
+		r.OPTIONS("/:budgetId/:month/allocations", co.OptionsBudgetMonthAllocations)
+		r.POST("/:budgetId/:month/allocations", co.SetAllocationsMonth)
+		r.DELETE("/:budgetId/:month/allocations", co.DeleteAllocationsMonth)
+		r.PATCH("/:budgetId", co.UpdateBudget)
+		r.DELETE("/:budgetId", co.DeleteBudget)
 	}
 }
 
@@ -89,7 +88,7 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 // @Success     204
 // @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/budgets [options]
-func OptionsBudgetList(c *gin.Context) {
+func (co Controller) OptionsBudgetList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
@@ -102,14 +101,14 @@ func OptionsBudgetList(c *gin.Context) {
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Router      /v1/budgets/{budgetId} [options]
-func OptionsBudgetDetail(c *gin.Context) {
+func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := getBudgetObject(c, p)
+	_, ok := co.getBudgetObject(c, p)
 	if !ok {
 		return
 	}
@@ -126,7 +125,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string               true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month} [options]
-func OptionsBudgetMonth(c *gin.Context) {
+func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
@@ -139,7 +138,7 @@ func OptionsBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	_, ok := getBudgetObject(c, p)
+	_, ok := co.getBudgetObject(c, p)
 	if !ok {
 		return
 	}
@@ -157,7 +156,7 @@ func OptionsBudgetMonth(c *gin.Context) {
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [options]
-func OptionsBudgetMonthAllocations(c *gin.Context) {
+func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
@@ -170,7 +169,7 @@ func OptionsBudgetMonthAllocations(c *gin.Context) {
 		return
 	}
 
-	_, ok := getBudgetObject(c, p)
+	_, ok := co.getBudgetObject(c, p)
 	if !ok {
 		return
 	}
@@ -187,18 +186,18 @@ func OptionsBudgetMonthAllocations(c *gin.Context) {
 // @Failure     500    {object} httperrors.HTTPError
 // @Param       budget body     models.BudgetCreate true "Budget"
 // @Router      /v1/budgets [post]
-func CreateBudget(c *gin.Context) {
+func (co Controller) CreateBudget(c *gin.Context) {
 	var budget models.Budget
 
 	if err := httputil.BindData(c, &budget); err != nil {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Create(&budget)) {
+	if !queryWithRetry(c, co.DB.Create(&budget)) {
 		return
 	}
 
-	budgetObject, ok := getBudgetObject(c, budget.ID)
+	budgetObject, ok := co.getBudgetObject(c, budget.ID)
 	if !ok {
 		return
 	}
@@ -217,7 +216,7 @@ func CreateBudget(c *gin.Context) {
 // @Param       name     query string false "Filter by name"
 // @Param       note     query string false "Filter by note"
 // @Param       currency query string false "Filter by currency"
-func GetBudgets(c *gin.Context) {
+func (co Controller) GetBudgets(c *gin.Context) {
 	var filter BudgetQueryFilter
 
 	// Every parameter is bound into a string, so this will always succeed
@@ -228,7 +227,7 @@ func GetBudgets(c *gin.Context) {
 
 	var budgets []models.Budget
 
-	if !queryWithRetry(c, database.DB.Where(&models.Budget{
+	if !queryWithRetry(c, co.DB.Where(&models.Budget{
 		BudgetCreate: models.BudgetCreate{
 			Name:     filter.Name,
 			Note:     filter.Note,
@@ -244,7 +243,7 @@ func GetBudgets(c *gin.Context) {
 	budgetObjects := make([]Budget, 0)
 
 	for _, budget := range budgets {
-		o, _ := getBudgetObject(c, budget.ID)
+		o, _ := co.getBudgetObject(c, budget.ID)
 		budgetObjects = append(budgetObjects, o)
 	}
 
@@ -261,14 +260,14 @@ func GetBudgets(c *gin.Context) {
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Router      /v1/budgets/{budgetId} [get]
-func GetBudget(c *gin.Context) {
+func (co Controller) GetBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budgetObject, ok := getBudgetObject(c, p)
+	budgetObject, ok := co.getBudgetObject(c, p)
 	if !ok {
 		return
 	}
@@ -287,14 +286,14 @@ func GetBudget(c *gin.Context) {
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month} [get]
-func GetBudgetMonth(c *gin.Context) {
+func (co Controller) GetBudgetMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budget, ok := getBudgetResource(c, p)
+	budget, ok := co.getBudgetResource(c, p)
 	if !ok {
 		return
 	}
@@ -314,13 +313,13 @@ func GetBudgetMonth(c *gin.Context) {
 
 	var envelopes []models.Envelope
 
-	categories, _ := getCategoryResources(c, budget.ID)
+	categories, _ := co.getCategoryResources(c, budget.ID)
 
 	// Get envelopes for all categories
 	for _, category := range categories {
 		var e []models.Envelope
 
-		if !queryWithRetry(c, database.DB.Where(&models.Envelope{
+		if !queryWithRetry(c, co.DB.Where(&models.Envelope{
 			EnvelopeCreate: models.EnvelopeCreate{
 				CategoryID: category.ID,
 			},
@@ -333,7 +332,7 @@ func GetBudgetMonth(c *gin.Context) {
 
 	var envelopeMonths []models.EnvelopeMonth
 	for _, envelope := range envelopes {
-		envelopeMonth, err := envelope.Month(month.Month)
+		envelopeMonth, err := envelope.Month(co.DB, month.Month)
 		if err != nil {
 			httperrors.Handler(c, err)
 			return
@@ -346,7 +345,7 @@ func GetBudgetMonth(c *gin.Context) {
 	for _, envelope := range envelopes {
 		var a models.Allocation
 
-		if !queryWithRetry(c, database.DB.Where(&models.Allocation{
+		if !queryWithRetry(c, co.DB.Where(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: envelope.ID,
 				Month:      month.Month,
@@ -365,14 +364,14 @@ func GetBudgetMonth(c *gin.Context) {
 	}
 
 	// Calculate the income
-	income, err := budget.Income(month.Month)
+	income, err := budget.Income(co.DB, month.Month)
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
 	}
 
 	// Get the available sum for budgeting
-	available, err := budget.Available(month.Month)
+	available, err := budget.Available(co.DB, month.Month)
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
@@ -401,14 +400,14 @@ func GetBudgetMonth(c *gin.Context) {
 // @Param       budgetId path     string              true "ID formatted as string"
 // @Param       budget   body     models.BudgetCreate true "Budget"
 // @Router      /v1/budgets/{budgetId} [patch]
-func UpdateBudget(c *gin.Context) {
+func (co Controller) UpdateBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budget, ok := getBudgetResource(c, p)
+	budget, ok := co.getBudgetResource(c, p)
 	if !ok {
 		return
 	}
@@ -423,11 +422,11 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Model(&budget).Select("", updateFields...).Updates(data)) {
+	if !queryWithRetry(c, co.DB.Model(&budget).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	budgetObject, ok := getBudgetObject(c, budget.ID)
+	budgetObject, ok := co.getBudgetObject(c, budget.ID)
 	if !ok {
 		httperrors.Handler(c, err)
 		return
@@ -444,19 +443,19 @@ func UpdateBudget(c *gin.Context) {
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
 // @Router      /v1/budgets/{budgetId} [delete]
-func DeleteBudget(c *gin.Context) {
+func (co Controller) DeleteBudget(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budget, ok := getBudgetResource(c, p)
+	budget, ok := co.getBudgetResource(c, p)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Delete(&budget)) {
+	if !queryWithRetry(c, co.DB.Delete(&budget)) {
 		return
 	}
 
@@ -472,7 +471,7 @@ func DeleteBudget(c *gin.Context) {
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Param       budgetId path     string               true "Budget ID formatted as string"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [delete]
-func DeleteAllocationsMonth(c *gin.Context) {
+func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	budgetID, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
@@ -480,7 +479,7 @@ func DeleteAllocationsMonth(c *gin.Context) {
 	}
 
 	// If the budget does not exist, abort the request
-	_, ok := getBudgetResource(c, budgetID)
+	_, ok := co.getBudgetResource(c, budgetID)
 	if !ok {
 		return
 	}
@@ -498,7 +497,7 @@ func DeleteAllocationsMonth(c *gin.Context) {
 	// We query for all allocations here
 	var allocations []models.Allocation
 
-	if !queryWithRetry(c, database.DB.
+	if !queryWithRetry(c, co.DB.
 		Joins("JOIN envelopes ON envelopes.id = allocations.envelope_id").
 		Joins("JOIN categories ON categories.id = envelopes.category_id").
 		Joins("JOIN budgets on budgets.id = categories.budget_id").
@@ -509,7 +508,7 @@ func DeleteAllocationsMonth(c *gin.Context) {
 	}
 
 	for _, allocation := range allocations {
-		if !queryWithRetry(c, database.DB.Unscoped().Delete(&allocation)) {
+		if !queryWithRetry(c, co.DB.Unscoped().Delete(&allocation)) {
 			return
 		}
 	}
@@ -527,7 +526,7 @@ func DeleteAllocationsMonth(c *gin.Context) {
 // @Param       budgetId path     string true "Budget ID formatted as string"
 // @Param       mode     body     BudgetAllocationMode true "Budget"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [post]
-func SetAllocationsMonth(c *gin.Context) {
+func (co Controller) SetAllocationsMonth(c *gin.Context) {
 	budgetID, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
@@ -535,7 +534,7 @@ func SetAllocationsMonth(c *gin.Context) {
 	}
 
 	// If the budget does not exist, abort the request
-	_, ok := getBudgetResource(c, budgetID)
+	_, ok := co.getBudgetResource(c, budgetID)
 	if !ok {
 		return
 	}
@@ -563,7 +562,7 @@ func SetAllocationsMonth(c *gin.Context) {
 	requestMonth := time.Date(month.Month.Year(), month.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 	pastMonth := requestMonth.AddDate(0, -1, 0)
 
-	queryCurrentMonth := database.DB.Select("id").Table("allocations").Where("allocations.envelope_id = envelopes.id AND allocations.month = ?", requestMonth)
+	queryCurrentMonth := co.DB.Select("id").Table("allocations").Where("allocations.envelope_id = envelopes.id AND allocations.month = ?", requestMonth)
 
 	// Get all envelopes that do not have an allocation for the target month
 	// but for the month before
@@ -574,7 +573,7 @@ func SetAllocationsMonth(c *gin.Context) {
 
 	// Get all envelope IDs and allocation amounts where there is no allocation
 	// for the request month, but one for the last month
-	if !queryWithRetry(c, database.DB.
+	if !queryWithRetry(c, co.DB.
 		Joins("JOIN allocations ON allocations.envelope_id = envelopes.id AND allocations.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
 		Select("envelopes.id, allocations.amount").
 		Table("envelopes").
@@ -587,10 +586,10 @@ func SetAllocationsMonth(c *gin.Context) {
 		// If the mode is the spend of last month, calculate and set it
 		amount := allocation.Amount
 		if data.Mode == AllocateLastMonthSpend {
-			amount = models.Envelope{Model: models.Model{ID: allocation.EnvelopeID}}.Spent(pastMonth)
+			amount = models.Envelope{Model: models.Model{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth)
 		}
 
-		if !queryWithRetry(c, database.DB.Create(&models.Allocation{
+		if !queryWithRetry(c, co.DB.Create(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: allocation.EnvelopeID,
 				Amount:     amount,
@@ -607,7 +606,7 @@ func SetAllocationsMonth(c *gin.Context) {
 // getBudgetResource is the internal helper to verify permissions and return a budget.
 //
 // It returns a Budget and a boolean indicating success.
-func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, bool) {
+func (co Controller) getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, bool) {
 	if id == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "No budget ID specified")
 		return models.Budget{}, false
@@ -615,7 +614,7 @@ func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, bool) {
 
 	var budget models.Budget
 
-	if !queryWithRetry(c, database.DB.Where(&models.Budget{
+	if !queryWithRetry(c, co.DB.Where(&models.Budget{
 		Model: models.Model{
 			ID: id,
 		},
@@ -623,11 +622,11 @@ func getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, bool) {
 		return models.Budget{}, false
 	}
 
-	return budget.WithCalculations(), true
+	return budget.WithCalculations(co.DB), true
 }
 
-func getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool) {
-	resource, ok := getBudgetResource(c, id)
+func (co Controller) getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool) {
+	resource, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return Budget{}, false
 	}

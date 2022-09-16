@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -33,11 +32,11 @@ type EnvelopeMonth struct {
 }
 
 // Spent returns the amount spent for the month the time.Time instance is in.
-func (e Envelope) Spent(t time.Time) decimal.Decimal {
+func (e Envelope) Spent(db *gorm.DB, t time.Time) decimal.Decimal {
 	// All transactions where the Envelope ID matches and that have an external account as source and an internal account as destination
 	var incoming []Transaction
 
-	database.DB.Joins("SourceAccount").Joins("DestinationAccount").Where(
+	db.Joins("SourceAccount").Joins("DestinationAccount").Where(
 		"SourceAccount__external = 1 AND DestinationAccount__external = 0 AND transactions.envelope_id = ?", e.ID,
 	).Find(&incoming)
 
@@ -50,7 +49,7 @@ func (e Envelope) Spent(t time.Time) decimal.Decimal {
 	}
 
 	var outgoing []Transaction
-	database.DB.Joins("SourceAccount").Joins("DestinationAccount").Where(
+	db.Joins("SourceAccount").Joins("DestinationAccount").Where(
 		"SourceAccount__external = 0 AND DestinationAccount__external = 1 AND transactions.envelope_id = ?", e.ID,
 	).Find(&outgoing)
 
@@ -68,14 +67,14 @@ func (e Envelope) Spent(t time.Time) decimal.Decimal {
 // Balance calculates the balance of an Envelope in a specific month
 // This code performs negative and positive rollover. See also
 // https://github.com/envelope-zero/backend/issues/327
-func (e Envelope) Balance(month time.Time) (decimal.Decimal, error) {
+func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
 	// We add one month as the balance should include all transactions and the allocation for the present month
 	// With that, we can query for all resources where the date/month is < the month
 	month = time.Date(month.Year(), month.AddDate(0, 1, 0).Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	// Sum of incoming transactions
 	var incoming decimal.NullDecimal
-	err := database.DB.
+	err := db.
 		Table("transactions").
 		Select("SUM(amount)").
 		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
@@ -94,7 +93,7 @@ func (e Envelope) Balance(month time.Time) (decimal.Decimal, error) {
 
 	// Sum of outgoing transactions
 	var outgoing decimal.NullDecimal
-	err = database.DB.
+	err = db.
 		Table("transactions").
 		Select("SUM(amount)").
 		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
@@ -112,7 +111,7 @@ func (e Envelope) Balance(month time.Time) (decimal.Decimal, error) {
 	}
 
 	var budgeted decimal.NullDecimal
-	err = database.DB.
+	err = db.
 		Select("SUM(amount)").
 		Where("allocations.envelope_id = ?", e.ID).
 		Where("allocations.month < date(?) ", month).
@@ -132,8 +131,8 @@ func (e Envelope) Balance(month time.Time) (decimal.Decimal, error) {
 }
 
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth for them.
-func (e Envelope) Month(t time.Time) (EnvelopeMonth, error) {
-	spent := e.Spent(t)
+func (e Envelope) Month(db *gorm.DB, t time.Time) (EnvelopeMonth, error) {
+	spent := e.Spent(db, t)
 	month := time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	envelopeMonth := EnvelopeMonth{
@@ -146,7 +145,7 @@ func (e Envelope) Month(t time.Time) (EnvelopeMonth, error) {
 	}
 
 	var allocation Allocation
-	err := database.DB.First(&allocation, &Allocation{
+	err := db.First(&allocation, &Allocation{
 		AllocationCreate: AllocationCreate{
 			EnvelopeID: e.ID,
 			Month:      month,
@@ -158,7 +157,7 @@ func (e Envelope) Month(t time.Time) (EnvelopeMonth, error) {
 		return EnvelopeMonth{}, err
 	}
 
-	envelopeMonth.Balance, err = e.Balance(month)
+	envelopeMonth.Balance, err = e.Balance(db, month)
 	if err != nil {
 		return EnvelopeMonth{}, err
 	}

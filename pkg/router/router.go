@@ -101,7 +101,7 @@ func Config() (*gin.Engine, error) {
 // AttachRoutes attaches the API routes to the router group that is passed in
 // Separating this from RouterConfig() allows us to attach it to different
 // paths for different use cases, e.g. the standalone version.
-func AttachRoutes(group *gin.RouterGroup) {
+func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	group.GET("", GetRoot)
 	group.OPTIONS("", OptionsRoot)
 	group.GET("/version", GetVersion)
@@ -114,16 +114,16 @@ func AttachRoutes(group *gin.RouterGroup) {
 	v1 := group.Group("/v1")
 	{
 		v1.GET("", GetV1)
-		v1.DELETE("", controllers.DeleteAll)
+		v1.DELETE("", co.DeleteAll)
 		v1.OPTIONS("", OptionsV1)
 	}
 
-	controllers.RegisterBudgetRoutes(v1.Group("/budgets"))
-	controllers.RegisterAccountRoutes(v1.Group("/accounts"))
-	controllers.RegisterTransactionRoutes(v1.Group("/transactions"))
-	controllers.RegisterCategoryRoutes(v1.Group("/categories"))
-	controllers.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
-	controllers.RegisterAllocationRoutes(v1.Group("/allocations"))
+	co.RegisterBudgetRoutes(v1.Group("/budgets"))
+	co.RegisterAccountRoutes(v1.Group("/accounts"))
+	co.RegisterTransactionRoutes(v1.Group("/transactions"))
+	co.RegisterCategoryRoutes(v1.Group("/categories"))
+	co.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
+	co.RegisterAllocationRoutes(v1.Group("/allocations"))
 }
 
 type RootResponse struct {

@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -13,13 +12,13 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	marchFifteenthTwentyTwentyTwo := time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC)
 
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
 	emptyBudget := models.Budget{}
-	err = database.DB.Save(&emptyBudget).Error
+	err = suite.db.Save(&emptyBudget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -31,7 +30,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			External: false,
 		},
 	}
-	err = database.DB.Save(&bankAccount).Error
+	err = suite.db.Save(&bankAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -43,7 +42,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			External: false,
 		},
 	}
-	err = database.DB.Save(&cashAccount).Error
+	err = suite.db.Save(&cashAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -54,7 +53,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			External: true,
 		},
 	}
-	err = database.DB.Save(&employerAccount).Error
+	err = suite.db.Save(&employerAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -65,7 +64,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			External: true,
 		},
 	}
-	err = database.DB.Save(&groceryAccount).Error
+	err = suite.db.Save(&groceryAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -75,7 +74,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Save(&category).Error
+	err = suite.db.Save(&category).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -85,7 +84,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			CategoryID: category.ID,
 		},
 	}
-	err = database.DB.Save(&envelope).Error
+	err = suite.db.Save(&envelope).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -97,7 +96,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	err = database.DB.Save(&allocation1).Error
+	err = suite.db.Save(&allocation1).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -109,7 +108,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	err = database.DB.Save(&allocation2).Error
+	err = suite.db.Save(&allocation2).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -121,7 +120,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Month:      marchFifteenthTwentyTwentyTwo,
 		},
 	}
-	err = database.DB.Save(&allocationCurrentMonth).Error
+	err = suite.db.Save(&allocationCurrentMonth).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -133,7 +132,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Month:      time.Date(2170, 2, 1, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	err = database.DB.Save(&allocationFuture).Error
+	err = suite.db.Save(&allocationFuture).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -149,7 +148,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Amount:               decimal.NewFromFloat(1800),
 		},
 	}
-	err = database.DB.Save(&salaryTransactionFebruary).Error
+	err = suite.db.Save(&salaryTransactionFebruary).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -165,7 +164,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Amount:               decimal.NewFromFloat(2800),
 		},
 	}
-	err = database.DB.Save(&salaryTransactionMarch).Error
+	err = suite.db.Save(&salaryTransactionMarch).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -181,7 +180,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Amount:               decimal.NewFromFloat(2800),
 		},
 	}
-	err = database.DB.Save(&salaryTransactionApril).Error
+	err = suite.db.Save(&salaryTransactionApril).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -196,7 +195,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Amount:               decimal.NewFromFloat(87.45),
 		},
 	}
-	err = database.DB.Save(&outgoingTransactionBank).Error
+	err = suite.db.Save(&outgoingTransactionBank).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -211,7 +210,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Amount:               decimal.NewFromFloat(23.17),
 		},
 	}
-	err = database.DB.Save(&outgoingTransactionCash).Error
+	err = suite.db.Save(&outgoingTransactionCash).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -225,95 +224,95 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 			Amount:               decimal.NewFromFloat(20),
 		},
 	}
-	err = database.DB.Save(&overspendTransaction).Error
+	err = suite.db.Save(&overspendTransaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	budget = budget.WithCalculations()
+	budget = budget.WithCalculations(suite.db)
 
 	shouldBalance := decimal.NewFromFloat(7269.38)
 	assert.True(suite.T(), budget.Balance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, budget.Balance)
 
 	// Verify income for used budget in March
 	shouldIncome := decimal.NewFromFloat(4600)
-	income, err := budget.Income(marchFifteenthTwentyTwentyTwo)
+	income, err := budget.Income(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncome), "Income is %s, should be %s", income, shouldIncome)
 
 	// Verify total income for used budget
 	shouldIncomeTotal := decimal.NewFromFloat(4600)
-	income, err = budget.TotalIncome(marchFifteenthTwentyTwentyTwo)
+	income, err = budget.TotalIncome(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncomeTotal), "Income is %s, should be %s", income, shouldIncomeTotal)
 
 	// Verify income for empty budget in March
-	income, err = emptyBudget.Income(marchFifteenthTwentyTwentyTwo)
+	income, err = emptyBudget.Income(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify total income for empty budget
-	income, err = emptyBudget.TotalIncome(marchFifteenthTwentyTwentyTwo)
+	income, err = emptyBudget.TotalIncome(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify total budgeted for used budget
-	budgeted, err := budget.TotalBudgeted(marchFifteenthTwentyTwentyTwo)
+	budgeted, err := budget.TotalBudgeted(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
 
 	// Verify total budgeted for empty budget
-	budgeted, err = emptyBudget.TotalBudgeted(marchFifteenthTwentyTwentyTwo)
+	budgeted, err = emptyBudget.TotalBudgeted(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 
 	// Verify overspent calculation for month without spend
-	overspent, err := budget.Overspent(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	overspent, err := budget.Overspent(suite.db, time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), overspent.IsZero(), "Overspent is %s, should be 0", overspent)
 
 	// Verify overspent calculation for month with spend
-	overspent, err = budget.Overspent(marchFifteenthTwentyTwentyTwo)
+	overspent, err = budget.Overspent(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), overspent.Equal(decimal.NewFromFloat(20)), "Overspent is %s, should be 20", overspent)
 
-	available, err := budget.Available(marchFifteenthTwentyTwentyTwo)
+	available, err := budget.Available(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(4513)), "Available is %s, should be 4513", available)
 }
 
 func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	income, err := budget.Income(time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC))
+	income, err := budget.Income(suite.db, time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }
 
 func (suite *TestSuiteStandard) TestTotalIncomeNoTransactions() {
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	income, err := budget.TotalIncome(time.Date(2031, 3, 17, 0, 0, 0, 0, time.UTC))
+	income, err := budget.TotalIncome(suite.db, time.Date(2031, 3, 17, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }
 
 func (suite *TestSuiteStandard) TestTotalBudgetedNoTransactions() {
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	budgeted, err := budget.TotalBudgeted(time.Date(1913, 8, 3, 0, 0, 0, 0, time.UTC))
+	budgeted, err := budget.TotalBudgeted(suite.db, time.Date(1913, 8, 3, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", budgeted)
 }

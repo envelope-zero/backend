@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -52,20 +51,20 @@ func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, er
 
 // RegisterCategoryRoutes registers the routes for categories with
 // the RouterGroup that is passed.
-func RegisterCategoryRoutes(r *gin.RouterGroup) {
+func (co Controller) RegisterCategoryRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", OptionsCategoryList)
-		r.GET("", GetCategories)
-		r.POST("", CreateCategory)
+		r.OPTIONS("", co.OptionsCategoryList)
+		r.GET("", co.GetCategories)
+		r.POST("", co.CreateCategory)
 	}
 
 	// Category with ID
 	{
-		r.OPTIONS("/:categoryId", OptionsCategoryDetail)
-		r.GET("/:categoryId", GetCategory)
-		r.PATCH("/:categoryId", UpdateCategory)
-		r.DELETE("/:categoryId", DeleteCategory)
+		r.OPTIONS("/:categoryId", co.OptionsCategoryDetail)
+		r.GET("/:categoryId", co.GetCategory)
+		r.PATCH("/:categoryId", co.UpdateCategory)
+		r.DELETE("/:categoryId", co.DeleteCategory)
 	}
 }
 
@@ -76,7 +75,7 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 // @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
 // @Router      /v1/categories [options]
-func OptionsCategoryList(c *gin.Context) {
+func (co Controller) OptionsCategoryList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
@@ -88,14 +87,14 @@ func OptionsCategoryList(c *gin.Context) {
 // @Failure     404
 // @Param       categoryId path string true "ID formatted as string"
 // @Router      /v1/categories/{categoryId} [options]
-func OptionsCategoryDetail(c *gin.Context) {
+func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := getCategoryObject(c, p)
+	_, ok := co.getCategoryObject(c, p)
 	if !ok {
 		return
 	}
@@ -112,7 +111,7 @@ func OptionsCategoryDetail(c *gin.Context) {
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       category body     models.CategoryCreate true "Category"
 // @Router      /v1/categories [post]
-func CreateCategory(c *gin.Context) {
+func (co Controller) CreateCategory(c *gin.Context) {
 	var category models.Category
 
 	err := httputil.BindData(c, &category)
@@ -120,16 +119,16 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	_, ok := getBudgetResource(c, category.BudgetID)
+	_, ok := co.getBudgetResource(c, category.BudgetID)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Create(&category)) {
+	if !queryWithRetry(c, co.DB.Create(&category)) {
 		return
 	}
 
-	categoryObject, _ := getCategoryObject(c, category.ID)
+	categoryObject, _ := co.getCategoryObject(c, category.ID)
 	c.JSON(http.StatusCreated, CategoryResponse{Data: categoryObject})
 }
 
@@ -145,7 +144,7 @@ func CreateCategory(c *gin.Context) {
 // @Param       name   query string false "Filter by name"
 // @Param       note   query string false "Filter by note"
 // @Param       budget query string false "Filter by budget ID"
-func GetCategories(c *gin.Context) {
+func (co Controller) GetCategories(c *gin.Context) {
 	var filter CategoryQueryFilter
 
 	// Every parameter is bound into a string, so this will always succeed
@@ -161,7 +160,7 @@ func GetCategories(c *gin.Context) {
 	}
 
 	var categories []models.Category
-	if !queryWithRetry(c, database.DB.Where(&models.Category{
+	if !queryWithRetry(c, co.DB.Where(&models.Category{
 		CategoryCreate: create,
 	}, queryFields...).Find(&categories)) {
 		return
@@ -173,7 +172,7 @@ func GetCategories(c *gin.Context) {
 	categoryObjects := make([]Category, 0)
 
 	for _, category := range categories {
-		o, _ := getCategoryObject(c, category.ID)
+		o, _ := co.getCategoryObject(c, category.ID)
 		categoryObjects = append(categoryObjects, o)
 	}
 
@@ -190,14 +189,14 @@ func GetCategories(c *gin.Context) {
 // @Failure     500        {object} httperrors.HTTPError
 // @Param       categoryId path     string true "ID formatted as string"
 // @Router      /v1/categories/{categoryId} [get]
-func GetCategory(c *gin.Context) {
+func (co Controller) GetCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	categoryObject, ok := getCategoryObject(c, p)
+	categoryObject, ok := co.getCategoryObject(c, p)
 	if !ok {
 		return
 	}
@@ -217,14 +216,14 @@ func GetCategory(c *gin.Context) {
 // @Param       categoryId path     string                true "ID formatted as string"
 // @Param       category   body     models.CategoryCreate true "Category"
 // @Router      /v1/categories/{categoryId} [patch]
-func UpdateCategory(c *gin.Context) {
+func (co Controller) UpdateCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	category, ok := getCategoryResource(c, p)
+	category, ok := co.getCategoryResource(c, p)
 	if !ok {
 		return
 	}
@@ -239,11 +238,11 @@ func UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Model(&category).Select("", updateFields...).Updates(data)) {
+	if !queryWithRetry(c, co.DB.Model(&category).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	categoryObject, _ := getCategoryObject(c, category.ID)
+	categoryObject, _ := co.getCategoryObject(c, category.ID)
 	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
 
@@ -256,26 +255,26 @@ func UpdateCategory(c *gin.Context) {
 // @Failure     500        {object} httperrors.HTTPError
 // @Param       categoryId path     string true "ID formatted as string"
 // @Router      /v1/categories/{categoryId} [delete]
-func DeleteCategory(c *gin.Context) {
+func (co Controller) DeleteCategory(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	category, ok := getCategoryResource(c, p)
+	category, ok := co.getCategoryResource(c, p)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Delete(&category)) {
+	if !queryWithRetry(c, co.DB.Delete(&category)) {
 		return
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, bool) {
+func (co Controller) getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, bool) {
 	if id == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "No category ID specified")
 		return models.Category{}, false
@@ -283,7 +282,7 @@ func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, bool) {
 
 	var category models.Category
 
-	if !queryWithRetry(c, database.DB.Where(&models.Category{
+	if !queryWithRetry(c, co.DB.Where(&models.Category{
 		Model: models.Model{
 			ID: id,
 		},
@@ -295,10 +294,10 @@ func getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, bool) {
 }
 
 // getCategoryResources returns all categories for the requested budget.
-func getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, bool) {
+func (co Controller) getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, bool) {
 	var categories []models.Category
 
-	if !queryWithRetry(c, database.DB.Where(&models.Category{
+	if !queryWithRetry(c, co.DB.Where(&models.Category{
 		CategoryCreate: models.CategoryCreate{
 			BudgetID: id,
 		},
@@ -309,13 +308,13 @@ func getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, bool
 	return categories, true
 }
 
-func getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
-	resource, ok := getCategoryResource(c, id)
+func (co Controller) getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
+	resource, ok := co.getCategoryResource(c, id)
 	if !ok {
 		return Category{}, false
 	}
 
-	envelopes, ok := getEnvelopeObjects(c, id)
+	envelopes, ok := co.getEnvelopeObjects(c, id)
 	if !ok {
 		return Category{}, false
 	}

@@ -19,7 +19,7 @@ var methodNotAllowedTests = []struct {
 
 func (suite *TestSuiteStandard) TestMethodNotAllowed() {
 	for _, tt := range methodNotAllowedTests {
-		recorder := test.Request(suite.T(), tt.method, tt.path, "")
+		recorder := test.Request(suite.controller, suite.T(), tt.method, tt.path, "")
 
 		test.AssertHTTPStatus(suite.T(), http.StatusMethodNotAllowed, &recorder)
 	}

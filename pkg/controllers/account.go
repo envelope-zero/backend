@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -55,20 +54,20 @@ func (a AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, erro
 
 // RegisterAccountRoutes registers the routes for accounts with
 // the RouterGroup that is passed.
-func RegisterAccountRoutes(r *gin.RouterGroup) {
+func (co Controller) RegisterAccountRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", OptionsAccountList)
-		r.GET("", GetAccounts)
-		r.POST("", CreateAccount)
+		r.OPTIONS("", co.OptionsAccountList)
+		r.GET("", co.GetAccounts)
+		r.POST("", co.CreateAccount)
 	}
 
 	// Account with ID
 	{
-		r.OPTIONS("/:accountId", OptionsAccountDetail)
-		r.GET("/:accountId", GetAccount)
-		r.PATCH("/:accountId", UpdateAccount)
-		r.DELETE("/:accountId", DeleteAccount)
+		r.OPTIONS("/:accountId", co.OptionsAccountDetail)
+		r.GET("/:accountId", co.GetAccount)
+		r.PATCH("/:accountId", co.UpdateAccount)
+		r.DELETE("/:accountId", co.DeleteAccount)
 	}
 }
 
@@ -79,7 +78,7 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 // @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
 // @Router      /v1/accounts [options]
-func OptionsAccountList(c *gin.Context) {
+func (co Controller) OptionsAccountList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
@@ -91,14 +90,14 @@ func OptionsAccountList(c *gin.Context) {
 // @Failure     404
 // @Param       accountId path string true "ID formatted as string"
 // @Router      /v1/accounts/{accountId} [options]
-func OptionsAccountDetail(c *gin.Context) {
+func (co Controller) OptionsAccountDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := getAccountObject(c, p)
+	_, ok := co.getAccountObject(c, p)
 	if !ok {
 		return
 	}
@@ -115,7 +114,7 @@ func OptionsAccountDetail(c *gin.Context) {
 // @Failure     500     {object} httperrors.HTTPError
 // @Param       account body     models.AccountCreate true "Account"
 // @Router      /v1/accounts [post]
-func CreateAccount(c *gin.Context) {
+func (co Controller) CreateAccount(c *gin.Context) {
 	var account models.Account
 
 	if err := httputil.BindData(c, &account); err != nil {
@@ -123,16 +122,16 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// Check if the budget that the account shoud belong to exists
-	_, ok := getBudgetResource(c, account.BudgetID)
+	_, ok := co.getBudgetResource(c, account.BudgetID)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Create(&account)) {
+	if !queryWithRetry(c, co.DB.Create(&account)) {
 		return
 	}
 
-	accountObject, _ := getAccountObject(c, account.ID)
+	accountObject, _ := co.getAccountObject(c, account.ID)
 	c.JSON(http.StatusCreated, AccountResponse{Data: accountObject})
 }
 
@@ -150,7 +149,7 @@ func CreateAccount(c *gin.Context) {
 // @Param       budget   query string false "Filter by budget ID"
 // @Param       onBudget query bool   false "Filter by on/off-budget"
 // @Param       external query bool   false "Filter internal/external"
-func GetAccounts(c *gin.Context) {
+func (co Controller) GetAccounts(c *gin.Context) {
 	var filter AccountQueryFilter
 	if err := c.Bind(&filter); err != nil {
 		httperrors.InvalidQueryString(c)
@@ -167,7 +166,7 @@ func GetAccounts(c *gin.Context) {
 	}
 
 	var accounts []models.Account
-	if !queryWithRetry(c, database.DB.Where(&models.Account{
+	if !queryWithRetry(c, co.DB.Where(&models.Account{
 		AccountCreate: create,
 	}, queryFields...).Find(&accounts)) {
 		return
@@ -179,7 +178,7 @@ func GetAccounts(c *gin.Context) {
 	accountObjects := make([]Account, 0)
 
 	for _, account := range accounts {
-		o, _ := getAccountObject(c, account.ID)
+		o, _ := co.getAccountObject(c, account.ID)
 		accountObjects = append(accountObjects, o)
 	}
 
@@ -196,14 +195,14 @@ func GetAccounts(c *gin.Context) {
 // @Failure     500       {object} httperrors.HTTPError
 // @Param       accountId path     string true "ID formatted as string"
 // @Router      /v1/accounts/{accountId} [get]
-func GetAccount(c *gin.Context) {
+func (co Controller) GetAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	accountObject, ok := getAccountObject(c, p)
+	accountObject, ok := co.getAccountObject(c, p)
 	if !ok {
 		return
 	}
@@ -222,14 +221,14 @@ func GetAccount(c *gin.Context) {
 // @Param       accountId path     string               true "ID formatted as string"
 // @Param       account   body     models.AccountCreate true "Account"
 // @Router      /v1/accounts/{accountId} [patch]
-func UpdateAccount(c *gin.Context) {
+func (co Controller) UpdateAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	account, ok := getAccountResource(c, p)
+	account, ok := co.getAccountResource(c, p)
 	if !ok {
 		return
 	}
@@ -244,11 +243,11 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Model(&account).Select("", updateFields...).Updates(data)) {
+	if !queryWithRetry(c, co.DB.Model(&account).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	accountObject, _ := getAccountObject(c, account.ID)
+	accountObject, _ := co.getAccountObject(c, account.ID)
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
 
@@ -262,19 +261,19 @@ func UpdateAccount(c *gin.Context) {
 // @Failure     500       {object} httperrors.HTTPError
 // @Param       accountId path     string true "ID formatted as string"
 // @Router      /v1/accounts/{accountId} [delete]
-func DeleteAccount(c *gin.Context) {
+func (co Controller) DeleteAccount(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	account, ok := getAccountResource(c, p)
+	account, ok := co.getAccountResource(c, p)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Delete(&account)) {
+	if !queryWithRetry(c, co.DB.Delete(&account)) {
 		return
 	}
 
@@ -282,7 +281,7 @@ func DeleteAccount(c *gin.Context) {
 }
 
 // getAccountResource is the internal helper to verify permissions and return an account.
-func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, bool) {
+func (co Controller) getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, bool) {
 	if id == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "no account ID specified")
 		return models.Account{}, false
@@ -290,7 +289,7 @@ func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, bool) {
 
 	var account models.Account
 
-	if !queryWithRetry(c, database.DB.Where(&models.Account{
+	if !queryWithRetry(c, co.DB.Where(&models.Account{
 		Model: models.Model{
 			ID: id,
 		},
@@ -301,14 +300,14 @@ func getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, bool) {
 	return account, true
 }
 
-func getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
-	resource, ok := getAccountResource(c, id)
+func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
+	resource, ok := co.getAccountResource(c, id)
 	if !ok {
 		return Account{}, false
 	}
 
 	return Account{
-		resource.WithCalculations(),
+		resource.WithCalculations(co.DB),
 		AccountLinks{
 			Self:         fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), resource.ID),
 			Transactions: fmt.Sprintf("%s/v1/transactions?account=%s", c.GetString("baseURL"), resource.ID),

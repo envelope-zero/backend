@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/pkg/router"
@@ -44,16 +45,23 @@ func main() {
 	}
 	log.Logger = log.Output(output).With().Logger()
 
-	// Connect to and migrate the database
-	err := database.Database()
+	// Create data directory
+	err := database.CreateDir("data")
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
 
-	err = models.MigrateDatabase()
+	db, err := database.Connect("data/gorm.db?_pragma=foreign_keys(1)")
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
+
+	err = models.Migrate(db)
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+
+	controller := controllers.Controller{DB: db}
 
 	r, err := router.Config()
 	if err != nil {
@@ -61,7 +69,7 @@ func main() {
 	}
 
 	// Attach the routes to the root URL
-	router.AttachRoutes(r.Group("/"))
+	router.AttachRoutes(controller, r.Group("/"))
 
 	// Set the port to the env variable, default to 8080
 	port := os.Getenv("PORT")

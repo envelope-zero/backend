@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/router"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ type APIResponse struct {
 }
 
 // Request is a helper method to simplify making a HTTP request for tests.
-func Request(t *testing.T, method, url string, body any, headers ...map[string]string) httptest.ResponseRecorder {
+func Request(co controllers.Controller, t *testing.T, method, url string, body any, headers ...map[string]string) httptest.ResponseRecorder {
 	var byteStr []byte
 	var err error
 
@@ -45,7 +46,7 @@ func Request(t *testing.T, method, url string, body any, headers ...map[string]s
 	if err != nil {
 		assert.FailNow(t, "Router could not be initialized")
 	}
-	router.AttachRoutes(r.Group("/"))
+	router.AttachRoutes(co, r.Group("/"))
 
 	recorder := httptest.NewRecorder()
 	req, _ := http.NewRequest(method, url, bytes.NewBuffer(byteStr))

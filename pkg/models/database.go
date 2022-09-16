@@ -1,15 +1,16 @@
 package models
 
 import (
-	"github.com/envelope-zero/backend/pkg/database"
+	"fmt"
+
+	"gorm.io/gorm"
 )
 
-// MigrateDatabase migrates all models.
-func MigrateDatabase() error {
-	// Migrate all models so that the schema is correct
-	err := database.DB.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{})
+// Migrate migrates all models to the schema defined in the code.
+func Migrate(db *gorm.DB) error {
+	err := db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{})
 	if err != nil {
-		return err
+		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
 	return nil
