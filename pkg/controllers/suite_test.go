@@ -5,16 +5,19 @@ import (
 	"os"
 	"testing"
 
+	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
-	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/suite"
 )
 
-// Environment for the test suite. Used to save the database connection.
-type TestSuiteStandard struct {
+type TestSuiteType struct {
 	suite.Suite
+	controller controllers.Controller
 }
+
+// Environment for the test suite. Used to save the database connection.
+type TestSuiteStandard TestSuiteType
 
 // Pseudo-Test run by go test that runs the test suite.
 func TestStandard(t *testing.T) {
@@ -29,32 +32,31 @@ func (suite *TestSuiteStandard) SetupSuite() {
 
 // TearDownTest is called after each test in the suite.
 func (suite *TestSuiteStandard) TearDownTest() {
-	sqlDB, err := database.DB.DB()
+	sqlDB, err := suite.controller.DB.DB()
 	if err != nil {
-		log.Fatalf("Database connection for teardown failed with: %s", err.Error())
+		log.Fatalf("Database connection for teardown failed with: %#v", err)
 	}
 	sqlDB.Close()
 }
 
 // SetupTest is called before each test in the suite.
 func (suite *TestSuiteStandard) SetupTest() {
-	err := database.ConnectDatabase(sqlite.Open, ":memory:?_pragma=foreign_keys(1)")
+	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
-		log.Fatalf("Database initialization failed with: %s", err.Error())
+		log.Fatalf("Database initialization failed with: %#v", err)
 	}
 
-	// Migrate all models so that the schema is correct
-	err = database.DB.AutoMigrate(models.Budget{}, models.Account{}, models.Category{}, models.Envelope{}, models.Transaction{}, models.Allocation{})
+	models.Migrate(db)
 	if err != nil {
-		log.Fatalf("Database migration failed with: %s", err.Error())
+		log.Fatalf("Database migration failed with: %#v", err)
 	}
+
+	suite.controller = controllers.Controller{db}
 }
 
 // TestSuiteClosedDB is used for tests against an already
 // closed database connection.
-type TestSuiteClosedDB struct {
-	suite.Suite
-}
+type TestSuiteClosedDB TestSuiteType
 
 // Pseudo-Test run by go test that runs the test suite.
 func TestClosedDB(t *testing.T) {
@@ -69,23 +71,30 @@ func (suite *TestSuiteClosedDB) SetupSuite() {
 
 // SetupTest is called before each test in the suite.
 func (suite *TestSuiteClosedDB) SetupTest() {
-	err := database.ConnectDatabase(sqlite.Open, ":memory:?_pragma=foreign_keys(1)")
+	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
-		log.Fatalf("Database initialization failed with: %s", err.Error())
+		log.Fatalf("Database initialization failed with: %#v", err)
 	}
 
-	sqlDB, err := database.DB.DB()
+	models.Migrate(db)
 	if err != nil {
-		log.Fatalf("Database connection failed with: %s", err.Error())
+		log.Fatalf("Database migration failed with: %#v", err)
+	}
+
+	suite.controller = controllers.Controller{db}
+
+	sqlDB, err := suite.controller.DB.DB()
+	if err != nil {
+		log.Fatalf("Database connection failed with: %#v", err)
 	}
 	sqlDB.Close()
 }
 
 // TearDownTest is called after each test in the suite.
 func (suite *TestSuiteClosedDB) TearDownTest() {
-	sqlDB, err := database.DB.DB()
+	sqlDB, err := suite.controller.DB.DB()
 	if err != nil {
-		log.Fatalf("Database connection for teardown failed with: %s", err.Error())
+		log.Fatalf("Database connection for teardown failed with: %#v", err)
 	}
 	sqlDB.Close()
 }

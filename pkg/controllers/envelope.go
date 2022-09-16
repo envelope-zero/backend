@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -57,21 +56,21 @@ func (e EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, er
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
 // the RouterGroup that is passed.
-func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
+func (co Controller) RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 	// Root group
 	{
-		r.OPTIONS("", OptionsEnvelopeList)
-		r.GET("", GetEnvelopes)
-		r.POST("", CreateEnvelope)
+		r.OPTIONS("", co.OptionsEnvelopeList)
+		r.GET("", co.GetEnvelopes)
+		r.POST("", co.CreateEnvelope)
 	}
 
 	// Envelope with ID
 	{
-		r.OPTIONS("/:envelopeId", OptionsEnvelopeDetail)
-		r.GET("/:envelopeId", GetEnvelope)
-		r.GET("/:envelopeId/:month", GetEnvelopeMonth)
-		r.PATCH("/:envelopeId", UpdateEnvelope)
-		r.DELETE("/:envelopeId", DeleteEnvelope)
+		r.OPTIONS("/:envelopeId", co.OptionsEnvelopeDetail)
+		r.GET("/:envelopeId", co.GetEnvelope)
+		r.GET("/:envelopeId/:month", co.GetEnvelopeMonth)
+		r.PATCH("/:envelopeId", co.UpdateEnvelope)
+		r.DELETE("/:envelopeId", co.DeleteEnvelope)
 	}
 }
 
@@ -80,7 +79,7 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 // @Tags        Envelopes
 // @Success     204
 // @Router      /v1/envelopes [options]
-func OptionsEnvelopeList(c *gin.Context) {
+func (co Controller) OptionsEnvelopeList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
@@ -90,14 +89,14 @@ func OptionsEnvelopeList(c *gin.Context) {
 // @Success     204
 // @Param       envelopeId path string true "ID formatted as string"
 // @Router      /v1/envelopes/{envelopeId} [options]
-func OptionsEnvelopeDetail(c *gin.Context) {
+func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := getEnvelopeObject(c, p)
+	_, ok := co.getEnvelopeObject(c, p)
 	if !ok {
 		return
 	}
@@ -115,7 +114,7 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       envelope body     models.EnvelopeCreate true "Envelope"
 // @Router      /v1/envelopes [post]
-func CreateEnvelope(c *gin.Context) {
+func (co Controller) CreateEnvelope(c *gin.Context) {
 	var envelope models.Envelope
 
 	err := httputil.BindData(c, &envelope)
@@ -123,16 +122,16 @@ func CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	_, ok := getCategoryResource(c, envelope.CategoryID)
+	_, ok := co.getCategoryResource(c, envelope.CategoryID)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Create(&envelope)) {
+	if !queryWithRetry(c, co.DB.Create(&envelope)) {
 		return
 	}
 
-	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
+	envelopeObject, _ := co.getEnvelopeObject(c, envelope.ID)
 	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelopeObject})
 }
 
@@ -148,7 +147,7 @@ func CreateEnvelope(c *gin.Context) {
 // @Param       name     query string false "Filter by name"
 // @Param       note     query string false "Filter by note"
 // @Param       category query string false "Filter by category ID"
-func GetEnvelopes(c *gin.Context) {
+func (co Controller) GetEnvelopes(c *gin.Context) {
 	var filter EnvelopeQueryFilter
 
 	// The filters contain only strings, so this will always succeed
@@ -163,7 +162,7 @@ func GetEnvelopes(c *gin.Context) {
 	}
 
 	var envelopes []models.Envelope
-	if !queryWithRetry(c, database.DB.Where(&models.Envelope{
+	if !queryWithRetry(c, co.DB.Where(&models.Envelope{
 		EnvelopeCreate: create,
 	}, queryFields...).Find(&envelopes)) {
 		return
@@ -175,7 +174,7 @@ func GetEnvelopes(c *gin.Context) {
 	envelopeObjects := make([]Envelope, 0)
 
 	for _, envelope := range envelopes {
-		o, _ := getEnvelopeObject(c, envelope.ID)
+		o, _ := co.getEnvelopeObject(c, envelope.ID)
 		envelopeObjects = append(envelopeObjects, o)
 	}
 
@@ -192,14 +191,14 @@ func GetEnvelopes(c *gin.Context) {
 // @Failure     500        {object} httperrors.HTTPError
 // @Param       envelopeId path     string true "ID formatted as string"
 // @Router      /v1/envelopes/{envelopeId} [get]
-func GetEnvelope(c *gin.Context) {
+func (co Controller) GetEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	envelopeObject, ok := getEnvelopeObject(c, p)
+	envelopeObject, ok := co.getEnvelopeObject(c, p)
 	if !ok {
 		return
 	}
@@ -218,7 +217,7 @@ func GetEnvelope(c *gin.Context) {
 // @Param       envelopeId path     string true "ID formatted as string"
 // @Param       month      path     string true "The month in YYYY-MM format"
 // @Router      /v1/envelopes/{envelopeId}/{month} [get]
-func GetEnvelopeMonth(c *gin.Context) {
+func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
@@ -231,7 +230,7 @@ func GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := getEnvelopeResource(c, p)
+	envelope, ok := co.getEnvelopeResource(c, p)
 	if !ok {
 		httperrors.Handler(c, err)
 		return
@@ -242,7 +241,7 @@ func GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelopeMonth, err := envelope.Month(month.Month)
+	envelopeMonth, err := envelope.Month(co.DB, month.Month)
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
@@ -263,14 +262,14 @@ func GetEnvelopeMonth(c *gin.Context) {
 // @Param       envelopeId path     string                true "ID formatted as string"
 // @Param       envelope   body     models.EnvelopeCreate true "Envelope"
 // @Router      /v1/envelopes/{envelopeId} [patch]
-func UpdateEnvelope(c *gin.Context) {
+func (co Controller) UpdateEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	envelope, ok := getEnvelopeResource(c, p)
+	envelope, ok := co.getEnvelopeResource(c, p)
 	if !ok {
 		return
 	}
@@ -285,11 +284,11 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Model(&envelope).Select("", updateFields...).Updates(data)) {
+	if !queryWithRetry(c, co.DB.Model(&envelope).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	envelopeObject, _ := getEnvelopeObject(c, envelope.ID)
+	envelopeObject, _ := co.getEnvelopeObject(c, envelope.ID)
 	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
 
@@ -302,19 +301,19 @@ func UpdateEnvelope(c *gin.Context) {
 // @Failure     500        {object} httperrors.HTTPError
 // @Param       envelopeId path     string true "ID formatted as string"
 // @Router      /v1/envelopes/{envelopeId} [delete]
-func DeleteEnvelope(c *gin.Context) {
+func (co Controller) DeleteEnvelope(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	envelope, ok := getEnvelopeResource(c, p)
+	envelope, ok := co.getEnvelopeResource(c, p)
 	if !ok {
 		return
 	}
 
-	if !queryWithRetry(c, database.DB.Delete(&envelope)) {
+	if !queryWithRetry(c, co.DB.Delete(&envelope)) {
 		return
 	}
 
@@ -322,7 +321,7 @@ func DeleteEnvelope(c *gin.Context) {
 }
 
 // getEnvelopeResource verifies that the envelope from the URL parameters exists and returns it.
-func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, bool) {
+func (co Controller) getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, bool) {
 	if id == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "no envelope ID specified")
 		return models.Envelope{}, false
@@ -330,7 +329,7 @@ func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, bool) {
 
 	var envelope models.Envelope
 
-	if !queryWithRetry(c, database.DB.Where(&models.Envelope{
+	if !queryWithRetry(c, co.DB.Where(&models.Envelope{
 		Model: models.Model{
 			ID: id,
 		},
@@ -341,8 +340,8 @@ func getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, bool) {
 	return envelope, true
 }
 
-func getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, bool) {
-	resource, ok := getEnvelopeResource(c, id)
+func (co Controller) getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, bool) {
+	resource, ok := co.getEnvelopeResource(c, id)
 	if !ok {
 		return Envelope{}, false
 	}
@@ -360,10 +359,10 @@ func getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, bool) {
 	}, true
 }
 
-func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, bool) {
+func (co Controller) getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, bool) {
 	var envelopes []models.Envelope
 
-	if !queryWithRetry(c, database.DB.Where(&models.Envelope{
+	if !queryWithRetry(c, co.DB.Where(&models.Envelope{
 		EnvelopeCreate: models.EnvelopeCreate{
 			CategoryID: categoryID,
 		},
@@ -373,7 +372,7 @@ func getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, bool)
 
 	envelopeObjects := make([]Envelope, 0)
 	for _, envelope := range envelopes {
-		o, _ := getEnvelopeObject(c, envelope.ID)
+		o, _ := co.getEnvelopeObject(c, envelope.ID)
 		envelopeObjects = append(envelopeObjects, o)
 	}
 

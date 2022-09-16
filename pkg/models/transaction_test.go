@@ -3,7 +3,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +16,7 @@ func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 		},
 	}
 
-	err := transaction.AfterFind(database.DB)
+	err := transaction.AfterFind(suite.db)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.AfterFind failed")
 	}
@@ -29,7 +28,7 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{}
-	err := transaction.BeforeSave(database.DB)
+	err := transaction.BeforeSave(suite.db)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.AfterFind failed")
 	}
@@ -41,7 +40,7 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 			Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
 		},
 	}
-	err = transaction.BeforeSave(database.DB)
+	err = transaction.BeforeSave(suite.db)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.AfterFind failed")
 	}

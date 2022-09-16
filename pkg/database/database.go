@@ -11,14 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// DB is the database used by the backend.
-var DB *gorm.DB
-
-// ConnectDatabase connects to the database DB.
-func ConnectDatabase(dialector func(string) gorm.Dialector, dsn string) error {
-	var err error
-	var db *gorm.DB
-
+// Connect opens the SQLite database and configures the connection pool.
+func Connect(dsn string) (*gorm.DB, error) {
 	config := &gorm.Config{
 		// Set generated timestamps in UTC
 		NowFunc: func() time.Time {
@@ -27,14 +21,14 @@ func ConnectDatabase(dialector func(string) gorm.Dialector, dsn string) error {
 		Logger: gorm_zerolog.New(),
 	}
 
-	db, err = gorm.Open(dialector(dsn), config)
+	db, err := gorm.Open(sqlite.Open(dsn), config)
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("failed to get database object: %w", err)
 	}
 
 	// Get new connections after one hour
@@ -45,25 +39,16 @@ func ConnectDatabase(dialector func(string) gorm.Dialector, dsn string) error {
 	sqlDB.SetMaxIdleConns(1)
 	sqlDB.SetMaxOpenConns(1)
 
-	DB = db
-
-	return nil
+	return db, nil
 }
 
-// Database sets up the database.
-func Database() error {
-	// Create data directory
-	dataDir := filepath.Join(".", "data")
+// CreateDir creates a directory relative to the local path.
+func CreateDir(path string) error {
+	dataDir := filepath.Join(".", path)
+
 	err := os.MkdirAll(dataDir, os.ModePerm)
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to create directory: %w", err)
 	}
-
-	// Connect to the database
-	err = ConnectDatabase(sqlite.Open, "data/gorm.db?_pragma=foreign_keys(1)")
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

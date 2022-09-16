@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -24,9 +23,9 @@ type AccountCreate struct {
 	External bool      `json:"external" example:"false" default:"false"`
 }
 
-func (a Account) WithCalculations() Account {
-	a.Balance = a.getBalance()
-	a.ReconciledBalance = a.SumReconciledTransactions()
+func (a Account) WithCalculations(db *gorm.DB) Account {
+	a.Balance = a.getBalance(db)
+	a.ReconciledBalance = a.SumReconciledTransactions(db)
 
 	return a
 }
@@ -40,17 +39,17 @@ func (a *Account) BeforeSave(tx *gorm.DB) (err error) {
 }
 
 // Transactions returns all transactions for this account.
-func (a Account) Transactions() []Transaction {
+func (a Account) Transactions(db *gorm.DB) []Transaction {
 	var transactions []Transaction
 
 	// Get all transactions where the account is either the source or the destination
-	database.DB.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}}).Or(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).Find(&transactions)
+	db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}}).Or(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).Find(&transactions)
 	return transactions
 }
 
 // Transactions returns all transactions for this account.
-func (a Account) SumReconciledTransactions() decimal.Decimal {
-	return TransactionsSum(
+func (a Account) SumReconciledTransactions(db *gorm.DB) decimal.Decimal {
+	return TransactionsSum(db,
 		Transaction{
 			TransactionCreate: TransactionCreate{
 				Reconciled:           true,
@@ -67,8 +66,8 @@ func (a Account) SumReconciledTransactions() decimal.Decimal {
 }
 
 // GetBalance returns the balance of the account, including all transactions.
-func (a Account) getBalance() decimal.Decimal {
-	return TransactionsSum(
+func (a Account) getBalance(db *gorm.DB) decimal.Decimal {
+	return TransactionsSum(db,
 		Transaction{
 			TransactionCreate: TransactionCreate{
 				DestinationAccountID: a.ID,
@@ -86,17 +85,17 @@ func (a Account) getBalance() decimal.Decimal {
 //
 // The incoming Transactions fields is used to add the amount of all matching transactions to the overall sum
 // The outgoing Transactions fields is used to subtract the amount of all matching transactions from the overall sum.
-func TransactionsSum(incoming, outgoing Transaction) decimal.Decimal {
+func TransactionsSum(db *gorm.DB, incoming, outgoing Transaction) decimal.Decimal {
 	var outgoingSum, incomingSum decimal.NullDecimal
 
-	_ = database.DB.Table("transactions").
+	_ = db.Table("transactions").
 		Where(&outgoing).
 		Where("deleted_at is NULL").
 		Select("SUM(amount)").
 		Row().
 		Scan(&outgoingSum)
 
-	_ = database.DB.Table("transactions").
+	_ = db.Table("transactions").
 		Where(&incoming).
 		Where("deleted_at is NULL").
 		Select("SUM(amount)").

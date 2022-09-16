@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -9,7 +8,7 @@ import (
 
 func (suite *TestSuiteStandard) TestAccountCalculations() {
 	budget := models.Budget{}
-	err := database.DB.Save(&budget).Error
+	err := suite.db.Save(&budget).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -21,7 +20,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 			External: false,
 		},
 	}
-	err = database.DB.Save(&account).Error
+	err = suite.db.Save(&account).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -32,7 +31,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 			External: true,
 		},
 	}
-	err = database.DB.Save(&externalAccount).Error
+	err = suite.db.Save(&externalAccount).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -42,7 +41,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 			BudgetID: budget.ID,
 		},
 	}
-	err = database.DB.Save(&category).Error
+	err = suite.db.Save(&category).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -52,7 +51,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 			CategoryID: category.ID,
 		},
 	}
-	err = database.DB.Save(&envelope).Error
+	err = suite.db.Save(&envelope).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -67,7 +66,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 			Amount:               decimal.NewFromFloat(32.17),
 		},
 	}
-	err = database.DB.Save(&incomingTransaction).Error
+	err = suite.db.Save(&incomingTransaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
@@ -81,23 +80,23 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 			Amount:               decimal.NewFromFloat(17.45),
 		},
 	}
-	err = database.DB.Save(&outgoingTransaction).Error
+	err = suite.db.Save(&outgoingTransaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	a := account.WithCalculations()
+	a := account.WithCalculations(suite.db)
 
 	assert.True(suite.T(), a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
 
 	assert.True(suite.T(), a.ReconciledBalance.Equal(incomingTransaction.Amount), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
 
-	err = database.DB.Delete(&incomingTransaction).Error
+	err = suite.db.Delete(&incomingTransaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	a = account.WithCalculations()
+	a = account.WithCalculations(suite.db)
 	assert.True(suite.T(), a.Balance.Equal(outgoingTransaction.Amount.Neg()), "Balance for account is not correct. Should be: %v but is %v", outgoingTransaction.Amount.Neg(), a.Balance)
 	assert.True(suite.T(), a.ReconciledBalance.Equal(decimal.NewFromFloat(0)), "Reconciled balance for account is not correct. Should be: %v but is %v", decimal.NewFromFloat(0), a.ReconciledBalance)
 }
@@ -105,7 +104,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 func (suite *TestSuiteStandard) TestAccountTransactions() {
 	account := models.Account{}
 
-	transactions := account.Transactions()
+	transactions := account.Transactions(suite.db)
 	assert.Len(suite.T(), transactions, 0)
 }
 
@@ -117,7 +116,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudget() {
 		},
 	}
 
-	err := account.BeforeSave(database.DB)
+	err := account.BeforeSave(suite.db)
 	if err != nil {
 		assert.Fail(suite.T(), "account.BeforeSave failed")
 	}
@@ -131,7 +130,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudget() {
 		},
 	}
 
-	err = account.BeforeSave(database.DB)
+	err = account.BeforeSave(suite.db)
 	if err != nil {
 		assert.Fail(suite.T(), "account.BeforeSave failed")
 	}

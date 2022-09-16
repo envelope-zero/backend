@@ -18,7 +18,7 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 	}
 
 	for _, path := range optionsHeaderTests {
-		recorder := test.Request(suite.T(), http.MethodOptions, path, "")
+		recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
 
 		assert.Equal(suite.T(), http.StatusNoContent, recorder.Code)
 		assert.Equal(suite.T(), recorder.Header().Get("allow"), "GET, POST")

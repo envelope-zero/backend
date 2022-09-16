@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/envelope-zero/backend/pkg/controllers"
+	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/router"
 	"github.com/envelope-zero/backend/test"
 	"github.com/gin-gonic/gin"
@@ -18,7 +20,12 @@ func TestGinMode(t *testing.T) {
 	os.Setenv("API_URL", "http://example.com")
 
 	r, err := router.Config()
-	router.AttachRoutes(r.Group("/"))
+	assert.Nil(t, err, "Error on router initialization")
+
+	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
+	assert.Nil(t, err, "Error on database connection")
+
+	router.AttachRoutes(controllers.Controller{DB: db}, r.Group("/"))
 
 	assert.Nil(t, err, "%T: %v", err, err)
 	assert.True(t, gin.IsDebugging())
