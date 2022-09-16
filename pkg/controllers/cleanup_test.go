@@ -27,13 +27,13 @@ func (suite *TestSuiteStandard) TestCleanup() {
 
 	// Delete
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 
 	// Verify
 	for _, tt := range tests {
 		suite.Run(tt, func() {
 			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, tt, "")
-			test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+			test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 
 			var response struct {
 				Data []any `json:"data"`

@@ -15,14 +15,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestBudget(t *testing.T, c models.BudgetCreate) controllers.BudgetResponse {
+func (suite *TestSuiteStandard) createTestBudget(t *testing.T, c models.BudgetCreate, expectedStatus ...int) controllers.BudgetResponse {
+	// Default to 200 OK as expected status
+	if len(expectedStatus) == 0 {
+		expectedStatus = append(expectedStatus, http.StatusCreated)
+	}
+
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/budgets", c)
-	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+	test.AssertHTTPStatus(t, &r, expectedStatus...)
 
 	var a controllers.BudgetResponse
 	test.DecodeResponse(t, &r, &a)
 
 	return a
+}
+
+func (suite *TestSuiteStandard) TestCreateBudgetNoDB() {
+	suite.CloseDB()
+	suite.createTestBudget(suite.T(), models.BudgetCreate{}, http.StatusInternalServerError)
+}
+
+func (suite *TestSuiteStandard) TestBudgets() {
+	suite.CloseDB()
+
+	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/budgets", "")
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusInternalServerError)
+	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
 }
 
 func (suite *TestSuiteStandard) TestOptionsBudget() {
@@ -42,40 +60,40 @@ func (suite *TestSuiteStandard) TestOptionsBudgetMonth() {
 	budgetLink := suite.createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.Month
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, strings.Replace(budgetLink, "YYYY-MM", "1970-01", 1), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 	assert.Equal(suite.T(), recorder.Header().Get("allow"), "GET")
 
 	// Bad Request for invalid UUID
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/nouuid/2022-01", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Bad Request for invalid month
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, budgetLink, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Not found for non-existing budget
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/5b95e1a9-522d-4a36-9074-32f7c2ff0513/1980-06", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestOptionsBudgetMonthAllocations() {
 	budgetAllocationsLink := suite.createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, strings.Replace(budgetAllocationsLink, "YYYY-MM", "1970-01", 1), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 	assert.Equal(suite.T(), recorder.Header().Get("allow"), "DELETE")
 
 	// Bad Request for invalid UUID
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Bad Request for invalid months
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, budgetAllocationsLink, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Not found for non-existing budget
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestGetBudgets() {
@@ -134,7 +152,7 @@ func (suite *TestSuiteStandard) TestGetBudgetsFilter() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			r := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/budgets?%s", tt.query), "")
-			test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+			test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
 			test.DecodeResponse(suite.T(), &r, &re)
 			assert.Equal(suite.T(), tt.len, len(re.Data))
 		})
@@ -144,7 +162,7 @@ func (suite *TestSuiteStandard) TestGetBudgetsFilter() {
 func (suite *TestSuiteStandard) TestNoBudgetNotFound() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd", "")
 
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestBudgetInvalidIDs() {
@@ -152,39 +170,39 @@ func (suite *TestSuiteStandard) TestBudgetInvalidIDs() {
 	 *  GET
 	 */
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/budgets/-56", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/budgets/notANumber", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/budgets/23", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/budgets/d19a622f-broken-uuid/2022-01", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * PATCH
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/budgets/-274", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/budgets/stringRandom", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * DELETE
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/budgets/-274", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/budgets/stringRandom", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateBudget() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
 
 	var budgetObject, savedObject controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budgetObject)
@@ -197,12 +215,12 @@ func (suite *TestSuiteStandard) TestCreateBudget() {
 
 func (suite *TestSuiteStandard) TestCreateBrokenBudget() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateBudgetNoBody() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 // TestBudgetMonth verifies that the monthly calculations are correct.
@@ -337,7 +355,7 @@ func (suite *TestSuiteStandard) TestBudgetMonth() {
 	var budgetMonth controllers.BudgetMonthResponse
 	for _, tt := range tests {
 		r := test.Request(suite.controller, suite.T(), http.MethodGet, tt.path, "")
-		test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+		test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
 		test.DecodeResponse(suite.T(), &r, &budgetMonth)
 
 		// Verify income calculation
@@ -376,7 +394,7 @@ func (suite *TestSuiteStandard) TestBudgetMonthBudgeted() {
 	var budgetMonth controllers.BudgetMonthResponse
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("%s/2022-01", budget.Data.Links.Self), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
 	test.DecodeResponse(suite.T(), &r, &budgetMonth)
 
 	assert.True(suite.T(), budgetMonth.Data.Budgeted.Equal(decimal.NewFromFloat(40)), "Calculation of budgeted sum for a month is off. Should be 40, is %s", budgetMonth.Data.Budgeted)
@@ -385,7 +403,7 @@ func (suite *TestSuiteStandard) TestBudgetMonthBudgeted() {
 // TestBudgetMonthNonExistent verifies that month requests for non-existing budgets return a HTTP 404 Not Found.
 func (suite *TestSuiteStandard) TestBudgetMonthNonExistent() {
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/budgets/65064e6f-04b4-46e0-8bbc-88c96c6b21bd/2022-01", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusNotFound)
 }
 
 // TestBudgetMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
@@ -393,7 +411,7 @@ func (suite *TestSuiteStandard) TestBudgetMonthZero() {
 	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("%s/0001-01", budget.Data.Links.Self), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 // TestBudgetMonthInvalid tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
@@ -401,12 +419,12 @@ func (suite *TestSuiteStandard) TestBudgetMonthInvalid() {
 	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("%s/December-2020", budget.Data.Links.Self), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateBudget() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
@@ -415,7 +433,7 @@ func (suite *TestSuiteStandard) TestUpdateBudget() {
 		"name": "Updated new budget",
 		"note": "",
 	})
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 
 	var updatedBudget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &updatedBudget)
@@ -426,18 +444,18 @@ func (suite *TestSuiteStandard) TestUpdateBudget() {
 
 func (suite *TestSuiteStandard) TestUpdateBudgetBrokenJSON() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPatch, budget.Data.Links.Self, `{ "name": 2" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateBudgetInvalidType() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "New Budget", "note": "More tests something something" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
@@ -445,39 +463,39 @@ func (suite *TestSuiteStandard) TestUpdateBudgetInvalidType() {
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPatch, budget.Data.Links.Self, map[string]any{
 		"name": 2,
 	})
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateNonExistingBudget() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/budgets/a29bd123-beec-47de-a9cd-b6f7483fe00f", `{ "name": "2" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteBudget() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
 	recorder = test.Request(suite.controller, suite.T(), http.MethodDelete, budget.Data.Links.Self, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 }
 
 func (suite *TestSuiteStandard) TestDeleteNonExistingBudget() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/budgets/c3d34346-609a-4734-9364-98f5b0100150", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteBudgetWithBody() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "name": "Delete me now!" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusCreated, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
 
 	var budget controllers.BudgetResponse
 	test.DecodeResponse(suite.T(), &recorder, &budget)
 
 	recorder = test.Request(suite.controller, suite.T(), http.MethodDelete, budget.Data.Links.Self, `{ "name": "test name 23" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 }
 
 func (suite *TestSuiteStandard) TestDeleteAllocationsMonth() {
@@ -500,14 +518,14 @@ func (suite *TestSuiteStandard) TestDeleteAllocationsMonth() {
 
 	// Clear allocations
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, strings.Replace(budget.Data.Links.MonthAllocations, "YYYY-MM", "2022-01", 1), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 
 	// Verify that allocations are deleted
 	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, allocation1.Data.Links.Self, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 
 	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, allocation2.Data.Links.Self, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteAllocationsMonthFailures() {
@@ -515,15 +533,15 @@ func (suite *TestSuiteStandard) TestDeleteAllocationsMonthFailures() {
 
 	// Bad Request for invalid UUID
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Bad Request for invalid months
 	recorder = test.Request(suite.controller, suite.T(), http.MethodDelete, budgetAllocationsLink, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Not found for non-existing budget
 	recorder = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestSetAllocationsMonthBudgeted() {
@@ -546,19 +564,19 @@ func (suite *TestSuiteStandard) TestSetAllocationsMonthBudgeted() {
 
 	// Update in budgeted mode allocations
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, strings.Replace(budget.Data.Links.MonthAllocations, "YYYY-MM", "2022-02", 1), controllers.BudgetAllocationMode{Mode: controllers.AllocateLastMonthBudget})
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 
 	// Verify the allocation for the first envelope
 	requestString := strings.Replace(envelope1.Data.Links.Month, "YYYY-MM", "2022-02", 1)
 	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, requestString, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 	var envelope1Month controllers.EnvelopeMonthResponse
 	test.DecodeResponse(suite.T(), &recorder, &envelope1Month)
 	suite.Assert().True(allocation1.Data.Amount.Equal(envelope1Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", allocation1.Data.Amount, envelope1Month.Data.Allocation, recorder.Header().Get("x-request-id"))
 
 	// Verify the allocation for the second envelope
 	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(envelope2.Data.Links.Month, "YYYY-MM", "2022-02", 1), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 	var envelope2Month controllers.EnvelopeMonthResponse
 	test.DecodeResponse(suite.T(), &recorder, &envelope2Month)
 	suite.Assert().True(allocation2.Data.Amount.Equal(envelope2Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", allocation2.Data.Amount, envelope2Month.Data.Allocation, recorder.Header().Get("x-request-id"))
@@ -596,19 +614,19 @@ func (suite *TestSuiteStandard) TestSetAllocationsMonthSpend() {
 
 	// Update in budgeted mode allocations
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, strings.Replace(budget.Data.Links.MonthAllocations, "YYYY-MM", "2022-02", 1), controllers.BudgetAllocationMode{Mode: controllers.AllocateLastMonthSpend})
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 
 	// Verify the allocation for the first envelope
 	requestString := strings.Replace(envelope1.Data.Links.Month, "YYYY-MM", "2022-02", 1)
 	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, requestString, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 	var envelope1Month controllers.EnvelopeMonthResponse
 	test.DecodeResponse(suite.T(), &recorder, &envelope1Month)
 	suite.Assert().True(transaction1.Data.Amount.Equal(envelope1Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", transaction1.Data.Amount, envelope1Month.Data.Allocation, recorder.Header().Get("x-request-id"))
 
 	// Verify the allocation for the second envelope
 	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(envelope2.Data.Links.Month, "YYYY-MM", "2022-02", 1), "")
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 	var envelope2Month controllers.EnvelopeMonthResponse
 	test.DecodeResponse(suite.T(), &recorder, &envelope2Month)
 	suite.Assert().True(envelope2Month.Data.Allocation.Equal(decimal.NewFromFloat(0)), "Expected: 0, got %s, Request ID: %s", envelope2Month.Data.Allocation, recorder.Header().Get("x-request-id"))
@@ -619,23 +637,23 @@ func (suite *TestSuiteStandard) TestSetAllocationsMonthFailures() {
 
 	// Bad Request for invalid UUID
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Bad Request for invalid months
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPost, budgetAllocationsLink, "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Not found for non-existing budget
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 
 	// Bad Request for invalid json in body
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPost, strings.Replace(budgetAllocationsLink, "YYYY-MM", "2022-01", 1), `{ "mode": INVALID_JSON" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 
 	// Bad Request for invalid mode
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPost, strings.Replace(budgetAllocationsLink, "YYYY-MM", "2022-01", 1), `{ "mode": "UNKNOWN_MODE" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 // TestBudgetBalanceDoubleRegression verifies that the Budget balance is only added once.
