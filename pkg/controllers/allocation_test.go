@@ -20,7 +20,7 @@ func (suite *TestSuiteStandard) createTestAllocation(t *testing.T, c models.Allo
 	}
 
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/allocations", c)
-	test.AssertHTTPStatus(t, http.StatusCreated, &r)
+	test.AssertHTTPStatus(t, &r, http.StatusCreated)
 
 	var a controllers.AllocationResponse
 	test.DecodeResponse(t, &r, &a)
@@ -52,7 +52,7 @@ func (suite *TestSuiteStandard) TestGetAllocations() {
 	var response controllers.AllocationListResponse
 	test.DecodeResponse(suite.T(), &recorder, &response)
 
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 	assert.Len(suite.T(), response.Data, 1)
 	assert.Equal(suite.T(), time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC), response.Data[0].Month)
 
@@ -101,7 +101,7 @@ func (suite *TestSuiteStandard) TestGetAllocationsFilter() {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			var re controllers.AllocationListResponse
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v1/allocations?%s", tt.query), "")
-			test.AssertHTTPStatus(t, http.StatusOK, &r)
+			test.AssertHTTPStatus(t, &r, http.StatusOK)
 			test.DecodeResponse(t, &r, &re)
 
 			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
@@ -112,7 +112,7 @@ func (suite *TestSuiteStandard) TestGetAllocationsFilter() {
 func (suite *TestSuiteStandard) TestNoAllocationNotFound() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/allocations/f8b93ce2-309f-4e99-8886-6ab960df99c3", "")
 
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestGetAllocationsInvalidQuery() {
@@ -125,7 +125,7 @@ func (suite *TestSuiteStandard) TestGetAllocationsInvalidQuery() {
 	for _, tt := range tests {
 		suite.T().Run(tt, func(t *testing.T) {
 			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/allocations?%s", tt), "")
-			test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+			test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 		})
 	}
 }
@@ -135,31 +135,31 @@ func (suite *TestSuiteStandard) TestAllocationInvalidIDs() {
 	 *  GET
 	 */
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/allocations/-56", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/allocations/notANumber", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/allocations/23", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * PATCH
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/allocations/-274", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/allocations/stringRandom", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * DELETE
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/allocations/-274", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/allocations/stringRandom", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateAllocation() {
@@ -175,17 +175,17 @@ func (suite *TestSuiteStandard) TestCreateAllocation() {
 
 func (suite *TestSuiteStandard) TestCreateAllocationNoEnvelope() {
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/allocations", models.Allocation{})
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateBrokenAllocation() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/allocations", `{ "createdAt": "New Allocation" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateAllocationNonExistingEnvelope() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/allocations", models.AllocationCreate{EnvelopeID: uuid.New()})
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestCreateDuplicateAllocation() {
@@ -195,7 +195,7 @@ func (suite *TestSuiteStandard) TestCreateDuplicateAllocation() {
 		Month:      allocation.Data.Month,
 	})
 
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateNonDuplicateAllocationSameMonth() {
@@ -215,7 +215,7 @@ func (suite *TestSuiteStandard) TestCreateNonDuplicateAllocationSameMonth() {
 
 func (suite *TestSuiteStandard) TestCreateAllocationNoBody() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/allocations", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestGetAllocation() {
@@ -233,7 +233,7 @@ func (suite *TestSuiteStandard) TestUpdateAllocation() {
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
 		"month": time.Date(2022, 6, 1, 0, 0, 0, 0, time.UTC),
 	})
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
 
 	var updatedAllocation controllers.AllocationResponse
 	test.DecodeResponse(suite.T(), &r, &updatedAllocation)
@@ -247,7 +247,7 @@ func (suite *TestSuiteStandard) TestUpdateAllocationZeroValues() {
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
 		"month": time.Date(0, 8, 1, 0, 0, 0, 0, time.UTC),
 	})
-	test.AssertHTTPStatus(suite.T(), http.StatusOK, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
 
 	var updatedAllocation controllers.AllocationResponse
 	test.DecodeResponse(suite.T(), &r, &updatedAllocation)
@@ -259,7 +259,7 @@ func (suite *TestSuiteStandard) TestUpdateAllocationBrokenJSON() {
 	a := suite.createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2054, 5, 1, 0, 0, 0, 0, time.UTC)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, `{ "name": 2" }`)
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateAllocationInvalidType() {
@@ -268,7 +268,7 @@ func (suite *TestSuiteStandard) TestUpdateAllocationInvalidType() {
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
 		"month": "A long time ago in a galaxy far, far away",
 	})
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateAllocationInvalidEnvelopeID() {
@@ -276,12 +276,12 @@ func (suite *TestSuiteStandard) TestUpdateAllocationInvalidEnvelopeID() {
 
 	// Sets the EnvelopeID to uuid.Nil by not specifying it
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, models.AllocationCreate{Month: time.Date(2099, 11, 1, 0, 0, 0, 0, time.UTC)})
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateNonExistingAllocation() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/allocations/df684988-31df-444c-8aaa-b53195d55d6e", models.AllocationCreate{Month: time.Date(2142, 3, 1, 0, 0, 0, 0, time.UTC)})
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteAllocation() {
@@ -289,7 +289,7 @@ func (suite *TestSuiteStandard) TestDeleteAllocation() {
 	a := suite.createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC), EnvelopeID: e.Data.ID})
 	r := test.Request(suite.controller, suite.T(), http.MethodDelete, a.Data.Links.Self, "")
 
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusNoContent)
 
 	// Regression Test: Verify that allocations are hard deleted instantly to avoid problems
 	// with the UNIQUE(id,month)
@@ -298,17 +298,17 @@ func (suite *TestSuiteStandard) TestDeleteAllocation() {
 
 func (suite *TestSuiteStandard) TestDeleteNonExistingAllocation() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/allocations/34ac51a7-431c-454b-ba29-feaefeae70d5", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusNotFound, &recorder)
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteAllocationWithBody() {
 	a := suite.createTestAllocation(suite.T(), models.AllocationCreate{Month: time.Date(2067, 3, 1, 0, 0, 0, 0, time.UTC)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodDelete, a.Data.Links.Self, models.AllocationCreate{Month: time.Date(2067, 3, 1, 0, 0, 0, 0, time.UTC)})
-	test.AssertHTTPStatus(suite.T(), http.StatusNoContent, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusNoContent)
 }
 
 func (suite *TestSuiteStandard) TestDeleteNullAllocation() {
 	r := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/allocations/00000000-0000-0000-0000-000000000000", "")
-	test.AssertHTTPStatus(suite.T(), http.StatusBadRequest, &r)
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
