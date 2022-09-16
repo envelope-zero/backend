@@ -17,7 +17,7 @@ require (
 	github.com/swaggo/gin-swagger v1.5.3
 	github.com/swaggo/swag v1.8.5
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
-	gorm.io/gorm v1.23.8
+	gorm.io/gorm v1.23.9
 )
 
 require (
