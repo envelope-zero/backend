@@ -14,18 +14,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestAllocation(t *testing.T, c models.AllocationCreate) controllers.AllocationResponse {
+func (suite *TestSuiteStandard) createTestAllocation(t *testing.T, c models.AllocationCreate, expectedStatus ...int) controllers.AllocationResponse {
 	if c.EnvelopeID == uuid.Nil {
 		c.EnvelopeID = suite.createTestEnvelope(t, models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
 	}
 
+	// Default to 200 OK as expected status
+	if len(expectedStatus) == 0 {
+		expectedStatus = append(expectedStatus, http.StatusCreated)
+	}
+
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/allocations", c)
-	test.AssertHTTPStatus(t, &r, http.StatusCreated)
+	test.AssertHTTPStatus(t, &r, expectedStatus...)
 
 	var a controllers.AllocationResponse
 	test.DecodeResponse(t, &r, &a)
 
 	return a
+}
+
+func (suite *TestSuiteStandard) TestAllocations() {
+	suite.CloseDB()
+
+	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/allocations", "")
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusInternalServerError)
+	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
 }
 
 func (suite *TestSuiteStandard) TestOptionsAllocation() {

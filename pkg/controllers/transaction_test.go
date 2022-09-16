@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestTransaction(t *testing.T, c models.TransactionCreate) controllers.TransactionResponse {
+func (suite *TestSuiteStandard) createTestTransaction(t *testing.T, c models.TransactionCreate, expectedStatus ...int) controllers.TransactionResponse {
 	if c.BudgetID == uuid.Nil {
 		c.BudgetID = suite.createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}
@@ -31,13 +31,26 @@ func (suite *TestSuiteStandard) createTestTransaction(t *testing.T, c models.Tra
 		*c.EnvelopeID = suite.createTestEnvelope(t, models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
 	}
 
+	// Default to 200 OK as expected status
+	if len(expectedStatus) == 0 {
+		expectedStatus = append(expectedStatus, http.StatusCreated)
+	}
+
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/transactions", c)
-	test.AssertHTTPStatus(t, &r, http.StatusCreated)
+	test.AssertHTTPStatus(t, &r, expectedStatus...)
 
 	var tr controllers.TransactionResponse
 	test.DecodeResponse(t, &r, &tr)
 
 	return tr
+}
+
+func (suite *TestSuiteStandard) TestTransactions() {
+	suite.CloseDB()
+
+	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/transactions", "")
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusInternalServerError)
+	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
 }
 
 func (suite *TestSuiteStandard) TestOptionsTransaction() {

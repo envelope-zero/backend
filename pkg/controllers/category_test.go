@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c models.CategoryCreate) controllers.CategoryResponse {
+func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c models.CategoryCreate, expectedStatus ...int) controllers.CategoryResponse {
 	if c.BudgetID == uuid.Nil {
 		c.BudgetID = suite.createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}
@@ -22,13 +22,26 @@ func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c models.Catego
 		c.Name = uuid.NewString()
 	}
 
+	// Default to 200 OK as expected status
+	if len(expectedStatus) == 0 {
+		expectedStatus = append(expectedStatus, http.StatusCreated)
+	}
+
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/categories", c)
-	test.AssertHTTPStatus(t, &r, http.StatusCreated)
+	test.AssertHTTPStatus(t, &r, expectedStatus...)
 
 	var category controllers.CategoryResponse
 	test.DecodeResponse(t, &r, &category)
 
 	return category
+}
+
+func (suite *TestSuiteStandard) TestCategories() {
+	suite.CloseDB()
+
+	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/categories", "")
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusInternalServerError)
+	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
 }
 
 func (suite *TestSuiteStandard) TestOptionsCategory() {
