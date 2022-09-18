@@ -96,7 +96,7 @@ func (co Controller) OptionsBudgetList(c *gin.Context) {
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags        Budgets
 // @Success     204
-// @Failure     400      {object} httperrors.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
@@ -119,11 +119,11 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 // @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags        Budgets
 // @Success     204
-// @Failure     400      {object} httperrors.HTTPError
+// @Failure     400 {object} httperrors.HTTPError
 // @Failure     404
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       budgetId path     string true "ID formatted as string"
-// @Param       month    path     string               true "The month in YYYY-MM format"
+// @Param       month    path     string true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month} [options]
 func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
@@ -466,10 +466,10 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 // @Description Deletes all allocation for the specified month
 // @Tags        Budgets
 // @Success     204
-// @Failure     400 {object} httperrors.HTTPError
+// @Failure     400      {object} httperrors.HTTPError
 // @Failure     500      {object} httperrors.HTTPError
 // @Param       month    path     string true "The month in YYYY-MM format"
-// @Param       budgetId path     string               true "Budget ID formatted as string"
+// @Param       budgetId path     string true "Budget ID formatted as string"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [delete]
 func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	budgetID, err := uuid.Parse(c.Param("budgetId"))
@@ -520,10 +520,10 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 // @Description Sets allocations for a month for all envelopes that do not have an allocation yet
 // @Tags        Budgets
 // @Success     204
-// @Failure     400 {object} httperrors.HTTPError
+// @Failure     400      {object} httperrors.HTTPError
 // @Failure     500      {object} httperrors.HTTPError
-// @Param       month    path     string true "The month in YYYY-MM format"
-// @Param       budgetId path     string true "Budget ID formatted as string"
+// @Param       month    path     string               true "The month in YYYY-MM format"
+// @Param       budgetId path     string               true "Budget ID formatted as string"
 // @Param       mode     body     BudgetAllocationMode true "Budget"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [post]
 func (co Controller) SetAllocationsMonth(c *gin.Context) {
