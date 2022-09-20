@@ -9,6 +9,14 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestBudgetCalculations() {
+	// Sum of salary transactions: 7400
+	// Sum of income available in March: 4600
+	// Sum of all allocations: 91.58
+	// Outgoing bank account: 87.45
+	// Outgoing cash account: 43.17
+	// Outgoing total: 130.62
+	// Sum of allocations for Grocery Envelope until 2022-03: 67
+	// Allocations for Grocery Envelope - Outgoing transactions = -43.62
 	marchFifteenthTwentyTwentyTwo := time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC)
 
 	budget := models.Budget{}
@@ -93,7 +101,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(17.42),
-			Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+			Month:      marchFifteenthTwentyTwentyTwo.AddDate(0, -2, 0),
 		},
 	}
 	err = suite.db.Save(&allocation1).Error
@@ -105,7 +113,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(24.58),
-			Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+			Month:      marchFifteenthTwentyTwentyTwo.AddDate(0, -1, 0),
 		},
 	}
 	err = suite.db.Save(&allocation2).Error
@@ -284,11 +292,17 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Verify overspent calculation for month with spend
 	overspent, err = budget.Overspent(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), overspent.Equal(decimal.NewFromFloat(20)), "Overspent is %s, should be 20", overspent)
+	assert.True(suite.T(), overspent.Equal(decimal.NewFromFloat(63.62)), "Overspent is %s, should be 63.62", overspent)
 
+	// Verify available in month with overspend
 	available, err := budget.Available(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(4513)), "Available is %s, should be 4513", available)
+	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(4533)), "Available is %s, should be 4533", available)
+
+	// Verify available in month after overspend
+	available, err = budget.Available(suite.db, marchFifteenthTwentyTwentyTwo.AddDate(0, 1, 0))
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(7269.38)), "Available is %s, should be 7269.38", available)
 }
 
 func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
