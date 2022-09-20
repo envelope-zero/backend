@@ -108,6 +108,7 @@ func TestGetV1(t *testing.T) {
 			Categories:   "/v1/categories",
 			Envelopes:    "/v1/envelopes",
 			Allocations:  "/v1/allocations",
+			Months:       "/v1/months",
 		},
 	}
 
