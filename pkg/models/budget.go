@@ -26,8 +26,8 @@ type BudgetCreate struct {
 }
 
 type BudgetMonth struct {
-	ID        uuid.UUID       `json:"id" example:"1e777d24-3f5b-4c43-8000-04f65f895578"` // The ID of the Envelope
-	Name      string          `json:"name" example:"Groceries"`                          // The name of the Envelope
+	ID        uuid.UUID       `json:"id" example:"1e777d24-3f5b-4c43-8000-04f65f895578"` // The ID of the Budget
+	Name      string          `json:"name" example:"Groceries"`                          // The name of the Budget
 	Month     time.Time       `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // This is always set to 00:00 UTC on the first of the month.
 	Budgeted  decimal.Decimal `json:"budgeted" example:"2100"`
 	Income    decimal.Decimal `json:"income" example:"2317.34"`
@@ -142,6 +142,35 @@ func (b Budget) TotalIncome(db *gorm.DB, month time.Time) (decimal.Decimal, erro
 	}
 
 	return income.Decimal, nil
+}
+
+// Budgeted calculates the sum that has been budgeted for a specific month.
+func (b Budget) Budgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
+	// Only use the year and month values, everything else is reset to the start
+	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	var budgeted decimal.NullDecimal
+	err := db.
+		Select("SUM(amount)").
+		Joins("JOIN envelopes ON allocations.envelope_id = envelopes.id AND envelopes.deleted_at IS NULL").
+		Joins("JOIN categories ON envelopes.category_id = categories.id AND categories.deleted_at IS NULL").
+		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
+		Where("budgets.id = ?", b.ID).
+		Where("allocations.month >= date(?) ", month).
+		Where("allocations.month < date(?) ", month.AddDate(0, 1, 0)).
+		Table("allocations").
+		Find(&budgeted).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	// If no transactions are found, the value is nil
+	if !budgeted.Valid {
+		return decimal.NewFromFloat(0), nil
+	}
+
+	return budgeted.Decimal, nil
 }
 
 // TotalBudgeted calculates the total sum that has been budgeted before a specific month.

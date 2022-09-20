@@ -1,0 +1,24 @@
+package models
+
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
+)
+
+type CategoryEnvelopes struct {
+	ID        uuid.UUID       `json:"id" example:"dafd9a74-6aeb-46b9-9f5a-cfca624fea85"`
+	Name      string          `json:"name" example:"Rainy Day Funds" default:""`
+	Envelopes []EnvelopeMonth `json:"envelopes"`
+}
+
+type Month struct {
+	ID         uuid.UUID           `json:"id" example:"1e777d24-3f5b-4c43-8000-04f65f895578"` // The ID of the Budget
+	Name       string              `json:"name" example:"Zero budget"`                        // The name of the Budget
+	Month      time.Time           `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // This is always set to 00:00 UTC on the first of the month.
+	Budgeted   decimal.Decimal     `json:"budgeted" example:"2100"`
+	Income     decimal.Decimal     `json:"income" example:"2317.34"`
+	Available  decimal.Decimal     `json:"available" example:"217.34"`
+	Categories []CategoryEnvelopes `json:"categories"`
+}

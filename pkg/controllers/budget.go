@@ -33,6 +33,7 @@ type BudgetLinks struct {
 	Envelopes        string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Transactions     string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Month            string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"`                        // This 'YYYY-MM' for clients to replace with the actual year and month.
+	GroupedMonth     string `json:"groupedMonth" example:"https://example.com/api/v1/month?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"`      // This 'YYYY-MM' for clients to replace with the actual year and month.
 	MonthAllocations string `json:"monthAllocations" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
 }
 
@@ -116,7 +117,7 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 }
 
 // @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use GET /month endpoint with month and budgetId query parameters instead.**
 // @Tags        Budgets
 // @Success     204
 // @Failure     400 {object} httperrors.HTTPError
@@ -125,6 +126,7 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month} [options]
+// @Deprecated  true
 func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -276,7 +278,7 @@ func (co Controller) GetBudget(c *gin.Context) {
 }
 
 // @Summary     Get Budget month data
-// @Description Returns data about a budget for a for a specific month
+// @Description Returns data about a budget for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**
 // @Tags        Budgets
 // @Produce     json
 // @Success     200 {object} BudgetMonthResponse
@@ -286,6 +288,7 @@ func (co Controller) GetBudget(c *gin.Context) {
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month} [get]
+// @Deprecated  true
 func (co Controller) GetBudgetMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -642,6 +645,7 @@ func (co Controller) getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool
 			Envelopes:        fmt.Sprintf("%s/v1/envelopes?budget=%s", c.GetString("baseURL"), resource.ID),
 			Transactions:     fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), resource.ID),
 			Month:            url + "/YYYY-MM",
+			GroupedMonth:     fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", c.GetString("baseURL"), resource.ID),
 			MonthAllocations: url + "/YYYY-MM/allocations",
 		},
 	}, true
