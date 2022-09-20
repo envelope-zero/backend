@@ -96,7 +96,7 @@ func (b Budget) Available(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 		return decimal.Zero, err
 	}
 
-	overspent, err := b.Overspent(db, month)
+	overspent, err := b.Overspent(db, month.AddDate(0, -1, 0))
 	if err != nil {
 		return decimal.Zero, err
 	}
@@ -156,8 +156,8 @@ func (b Budget) Budgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) 
 		Joins("JOIN categories ON envelopes.category_id = categories.id AND categories.deleted_at IS NULL").
 		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
 		Where("budgets.id = ?", b.ID).
-		Where("allocations.month >= date(?) ", month).
-		Where("allocations.month < date(?) ", month.AddDate(0, 1, 0)).
+		Where("allocations.month >= date(?)", month).
+		Where("allocations.month < date(?)", month.AddDate(0, 1, 0)).
 		Table("allocations").
 		Find(&budgeted).
 		Error
@@ -219,9 +219,13 @@ func (b Budget) Overspent(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 
 	var overspent decimal.Decimal
 	for _, envelope := range envelopes {
-		spent := envelope.Spent(db, month.AddDate(0, -1, 0))
-		if spent.IsNegative() {
-			overspent = overspent.Add(spent.Neg())
+		balance, err := envelope.Balance(db, month)
+		if err != nil {
+			return decimal.Zero, err
+		}
+
+		if balance.IsNegative() {
+			overspent = overspent.Add(balance.Neg())
 		}
 	}
 
