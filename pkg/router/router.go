@@ -198,6 +198,7 @@ type V1Links struct {
 	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"`
 	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`
 	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`
+	Months       string `json:"months" example:"https://example.com/api/v1/months"`
 }
 
 // @Summary     v1 API
@@ -214,6 +215,7 @@ func GetV1(c *gin.Context) {
 			Transactions: c.GetString("baseURL") + "/v1/transactions",
 			Envelopes:    c.GetString("baseURL") + "/v1/envelopes",
 			Allocations:  c.GetString("baseURL") + "/v1/allocations",
+			Months:       c.GetString("baseURL") + "/v1/months",
 		},
 	})
 }

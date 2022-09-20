@@ -3003,6 +3003,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/v1/envelopes"
                 },
+                "months": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/months"
+                },
                 "transactions": {
                     "type": "string",
                     "example": "https://example.com/api/v1/transactions"
