@@ -159,6 +159,11 @@ definitions:
       envelopes:
         example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
+      groupedMonth:
+        description: This 'YYYY-MM' for clients to replace with the actual year and
+          month.
+        example: https://example.com/api/v1/month?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+        type: string
       month:
         description: This 'YYYY-MM' for clients to replace with the actual year and
           month.
@@ -304,6 +309,11 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Envelope'
     type: object
+  controllers.MonthResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Month'
+    type: object
   controllers.Transaction:
     properties:
       amount:
@@ -441,7 +451,7 @@ definitions:
           $ref: '#/definitions/models.EnvelopeMonth'
         type: array
       id:
-        description: The ID of the Envelope
+        description: The ID of the Budget
         example: 1e777d24-3f5b-4c43-8000-04f65f895578
         type: string
       income:
@@ -452,7 +462,7 @@ definitions:
         example: "2006-05-01T00:00:00.000000Z"
         type: string
       name:
-        description: The name of the Envelope
+        description: The name of the Budget
         example: Groceries
         type: string
     type: object
@@ -466,6 +476,19 @@ definitions:
         type: string
       note:
         example: All envelopes for long-term saving
+        type: string
+    type: object
+  models.CategoryEnvelopes:
+    properties:
+      envelopes:
+        items:
+          $ref: '#/definitions/models.EnvelopeMonth'
+        type: array
+      id:
+        example: dafd9a74-6aeb-46b9-9f5a-cfca624fea85
+        type: string
+      name:
+        example: Rainy Day Funds
         type: string
     type: object
   models.EnvelopeCreate:
@@ -493,7 +516,8 @@ definitions:
         example: 10b9705d-3356-459e-9d5a-28d42a6c4547
         type: string
       month:
-        description: This is always set to 00:00 UTC on the first of the month.
+        description: This is always set to 00:00 UTC on the first of the month. **This
+          field is deprecated and will be removed in v2**
         example: "1969-06-01T00:00:00.000000Z"
         type: string
       name:
@@ -503,6 +527,34 @@ definitions:
       spent:
         example: 73.12
         type: number
+    type: object
+  models.Month:
+    properties:
+      available:
+        example: 217.34
+        type: number
+      budgeted:
+        example: 2100
+        type: number
+      categories:
+        items:
+          $ref: '#/definitions/models.CategoryEnvelopes'
+        type: array
+      id:
+        description: The ID of the Budget
+        example: 1e777d24-3f5b-4c43-8000-04f65f895578
+        type: string
+      income:
+        example: 2317.34
+        type: number
+      month:
+        description: This is always set to 00:00 UTC on the first of the month.
+        example: "2006-05-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: The name of the Budget
+        example: Zero budget
+        type: string
     type: object
   models.TransactionCreate:
     properties:
@@ -1212,7 +1264,9 @@ paths:
       - Budgets
   /v1/budgets/{budgetId}/{month}:
     get:
-      description: Returns data about a budget for a for a specific month
+      deprecated: true
+      description: Returns data about a budget for a for a specific month. **Use GET
+        /month endpoint with month and budgetId query parameters instead.**
       parameters:
       - description: ID formatted as string
         in: path
@@ -1245,8 +1299,10 @@ paths:
       tags:
       - Budgets
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs
+        allowed HTTP verbs. **Use GET /month endpoint with month and budgetId query
+        parameters instead.**
       parameters:
       - description: ID formatted as string
         in: path
@@ -1738,7 +1794,9 @@ paths:
       - Envelopes
   /v1/envelopes/{envelopeId}/{month}:
     get:
-      description: Returns data about an envelope for a for a specific month
+      deprecated: true
+      description: Returns data about an envelope for a for a specific month. **Use
+        GET /month endpoint with month and budgetId query parameters instead.**
       parameters:
       - description: ID formatted as string
         in: path
@@ -1770,6 +1828,49 @@ paths:
       summary: Get Envelope month data
       tags:
       - Envelopes
+  /v1/months:
+    get:
+      description: Returns data about a specific month.
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MonthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Get data about a month
+      tags:
+      - Months
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs.
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Months
   /v1/transactions:
     get:
       description: Returns a list of transactions

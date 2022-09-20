@@ -121,6 +121,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	co.RegisterCategoryRoutes(v1.Group("/categories"))
 	co.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
 	co.RegisterAllocationRoutes(v1.Group("/allocations"))
+	co.RegisterMonthRoutes(v1.Group("/months"))
 }
 
 type RootResponse struct {

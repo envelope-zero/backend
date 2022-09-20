@@ -261,8 +261,18 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
 
+	// Verify budgeted for used budget
+	budgeted, err = budget.Budgeted(suite.db, marchFifteenthTwentyTwentyTwo)
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(25)), "Budgeted is %s, should be 25", budgeted)
+
 	// Verify total budgeted for empty budget
 	budgeted, err = emptyBudget.TotalBudgeted(suite.db, marchFifteenthTwentyTwentyTwo)
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
+
+	// Verify budgeted for empty budget
+	budgeted, err = emptyBudget.Budgeted(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 
@@ -315,4 +325,94 @@ func (suite *TestSuiteStandard) TestTotalBudgetedNoTransactions() {
 	budgeted, err := budget.TotalBudgeted(suite.db, time.Date(1913, 8, 3, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", budgeted)
+}
+
+func (suite *TestSuiteStandard) TestBudgetAvailableDBFail() {
+	budget := models.Budget{}
+
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	suite.CloseDB()
+
+	_, err = budget.Available(suite.db, time.Now())
+	suite.Assert().NotNil(err)
+	suite.Assert().Equal("sql: database is closed", err.Error())
+}
+
+func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
+	budget := models.Budget{}
+
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	suite.CloseDB()
+
+	_, err = budget.Income(suite.db, time.Now())
+	suite.Assert().NotNil(err)
+	suite.Assert().Equal("sql: database is closed", err.Error())
+}
+
+func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
+	budget := models.Budget{}
+
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	suite.CloseDB()
+
+	_, err = budget.Budgeted(suite.db, time.Now())
+	suite.Assert().NotNil(err)
+	suite.Assert().Equal("sql: database is closed", err.Error())
+}
+
+func (suite *TestSuiteStandard) TestBudgetTotalBudgetedDBFail() {
+	budget := models.Budget{}
+
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	suite.CloseDB()
+
+	_, err = budget.TotalBudgeted(suite.db, time.Now())
+	suite.Assert().NotNil(err)
+	suite.Assert().Equal("sql: database is closed", err.Error())
+}
+
+func (suite *TestSuiteStandard) TestBudgetTotalIncomeDBFail() {
+	budget := models.Budget{}
+
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	suite.CloseDB()
+
+	_, err = budget.TotalIncome(suite.db, time.Now())
+	suite.Assert().NotNil(err)
+	suite.Assert().Equal("sql: database is closed", err.Error())
+}
+
+func (suite *TestSuiteStandard) TestBudgetOverspentDBFail() {
+	budget := models.Budget{}
+
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	suite.CloseDB()
+
+	_, err = budget.Overspent(suite.db, time.Now())
+	suite.Assert().NotNil(err)
+	suite.Assert().Equal("sql: database is closed", err.Error())
 }

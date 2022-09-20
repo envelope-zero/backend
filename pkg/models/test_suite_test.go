@@ -48,9 +48,9 @@ func (suite *TestSuiteStandard) SetupTest() {
 	suite.db = db
 }
 
-// DisconnectDB closes the database connection. This enables testing the handling
+// CloseDB closes the database connection. This enables testing the handling
 // of database errors.
-func (suite *TestSuiteStandard) DisconnectDB() {
+func (suite *TestSuiteStandard) CloseDB() {
 	sqlDB, err := suite.db.DB()
 	if err != nil {
 		suite.Assert().FailNowf("Failed to get database resource for teardown: %v", err.Error())

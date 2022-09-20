@@ -934,7 +934,7 @@ const docTemplate = `{
         },
         "/v1/budgets/{budgetId}/{month}": {
             "get": {
-                "description": "Returns data about a budget for a for a specific month",
+                "description": "Returns data about a budget for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**",
                 "produces": [
                     "application/json"
                 ],
@@ -942,6 +942,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Get Budget month data",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -983,11 +984,12 @@ const docTemplate = `{
                 }
             },
             "options": {
-                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs. **Use GET /month endpoint with month and budgetId query parameters instead.**",
                 "tags": [
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1712,7 +1714,7 @@ const docTemplate = `{
         },
         "/v1/envelopes/{envelopeId}/{month}": {
             "get": {
-                "description": "Returns data about an envelope for a for a specific month",
+                "description": "Returns data about an envelope for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**",
                 "produces": [
                     "application/json"
                 ],
@@ -1720,6 +1722,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Get Envelope month data",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1757,6 +1760,69 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
+                    }
+                }
+            }
+        },
+        "/v1/months": {
+            "get": {
+                "description": "Returns data about a specific month.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Get data about a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budget",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs.",
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -2302,6 +2368,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
+                "groupedMonth": {
+                    "description": "This 'YYYY-MM' for clients to replace with the actual year and month.",
+                    "type": "string",
+                    "example": "https://example.com/api/v1/month?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                },
                 "month": {
                     "description": "This 'YYYY-MM' for clients to replace with the actual year and month.",
                     "type": "string",
@@ -2508,6 +2579,14 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.MonthResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.Month"
+                }
+            }
+        },
         "controllers.Transaction": {
             "type": "object",
             "properties": {
@@ -2691,7 +2770,7 @@ const docTemplate = `{
                     }
                 },
                 "id": {
-                    "description": "The ID of the Envelope",
+                    "description": "The ID of the Budget",
                     "type": "string",
                     "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
                 },
@@ -2705,7 +2784,7 @@ const docTemplate = `{
                     "example": "2006-05-01T00:00:00.000000Z"
                 },
                 "name": {
-                    "description": "The name of the Envelope",
+                    "description": "The name of the Budget",
                     "type": "string",
                     "example": "Groceries"
                 }
@@ -2725,6 +2804,25 @@ const docTemplate = `{
                 "note": {
                     "type": "string",
                     "example": "All envelopes for long-term saving"
+                }
+            }
+        },
+        "models.CategoryEnvelopes": {
+            "type": "object",
+            "properties": {
+                "envelopes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EnvelopeMonth"
+                    }
+                },
+                "id": {
+                    "type": "string",
+                    "example": "dafd9a74-6aeb-46b9-9f5a-cfca624fea85"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Rainy Day Funds"
                 }
             }
         },
@@ -2762,7 +2860,7 @@ const docTemplate = `{
                     "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
                 },
                 "month": {
-                    "description": "This is always set to 00:00 UTC on the first of the month.",
+                    "description": "This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**",
                     "type": "string",
                     "example": "1969-06-01T00:00:00.000000Z"
                 },
@@ -2774,6 +2872,44 @@ const docTemplate = `{
                 "spent": {
                     "type": "number",
                     "example": 73.12
+                }
+            }
+        },
+        "models.Month": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "number",
+                    "example": 217.34
+                },
+                "budgeted": {
+                    "type": "number",
+                    "example": 2100
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CategoryEnvelopes"
+                    }
+                },
+                "id": {
+                    "description": "The ID of the Budget",
+                    "type": "string",
+                    "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
+                },
+                "income": {
+                    "type": "number",
+                    "example": 2317.34
+                },
+                "month": {
+                    "description": "This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "2006-05-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "The name of the Budget",
+                    "type": "string",
+                    "example": "Zero budget"
                 }
             }
         },

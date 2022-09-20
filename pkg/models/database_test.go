@@ -5,7 +5,7 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestMigrate() {
-	suite.DisconnectDB()
+	suite.CloseDB()
 	err := models.Migrate(suite.db)
 	suite.Assert().NotNil(err)
 	suite.Assert().Contains(err.Error(), "error during DB migration")

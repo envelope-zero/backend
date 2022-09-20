@@ -207,7 +207,7 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 }
 
 // @Summary     Get Envelope month data
-// @Description Returns data about an envelope for a for a specific month
+// @Description Returns data about an envelope for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**
 // @Tags        Envelopes
 // @Produce     json
 // @Success     200 {object} EnvelopeMonthResponse
@@ -217,6 +217,7 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 // @Param       envelopeId path     string true "ID formatted as string"
 // @Param       month      path     string true "The month in YYYY-MM format"
 // @Router      /v1/envelopes/{envelopeId}/{month} [get]
+// @Deprecated  true
 func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
