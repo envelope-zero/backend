@@ -2879,14 +2879,22 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "available": {
+                    "description": "The amount available to budget",
                     "type": "number",
                     "example": 217.34
                 },
+                "balance": {
+                    "description": "The sum of all envelope balances",
+                    "type": "number",
+                    "example": 5231.37
+                },
                 "budgeted": {
+                    "description": "The sum of all allocations for the month",
                     "type": "number",
                     "example": 2100
                 },
                 "categories": {
+                    "description": "A list of envelope month calculations grouped by category",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.CategoryEnvelopes"
@@ -2898,6 +2906,7 @@ const docTemplate = `{
                     "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
                 },
                 "income": {
+                    "description": "The total income for the month (sum of all incoming transactions without an Envelope)",
                     "type": "number",
                     "example": 2317.34
                 },

@@ -9,6 +9,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type MonthResponse struct {
@@ -112,6 +113,7 @@ func (co Controller) GetMonth(c *gin.Context) {
 	}
 
 	month.Categories = make([]models.CategoryEnvelopes, 0)
+	month.Balance = decimal.Zero
 
 	// Get envelopes for all categories
 	for _, category := range categories {
@@ -134,6 +136,7 @@ func (co Controller) GetMonth(c *gin.Context) {
 
 		for _, envelope := range envelopes {
 			envelopeMonth, err := envelope.Month(co.DB, month.Month)
+			month.Balance = month.Balance.Add(envelopeMonth.Balance)
 			if err != nil {
 				httperrors.Handler(c, err)
 				return

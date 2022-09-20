@@ -94,9 +94,9 @@ func (suite *TestSuiteStandard) TestMonth() {
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-01", -1),
 			controllers.MonthResponse{
 				Data: models.Month{
-					Month:  time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
-					Income: decimal.NewFromFloat(0),
-
+					Month:   time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+					Income:  decimal.NewFromFloat(0),
+					Balance: decimal.NewFromFloat(10.99),
 					Categories: []models.CategoryEnvelopes{
 						{
 							Name: category.Data.Name,
@@ -119,8 +119,9 @@ func (suite *TestSuiteStandard) TestMonth() {
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-02", -1),
 			controllers.MonthResponse{
 				Data: models.Month{
-					Month:  time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
-					Income: decimal.NewFromFloat(0),
+					Month:   time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+					Income:  decimal.NewFromFloat(0),
+					Balance: decimal.NewFromFloat(53.11),
 					Categories: []models.CategoryEnvelopes{
 						{
 							Name: category.Data.Name,
@@ -143,8 +144,9 @@ func (suite *TestSuiteStandard) TestMonth() {
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-03", -1),
 			controllers.MonthResponse{
 				Data: models.Month{
-					Month:  time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
-					Income: decimal.NewFromFloat(1500),
+					Month:   time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+					Income:  decimal.NewFromFloat(1500),
+					Balance: decimal.NewFromFloat(69.28),
 					Categories: []models.CategoryEnvelopes{
 						{
 							Name: category.Data.Name,
@@ -173,6 +175,9 @@ func (suite *TestSuiteStandard) TestMonth() {
 
 		// Verify income calculation
 		suite.Assert().True(month.Data.Income.Equal(tt.response.Data.Income))
+
+		// Verify month balance calculation
+		suite.Assert().True(month.Data.Balance.Equal(tt.response.Data.Balance), "Month balance calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, tt.response.Data.Balance, month.Data.Balance, month.Data)
 
 		if !suite.Assert().Len(month.Data.Categories, 1) {
 			suite.Assert().FailNow("Response category length does not match!", "Category list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Data.Categories), r.Header().Get("x-request-id"))

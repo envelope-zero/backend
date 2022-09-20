@@ -531,12 +531,19 @@ definitions:
   models.Month:
     properties:
       available:
+        description: The amount available to budget
         example: 217.34
         type: number
+      balance:
+        description: The sum of all envelope balances
+        example: 5231.37
+        type: number
       budgeted:
+        description: The sum of all allocations for the month
         example: 2100
         type: number
       categories:
+        description: A list of envelope month calculations grouped by category
         items:
           $ref: '#/definitions/models.CategoryEnvelopes'
         type: array
@@ -545,6 +552,8 @@ definitions:
         example: 1e777d24-3f5b-4c43-8000-04f65f895578
         type: string
       income:
+        description: The total income for the month (sum of all incoming transactions
+          without an Envelope)
         example: 2317.34
         type: number
       month:
