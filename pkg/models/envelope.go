@@ -70,7 +70,7 @@ func (e Envelope) Spent(db *gorm.DB, t time.Time) decimal.Decimal {
 func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
 	// We add one month as the balance should include all transactions and the allocation for the present month
 	// With that, we can query for all resources where the date/month is < the month
-	month = time.Date(month.Year(), month.AddDate(0, 1, 0).Month(), 1, 0, 0, 0, 0, time.UTC)
+	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
 
 	// Sum of incoming transactions
 	var incoming decimal.NullDecimal
