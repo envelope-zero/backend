@@ -269,6 +269,11 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
 
+	// Verify total budgeted for used budget in January after (regression test for using AddDate(0, 1, 0) with the month instead of the whole date)
+	budgeted, err = budget.TotalBudgeted(suite.db, time.Date(marchFifteenthTwentyTwentyTwo.AddDate(1, 0, 0).Year(), 1, 1, 0, 0, 0, 0, time.UTC))
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
+
 	// Verify budgeted for used budget
 	budgeted, err = budget.Budgeted(suite.db, marchFifteenthTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)

@@ -113,7 +113,7 @@ func (b Budget) Available(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 func (b Budget) TotalIncome(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
 	// Only use the year and month values, everything else is reset to the start
 	// Add a month to also factor in all allocations in the requested month
-	month = time.Date(month.Year(), month.AddDate(0, 1, 0).Month(), 1, 0, 0, 0, 0, time.UTC)
+	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
 
 	var income decimal.NullDecimal
 	err := db.
@@ -177,7 +177,7 @@ func (b Budget) Budgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) 
 func (b Budget) TotalBudgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
 	// Only use the year and month values, everything else is reset to the start
 	// Add a month to also factor in all allocations in the requested month
-	month = time.Date(month.Year(), month.AddDate(0, 1, 0).Month(), 1, 0, 0, 0, 0, time.UTC)
+	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
 
 	var budgeted decimal.NullDecimal
 	err := db.
@@ -205,7 +205,6 @@ func (b Budget) TotalBudgeted(db *gorm.DB, month time.Time) (decimal.Decimal, er
 // Overspent calculates overspend for a specific month.
 func (b Budget) Overspent(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
 	// Only use the year and month values, everything else is reset to the start
-	// Add a month to also factor in all allocations in the requested month
 	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	var envelopes []Envelope
@@ -237,6 +236,7 @@ func (b Budget) Overspent(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 		Where("source_account.external = 0").
 		Where("destination_account.external = 1").
 		Where("transactions.envelope_id IS NULL").
+		// Add a month to also factor in all allocations in the requested month
 		Where("transactions.date < date(?) ", month.AddDate(0, 1, 0)).
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{

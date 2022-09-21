@@ -293,6 +293,12 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 
+	// Verify balance for December (regression test for using AddDate(0, 1, 0) with the month instead of the whole date)
+	shouldBalance = decimal.NewFromFloat(45)
+	envelopeMonth, err = envelope.Month(suite.db, time.Date(january.Year(), 12, 1, 0, 0, 0, 0, time.UTC))
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
+
 	shouldBalance = decimal.NewFromFloat(0)
 	envelopeMonth, err = envelope2.Month(suite.db, january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)

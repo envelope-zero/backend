@@ -3,6 +3,7 @@ gorm.db
 coverage.out
 /backend
 dist/
+__debug_bin
 
 # Created in the workflows but need to be ignored
 node_modules/
