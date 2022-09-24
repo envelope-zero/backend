@@ -8,6 +8,11 @@ issues:
         - gocyclo
         - errcheck
         - dupl
+      # Parsing logic has high cyclomatic complexity. This is okay.
+    - path: pkg/importer/parser/ynab4/parse.go
+      linters:
+        - gocyclo
+      text: "func `parseTransactions`"
 
 linters:
   enable:

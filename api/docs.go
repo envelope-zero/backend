@@ -1764,6 +1764,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/import": {
+            "post": {
+                "description": "Imports data from other sources. Resources with the same name are ignored. Accepts CSV files in the following formats: YNAB Import (use [YNAP](https://ynap.leolabs.org/) to convert your bank statement), YNAB 4 Register export, and YNAB 4 Budget export.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Import",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to import",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of the Budget to create for a YNAB 4 import. Ignored for all other imports",
+                        "name": "budgetName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/months": {
             "get": {
                 "description": "Returns data about a specific month.",
@@ -3064,6 +3129,10 @@ const docTemplate = `{
                 "envelopes": {
                     "type": "string",
                     "example": "https://example.com/api/v1/envelopes"
+                },
+                "import": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/import"
                 },
                 "months": {
                     "type": "string",

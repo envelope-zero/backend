@@ -122,6 +122,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	co.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
 	co.RegisterAllocationRoutes(v1.Group("/allocations"))
 	co.RegisterMonthRoutes(v1.Group("/months"))
+	co.RegisterImportRoutes(v1.Group("/import"))
 }
 
 type RootResponse struct {
@@ -199,6 +200,7 @@ type V1Links struct {
 	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`
 	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`
 	Months       string `json:"months" example:"https://example.com/api/v1/months"`
+	Import       string `json:"import" example:"https://example.com/api/v1/import"`
 }
 
 // @Summary     v1 API
@@ -216,6 +218,7 @@ func GetV1(c *gin.Context) {
 			Envelopes:    c.GetString("baseURL") + "/v1/envelopes",
 			Allocations:  c.GetString("baseURL") + "/v1/allocations",
 			Months:       c.GetString("baseURL") + "/v1/months",
+			Import:       c.GetString("baseURL") + "/v1/import",
 		},
 	})
 }

@@ -1,0 +1,24 @@
+{
+  "accounts": [],
+  "budgetMetaData": {
+    "dateLocale": "en_US",
+    "budgetType": "Personal",
+    "strictBudget": "TRUE",
+    "entityVersion": "A-181",
+    "currencyISOSymbol": null,
+    "entityId": "A2",
+    "entityType": "budgetMetaData",
+    "currencyLocale": "en_US"
+  },
+  "transactions": [],
+  "monthlyBudgets": [],
+  "fileMetaData": {
+    "currentKnowledge": "A-264",
+    "budgetDataVersion": "4.2",
+    "entityType": "fileMetaData"
+  },
+  "masterCategories": [],
+  "scheduledTransactions": [],
+  "accountMappings": [],
+  "payees": []
+}

@@ -29,17 +29,21 @@ type APIResponse struct {
 
 // Request is a helper method to simplify making a HTTP request for tests.
 func Request(co controllers.Controller, t *testing.T, method, url string, body any, headers ...map[string]string) httptest.ResponseRecorder {
-	var byteStr []byte
+	var byteBuffer *bytes.Buffer
 	var err error
 
 	// If the body is a string, convert it to bytes
 	if reflect.TypeOf(body).Kind() == reflect.String {
-		byteStr = []byte(body.(string))
-	} else {
-		byteStr, err = json.Marshal(body)
+		byteBuffer = bytes.NewBufferString(body.(string))
+	} else if reflect.TypeOf(body).Kind() == reflect.Struct || reflect.TypeOf(body).Kind() == reflect.Map {
+		byteStr, err := json.Marshal(body)
 		if err != nil {
-			assert.FailNow(t, "Request body could not be marshalled from object input", err)
+			assert.Fail(t, "Request body could not be marshalled from struct input", err)
 		}
+		byteBuffer = bytes.NewBuffer(byteStr)
+	} else {
+		// Assume we got sent a *bytes.Buffer for e.g. a file
+		byteBuffer = body.(*bytes.Buffer)
 	}
 
 	r, err := router.Config()
@@ -49,7 +53,7 @@ func Request(co controllers.Controller, t *testing.T, method, url string, body a
 	router.AttachRoutes(co, r.Group("/"))
 
 	recorder := httptest.NewRecorder()
-	req, _ := http.NewRequest(method, url, bytes.NewBuffer(byteStr))
+	req, _ := http.NewRequest(method, url, byteBuffer)
 
 	for _, headerMap := range headers {
 		for header, value := range headerMap {

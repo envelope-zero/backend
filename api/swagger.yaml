@@ -673,6 +673,9 @@ definitions:
       envelopes:
         example: https://example.com/api/v1/envelopes
         type: string
+      import:
+        example: https://example.com/api/v1/import
+        type: string
       months:
         example: https://example.com/api/v1/months
         type: string
@@ -1881,6 +1884,54 @@ paths:
       summary: Get Envelope month data
       tags:
       - Envelopes
+  /v1/import:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Imports data from other sources. Resources with the same name
+        are ignored. Accepts CSV files in the following formats: YNAB Import (use
+        [YNAP](https://ynap.leolabs.org/) to convert your bank statement), YNAB 4
+        Register export, and YNAB 4 Budget export.'
+      parameters:
+      - description: File to import
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Name of the Budget to create for a YNAB 4 import. Ignored for
+          all other imports
+        in: query
+        name: budgetName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Import
+      tags:
+      - Import
   /v1/months:
     get:
       description: Returns data about a specific month.
