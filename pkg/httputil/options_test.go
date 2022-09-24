@@ -24,7 +24,7 @@ func TestOptionsGet(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
-func TestOptionsPost(t *testing.T) {
+func TestOptionsGetPost(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
@@ -35,6 +35,20 @@ func TestOptionsPost(t *testing.T) {
 	r.ServeHTTP(w, c.Request)
 
 	assert.Equal(t, "OPTIONS, GET, POST", w.Header().Get("allow"))
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
+func TestOptionsPost(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", httputil.OptionsPost)
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	c.Request.Host = "example.com"
+	r.ServeHTTP(w, c.Request)
+
+	assert.Equal(t, "OPTIONS, POST", w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 

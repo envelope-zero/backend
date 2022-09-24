@@ -4,6 +4,7 @@ coverage.out
 /backend
 dist/
 __debug_bin
+.DS_Store
 
 # Created in the workflows but need to be ignored
 node_modules/

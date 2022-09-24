@@ -12,6 +12,11 @@ func OptionsGet(c *gin.Context) {
 	c.Render(http.StatusNoContent, render.JSON{})
 }
 
+func OptionsPost(c *gin.Context) {
+	c.Header("allow", "OPTIONS, POST")
+	c.Render(http.StatusNoContent, render.JSON{})
+}
+
 func OptionsGetPost(c *gin.Context) {
 	c.Header("allow", "OPTIONS, GET, POST")
 	c.Render(http.StatusNoContent, render.JSON{})
