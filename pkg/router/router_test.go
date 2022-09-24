@@ -155,9 +155,9 @@ func TestOptions(t *testing.T) {
 		f        func(*gin.Context)
 		expected string
 	}{
-		{"/", router.OptionsRoot, "GET"},
-		{"/version", router.OptionsVersion, "GET"},
-		{"/v1", router.OptionsV1, "GET, DELETE"},
+		{"/", router.OptionsRoot, "OPTIONS, GET"},
+		{"/version", router.OptionsVersion, "OPTIONS, GET"},
+		{"/v1", router.OptionsV1, "OPTIONS, GET, DELETE"},
 	}
 
 	for _, tt := range tests {

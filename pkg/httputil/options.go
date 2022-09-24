@@ -8,26 +8,26 @@ import (
 )
 
 func OptionsGet(c *gin.Context) {
-	c.Header("allow", "GET")
+	c.Header("allow", "OPTIONS, GET")
 	c.Render(http.StatusNoContent, render.JSON{})
 }
 
 func OptionsGetPost(c *gin.Context) {
-	c.Header("allow", "GET, POST")
+	c.Header("allow", "OPTIONS, GET, POST")
 	c.Render(http.StatusNoContent, render.JSON{})
 }
 
 func OptionsGetDelete(c *gin.Context) {
-	c.Header("allow", "GET, DELETE")
+	c.Header("allow", "OPTIONS, GET, DELETE")
 	c.Render(http.StatusNoContent, render.JSON{})
 }
 
 func OptionsGetPatchDelete(c *gin.Context) {
-	c.Header("allow", "GET, PATCH, DELETE")
+	c.Header("allow", "OPTIONS, GET, PATCH, DELETE")
 	c.Render(http.StatusNoContent, render.JSON{})
 }
 
 func OptionsDelete(c *gin.Context) {
-	c.Header("allow", "DELETE")
+	c.Header("allow", "OPTIONS, DELETE")
 	c.Render(http.StatusNoContent, render.JSON{})
 }

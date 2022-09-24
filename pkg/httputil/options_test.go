@@ -20,7 +20,7 @@ func TestOptionsGet(t *testing.T) {
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 
-	assert.Equal(t, http.MethodGet, w.Header().Get("allow"))
+	assert.Equal(t, "OPTIONS, GET", w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
@@ -34,7 +34,7 @@ func TestOptionsPost(t *testing.T) {
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 
-	assert.Equal(t, "GET, POST", w.Header().Get("allow"))
+	assert.Equal(t, "OPTIONS, GET, POST", w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
@@ -48,7 +48,7 @@ func TestOptionsGetPatchDelete(t *testing.T) {
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 
-	assert.Equal(t, "GET, PATCH, DELETE", w.Header().Get("allow"))
+	assert.Equal(t, "OPTIONS, GET, PATCH, DELETE", w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
@@ -62,7 +62,7 @@ func TestOptionsGetDelete(t *testing.T) {
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 
-	assert.Equal(t, "GET, DELETE", w.Header().Get("allow"))
+	assert.Equal(t, "OPTIONS, GET, DELETE", w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
@@ -76,6 +76,6 @@ func TestOptionsDelete(t *testing.T) {
 	c.Request.Host = "example.com"
 	r.ServeHTTP(w, c.Request)
 
-	assert.Equal(t, "DELETE", w.Header().Get("allow"))
+	assert.Equal(t, "OPTIONS, DELETE", w.Header().Get("allow"))
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }

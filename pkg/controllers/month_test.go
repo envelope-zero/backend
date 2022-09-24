@@ -15,7 +15,7 @@ import (
 func (suite *TestSuiteStandard) TestOptionsMonth() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/months", "")
 	suite.Assert().Equal(http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
-	suite.Assert().Equal(recorder.Header().Get("allow"), "GET")
+	suite.Assert().Equal(recorder.Header().Get("allow"), "OPTIONS, GET")
 }
 
 // TestBudgetMonth verifies that the monthly calculations are correct.
