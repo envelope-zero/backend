@@ -61,7 +61,7 @@ func (suite *TestSuiteStandard) TestOptionsBudgetMonth() {
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, strings.Replace(budgetLink, "YYYY-MM", "1970-01", 1), "")
 	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
-	assert.Equal(suite.T(), recorder.Header().Get("allow"), "GET")
+	assert.Equal(suite.T(), recorder.Header().Get("allow"), "OPTIONS, GET")
 
 	// Bad Request for invalid UUID
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/nouuid/2022-01", "")
@@ -81,7 +81,7 @@ func (suite *TestSuiteStandard) TestOptionsBudgetMonthAllocations() {
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, strings.Replace(budgetAllocationsLink, "YYYY-MM", "1970-01", 1), "")
 	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
-	assert.Equal(suite.T(), recorder.Header().Get("allow"), "DELETE")
+	assert.Equal(suite.T(), recorder.Header().Get("allow"), "OPTIONS, DELETE")
 
 	// Bad Request for invalid UUID
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
