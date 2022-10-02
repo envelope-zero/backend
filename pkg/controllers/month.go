@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -135,11 +136,17 @@ func (co Controller) GetMonth(c *gin.Context) {
 		}
 
 		for _, envelope := range envelopes {
-			envelopeMonth, err := envelope.Month(co.DB, month.Month)
-			month.Balance = month.Balance.Add(envelopeMonth.Balance)
+			envelopeMonth, allocationID, err := envelope.Month(co.DB, month.Month)
 			if err != nil {
 				httperrors.Handler(c, err)
 				return
+			}
+
+			// Update the month's balance
+			month.Balance = month.Balance.Add(envelopeMonth.Balance)
+			// Set the allocation link if it is not empty.
+			if allocationID != uuid.Nil {
+				envelopeMonth.Links.Allocation = fmt.Sprintf("%s/v1/allocations/%s", c.GetString("baseURL"), allocationID)
 			}
 
 			categoryEnvelopes.Envelopes = append(categoryEnvelopes.Envelopes, envelopeMonth)

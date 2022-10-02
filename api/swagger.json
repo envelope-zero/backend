@@ -2847,6 +2847,9 @@
                     "type": "string",
                     "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
                 },
+                "links": {
+                    "$ref": "#/definitions/models.EnvelopeMonthLinks"
+                },
                 "month": {
                     "description": "This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**",
                     "type": "string",
@@ -2860,6 +2863,16 @@
                 "spent": {
                     "type": "number",
                     "example": 73.12
+                }
+            }
+        },
+        "models.EnvelopeMonthLinks": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "This is an empty string when no allocation exists",
+                    "type": "string",
+                    "example": "https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"
                 }
             }
         },

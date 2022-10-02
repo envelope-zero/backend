@@ -335,7 +335,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 
 	var envelopeMonths []models.EnvelopeMonth
 	for _, envelope := range envelopes {
-		envelopeMonth, err := envelope.Month(co.DB, month.Month)
+		envelopeMonth, _, err := envelope.Month(co.DB, month.Month)
 		if err != nil {
 			httperrors.Handler(c, err)
 			return

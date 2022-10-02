@@ -21,14 +21,19 @@ type EnvelopeCreate struct {
 	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`
 }
 
+type EnvelopeMonthLinks struct {
+	Allocation string `json:"allocation" example:"https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"` // This is an empty string when no allocation exists
+}
+
 // EnvelopeMonth contains data about an Envelope for a specific month.
 type EnvelopeMonth struct {
-	ID         uuid.UUID       `json:"id" example:"10b9705d-3356-459e-9d5a-28d42a6c4547"`               // The ID of the Envelope
-	Name       string          `json:"name" example:"Groceries"`                                        // The name of the Envelope
-	Month      time.Time       `json:"month" example:"1969-06-01T00:00:00.000000Z" hidden:"deprecated"` // This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**
-	Spent      decimal.Decimal `json:"spent" example:"73.12"`
-	Balance    decimal.Decimal `json:"balance" example:"12.32"`
-	Allocation decimal.Decimal `json:"allocation" example:"85.44"`
+	ID         uuid.UUID          `json:"id" example:"10b9705d-3356-459e-9d5a-28d42a6c4547"`               // The ID of the Envelope
+	Name       string             `json:"name" example:"Groceries"`                                        // The name of the Envelope
+	Month      time.Time          `json:"month" example:"1969-06-01T00:00:00.000000Z" hidden:"deprecated"` // This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**
+	Spent      decimal.Decimal    `json:"spent" example:"73.12"`
+	Balance    decimal.Decimal    `json:"balance" example:"12.32"`
+	Allocation decimal.Decimal    `json:"allocation" example:"85.44"`
+	Links      EnvelopeMonthLinks `json:"links"`
 }
 
 // Spent returns the amount spent for the month the time.Time instance is in.
@@ -130,8 +135,8 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 	return budgeted.Decimal.Add(incoming.Decimal).Sub(outgoing.Decimal), nil
 }
 
-// Month calculates the month specific values for an envelope and returns an EnvelopeMonth for them.
-func (e Envelope) Month(db *gorm.DB, t time.Time) (EnvelopeMonth, error) {
+// Month calculates the month specific values for an envelope and returns an EnvelopeMonth and allocation ID for them.
+func (e Envelope) Month(db *gorm.DB, t time.Time) (EnvelopeMonth, uuid.UUID, error) {
 	spent := e.Spent(db, t)
 	month := time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC)
 
@@ -154,14 +159,14 @@ func (e Envelope) Month(db *gorm.DB, t time.Time) (EnvelopeMonth, error) {
 
 	// If an unexpected error occurs, return
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return EnvelopeMonth{}, err
+		return EnvelopeMonth{}, uuid.Nil, err
 	}
 
 	envelopeMonth.Balance, err = e.Balance(db, month)
 	if err != nil {
-		return EnvelopeMonth{}, err
+		return EnvelopeMonth{}, uuid.Nil, err
 	}
 
 	envelopeMonth.Allocation = allocation.Amount
-	return envelopeMonth, nil
+	return envelopeMonth, allocation.ID, nil
 }

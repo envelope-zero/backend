@@ -1,6 +1,7 @@
 package controllers_test
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -25,19 +26,19 @@ func (suite *TestSuiteStandard) TestMonth() {
 	account := suite.createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID})
 	externalAccount := suite.createTestAccount(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID, External: true})
 
-	_ = suite.createTestAllocation(suite.T(), models.AllocationCreate{
+	allocationJanuary := suite.createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
 		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(20.99),
 	})
 
-	_ = suite.createTestAllocation(suite.T(), models.AllocationCreate{
+	allocationFebruary := suite.createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
 		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(47.12),
 	})
 
-	_ = suite.createTestAllocation(suite.T(), models.AllocationCreate{
+	allocationMarch := suite.createTestAllocation(suite.T(), models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
 		Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 		Amount:     decimal.NewFromFloat(31.17),
@@ -108,6 +109,9 @@ func (suite *TestSuiteStandard) TestMonth() {
 									Spent:      decimal.NewFromFloat(10),
 									Balance:    decimal.NewFromFloat(10.99),
 									Allocation: decimal.NewFromFloat(20.99),
+									Links: models.EnvelopeMonthLinks{
+										Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationJanuary.Data.ID),
+									},
 								},
 							},
 						},
@@ -133,6 +137,9 @@ func (suite *TestSuiteStandard) TestMonth() {
 									Balance:    decimal.NewFromFloat(53.11),
 									Spent:      decimal.NewFromFloat(5),
 									Allocation: decimal.NewFromFloat(47.12),
+									Links: models.EnvelopeMonthLinks{
+										Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationFebruary.Data.ID),
+									},
 								},
 							},
 						},
@@ -158,6 +165,9 @@ func (suite *TestSuiteStandard) TestMonth() {
 									Balance:    decimal.NewFromFloat(69.28),
 									Spent:      decimal.NewFromFloat(15),
 									Allocation: decimal.NewFromFloat(31.17),
+									Links: models.EnvelopeMonthLinks{
+										Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationMarch.Data.ID),
+									},
 								},
 							},
 						},
@@ -192,6 +202,8 @@ func (suite *TestSuiteStandard) TestMonth() {
 		suite.Assert().True(envelope.Spent.Equal(expected.Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expected.Spent, envelope.Spent, month.Data)
 		suite.Assert().True(envelope.Balance.Equal(expected.Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expected.Balance, envelope.Balance, month.Data)
 		suite.Assert().True(envelope.Allocation.Equal(expected.Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expected.Allocation, envelope.Allocation, month.Data)
+
+		suite.Assert().Equal(expected.Links.Allocation, envelope.Links.Allocation)
 	}
 }
 

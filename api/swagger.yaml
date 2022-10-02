@@ -515,6 +515,8 @@ definitions:
         description: The ID of the Envelope
         example: 10b9705d-3356-459e-9d5a-28d42a6c4547
         type: string
+      links:
+        $ref: '#/definitions/models.EnvelopeMonthLinks'
       month:
         description: This is always set to 00:00 UTC on the first of the month. **This
           field is deprecated and will be removed in v2**
@@ -527,6 +529,13 @@ definitions:
       spent:
         example: 73.12
         type: number
+    type: object
+  models.EnvelopeMonthLinks:
+    properties:
+      allocation:
+        description: This is an empty string when no allocation exists
+        example: https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3
+        type: string
     type: object
   models.Month:
     properties:
