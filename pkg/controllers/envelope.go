@@ -242,7 +242,7 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelopeMonth, err := envelope.Month(co.DB, month.Month)
+	envelopeMonth, _, err := envelope.Month(co.DB, month.Month)
 	if err != nil {
 		httperrors.Handler(c, err)
 		return

@@ -92,11 +92,11 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	envelopeMonth, err := envelope.Month(suite.db, january)
+	envelopeMonth, _, err := envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
-	envelopeMonth, err = envelope.Month(suite.db, january.AddDate(0, 1, 0))
+	envelopeMonth, _, err = envelope.Month(suite.db, january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
@@ -105,7 +105,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	envelopeMonth, err = envelope.Month(suite.db, january)
+	envelopeMonth, _, err = envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(decimal.NewFromFloat(0)), "Month calculation for 2022-01 is wrong: should be %v, but is %v", decimal.NewFromFloat(0), envelopeMonth.Spent)
 }
@@ -284,23 +284,23 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	}
 
 	shouldBalance := decimal.NewFromFloat(35)
-	envelopeMonth, err := envelope.Month(suite.db, january)
+	envelopeMonth, _, err := envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-01 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 
 	shouldBalance = decimal.NewFromFloat(45)
-	envelopeMonth, err = envelope.Month(suite.db, january.AddDate(0, 1, 0))
+	envelopeMonth, _, err = envelope.Month(suite.db, january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 
 	// Verify balance for December (regression test for using AddDate(0, 1, 0) with the month instead of the whole date)
 	shouldBalance = decimal.NewFromFloat(45)
-	envelopeMonth, err = envelope.Month(suite.db, time.Date(january.Year(), 12, 1, 0, 0, 0, 0, time.UTC))
+	envelopeMonth, _, err = envelope.Month(suite.db, time.Date(january.Year(), 12, 1, 0, 0, 0, 0, time.UTC))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 
 	shouldBalance = decimal.NewFromFloat(0)
-	envelopeMonth, err = envelope2.Month(suite.db, january.AddDate(0, 1, 0))
+	envelopeMonth, _, err = envelope2.Month(suite.db, january.AddDate(0, 1, 0))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Balance.Equal(shouldBalance), "Balance calculation for 2022-02 is wrong: should be %v, but is %v", shouldBalance, envelopeMonth.Balance)
 }
