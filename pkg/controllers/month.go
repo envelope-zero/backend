@@ -144,9 +144,13 @@ func (co Controller) GetMonth(c *gin.Context) {
 
 			// Update the month's balance
 			month.Balance = month.Balance.Add(envelopeMonth.Balance)
-			// Set the allocation link if it is not empty.
+
+			// Set the allocation link. If there is no allocation, we send the collection endpoint.
+			// With this, any client will be able to see that the "Budgeted" amount is 0 and therefore
+			// send a HTTP POST for creation instead of a patch.
+			envelopeMonth.Links.Allocation = fmt.Sprintf("%s/v1/allocations", c.GetString("baseURL"))
 			if allocationID != uuid.Nil {
-				envelopeMonth.Links.Allocation = fmt.Sprintf("%s/v1/allocations/%s", c.GetString("baseURL"), allocationID)
+				envelopeMonth.Links.Allocation = fmt.Sprintf("%s/%s", envelopeMonth.Links.Allocation, allocationID)
 			}
 
 			categoryEnvelopes.Envelopes = append(categoryEnvelopes.Envelopes, envelopeMonth)

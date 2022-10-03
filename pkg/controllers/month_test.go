@@ -207,7 +207,37 @@ func (suite *TestSuiteStandard) TestMonth() {
 	}
 }
 
-// TestBudgetMonth verifies that the monthly calculations are correct.
+// TestEnvelopeNoAllocationLink verifies that for an Envelope with no allocation for a specific month,
+// the allocation collection endpoint is set as link.
+func (suite *TestSuiteStandard) TestEnvelopeNoAllocationLink() {
+	var month controllers.MonthResponse
+
+	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	category := suite.createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	_ = suite.createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+
+	r := test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-01", 1), "")
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
+	test.DecodeResponse(suite.T(), &r, &month)
+	suite.Assert().NotEmpty(month.Data.Categories[0].Envelopes)
+	suite.Assert().Equal("http://example.com/v1/allocations", month.Data.Categories[0].Envelopes[0].Links.Allocation)
+}
+
+func (suite *TestSuiteStandard) TestEnvelopeAllocationLink() {
+	var month controllers.MonthResponse
+
+	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	category := suite.createTestCategory(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	envelope := suite.createTestEnvelope(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	allocation := suite.createTestAllocation(suite.T(), models.AllocationCreate{Amount: decimal.New(1, 1), EnvelopeID: envelope.Data.ID, Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)})
+
+	r := test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-01", 1), "")
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
+	test.DecodeResponse(suite.T(), &r, &month)
+	suite.Assert().NotEmpty(month.Data.Categories[0].Envelopes)
+	suite.Assert().Equal(allocation.Data.Links.Self, month.Data.Categories[0].Envelopes[0].Links.Allocation)
+}
+
 func (suite *TestSuiteStandard) TestMonthNotNil() {
 	var month controllers.MonthResponse
 
