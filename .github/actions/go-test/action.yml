@@ -5,7 +5,7 @@ runs:
   using: "composite"
   steps:
     - name: Check out repository
-      uses: actions/checkout@v3.0.2
+      uses: actions/checkout@v3.1.0
 
     - name: Set up go
       uses: actions/setup-go@v3.3.0
