@@ -42,8 +42,19 @@
       "groupName": "go"
     },
     {
-      "description": "Automatically merge minor updates for GitHub actions and go dependencies",
-      "matchManagers": ["github-actions", "gomod", "pre-commit", "dockerfile"],
+      "description": "Group swaggo/swag upgrades",
+      "matchPackageNames": ["github.com/swaggo/swag", "swaggo/swag"],
+      "groupName": "swaggo/swag"
+    },
+    {
+      "description": "Automatically merge minor updates",
+      "matchManagers": [
+        "github-actions",
+        "gomod",
+        "pre-commit",
+        "dockerfile",
+        "regex"
+      ],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
     },
@@ -51,12 +62,8 @@
       "description": "Group go upgrades",
       "matchPackageNames": ["go", "golang"],
       "groupName": "go",
-      "prHeader": ":warning: Only upgrade the go version once you verified locally that the new go version works with the current swagger version. To do so, upgrade your machine to the new go version and run `pre-commit run --all-files`."
-    },
-    {
-      "description": "Group swaggo/swag upgrades",
-      "matchPackageNames": ["github.com/swaggo/swag", "swaggo/swag"],
-      "groupName": "swaggo/swag"
+      "prHeader": ":warning: Only upgrade the go version once you verified locally that the new go version works with the current swagger version. To do so, upgrade your machine to the new go version and run `pre-commit run --all-files`.",
+      "automerge": false
     }
   ]
 }
