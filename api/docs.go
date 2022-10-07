@@ -2172,6 +2172,11 @@ const docTemplate = `{
                     "default": false,
                     "example": false
                 },
+                "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "id": {
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
@@ -2446,6 +2451,11 @@ const docTemplate = `{
                         "$ref": "#/definitions/controllers.Envelope"
                     }
                 },
+                "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "id": {
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
@@ -2513,6 +2523,11 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
                 },
                 "id": {
                     "type": "string",
@@ -2702,6 +2717,11 @@ const docTemplate = `{
                     "default": false,
                     "example": false
                 },
+                "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "initialBalance": {
                     "type": "number",
                     "default": 0,
@@ -2807,6 +2827,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
                 },
+                "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "name": {
                     "type": "string",
                     "example": "Saving"
@@ -2842,6 +2867,11 @@ const docTemplate = `{
                 "categoryId": {
                     "type": "string",
                     "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
                 },
                 "name": {
                     "type": "string",

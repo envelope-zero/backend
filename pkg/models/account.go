@@ -22,6 +22,7 @@ type AccountCreate struct {
 	OnBudget       bool            `json:"onBudget" example:"true" default:"false"` // Always false when external: true
 	External       bool            `json:"external" example:"false" default:"false"`
 	InitialBalance decimal.Decimal `json:"initialBalance" example:"173.12" default:"0"`
+	Hidden         bool            `json:"hidden" example:"true" default:"false"`
 }
 
 func (a Account) WithCalculations(db *gorm.DB) Account {

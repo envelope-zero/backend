@@ -17,6 +17,10 @@ definitions:
         default: false
         example: false
         type: boolean
+      hidden:
+        default: false
+        example: true
+        type: boolean
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
@@ -217,6 +221,10 @@ definitions:
         items:
           $ref: '#/definitions/controllers.Envelope'
         type: array
+      hidden:
+        default: false
+        example: true
+        type: boolean
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
@@ -264,6 +272,10 @@ definitions:
       deletedAt:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
+      hidden:
+        default: false
+        example: true
+        type: boolean
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
@@ -398,6 +410,10 @@ definitions:
         default: false
         example: false
         type: boolean
+      hidden:
+        default: false
+        example: true
+        type: boolean
       initialBalance:
         default: 0
         example: 173.12
@@ -479,6 +495,10 @@ definitions:
       budgetId:
         example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
         type: string
+      hidden:
+        default: false
+        example: true
+        type: boolean
       name:
         example: Saving
         type: string
@@ -504,6 +524,10 @@ definitions:
       categoryId:
         example: 878c831f-af99-4a71-b3ca-80deb7d793c1
         type: string
+      hidden:
+        default: false
+        example: true
+        type: boolean
       name:
         example: Groceries
         type: string
