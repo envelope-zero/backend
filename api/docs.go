@@ -2176,6 +2176,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
+                "initialBalance": {
+                    "type": "number",
+                    "default": 0,
+                    "example": 173.12
+                },
                 "links": {
                     "$ref": "#/definitions/controllers.AccountLinks"
                 },
@@ -2696,6 +2701,11 @@ const docTemplate = `{
                     "type": "boolean",
                     "default": false,
                     "example": false
+                },
+                "initialBalance": {
+                    "type": "number",
+                    "default": 0,
+                    "example": 173.12
                 },
                 "name": {
                     "type": "string",
