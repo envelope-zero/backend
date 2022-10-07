@@ -20,6 +20,10 @@ definitions:
       id:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
+      initialBalance:
+        default: 0
+        example: 173.12
+        type: number
       links:
         $ref: '#/definitions/controllers.AccountLinks'
       name:
@@ -394,6 +398,10 @@ definitions:
         default: false
         example: false
         type: boolean
+      initialBalance:
+        default: 0
+        example: 173.12
+        type: number
       name:
         example: Cash
         type: string

@@ -11,6 +11,8 @@ A budget might represent your own personal budget, the budget of your flat share
 An account represents an account as an accountant would use it. For example, cash in your wallet, an actual bank account, a credit card are all distinct accounts.
 Every other person or company you pay money to also is tracked as an account. This allows for detailed accounting of how much spending occurs towards e.g. a specific supermarket.
 
+An account can have a starting balance to represent the amount that was in the account before you started budgeting. The starting balance is always treated as reconciled.
+
 ### Category
 
 A category is a grouping of envelopes for similar purposes. You might for example want to group envelopes for different saving goals like a new couch, the next vacation etc. in a category called “Saving“.

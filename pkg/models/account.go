@@ -16,11 +16,12 @@ type Account struct {
 }
 
 type AccountCreate struct {
-	Name     string    `json:"name" example:"Cash" default:""`
-	Note     string    `json:"note" example:"Money in my wallet" default:""`
-	BudgetID uuid.UUID `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	OnBudget bool      `json:"onBudget" example:"true" default:"false"` // Always false when external: true
-	External bool      `json:"external" example:"false" default:"false"`
+	Name           string          `json:"name" example:"Cash" default:""`
+	Note           string          `json:"note" example:"Money in my wallet" default:""`
+	BudgetID       uuid.UUID       `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	OnBudget       bool            `json:"onBudget" example:"true" default:"false"` // Always false when external: true
+	External       bool            `json:"external" example:"false" default:"false"`
+	InitialBalance decimal.Decimal `json:"initialBalance" example:"173.12" default:"0"`
 }
 
 func (a Account) WithCalculations(db *gorm.DB) Account {
@@ -49,7 +50,7 @@ func (a Account) Transactions(db *gorm.DB) []Transaction {
 
 // Transactions returns all transactions for this account.
 func (a Account) SumReconciledTransactions(db *gorm.DB) decimal.Decimal {
-	return TransactionsSum(db,
+	return a.InitialBalance.Add(TransactionsSum(db,
 		Transaction{
 			TransactionCreate: TransactionCreate{
 				Reconciled:           true,
@@ -62,12 +63,12 @@ func (a Account) SumReconciledTransactions(db *gorm.DB) decimal.Decimal {
 				SourceAccountID: a.ID,
 			},
 		},
-	)
+	))
 }
 
 // GetBalance returns the balance of the account, including all transactions.
 func (a Account) getBalance(db *gorm.DB) decimal.Decimal {
-	return TransactionsSum(db,
+	return a.InitialBalance.Add(TransactionsSum(db,
 		Transaction{
 			TransactionCreate: TransactionCreate{
 				DestinationAccountID: a.ID,
@@ -78,7 +79,7 @@ func (a Account) getBalance(db *gorm.DB) decimal.Decimal {
 				SourceAccountID: a.ID,
 			},
 		},
-	)
+	))
 }
 
 // TransactionSums returns the sum of all transactions matching two Transaction structs
