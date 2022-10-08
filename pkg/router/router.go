@@ -9,6 +9,7 @@ import (
 
 	docs "github.com/envelope-zero/backend/api"
 	"github.com/envelope-zero/backend/pkg/controllers"
+	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
@@ -39,6 +40,9 @@ func Config() (*gin.Engine, error) {
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
 	r.Use(URLMiddleware())
+	r.NoMethod(func(c *gin.Context) {
+		httperrors.New(c, http.StatusMethodNotAllowed, "This HTTP method is not allowed for the endpoint you called")
+	})
 	r.Use(logger.SetLogger(
 		logger.WithDefaultLevel(zerolog.InfoLevel),
 		logger.WithClientErrorLevel(zerolog.InfoLevel),
