@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/logger v0.2.5
-	github.com/gin-contrib/requestid v0.0.5
+	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-gonic/gin v1.8.1
 	github.com/glebarez/go-sqlite v1.19.1
 	github.com/glebarez/sqlite v1.4.8
