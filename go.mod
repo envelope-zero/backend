@@ -8,7 +8,7 @@ require (
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-gonic/gin v1.8.1
 	github.com/glebarez/go-sqlite v1.19.1
-	github.com/glebarez/sqlite v1.4.8
+	github.com/glebarez/sqlite v1.5.0
 	github.com/google/uuid v1.3.0
 	github.com/rs/zerolog v1.28.0
 	github.com/shopspring/decimal v1.3.1
@@ -18,7 +18,7 @@ require (
 	github.com/swaggo/swag v1.8.6
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
 	golang.org/x/text v0.3.7
-	gorm.io/gorm v1.23.10
+	gorm.io/gorm v1.24.0
 )
 
 require (
