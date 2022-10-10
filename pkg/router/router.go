@@ -89,6 +89,7 @@ func Config() (*gin.Engine, error) {
 	}
 
 	log.Debug().Str("API Base URL", url.String()).Str("Host", url.Host).Str("Path", url.Path).Msg("Router")
+	log.Info().Str("version", version).Msg("Router")
 
 	docs.SwaggerInfo.Host = url.Host
 	docs.SwaggerInfo.BasePath = url.Path
