@@ -37,17 +37,17 @@ type AllocationQueryFilter struct {
 	EnvelopeID string          `form:"envelope"`
 }
 
-func (f AllocationQueryFilter) ToCreate(c *gin.Context) (models.AllocationCreate, error) {
-	envelopeID, err := httputil.UUIDFromString(c, f.EnvelopeID)
-	if err != nil {
-		return models.AllocationCreate{}, err
+func (f AllocationQueryFilter) ToCreate(c *gin.Context) (models.AllocationCreate, bool) {
+	envelopeID, ok := httputil.UUIDFromString(c, f.EnvelopeID)
+	if !ok {
+		return models.AllocationCreate{}, false
 	}
 
 	return models.AllocationCreate{
 		Month:      f.Month,
 		Amount:     f.Amount,
 		EnvelopeID: envelopeID,
-	}, nil
+	}, true
 }
 
 // RegisterAllocationRoutes registers the routes for allocations with
@@ -155,8 +155,8 @@ func (co Controller) GetAllocations(c *gin.Context) {
 	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate(c)
-	if err != nil {
+	create, ok := filter.ToCreate(c)
+	if !ok {
 		return
 	}
 

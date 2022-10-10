@@ -41,17 +41,17 @@ type EnvelopeQueryFilter struct {
 	Note       string `form:"note"`
 }
 
-func (e EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, error) {
-	categoryID, err := httputil.UUIDFromString(c, e.CategoryID)
-	if err != nil {
-		return models.EnvelopeCreate{}, err
+func (e EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bool) {
+	categoryID, ok := httputil.UUIDFromString(c, e.CategoryID)
+	if !ok {
+		return models.EnvelopeCreate{}, false
 	}
 
 	return models.EnvelopeCreate{
 		Name:       e.Name,
 		Note:       e.Note,
 		CategoryID: categoryID,
-	}, nil
+	}, true
 }
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
@@ -156,8 +156,8 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate(c)
-	if err != nil {
+	create, ok := filter.ToCreate(c)
+	if !ok {
 		return
 	}
 

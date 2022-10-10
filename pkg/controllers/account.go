@@ -37,10 +37,10 @@ type AccountQueryFilter struct {
 	External bool   `form:"external"`
 }
 
-func (a AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, error) {
-	budgetID, err := httputil.UUIDFromString(c, a.BudgetID)
-	if err != nil {
-		return models.AccountCreate{}, err
+func (a AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool) {
+	budgetID, ok := httputil.UUIDFromString(c, a.BudgetID)
+	if !ok {
+		return models.AccountCreate{}, false
 	}
 
 	return models.AccountCreate{
@@ -49,7 +49,7 @@ func (a AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, erro
 		BudgetID: budgetID,
 		OnBudget: a.OnBudget,
 		External: a.External,
-	}, nil
+	}, true
 }
 
 // RegisterAccountRoutes registers the routes for accounts with
@@ -160,8 +160,8 @@ func (co Controller) GetAccounts(c *gin.Context) {
 	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate(c)
-	if err != nil {
+	create, ok := filter.ToCreate(c)
+	if !ok {
 		return
 	}
 

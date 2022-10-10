@@ -36,17 +36,17 @@ type CategoryQueryFilter struct {
 	Note     string `form:"note"`
 }
 
-func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, error) {
-	budgetID, err := httputil.UUIDFromString(c, f.BudgetID)
-	if err != nil {
-		return models.CategoryCreate{}, err
+func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, bool) {
+	budgetID, ok := httputil.UUIDFromString(c, f.BudgetID)
+	if !ok {
+		return models.CategoryCreate{}, false
 	}
 
 	return models.CategoryCreate{
 		Name:     f.Name,
 		BudgetID: budgetID,
 		Note:     f.Note,
-	}, nil
+	}, true
 }
 
 // RegisterCategoryRoutes registers the routes for categories with
@@ -154,8 +154,8 @@ func (co Controller) GetCategories(c *gin.Context) {
 	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate(c)
-	if err != nil {
+	create, ok := filter.ToCreate(c)
+	if !ok {
 		return
 	}
 

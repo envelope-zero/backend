@@ -32,16 +32,16 @@ func BindData(c *gin.Context, data interface{}) error {
 
 // This is needed because gin does not support form binding to uuid.UUID currently.
 // Follow https://github.com/gin-gonic/gin/pull/3045 to see when this gets resolved.
-func UUIDFromString(c *gin.Context, s string) (uuid.UUID, error) {
+func UUIDFromString(c *gin.Context, s string) (uuid.UUID, bool) {
 	if s == "" {
-		return uuid.Nil, nil
+		return uuid.Nil, true
 	}
 
 	u, err := uuid.Parse(s)
 	if err != nil {
 		httperrors.InvalidUUID(c)
-		return uuid.Nil, err
+		return uuid.Nil, false
 	}
 
-	return u, nil
+	return u, true
 }
