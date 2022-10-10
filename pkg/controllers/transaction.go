@@ -43,25 +43,25 @@ type TransactionQueryFilter struct {
 	AccountID            string          `form:"account" createField:"false"`
 }
 
-func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, error) {
-	budgetID, err := httputil.UUIDFromString(c, f.BudgetID)
-	if err != nil {
-		return models.TransactionCreate{}, err
+func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, bool) {
+	budgetID, ok := httputil.UUIDFromString(c, f.BudgetID)
+	if !ok {
+		return models.TransactionCreate{}, false
 	}
 
-	sourceAccountID, err := httputil.UUIDFromString(c, f.SourceAccountID)
-	if err != nil {
-		return models.TransactionCreate{}, err
+	sourceAccountID, ok := httputil.UUIDFromString(c, f.SourceAccountID)
+	if !ok {
+		return models.TransactionCreate{}, false
 	}
 
-	destinationAccountID, err := httputil.UUIDFromString(c, f.DestinationAccountID)
-	if err != nil {
-		return models.TransactionCreate{}, err
+	destinationAccountID, ok := httputil.UUIDFromString(c, f.DestinationAccountID)
+	if !ok {
+		return models.TransactionCreate{}, false
 	}
 
-	envelopeID, err := httputil.UUIDFromString(c, f.EnvelopeID)
-	if err != nil {
-		return models.TransactionCreate{}, err
+	envelopeID, ok := httputil.UUIDFromString(c, f.EnvelopeID)
+	if !ok {
+		return models.TransactionCreate{}, false
 	}
 
 	// If the envelopeID is nil, use an actual nil, not uuid.Nil
@@ -79,7 +79,7 @@ func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCrea
 		DestinationAccountID: destinationAccountID,
 		EnvelopeID:           eID,
 		Reconciled:           f.Reconciled,
-	}, nil
+	}, true
 }
 
 // RegisterTransactionRoutes registers the routes for transactions with
@@ -215,8 +215,8 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	queryFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate(c)
-	if err != nil {
+	create, ok := filter.ToCreate(c)
+	if !ok {
 		return
 	}
 
@@ -226,8 +226,8 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	}, queryFields...)
 
 	if filter.AccountID != "" {
-		accountID, err := httputil.UUIDFromString(c, filter.AccountID)
-		if err != nil {
+		accountID, ok := httputil.UUIDFromString(c, filter.AccountID)
+		if !ok {
 			return
 		}
 
