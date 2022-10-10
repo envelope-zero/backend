@@ -90,20 +90,20 @@ func main() {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatal().Str("event", "Error during startup").Err(err).Msg("Router")
+			log.Fatal().Str("event", "Error during startup").Err(err).Msg("backend")
 		}
 	}()
-	log.Info().Str("event", "Startup complete").Msg("Router")
+	log.Info().Str("event", "Startup complete").Msg("backend")
 
 	<-quit
-	log.Info().Str("event", "Received SIGINT or SIGTERM, stopping gracefully with 25 seconds timeout").Msg("Router")
+	log.Info().Str("event", "Received SIGINT or SIGTERM, stopping gracefully with 25 seconds timeout").Msg("backend")
 
 	// Create a context with a 25 second timeout for the server to shut down in
 	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal().Str("event", "Graceful shutdown failed, terminating").Err(err).Msg("Router")
+		log.Fatal().Str("event", "Graceful shutdown failed, terminating").Err(err).Msg("backend")
 	}
-	log.Info().Str("event", "Backend stopped").Msg("Router")
+	log.Info().Str("event", "Backend stopped").Msg("backend")
 }
