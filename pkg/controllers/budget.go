@@ -32,9 +32,9 @@ type BudgetLinks struct {
 	Categories       string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Envelopes        string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 	Transactions     string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Month            string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"`                        // This 'YYYY-MM' for clients to replace with the actual year and month.
-	GroupedMonth     string `json:"groupedMonth" example:"https://example.com/api/v1/month?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"`      // This 'YYYY-MM' for clients to replace with the actual year and month.
-	MonthAllocations string `json:"monthAllocations" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+	Month            string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"`                        // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+	GroupedMonth     string `json:"groupedMonth" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"`     // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+	MonthAllocations string `json:"monthAllocations" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
 }
 
 type BudgetMonthResponse struct {
@@ -117,7 +117,7 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 }
 
 // @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use GET /month endpoint with month and budgetId query parameters instead.**
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**
 // @Tags        Budgets
 // @Success     204
 // @Failure     400 {object} httperrors.HTTPError
@@ -148,7 +148,7 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 }
 
 // @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**
 // @Tags        Budgets
 // @Success     204
 // @Failure     400 {object} httperrors.HTTPError
@@ -158,6 +158,7 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 // @Param       budgetId path     string true "ID formatted as string"
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [options]
+// @Deprecated  true
 func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -466,7 +467,7 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 }
 
 // @Summary     Delete allocations for a month
-// @Description Deletes all allocation for the specified month
+// @Description Deletes all allocation for the specified month. **Use DELETE /month endpoint with month and budgetId query parameters instead.**
 // @Tags        Budgets
 // @Success     204
 // @Failure     400      {object} httperrors.HTTPError
@@ -474,6 +475,7 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 // @Param       month    path     string true "The month in YYYY-MM format"
 // @Param       budgetId path     string true "Budget ID formatted as string"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [delete]
+// @Deprecated  true.
 func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	budgetID, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -520,7 +522,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 }
 
 // @Summary     Set allocations for a month
-// @Description Sets allocations for a month for all envelopes that do not have an allocation yet
+// @Description Sets allocations for a month for all envelopes that do not have an allocation yet. **Use POST /month endpoint with month and budgetId query parameters instead.**
 // @Tags        Budgets
 // @Success     204
 // @Failure     400      {object} httperrors.HTTPError
@@ -529,6 +531,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 // @Param       budgetId path     string               true "Budget ID formatted as string"
 // @Param       mode     body     BudgetAllocationMode true "Budget"
 // @Router      /v1/budgets/{budgetId}/{month}/allocations [post]
+// @Deprecated  true.
 func (co Controller) SetAllocationsMonth(c *gin.Context) {
 	budgetID, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -646,7 +649,7 @@ func (co Controller) getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool
 			Transactions:     fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), resource.ID),
 			Month:            url + "/YYYY-MM",
 			GroupedMonth:     fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", c.GetString("baseURL"), resource.ID),
-			MonthAllocations: url + "/YYYY-MM/allocations",
+			MonthAllocations: fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", c.GetString("baseURL"), resource.ID),
 		},
 	}, true
 }
