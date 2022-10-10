@@ -1,19 +1,28 @@
 package router_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/database"
 	"github.com/envelope-zero/backend/pkg/router"
-	"github.com/envelope-zero/backend/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
+
+// decodeResponse decodes an HTTP response into a target struct.
+func decodeResponse(t *testing.T, r *httptest.ResponseRecorder, target interface{}) {
+	err := json.NewDecoder(r.Body).Decode(target)
+	if err != nil {
+		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into %v, '%v', Request ID: %s", r.Body, reflect.TypeOf(target), err, r.Result().Header.Get("x-request-id"))
+	}
+}
 
 func TestGinMode(t *testing.T) {
 	os.Setenv("GIN_MODE", "debug")
@@ -84,7 +93,7 @@ func TestGetRoot(t *testing.T) {
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/", nil)
 	r.ServeHTTP(w, c.Request)
 
-	test.DecodeResponse(t, w, &lr)
+	decodeResponse(t, w, &lr)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, l, lr)
 }
@@ -118,7 +127,7 @@ func TestGetV1(t *testing.T) {
 	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/v1", nil)
 	r.ServeHTTP(w, c.Request)
 
-	test.DecodeResponse(t, w, &lr)
+	decodeResponse(t, w, &lr)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, l, lr)
 }
@@ -143,7 +152,7 @@ func TestGetVersion(t *testing.T) {
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/version", nil)
 	r.ServeHTTP(w, c.Request)
 
-	test.DecodeResponse(t, w, &lr)
+	decodeResponse(t, w, &lr)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, l, lr)
 }
