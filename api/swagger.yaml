@@ -168,19 +168,19 @@ definitions:
         example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       groupedMonth:
-        description: This 'YYYY-MM' for clients to replace with the actual year and
-          month.
-        example: https://example.com/api/v1/month?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+        description: This uses 'YYYY-MM' for clients to replace with the actual year
+          and month.
+        example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
         type: string
       month:
-        description: This 'YYYY-MM' for clients to replace with the actual year and
-          month.
+        description: This uses 'YYYY-MM' for clients to replace with the actual year
+          and month.
         example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
         type: string
       monthAllocations:
         description: This uses 'YYYY-MM' for clients to replace with the actual year
           and month.
-        example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations
+        example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
         type: string
       self:
         example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
@@ -1357,8 +1357,8 @@ paths:
     options:
       deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs. **Use GET /month endpoint with month and budgetId query
-        parameters instead.**
+        allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId
+        query parameters instead.**
       parameters:
       - description: ID formatted as string
         in: path
@@ -1388,7 +1388,9 @@ paths:
       - Budgets
   /v1/budgets/{budgetId}/{month}/allocations:
     delete:
-      description: Deletes all allocation for the specified month
+      deprecated: true
+      description: Deletes all allocation for the specified month. **Use DELETE /month
+        endpoint with month and budgetId query parameters instead.**
       parameters:
       - description: The month in YYYY-MM format
         in: path
@@ -1415,8 +1417,10 @@ paths:
       tags:
       - Budgets
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
-        allowed HTTP verbs
+        allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId
+        query parameters instead.**
       parameters:
       - description: ID formatted as string
         in: path
@@ -1445,8 +1449,10 @@ paths:
       tags:
       - Budgets
     post:
+      deprecated: true
       description: Sets allocations for a month for all envelopes that do not have
-        an allocation yet
+        an allocation yet. **Use POST /month endpoint with month and budgetId query
+        parameters instead.**
       parameters:
       - description: The month in YYYY-MM format
         in: path
@@ -1933,6 +1939,35 @@ paths:
       tags:
       - Import
   /v1/months:
+    delete:
+      description: Deletes all allocation for the specified month
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete allocations for a month
+      tags:
+      - Months
     get:
       description: Returns data about a specific month.
       parameters:
@@ -1973,6 +2008,42 @@ paths:
         "204":
           description: No Content
       summary: Allowed HTTP verbs
+      tags:
+      - Months
+    post:
+      description: Sets allocations for a month for all envelopes that do not have
+        an allocation yet
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      - description: Budget
+        in: body
+        name: mode
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.BudgetAllocationMode'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Set allocations for a month
       tags:
       - Months
   /v1/transactions:

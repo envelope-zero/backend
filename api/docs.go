@@ -984,7 +984,7 @@ const docTemplate = `{
                 }
             },
             "options": {
-                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs. **Use GET /month endpoint with month and budgetId query parameters instead.**",
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**",
                 "tags": [
                     "Budgets"
                 ],
@@ -1030,11 +1030,12 @@ const docTemplate = `{
         },
         "/v1/budgets/{budgetId}/{month}/allocations": {
             "post": {
-                "description": "Sets allocations for a month for all envelopes that do not have an allocation yet",
+                "description": "Sets allocations for a month for all envelopes that do not have an allocation yet. **Use POST /month endpoint with month and budgetId query parameters instead.**",
                 "tags": [
                     "Budgets"
                 ],
                 "summary": "Set allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1079,11 +1080,12 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes all allocation for the specified month",
+                "description": "Deletes all allocation for the specified month. **Use DELETE /month endpoint with month and budgetId query parameters instead.**",
                 "tags": [
                     "Budgets"
                 ],
                 "summary": "Delete allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1119,11 +1121,12 @@ const docTemplate = `{
                 }
             },
             "options": {
-                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**",
                 "tags": [
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1879,6 +1882,101 @@ const docTemplate = `{
                     }
                 }
             },
+            "post": {
+                "description": "Sets allocations for a month for all envelopes that do not have an allocation yet",
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Set allocations for a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budget",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Budget",
+                        "name": "mode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetAllocationMode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes all allocation for the specified month",
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Delete allocations for a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budget",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
             "options": {
                 "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs.",
                 "tags": [
@@ -2444,19 +2542,19 @@ const docTemplate = `{
                     "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "groupedMonth": {
-                    "description": "This 'YYYY-MM' for clients to replace with the actual year and month.",
+                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
                     "type": "string",
-                    "example": "https://example.com/api/v1/month?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                    "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
                 },
                 "month": {
-                    "description": "This 'YYYY-MM' for clients to replace with the actual year and month.",
+                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
                 },
                 "monthAllocations": {
                     "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
                     "type": "string",
-                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM/allocations"
+                    "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
                 },
                 "self": {
                     "type": "string",

@@ -76,26 +76,6 @@ func (suite *TestSuiteStandard) TestOptionsBudgetMonth() {
 	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
-func (suite *TestSuiteStandard) TestOptionsBudgetMonthAllocations() {
-	budgetAllocationsLink := suite.createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.MonthAllocations
-
-	recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, strings.Replace(budgetAllocationsLink, "YYYY-MM", "1970-01", 1), "")
-	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
-	assert.Equal(suite.T(), recorder.Header().Get("allow"), "OPTIONS, DELETE")
-
-	// Bad Request for invalid UUID
-	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/nouuid/2022-01/allocations", "")
-	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
-
-	// Bad Request for invalid months
-	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, budgetAllocationsLink, "")
-	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
-
-	// Not found for non-existing budget
-	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/budgets/059cdead-249f-4f94-8d29-16a80c6b4a09/2032-03/allocations", "")
-	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
-}
-
 func (suite *TestSuiteStandard) TestGetBudgets() {
 	_ = suite.createTestBudget(suite.T(), models.BudgetCreate{})
 
