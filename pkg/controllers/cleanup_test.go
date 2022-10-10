@@ -9,12 +9,12 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestCleanup() {
-	_ = suite.createTestBudget(suite.T(), models.BudgetCreate{})
-	_ = suite.createTestAccount(suite.T(), models.AccountCreate{})
-	_ = suite.createTestCategory(suite.T(), models.CategoryCreate{})
-	_ = suite.createTestEnvelope(suite.T(), models.EnvelopeCreate{})
-	_ = suite.createTestAllocation(suite.T(), models.AllocationCreate{})
-	_ = suite.createTestTransaction(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
+	_ = suite.createTestBudget(models.BudgetCreate{})
+	_ = suite.createTestAccount(models.AccountCreate{})
+	_ = suite.createTestCategory(models.CategoryCreate{})
+	_ = suite.createTestEnvelope(models.EnvelopeCreate{})
+	_ = suite.createTestAllocation(models.AllocationCreate{})
+	_ = suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
 
 	tests := []string{
 		"http://example.com/v1/budgets",
@@ -27,19 +27,19 @@ func (suite *TestSuiteStandard) TestCleanup() {
 
 	// Delete
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1", "")
-	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
+	suite.assertHTTPStatus(&recorder, http.StatusNoContent)
 
 	// Verify
 	for _, tt := range tests {
 		suite.Run(tt, func() {
 			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, tt, "")
-			test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+			suite.assertHTTPStatus(&recorder, http.StatusOK)
 
 			var response struct {
 				Data []any `json:"data"`
 			}
 
-			test.DecodeResponse(suite.T(), &recorder, &response)
+			suite.decodeResponse(&recorder, &response)
 			suite.Assert().Len(response.Data, 0, "There are resources left for type %s", tt)
 		})
 	}

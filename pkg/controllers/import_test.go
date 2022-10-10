@@ -67,7 +67,7 @@ func (suite *TestSuiteStandard) TestImportFails() {
 	suite.Assert().Contains(test.DecodeError(suite.T(), recorder.Body.Bytes()), "not a valid YNAB4 Budget.yfull file: unexpected end of JSON input")
 
 	// Budget with name already exists
-	_ = suite.createTestBudget(suite.T(), models.BudgetCreate{Name: "Import Test"})
+	_ = suite.createTestBudget(models.BudgetCreate{Name: "Import Test"})
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/import?budgetName=Import Test", "")
 	suite.Assert().Equal(http.StatusBadRequest, recorder.Code, "Request ID %s, response %s", recorder.Header().Get("x-request-id"), recorder.Body.String())
 	suite.Assert().Contains(test.DecodeError(suite.T(), recorder.Body.Bytes()), "This budget name is already in use")
