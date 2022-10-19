@@ -1,3 +1,28 @@
+Licensing
+=========
+
+Envelope Zero backend is licensed under the GNU Affero General Public License,
+version 3.0 as published by the Free Software Foundation, Inc. (AGPLv3).
+
+Exceptions to the work licensed herein are, pursuant to Section 7 of the Affero
+General Public License, the following:
+
+1. Pursuant to AGPLv3, Section 7 (b), you are not allowed to remove any attribution notice
+   indicating the generated website is built using Envelope Zero anywhere on generated web
+   pages. If you run a modified version of Envelope Zero, you may rephrase it to indicate
+   a combined work in a form similar to "powered by <Company> based on Envelope Zero,
+   source code available at <location>". The word Envelope Zero must be a link
+   to https://envelope-zero.org/.
+
+2. Pursuant to AGPLv3, Section 7 (c), if you distribute a modified version in source or
+   binary form, or if you offer usage of a modified version to third parties (SaaS),
+   it is important to be clear about what kind of modifications the distributed work
+   contains. You may not give the impression that the work being distributed or the service
+   provided is an authorized or original distribution by Envelope Zero.
+
+Full text of the GNU Affero General Public License version 3
+============================================================
+
 GNU AFFERO GENERAL PUBLIC LICENSE
 Version 3, 19 November 2007
 
