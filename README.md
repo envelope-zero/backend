@@ -89,3 +89,13 @@ Please check the [releases page](https://github.com/envelope-zero/backend/releas
 ## Contributing
 
 Please see [the contribution guidelines](CONTRIBUTING.md).
+
+## Versioning
+
+This project is versioned using [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
+
+The public API is defined as:
+
+- The API endpoints, meaning the routes, parameters, HTTP respone codes and response body format (for a function, we'd just say “the function signature“)
+- The behavior of the API endpoints no matter the signature of the endpoint is
+- Planned: ~~Public functions and methods of the code - this enables anybody wrapping the backend (e.g. the standalone version) to rely on the version numbers.~~ This will be added to the definition once all methods and functions intended to be private are private. Track [#423](https://github.com/envelope-zero/backend/issues/423) if you're interested in this.
