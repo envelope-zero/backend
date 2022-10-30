@@ -23,8 +23,8 @@ type MonthResponse struct {
 // the budget resource itself.
 func (co Controller) parseMonthQuery(c *gin.Context) (time.Time, models.Budget, bool) {
 	var query struct {
-		Month    time.Time `form:"month" time_format:"2006-01" time_utc:"1" example:"2022-07"`
-		BudgetID string    `form:"budget" example:"81b0c9ce-6fd3-4e1e-becc-106055898a2a"`
+		QueryMonth
+		BudgetID string `form:"budget" example:"81b0c9ce-6fd3-4e1e-becc-106055898a2a"`
 	}
 
 	if err := c.Bind(&query); err != nil {
