@@ -50,7 +50,9 @@ func TryDBConnect(e error) error {
 		return errors.New("database is read-only")
 	}
 
-	log.Warn().Str("db", "unknown database error, restart the backend").Err(e).Msg("TryDBConnect")
+	if e != gorm.ErrRecordNotFound {
+		log.Info().Err(e).Msg("Database")
+	}
 	return e
 }
 
