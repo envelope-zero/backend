@@ -1832,6 +1832,317 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/month-configs": {
+            "get": {
+                "description": "Returns a list of MonthConfigs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonthConfigs"
+                ],
+                "summary": "List MonthConfigs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "envelope",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by month",
+                        "name": "month",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs.",
+                "tags": [
+                    "MonthConfigs"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/month-configs/{envelopeId}/{month}": {
+            "get": {
+                "description": "Returns configuration for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonthConfigs"
+                ],
+                "summary": "Get MonthConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "envelopeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new MonthConfig",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonthConfigs"
+                ],
+                "summary": "Create MonthConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "envelopeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "MonthConfig",
+                        "name": "monthConfig",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MonthConfigCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes configuration settings for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonthConfigs"
+                ],
+                "summary": "Delete MonthConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "envelopeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "MonthConfigs"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "envelopeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Creates a new MonthConfig",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonthConfigs"
+                ],
+                "summary": "Create MonthConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "envelopeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "MonthConfig",
+                        "name": "monthConfig",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MonthConfigCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/months": {
             "get": {
                 "description": "Returns data about a specific month.",
@@ -2762,6 +3073,72 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.MonthConfig": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                },
+                "links": {
+                    "$ref": "#/definitions/controllers.MonthConfigLinks"
+                },
+                "month": {
+                    "description": "This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
+                },
+                "overspendMode": {
+                    "type": "string",
+                    "default": "AFFECT_AVAILABLE",
+                    "example": "AFFECT_ENVELOPE"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.MonthConfigLinks": {
+            "type": "object",
+            "properties": {
+                "envelope": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
+                },
+                "self": {
+                    "type": "string",
+                    "example": "https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
+                }
+            }
+        },
+        "controllers.MonthConfigListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.MonthConfig"
+                    }
+                }
+            }
+        },
+        "controllers.MonthConfigResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/controllers.MonthConfig"
+                }
+            }
+        },
         "controllers.MonthResponse": {
             "type": "object",
             "properties": {
@@ -3135,6 +3512,16 @@ const docTemplate = `{
                     "description": "The name of the Budget",
                     "type": "string",
                     "example": "Zero budget"
+                }
+            }
+        },
+        "models.MonthConfigCreate": {
+            "type": "object",
+            "properties": {
+                "overspendMode": {
+                    "type": "string",
+                    "default": "AFFECT_AVAILABLE",
+                    "example": "AFFECT_ENVELOPE"
                 }
             }
         },
