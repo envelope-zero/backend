@@ -290,7 +290,7 @@ func (co Controller) getAccountResource(c *gin.Context, id uuid.UUID) (models.Ac
 	var account models.Account
 
 	if !queryWithRetry(c, co.DB.Where(&models.Account{
-		Model: models.Model{
+		DefaultModel: models.DefaultModel{
 			ID: id,
 		},
 	}).First(&account), "No account found for the specified ID") {

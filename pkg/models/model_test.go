@@ -11,10 +11,12 @@ import (
 func (suite *TestSuiteStandard) TestModelTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
-	model := models.Model{
-		CreatedAt: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
-		UpdatedAt: time.Date(2001, 2, 3, 4, 5, 6, 7, tz),
-		DeletedAt: &gorm.DeletedAt{Time: time.Now().In(tz)},
+	model := models.DefaultModel{
+		Timestamps: models.Timestamps{
+			CreatedAt: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
+			UpdatedAt: time.Date(2001, 2, 3, 4, 5, 6, 7, tz),
+			DeletedAt: &gorm.DeletedAt{Time: time.Now().In(tz)},
+		},
 	}
 
 	err := model.AfterFind(suite.db)

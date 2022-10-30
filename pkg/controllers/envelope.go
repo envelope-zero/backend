@@ -331,7 +331,7 @@ func (co Controller) getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.E
 	var envelope models.Envelope
 
 	if !queryWithRetry(c, co.DB.Where(&models.Envelope{
-		Model: models.Model{
+		DefaultModel: models.DefaultModel{
 			ID: id,
 		},
 	}).First(&envelope), "No envelope found for the specified ID") {

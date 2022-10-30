@@ -403,7 +403,7 @@ func (co Controller) getTransactionResource(c *gin.Context, id uuid.UUID) (model
 	var transaction models.Transaction
 
 	if !queryWithRetry(c, co.DB.First(&transaction, &models.Transaction{
-		Model: models.Model{
+		DefaultModel: models.DefaultModel{
 			ID: id,
 		},
 	}), "No transaction found for the specified ID") {

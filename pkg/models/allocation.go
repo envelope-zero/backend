@@ -9,7 +9,7 @@ import (
 
 // Allocation represents the allocation of money to an Envelope for a specific month.
 type Allocation struct {
-	Model
+	DefaultModel
 	AllocationCreate
 	Envelope Envelope `json:"-"`
 }

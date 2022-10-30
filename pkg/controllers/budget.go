@@ -592,7 +592,7 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 		// If the mode is the spend of last month, calculate and set it
 		amount := allocation.Amount
 		if data.Mode == AllocateLastMonthSpend {
-			amount = models.Envelope{Model: models.Model{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth)
+			amount = models.Envelope{DefaultModel: models.DefaultModel{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth)
 		}
 
 		if !queryWithRetry(c, co.DB.Create(&models.Allocation{
@@ -621,7 +621,7 @@ func (co Controller) getBudgetResource(c *gin.Context, id uuid.UUID) (models.Bud
 	var budget models.Budget
 
 	if !queryWithRetry(c, co.DB.Where(&models.Budget{
-		Model: models.Model{
+		DefaultModel: models.DefaultModel{
 			ID: id,
 		},
 	}).First(&budget), "No budget found for the specified ID") {

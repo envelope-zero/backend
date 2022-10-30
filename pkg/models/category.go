@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 // Category represents a category of envelopes.
 type Category struct {
-	Model
+	DefaultModel
 	CategoryCreate
 	Budget Budget `json:"-"`
 }
