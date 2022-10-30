@@ -14,7 +14,7 @@ import (
 // A budget is the highest level of organization in Envelope Zero, all other
 // resources reference it directly or transitively.
 type Budget struct {
-	Model
+	DefaultModel
 	BudgetCreate
 	Balance decimal.Decimal `json:"balance" gorm:"-" example:"3423.42"`
 }

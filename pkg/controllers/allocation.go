@@ -289,7 +289,7 @@ func (co Controller) getAllocationResource(c *gin.Context, id uuid.UUID) (models
 	var allocation models.Allocation
 
 	if !queryWithRetry(c, co.DB.First(&allocation, &models.Allocation{
-		Model: models.Model{
+		DefaultModel: models.DefaultModel{
 			ID: id,
 		},
 	}), "No allocation found for the specified ID") {

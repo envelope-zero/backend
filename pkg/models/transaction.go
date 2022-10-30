@@ -10,7 +10,7 @@ import (
 
 // Transaction represents a transaction between two accounts.
 type Transaction struct {
-	Model
+	DefaultModel
 	TransactionCreate
 	Budget             Budget   `json:"-"`
 	SourceAccount      Account  `json:"-"`
@@ -35,7 +35,7 @@ type TransactionCreate struct {
 // We already store them in UTC, but somehow reading
 // them from the database returns them as +0000.
 func (t *Transaction) AfterFind(tx *gorm.DB) (err error) {
-	err = t.Model.AfterFind(tx)
+	err = t.DefaultModel.AfterFind(tx)
 	if err != nil {
 		return err
 	}

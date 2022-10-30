@@ -10,7 +10,7 @@ import (
 
 // Envelope represents an envelope in your budget.
 type Envelope struct {
-	Model
+	DefaultModel
 	EnvelopeCreate
 	Category Category `json:"-"`
 }

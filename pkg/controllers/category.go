@@ -283,7 +283,7 @@ func (co Controller) getCategoryResource(c *gin.Context, id uuid.UUID) (models.C
 	var category models.Category
 
 	if !queryWithRetry(c, co.DB.Where(&models.Category{
-		Model: models.Model{
+		DefaultModel: models.DefaultModel{
 			ID: id,
 		},
 	}).First(&category), "No category found for the specified ID") {

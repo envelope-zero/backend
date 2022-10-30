@@ -8,7 +8,7 @@ import (
 
 // Account represents an asset account, e.g. a bank account.
 type Account struct {
-	Model
+	DefaultModel
 	AccountCreate
 	Budget            Budget          `json:"-"`
 	Balance           decimal.Decimal `json:"balance" gorm:"-" example:"2735.17"`
