@@ -215,7 +215,6 @@ func (co Controller) CreateBudget(c *gin.Context) {
 // @Success     200 {object} BudgetListResponse
 // @Failure     500 {object} httperrors.HTTPError
 // @Router      /v1/budgets [get]
-// @Router      /v1/budgets [get]
 // @Param       name     query string false "Filter by name"
 // @Param       note     query string false "Filter by note"
 // @Param       currency query string false "Filter by currency"
