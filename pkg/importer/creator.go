@@ -78,11 +78,24 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 		}
 	}
 
+	// Create allocations
 	for _, a := range resources.Allocations {
 		allocation := a.Model
 		allocation.AllocationCreate.EnvelopeID = resources.Categories[a.Category].Envelopes[a.Envelope].Model.ID
 
 		err := tx.Create(&allocation).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// Create MonthConfigs
+	for _, m := range resources.MonthConfigs {
+		mConfig := m.Model
+		mConfig.EnvelopeID = resources.Categories[m.Category].Envelopes[m.Envelope].Model.ID
+
+		err := tx.Create(&mConfig).Error
 		if err != nil {
 			tx.Rollback()
 			return err
