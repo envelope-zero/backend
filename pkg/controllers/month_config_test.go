@@ -117,6 +117,17 @@ func (suite *TestSuiteStandard) TestMonthConfigsGet() {
 
 			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, path, "")
 			assert.Equal(t, tt.status, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+			if tt.status == http.StatusOK {
+				var mConfig controllers.MonthConfigResponse
+				suite.decodeResponse(&recorder, &mConfig)
+
+				selfLink := fmt.Sprintf("http://example.com/v1/month-configs/%s/%s", tt.envelopeID, tt.month)
+				assert.Equal(t, selfLink, mConfig.Data.Links.Self, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+				envelopeLink := fmt.Sprintf("http://example.com/v1/envelopes/%s", tt.envelopeID)
+				assert.Equal(t, envelopeLink, mConfig.Data.Links.Envelope, "Request ID %s", recorder.Header().Get("x-request-id"))
+			}
 		})
 	}
 }

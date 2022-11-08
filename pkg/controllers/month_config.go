@@ -339,7 +339,8 @@ func (co Controller) getMonthConfigObject(c *gin.Context, mConfig models.MonthCo
 	return MonthConfig{
 		mConfig,
 		MonthConfigLinks{
-			Self: fmt.Sprintf("%s/v1/month-configs/%s/%d-%d", c.GetString("baseURL"), mConfig.EnvelopeID, mConfig.Month.Year(), mConfig.Month.Month()),
+			Self:     fmt.Sprintf("%s/v1/month-configs/%s/%04d-%02d", c.GetString("baseURL"), mConfig.EnvelopeID, mConfig.Month.Year(), mConfig.Month.Month()),
+			Envelope: fmt.Sprintf("%s/v1/envelopes/%s", c.GetString("baseURL"), mConfig.EnvelopeID),
 		},
 	}
 }
