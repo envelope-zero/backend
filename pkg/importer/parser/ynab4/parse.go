@@ -62,7 +62,7 @@ func Parse(f io.Reader) (types.ParsedResources, error) {
 		return types.ParsedResources{}, fmt.Errorf("error parsing transactions: %w", err)
 	}
 
-	err = parseAllocations(&resources, budget.MonthlyBudgets, envelopeIDNames)
+	err = parseMonthlyBudgets(&resources, budget.MonthlyBudgets, envelopeIDNames)
 	if err != nil {
 		return types.ParsedResources{}, fmt.Errorf("error parsing budget allocations: %w", err)
 	}
@@ -339,29 +339,55 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 	return nil
 }
 
-func parseAllocations(resources *types.ParsedResources, allocations []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
-	for _, monthBudget := range allocations {
+func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
+	for _, monthBudget := range monthlyBudgets {
 		month, err := time.Parse("2006-01-02", monthBudget.Month)
 		if err != nil {
 			return fmt.Errorf("could not parse date: %w", err)
 		}
 
-		for _, allocation := range monthBudget.MonthlySubCategoryBudgets {
-			// Ignore the ones that are zero
-			if allocation.Budgeted.IsZero() {
-				continue
+		for _, subCategoryBudget := range monthBudget.MonthlySubCategoryBudgets {
+			// If something is budgeted, create an allocation for it
+			if !subCategoryBudget.Budgeted.IsZero() {
+				resources.Allocations = append(resources.Allocations, types.Allocation{
+					Model: models.Allocation{
+						AllocationCreate: models.AllocationCreate{
+							Month:  month,
+							Amount: subCategoryBudget.Budgeted,
+						},
+					},
+					Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
+					Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
+				})
 			}
 
-			resources.Allocations = append(resources.Allocations, types.Allocation{
-				Model: models.Allocation{
-					AllocationCreate: models.AllocationCreate{
-						Month:  month,
-						Amount: allocation.Budgeted,
+			// If the overspendHandling is configured, work with it
+			if !(subCategoryBudget.OverspendingHandling == "") {
+				// This might actually be needed in some use cases, but I could not find one
+				// when implementing, so we're skipping it here.
+				if strings.HasPrefix(subCategoryBudget.CategoryID, "Category/PreYNABDebt") {
+					continue
+				}
+
+				// There's two modes in YNAB4: Confined, which equals AFFECT_ENVELOPE in EZ
+				// and "AffectsBuffer", which equals AFFECT_AVAILABLE in EZ.
+				// Since AFFECT_AVAILABLE is the default, we can skip everything that does not
+				// lead to AFFECT_ENVELOPE.
+				if subCategoryBudget.OverspendingHandling != "Confined" {
+					continue
+				}
+
+				resources.MonthConfigs = append(resources.MonthConfigs, types.MonthConfig{
+					Model: models.MonthConfig{
+						MonthConfigCreate: models.MonthConfigCreate{
+							OverspendMode: "AFFECT_ENVELOPE",
+						},
+						Month: month,
 					},
-				},
-				Category: envelopeIDNames[allocation.CategoryID].Category,
-				Envelope: envelopeIDNames[allocation.CategoryID].Envelope,
-			})
+					Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
+					Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
+				})
+			}
 		}
 	}
 

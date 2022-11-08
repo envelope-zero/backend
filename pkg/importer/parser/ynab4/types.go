@@ -84,7 +84,7 @@ type Transaction struct {
 
 type MonthlySubCategoryBudget struct {
 	Budgeted             decimal.Decimal `json:"budgeted"`
-	OverspendingHandling string          `json:"overspendingHandling"` // Unused. Needed when implementing https://github.com/envelope-zero/backend/issues/327
+	OverspendingHandling string          `json:"overspendingHandling"`
 	CategoryID           string          `json:"categoryId"`
 }
 
