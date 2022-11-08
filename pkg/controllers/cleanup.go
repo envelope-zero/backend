@@ -51,5 +51,11 @@ func (co Controller) DeleteAll(c *gin.Context) {
 		return
 	}
 
+	err = co.DB.Unscoped().Where("true").Delete(&models.MonthConfig{}).Error
+	if err != nil {
+		httperrors.Handler(c, err)
+		return
+	}
+
 	c.JSON(http.StatusNoContent, gin.H{})
 }
