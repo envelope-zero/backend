@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -66,6 +67,9 @@ func Parse(f io.Reader) (types.ParsedResources, error) {
 	if err != nil {
 		return types.ParsedResources{}, fmt.Errorf("error parsing budget allocations: %w", err)
 	}
+
+	// Translate YNAB overspend handling behaviour to EZ overspending handling behaviour
+	fixOverspendHandling(&resources)
 
 	return resources, nil
 }
@@ -369,18 +373,15 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 					continue
 				}
 
-				// There's two modes in YNAB4: Confined, which equals AFFECT_ENVELOPE in EZ
-				// and "AffectsBuffer", which equals AFFECT_AVAILABLE in EZ.
-				// Since AFFECT_AVAILABLE is the default, we can skip everything that does not
-				// lead to AFFECT_ENVELOPE.
-				if subCategoryBudget.OverspendingHandling != "Confined" {
-					continue
+				var mode models.OverspendMode = "AFFECT_AVAILABLE"
+				if subCategoryBudget.OverspendingHandling == "Confined" {
+					mode = "AFFECT_ENVELOPE"
 				}
 
 				resources.MonthConfigs = append(resources.MonthConfigs, types.MonthConfig{
 					Model: models.MonthConfig{
 						MonthConfigCreate: models.MonthConfigCreate{
-							OverspendMode: "AFFECT_ENVELOPE",
+							OverspendMode: mode,
 						},
 						Month: month,
 					},
@@ -392,4 +393,93 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 	}
 
 	return nil
+}
+
+// fixOverspendHandling translates the overspend handling behaviour of YNAB 4 into
+// the overspend handling of EZ. In YNAB 4, when the overspendHandling is set to "Confined",
+// it affects all months until it is explicitly set back to "AffectsBuffer".
+//
+// EZ on the other hand uses AFFECT_AVAILABLE as default (as does YNAB 4 with "AffectsBuffer")
+// but only changes to AFFECT_ENVELOPE (= "Confined" on YNAB 4) when explicitly configured for
+// that month.
+func fixOverspendHandling(resources *types.ParsedResources) {
+	// sorter is a map of category names to a map of envelope names to the month configs
+	sorter := make(map[string]map[string][]types.MonthConfig, 0)
+
+	// Sort by envelope
+	for _, monthConfig := range resources.MonthConfigs {
+		_, ok := sorter[monthConfig.Category]
+		if !ok {
+			sorter[monthConfig.Category] = make(map[string][]types.MonthConfig, 0)
+		}
+
+		_, ok = sorter[monthConfig.Category][monthConfig.Envelope]
+		if !ok {
+			sorter[monthConfig.Category][monthConfig.Envelope] = make([]types.MonthConfig, 0)
+		}
+
+		sorter[monthConfig.Category][monthConfig.Envelope] = append(sorter[monthConfig.Category][monthConfig.Envelope], monthConfig)
+	}
+
+	// New slice for final MonthConfigs
+	var monthConfigs []types.MonthConfig
+
+	// Fix handling for all envelopes
+	for _, category := range sorter {
+		for _, envelope := range category {
+			// Sort by time so that earlier months are first
+			sort.Slice(envelope, func(i, j int) bool {
+				return envelope[i].Model.Month.Before(envelope[j].Model.Month)
+			})
+
+			for i, mConfig := range envelope {
+				// If we are switching back to "Available for budget", we don't need to do anything
+				if mConfig.Model.OverspendMode == "AFFECT_AVAILABLE" || mConfig.Model.OverspendMode == "" {
+					continue
+				}
+
+				monthConfigs = append(monthConfigs, mConfig)
+
+				// Start with the next month since we already appended the current one
+				checkMonth := mConfig.Model.Month.AddDate(0, 1, 0)
+
+				// If this is the last month, we set all months including the one of today to "AFFECT_ENVELOPE"
+				// to preserve the YNAB 4 behaviour up to the switch to EZ
+				if i+1 == len(envelope) {
+					for ok := true; ok; ok = !checkMonth.After(time.Now()) {
+						monthConfigs = append(monthConfigs, types.MonthConfig{
+							Model: models.MonthConfig{
+								Month: checkMonth,
+							},
+							Category: mConfig.Category,
+							Envelope: mConfig.Envelope,
+						})
+
+						checkMonth = checkMonth.AddDate(0, 1, 0)
+					}
+
+					continue
+				}
+
+				// Set all months up to the next one with a configuration to "AFFECT_ENVELOPE"
+				for ok := !checkMonth.Equal(envelope[i+1].Model.Month); ok; ok = !checkMonth.Equal(envelope[i+1].Model.Month) {
+					monthConfigs = append(monthConfigs, types.MonthConfig{
+						Model: models.MonthConfig{
+							Month: checkMonth,
+							MonthConfigCreate: models.MonthConfigCreate{
+								OverspendMode: "AFFECT_ENVELOPE",
+							},
+						},
+						Category: mConfig.Category,
+						Envelope: mConfig.Envelope,
+					})
+
+					checkMonth = checkMonth.AddDate(0, 1, 0)
+				}
+			}
+		}
+	}
+
+	// Overwrite the original MonthConfigs with the fixed ones
+	resources.MonthConfigs = monthConfigs
 }
