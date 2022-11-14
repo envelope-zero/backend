@@ -13,6 +13,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -107,8 +108,13 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	group.GET("", GetRoot)
 	group.OPTIONS("", OptionsRoot)
 	group.GET("/version", GetVersion)
-
 	group.OPTIONS("/version", OptionsVersion)
+
+	// pprof performance profiles
+	enablePprof, ok := os.LookupEnv("ENABLE_PPROF")
+	if ok && enablePprof == "true" {
+		pprof.RouteRegister(group, "debug/pprof")
+	}
 
 	group.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

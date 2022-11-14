@@ -43,6 +43,25 @@ func TestGinMode(t *testing.T) {
 	os.Unsetenv("API_URL")
 }
 
+func TetsPprofOff(t *testing.T) {
+	os.Setenv("ENABLE_PPROF", "false")
+	os.Setenv("API_URL", "http://example.com")
+
+	r, err := router.Config()
+	assert.Nil(t, err, "Error on router initialization")
+
+	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
+	assert.Nil(t, err, "Error on database connection")
+
+	router.AttachRoutes(controllers.Controller{DB: db}, r.Group("/"))
+
+	for _, r := range r.Routes() {
+		assert.NotContains(t, r.Path, "pprof", "pprof routes are registered erroneously! Route: %s", r)
+	}
+
+	os.Unsetenv("ENABLE_PPROF")
+}
+
 func TestEnvUnset(t *testing.T) {
 	_, err := router.Config()
 

@@ -11,7 +11,8 @@
       "env": {
         "GIN_MODE": "debug",
         "API_URL": "http://localhost:8080",
-        "CORS_ALLOW_ORIGINS": "http://localhost:3000"
+        "CORS_ALLOW_ORIGINS": "http://localhost:3000",
+        "ENABLE_PPROF": "true"
       },
       "console": "integratedTerminal"
     }
