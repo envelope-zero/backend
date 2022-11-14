@@ -2,4 +2,4 @@
   delay = 3000
 
   # The default port for the frontend devserver is 3000, therefore we always set the value here
-  full_bin = "API_URL=http://localhost:8080 CORS_ALLOW_ORIGINS=http://localhost:3000 ./tmp/main"
+  full_bin = "ENABLE_PPROF=true API_URL=http://localhost:8080 CORS_ALLOW_ORIGINS=http://localhost:3000 ./tmp/main"
