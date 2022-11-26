@@ -2088,14 +2088,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Creates a new MonthConfig",
+                "description": "Changes settings of an existing MonthConfig",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "MonthConfigs"
                 ],
-                "summary": "Create MonthConfig",
+                "summary": "Update MonthConfig",
                 "parameters": [
                     {
                         "type": "string",

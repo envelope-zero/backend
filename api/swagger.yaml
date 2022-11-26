@@ -2124,7 +2124,7 @@ paths:
       tags:
       - MonthConfigs
     patch:
-      description: Creates a new MonthConfig
+      description: Changes settings of an existing MonthConfig
       parameters:
       - description: ID of the Envelope
         in: path
@@ -2157,7 +2157,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-      summary: Create MonthConfig
+      summary: Update MonthConfig
       tags:
       - MonthConfigs
     post:
