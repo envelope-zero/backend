@@ -244,8 +244,8 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 	c.JSON(http.StatusCreated, MonthConfigResponse{Data: mConfigObject})
 }
 
-// @Summary     Create MonthConfig
-// @Description Creates a new MonthConfig
+// @Summary     Update MonthConfig
+// @Description Changes settings of an existing MonthConfig
 // @Tags        MonthConfigs
 // @Produce     json
 // @Success     201         {object} MonthConfigResponse
