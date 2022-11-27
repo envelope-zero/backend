@@ -1,6 +1,8 @@
 package importer
 
 import (
+	"errors"
+
 	"github.com/envelope-zero/backend/pkg/importer/types"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -61,6 +63,10 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 
 	// Create transactions
 	for _, r := range resources.Transactions {
+		if r.Model.Amount.IsNegative() {
+			return errors.New("a transaction to be imported has a negative amount, this is invalid")
+		}
+
 		transaction := r.Model
 		transaction.BudgetID = budget.ID
 		transaction.SourceAccountID = resources.Accounts[r.SourceAccount].Model.ID

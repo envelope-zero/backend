@@ -1,1479 +1,1547 @@
 {
-	"budgetMetaData": {
-		"strictBudget": "TRUE",
-		"entityId": "A2",
-		"entityType": "budgetMetaData",
-		"currencyISOSymbol": null,
-		"entityVersion": "A-181",
-		"currencyLocale": "en_US",
-		"budgetType": "Personal",
-		"dateLocale": "en_US"
-	},
+	"payees": [
+		{
+			"autoFillCategoryId": null,
+			"autoFillMemo": "",
+			"autoFillAmount": -200,
+			"entityVersion": "A-208",
+			"renameConditions": null,
+			"enabled": true,
+			"entityId": "Payee/Transfer:14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"entityType": "payee",
+			"locations": null,
+			"targetAccountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"name": "Transfer : Cash"
+		},
+		{
+			"autoFillCategoryId": null,
+			"autoFillMemo": null,
+			"autoFillAmount": 0,
+			"entityVersion": "A-67",
+			"renameConditions": null,
+			"enabled": false,
+			"entityId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
+			"entityType": "payee",
+			"locations": null,
+			"name": "Starting Balance"
+		},
+		{
+			"autoFillCategoryId": "Category/__ImmediateIncome__",
+			"autoFillMemo": "",
+			"autoFillAmount": 1000,
+			"entityVersion": "A-303",
+			"renameConditions": [
+				{
+					"isTombstone": true,
+					"entityVersion": "A-196",
+					"entityId": "62BA8597-0F1D-6F4D-8425-753BE93C3452",
+					"entityType": "payeeStringCondition",
+					"operand": "Employer",
+					"operator": "Is",
+					"parentPayeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD"
+				},
+				{
+					"entityVersion": "A-197",
+					"entityId": "EF778A34-071F-B264-571F-753C35B3E9F8",
+					"entityType": "payeeStringCondition",
+					"operand": "Employer",
+					"operator": "Is",
+					"parentPayeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD"
+				}
+			],
+			"enabled": true,
+			"entityId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"entityType": "payee",
+			"locations": null,
+			"name": "Company Name"
+		},
+		{
+			"autoFillCategoryId": "C4AAAB5C-548F-7855-46F9-843D4C631ABC",
+			"autoFillMemo": "",
+			"autoFillAmount": -20,
+			"entityVersion": "A-116",
+			"renameConditions": null,
+			"enabled": true,
+			"entityId": "3139A659-EAA9-846C-3F36-845CDB81C55E",
+			"entityType": "payee",
+			"locations": null,
+			"name": "Grocery Store"
+		},
+		{
+			"autoFillCategoryId": "B988C739-E4C9-8036-CA52-843D631764CD",
+			"autoFillMemo": "Why does my Kebap person pay my rent?",
+			"autoFillAmount": 10,
+			"entityVersion": "A-210",
+			"renameConditions": null,
+			"enabled": true,
+			"entityId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "payee",
+			"locations": null,
+			"name": "Döner"
+		},
+		{
+			"autoFillCategoryId": null,
+			"autoFillMemo": null,
+			"autoFillAmount": 0,
+			"entityVersion": "A-164",
+			"renameConditions": null,
+			"enabled": true,
+			"entityId": "Payee/Transfer:E640A420-6FEA-5D9D-9128-66A1D1D70591",
+			"entityType": "payee",
+			"locations": null,
+			"targetAccountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
+			"name": "Transfer : Checking"
+		},
+		{
+			"autoFillCategoryId": null,
+			"autoFillMemo": null,
+			"autoFillAmount": 0,
+			"entityVersion": "A-189",
+			"renameConditions": null,
+			"enabled": true,
+			"entityId": "FD50AF20-7C5D-38C7-1E75-753B8030CBA2",
+			"entityType": "payee",
+			"locations": null,
+			"name": "Insurance"
+		},
+		{
+			"autoFillCategoryId": "Category/__ImmediateIncome__",
+			"autoFillMemo": null,
+			"autoFillAmount": 0,
+			"isTombstone": true,
+			"entityVersion": "A-195",
+			"renameConditions": null,
+			"enabled": true,
+			"entityId": "1A855BF7-F175-44C5-F0A0-753C0B3AD139",
+			"entityType": "payee",
+			"locations": null,
+			"name": "Employer"
+		},
+		{
+			"autoFillCategoryId": null,
+			"autoFillMemo": null,
+			"autoFillAmount": 0,
+			"entityVersion": "A-219",
+			"renameConditions": null,
+			"enabled": false,
+			"entityId": "Payee/Transfer:722E5112-E43F-0558-BFAD-7581E452BEF6",
+			"entityType": "payee",
+			"locations": null,
+			"targetAccountId": "722E5112-E43F-0558-BFAD-7581E452BEF6",
+			"name": "Transfer : Deleted Account"
+		},
+		{
+			"autoFillCategoryId": null,
+			"autoFillMemo": null,
+			"autoFillAmount": 0,
+			"entityVersion": "A-269",
+			"renameConditions": null,
+			"enabled": false,
+			"entityId": "Payee/Transfer:BD495219-9D21-5B84-0116-B2570214B439",
+			"entityType": "payee",
+			"locations": null,
+			"targetAccountId": "BD495219-9D21-5B84-0116-B2570214B439",
+			"name": "Transfer : Starting Balance Tester"
+		}
+	],
 	"transactions": [
 		{
-			"entityId": "2960ABDF-71E0-785A-DE30-843CC3C7E06C",
-			"entityType": "transaction",
 			"amount": 0,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-08-09",
 			"accepted": true,
 			"isTombstone": true,
-			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
 			"entityVersion": "A-108",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Cleared"
+			"entityId": "2960ABDF-71E0-785A-DE30-843CC3C7E06C",
+			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "D7D90A37-A5CF-8CF0-5A35-843D8C220140",
-			"entityType": "transaction",
 			"amount": 1000,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-08-01",
-			"accepted": true,
 			"memo": "Salary",
-			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"accepted": true,
 			"entityVersion": "A-214",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Reconciled"
+			"entityId": "D7D90A37-A5CF-8CF0-5A35-843D8C220140",
+			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"entityType": "transaction",
+			"cleared": "Reconciled",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "FDEB3CE3-5834-B138-98B7-845B3ED0BE8D",
-			"entityType": "transaction",
 			"amount": 1000,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-09-01",
-			"accepted": true,
 			"memo": "Salary",
-			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"accepted": true,
 			"entityVersion": "A-247",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Cleared"
+			"entityId": "FDEB3CE3-5834-B138-98B7-845B3ED0BE8D",
+			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "DAD9C7BF-8335-3814-2744-845CADAE3714",
-			"entityType": "transaction",
 			"amount": -20,
 			"categoryId": "C4AAAB5C-548F-7855-46F9-843D4C631ABC",
 			"date": "2022-08-10",
 			"accepted": true,
-			"payeeId": "3139A659-EAA9-846C-3F36-845CDB81C55E",
 			"entityVersion": "A-178",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Cleared"
+			"entityId": "DAD9C7BF-8335-3814-2744-845CADAE3714",
+			"payeeId": "3139A659-EAA9-846C-3F36-845CDB81C55E",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "4497CB8A-4E21-6749-7FA6-8462FF6A3A74",
-			"entityType": "transaction",
 			"amount": -10,
 			"categoryId": "28901741-CC63-3536-5068-66A125711653",
 			"date": "2022-08-10",
 			"accepted": true,
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
 			"entityVersion": "A-179",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Cleared"
+			"entityId": "4497CB8A-4E21-6749-7FA6-8462FF6A3A74",
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "7206169F-D9A2-C3CC-D515-84A31DD15174",
-			"entityType": "transaction",
 			"amount": 10,
 			"categoryId": "B988C739-E4C9-8036-CA52-843D631764CD",
 			"date": "2022-08-20",
-			"accepted": true,
 			"memo": "Why does my Kebap person pay my rent?",
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"accepted": true,
 			"entityVersion": "A-209",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Uncleared"
+			"entityId": "7206169F-D9A2-C3CC-D515-84A31DD15174",
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "C96DB284-619E-81C8-F2AB-DC8616F82F12",
-			"entityType": "transaction",
 			"amount": -50,
 			"categoryId": "B988C739-E4C9-8036-CA52-843D631764CD",
 			"date": "2022-09-10",
 			"accepted": true,
 			"isTombstone": true,
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
 			"entityVersion": "A-150",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Uncleared"
+			"entityId": "C96DB284-619E-81C8-F2AB-DC8616F82F12",
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "ABC3D2F4-8098-EC93-A87A-DC86CD68435B",
-			"entityType": "transaction",
 			"amount": -20,
 			"categoryId": "28901741-CC63-3536-5068-66A125711653",
 			"date": "2022-09-10",
 			"accepted": true,
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
 			"entityVersion": "A-159",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Uncleared"
+			"entityId": "ABC3D2F4-8098-EC93-A87A-DC86CD68435B",
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "8B239AEE-D5AF-9AC6-E22E-66A1D1E1C432",
-			"entityType": "transaction",
 			"amount": 100,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-07-15",
 			"accepted": true,
-			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
 			"entityVersion": "A-177",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Reconciled"
+			"entityId": "8B239AEE-D5AF-9AC6-E22E-66A1D1E1C432",
+			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
+			"entityType": "transaction",
+			"cleared": "Reconciled",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "359869C0-E78F-797F-8B51-66A230D5FCC2",
-			"entityType": "transaction",
 			"amount": -200,
 			"targetAccountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
 			"transferTransactionId": "359869C0-E78F-797F-8B51-66A230D5FCC2_T_0",
 			"categoryId": null,
 			"date": "2022-08-15",
 			"accepted": true,
-			"payeeId": "Payee/Transfer:14960788-5E84-761E-CEAB-843CC3BC16F5",
 			"entityVersion": "A-175",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Reconciled"
+			"entityId": "359869C0-E78F-797F-8B51-66A230D5FCC2",
+			"payeeId": "Payee/Transfer:14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"entityType": "transaction",
+			"cleared": "Reconciled",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "359869C0-E78F-797F-8B51-66A230D5FCC2_T_0",
-			"entityType": "transaction",
 			"amount": 200,
 			"targetAccountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
 			"transferTransactionId": "359869C0-E78F-797F-8B51-66A230D5FCC2",
 			"categoryId": null,
 			"date": "2022-08-15",
 			"accepted": true,
-			"payeeId": "Payee/Transfer:E640A420-6FEA-5D9D-9128-66A1D1D70591",
 			"entityVersion": "A-180",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Cleared"
+			"entityId": "359869C0-E78F-797F-8B51-66A230D5FCC2_T_0",
+			"payeeId": "Payee/Transfer:E640A420-6FEA-5D9D-9128-66A1D1D70591",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "376640D6-1B18-46B1-E847-753BB05B0979",
-			"entityType": "transaction",
 			"amount": 0,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-09-25",
 			"accepted": true,
 			"isTombstone": true,
-			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
 			"entityVersion": "A-213",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Uncleared"
+			"entityId": "376640D6-1B18-46B1-E847-753BB05B0979",
+			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "03E6A604-2A15-A3CA-3B1E-7581E470BB1C",
-			"entityType": "transaction",
 			"amount": 0,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-09-25",
 			"accepted": true,
-			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
 			"entityVersion": "A-217",
-			"accountId": "722E5112-E43F-0558-BFAD-7581E452BEF6",
-			"cleared": "Cleared"
+			"entityId": "03E6A604-2A15-A3CA-3B1E-7581E470BB1C",
+			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "722E5112-E43F-0558-BFAD-7581E452BEF6"
 		},
 		{
-			"entityId": "19BD11E4-9302-6448-629E-753ABC9E7722_2022-09-25_0",
-			"entityType": "transaction",
 			"amount": 1000,
-			"categoryId": "Category/__DeferredIncome__",
+			"categoryId": "Category/__Split__",
 			"date": "2022-09-25",
-			"accepted": false,
-			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
-			"entityVersion": "A-226",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
+			"accepted": true,
+			"subTransactions": [
+				{
+					"entityVersion": "A-299",
+					"entityId": "F95163E9-C264-EE3D-E18C-B9FAED38D914",
+					"entityType": "subTransaction",
+					"amount": 500,
+					"categoryId": "B988C739-E4C9-8036-CA52-843D631764CD",
+					"parentTransactionId": "19BD11E4-9302-6448-629E-753ABC9E7722_2022-09-25_0"
+				},
+				{
+					"entityVersion": "A-301",
+					"entityId": "5A4E15B9-AFB1-9179-0DF9-B9FAED53016C",
+					"entityType": "subTransaction",
+					"amount": 500,
+					"categoryId": "Category/__DeferredIncome__",
+					"parentTransactionId": "19BD11E4-9302-6448-629E-753ABC9E7722_2022-09-25_0"
+				}
+			],
+			"entityVersion": "A-302",
+			"entityId": "19BD11E4-9302-6448-629E-753ABC9E7722_2022-09-25_0",
 			"dateEnteredFromSchedule": "2022-09-26",
-			"cleared": "Uncleared"
+			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "7A943D9D-D967-810F-9218-A3A2D9D8DF57",
-			"entityType": "transaction",
 			"amount": -20,
 			"categoryId": "Category/__Split__",
 			"date": "2022-09-15",
 			"accepted": true,
 			"subTransactions": [
 				{
-					"parentTransactionId": "7A943D9D-D967-810F-9218-A3A2D9D8DF57",
+					"entityVersion": "A-242",
 					"entityId": "E46B690D-420B-43E7-9E7D-A3A38522C3A2",
 					"entityType": "subTransaction",
-					"entityVersion": "A-242",
 					"amount": -15,
-					"categoryId": "41253F13-FA30-979D-C24A-A3A379A63DE7"
+					"categoryId": "41253F13-FA30-979D-C24A-A3A379A63DE7",
+					"parentTransactionId": "7A943D9D-D967-810F-9218-A3A2D9D8DF57"
 				},
 				{
-					"parentTransactionId": "7A943D9D-D967-810F-9218-A3A2D9D8DF57",
+					"entityVersion": "A-244",
 					"entityId": "13FCC0B3-AE0F-429F-A1E4-A3A385742D18",
 					"entityType": "subTransaction",
-					"entityVersion": "A-244",
 					"amount": -5,
-					"categoryId": "732E598D-821B-4C4C-B0CA-A3A3D7186AAD"
+					"categoryId": "732E598D-821B-4C4C-B0CA-A3A3D7186AAD",
+					"parentTransactionId": "7A943D9D-D967-810F-9218-A3A2D9D8DF57"
 				}
 			],
-			"payeeId": "3139A659-EAA9-846C-3F36-845CDB81C55E",
 			"entityVersion": "A-246",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Cleared"
+			"entityId": "7A943D9D-D967-810F-9218-A3A2D9D8DF57",
+			"payeeId": "3139A659-EAA9-846C-3F36-845CDB81C55E",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "AFFC91CA-DE47-1FCF-988D-B257021D4B18",
-			"entityType": "transaction",
 			"amount": 150,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-10-01",
 			"accepted": true,
-			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
 			"entityVersion": "A-267",
-			"accountId": "BD495219-9D21-5B84-0116-B2570214B439",
-			"cleared": "Cleared"
+			"entityId": "AFFC91CA-DE47-1FCF-988D-B257021D4B18",
+			"payeeId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
+			"entityType": "transaction",
+			"cleared": "Cleared",
+			"accountId": "BD495219-9D21-5B84-0116-B2570214B439"
 		},
 		{
-			"entityId": "42DC2A28-1DB7-BD86-AEAB-B35AA3AC438D",
-			"entityType": "transaction",
 			"amount": -17,
 			"categoryId": "4A60FACD-8328-819D-9892-753B4E92C81A",
 			"date": "2022-09-15",
-			"accepted": true,
 			"memo": "Test transaction without payee",
+			"accepted": true,
 			"entityVersion": "A-270",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Uncleared"
+			"entityId": "42DC2A28-1DB7-BD86-AEAB-B35AA3AC438D",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "19BD11E4-9302-6448-629E-753ABC9E7722_2022-10-25_0",
-			"entityType": "transaction",
 			"amount": 1000,
 			"categoryId": "Category/__DeferredIncome__",
 			"date": "2022-10-25",
 			"accepted": false,
-			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
-			"entityVersion": "A-272",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
+			"isTombstone": true,
+			"entityVersion": "A-305",
+			"entityId": "19BD11E4-9302-6448-629E-753ABC9E7722_2022-10-25_0",
 			"dateEnteredFromSchedule": "2022-11-09",
-			"cleared": "Uncleared"
+			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "DA741AE1-EB14-A519-2F1D-753AFDFAF038_2022-10-19_0",
-			"entityType": "transaction",
 			"amount": -72.5,
 			"categoryId": "4A60FACD-8328-819D-9892-753B4E92C81A",
 			"date": "2022-10-19",
-			"accepted": false,
 			"memo": "Yearly liability insurance",
-			"payeeId": "FD50AF20-7C5D-38C7-1E75-753B8030CBA2",
-			"entityVersion": "A-274",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-306",
+			"entityId": "DA741AE1-EB14-A519-2F1D-753AFDFAF038_2022-10-19_0",
 			"dateEnteredFromSchedule": "2022-11-09",
-			"cleared": "Uncleared"
+			"payeeId": "FD50AF20-7C5D-38C7-1E75-753B8030CBA2",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-10-19_0",
-			"entityType": "transaction",
 			"amount": -5,
 			"categoryId": "28901741-CC63-3536-5068-66A125711653",
 			"date": "2022-10-19",
-			"accepted": false,
 			"memo": "Ich hab 'ne Zwiebel auf dem Kopf",
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
-			"entityVersion": "A-276",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-312",
+			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-10-19_0",
 			"dateEnteredFromSchedule": "2022-11-09",
-			"cleared": "Uncleared"
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-10-26_0",
-			"entityType": "transaction",
 			"amount": -5,
 			"categoryId": "28901741-CC63-3536-5068-66A125711653",
 			"date": "2022-10-26",
-			"accepted": false,
 			"memo": "Ich hab 'ne Zwiebel auf dem Kopf",
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
-			"entityVersion": "A-278",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-311",
+			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-10-26_0",
 			"dateEnteredFromSchedule": "2022-11-09",
-			"cleared": "Uncleared"
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-11-02_0",
-			"entityType": "transaction",
 			"amount": -5,
 			"categoryId": "28901741-CC63-3536-5068-66A125711653",
 			"date": "2022-11-02",
-			"accepted": false,
 			"memo": "Ich hab 'ne Zwiebel auf dem Kopf",
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
-			"entityVersion": "A-279",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-310",
+			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-11-02_0",
 			"dateEnteredFromSchedule": "2022-11-09",
-			"cleared": "Uncleared"
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		},
 		{
-			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-11-09_0",
-			"entityType": "transaction",
 			"amount": -5,
 			"categoryId": "28901741-CC63-3536-5068-66A125711653",
 			"date": "2022-11-09",
-			"accepted": false,
 			"memo": "Ich hab 'ne Zwiebel auf dem Kopf",
-			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
-			"entityVersion": "A-280",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-309",
+			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-11-09_0",
 			"dateEnteredFromSchedule": "2022-11-09",
-			"cleared": "Uncleared"
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
+		},
+		{
+			"amount": 1000,
+			"categoryId": "Category/__DeferredIncome__",
+			"date": "2022-11-25",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-304",
+			"entityId": "19BD11E4-9302-6448-629E-753ABC9E7722_2022-11-25_0",
+			"dateEnteredFromSchedule": "2022-11-27",
+			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
+		},
+		{
+			"amount": -5,
+			"categoryId": "28901741-CC63-3536-5068-66A125711653",
+			"date": "2022-11-16",
+			"memo": "Ich hab 'ne Zwiebel auf dem Kopf",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-308",
+			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-11-16_0",
+			"dateEnteredFromSchedule": "2022-11-27",
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
+		},
+		{
+			"amount": -5,
+			"categoryId": "28901741-CC63-3536-5068-66A125711653",
+			"date": "2022-11-23",
+			"memo": "Ich hab 'ne Zwiebel auf dem Kopf",
+			"accepted": false,
+			"isTombstone": true,
+			"entityVersion": "A-307",
+			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4_2022-11-23_0",
+			"dateEnteredFromSchedule": "2022-11-27",
+			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
+			"entityType": "transaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		}
 	],
+	"accounts": [
+		{
+			"entityVersion": "A-207",
+			"hidden": false,
+			"entityId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
+			"note": "This is the cash I carry around",
+			"entityType": "account",
+			"sortableIndex": 0,
+			"accountType": "Cash",
+			"lastEnteredCheckNumber": -1,
+			"accountName": "Cash",
+			"lastReconciledBalance": 0,
+			"lastReconciledDate": null,
+			"onBudget": true
+		},
+		{
+			"entityVersion": "A-184",
+			"hidden": false,
+			"entityId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
+			"note": "My default bank account",
+			"entityType": "account",
+			"sortableIndex": 1073741823,
+			"accountType": "Checking",
+			"lastEnteredCheckNumber": -1,
+			"accountName": "Checking",
+			"lastReconciledBalance": 0,
+			"lastReconciledDate": "2022-09-22",
+			"onBudget": true
+		},
+		{
+			"entityVersion": "A-218",
+			"hidden": true,
+			"entityId": "722E5112-E43F-0558-BFAD-7581E452BEF6",
+			"entityType": "account",
+			"sortableIndex": 1610612735,
+			"accountType": "Cash",
+			"lastEnteredCheckNumber": -1,
+			"accountName": "Deleted Account",
+			"lastReconciledBalance": 0,
+			"lastReconciledDate": null,
+			"onBudget": true
+		},
+		{
+			"entityVersion": "A-268",
+			"hidden": true,
+			"entityId": "BD495219-9D21-5B84-0116-B2570214B439",
+			"entityType": "account",
+			"sortableIndex": 1879048191,
+			"accountType": "Checking",
+			"lastEnteredCheckNumber": -1,
+			"accountName": "Starting Balance Tester",
+			"lastReconciledBalance": 0,
+			"lastReconciledDate": null,
+			"onBudget": true
+		}
+	],
+	"budgetMetaData": {
+		"entityVersion": "A-181",
+		"currencyISOSymbol": null,
+		"entityId": "A2",
+		"entityType": "budgetMetaData",
+		"currencyLocale": "en_US",
+		"dateLocale": "en_US",
+		"budgetType": "Personal",
+		"strictBudget": "TRUE"
+	},
 	"monthlyBudgets": [
 		{
 			"month": "2022-08-01",
+			"entityVersion": "A-37",
 			"entityId": "MB/2022-08",
 			"entityType": "monthlyBudget",
 			"monthlySubCategoryBudgets": [
 				{
+					"entityVersion": "A-147",
 					"entityId": "MCB/2022-08/C4AAAB5C-548F-7855-46F9-843D4C631ABC",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-147",
 					"budgeted": 10,
 					"overspendingHandling": "AffectsBuffer",
 					"parentMonthlyBudgetId": "MB/2022-08",
 					"categoryId": "C4AAAB5C-548F-7855-46F9-843D4C631ABC"
 				},
 				{
+					"entityVersion": "A-135",
 					"entityId": "MCB/2022-08/B988C739-E4C9-8036-CA52-843D631764CD",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-135",
 					"budgeted": 0,
 					"overspendingHandling": null,
 					"parentMonthlyBudgetId": "MB/2022-08",
 					"categoryId": "B988C739-E4C9-8036-CA52-843D631764CD"
 				},
 				{
+					"entityVersion": "A-233",
 					"entityId": "MCB/2022-08/E261ACE3-149F-F9F8-421D-85DE6CC3FCAE",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-233",
 					"budgeted": 10,
 					"overspendingHandling": null,
 					"parentMonthlyBudgetId": "MB/2022-08",
 					"categoryId": "E261ACE3-149F-F9F8-421D-85DE6CC3FCAE"
 				},
 				{
+					"entityVersion": "A-237",
 					"entityId": "MCB/2022-08/28901741-CC63-3536-5068-66A125711653",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-237",
 					"budgeted": 0,
 					"overspendingHandling": "Confined",
 					"parentMonthlyBudgetId": "MB/2022-08",
 					"categoryId": "28901741-CC63-3536-5068-66A125711653"
 				}
-			],
-			"entityVersion": "A-37"
+			]
 		},
 		{
 			"month": "2022-07-01",
+			"entityVersion": "A-38",
 			"entityId": "MB/2022-07",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-38"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2022-06-01",
+			"entityVersion": "A-39",
 			"entityId": "MB/2022-06",
 			"entityType": "monthlyBudget",
 			"monthlySubCategoryBudgets": [
 				{
+					"entityVersion": "A-153",
 					"entityId": "MCB/2022-06/C4AAAB5C-548F-7855-46F9-843D4C631ABC",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-153",
 					"budgeted": 20,
 					"overspendingHandling": null,
 					"parentMonthlyBudgetId": "MB/2022-06",
 					"categoryId": "C4AAAB5C-548F-7855-46F9-843D4C631ABC"
 				}
-			],
-			"entityVersion": "A-39"
+			]
 		},
 		{
 			"month": "2022-05-01",
+			"entityVersion": "A-40",
 			"entityId": "MB/2022-05",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-40"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2022-04-01",
+			"entityVersion": "A-41",
 			"entityId": "MB/2022-04",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-41"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2022-03-01",
+			"entityVersion": "A-42",
 			"entityId": "MB/2022-03",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-42"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2022-02-01",
+			"entityVersion": "A-43",
 			"entityId": "MB/2022-02",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-43"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2022-01-01",
+			"entityVersion": "A-44",
 			"entityId": "MB/2022-01",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-44"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2021-12-01",
+			"entityVersion": "A-45",
 			"entityId": "MB/2021-12",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-45"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2021-11-01",
+			"entityVersion": "A-46",
 			"entityId": "MB/2021-11",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-46"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2021-10-01",
+			"entityVersion": "A-47",
 			"entityId": "MB/2021-10",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-47"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2021-09-01",
+			"entityVersion": "A-48",
 			"entityId": "MB/2021-09",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-48"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2021-08-01",
+			"entityVersion": "A-49",
 			"entityId": "MB/2021-08",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-49"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2021-07-01",
+			"entityVersion": "A-50",
 			"entityId": "MB/2021-07",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-50"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2022-09-01",
+			"entityVersion": "A-51",
 			"entityId": "MB/2022-09",
 			"entityType": "monthlyBudget",
 			"monthlySubCategoryBudgets": [
 				{
+					"entityVersion": "A-134",
 					"entityId": "MCB/2022-09/B988C739-E4C9-8036-CA52-843D631764CD",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-134",
 					"budgeted": 0,
 					"overspendingHandling": null,
 					"parentMonthlyBudgetId": "MB/2022-09",
 					"categoryId": "B988C739-E4C9-8036-CA52-843D631764CD"
 				},
 				{
+					"entityVersion": "A-232",
 					"entityId": "MCB/2022-09/E261ACE3-149F-F9F8-421D-85DE6CC3FCAE",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-232",
 					"budgeted": 100,
 					"overspendingHandling": null,
 					"parentMonthlyBudgetId": "MB/2022-09",
 					"categoryId": "E261ACE3-149F-F9F8-421D-85DE6CC3FCAE"
 				},
 				{
+					"entityVersion": "A-285",
 					"entityId": "MCB/2022-09/28901741-CC63-3536-5068-66A125711653",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-285",
 					"budgeted": 0,
 					"overspendingHandling": "Confined",
 					"parentMonthlyBudgetId": "MB/2022-09",
 					"categoryId": "28901741-CC63-3536-5068-66A125711653"
 				},
 				{
+					"entityVersion": "A-281",
 					"entityId": "MCB/2022-09/41253F13-FA30-979D-C24A-A3A379A63DE7",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-281",
 					"budgeted": 0,
 					"overspendingHandling": "Confined",
 					"parentMonthlyBudgetId": "MB/2022-09",
 					"categoryId": "41253F13-FA30-979D-C24A-A3A379A63DE7"
 				},
 				{
+					"entityVersion": "A-291",
 					"entityId": "MCB/2022-09/4A60FACD-8328-819D-9892-753B4E92C81A",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-291",
 					"budgeted": 0,
 					"overspendingHandling": "Confined",
 					"parentMonthlyBudgetId": "MB/2022-09",
 					"categoryId": "4A60FACD-8328-819D-9892-753B4E92C81A"
 				}
-			],
-			"entityVersion": "A-51"
+			]
 		},
 		{
 			"month": "2022-10-01",
+			"entityVersion": "A-52",
 			"entityId": "MB/2022-10",
 			"entityType": "monthlyBudget",
 			"monthlySubCategoryBudgets": [
 				{
+					"entityVersion": "A-133",
 					"entityId": "MCB/2022-10/B988C739-E4C9-8036-CA52-843D631764CD",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-133",
 					"budgeted": 0,
 					"overspendingHandling": null,
 					"parentMonthlyBudgetId": "MB/2022-10",
 					"categoryId": "B988C739-E4C9-8036-CA52-843D631764CD"
 				},
 				{
+					"entityVersion": "A-290",
 					"entityId": "MCB/2022-10/28901741-CC63-3536-5068-66A125711653",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-290",
 					"budgeted": 0,
 					"overspendingHandling": "AffectsBuffer",
 					"parentMonthlyBudgetId": "MB/2022-10",
 					"categoryId": "28901741-CC63-3536-5068-66A125711653"
 				}
-			],
-			"entityVersion": "A-52"
+			]
 		},
 		{
 			"month": "2022-11-01",
+			"entityVersion": "A-53",
 			"entityId": "MB/2022-11",
 			"entityType": "monthlyBudget",
 			"monthlySubCategoryBudgets": [
 				{
+					"entityVersion": "A-287",
 					"entityId": "MCB/2022-11/28901741-CC63-3536-5068-66A125711653",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-287",
 					"budgeted": 0,
 					"overspendingHandling": "AffectsBuffer",
 					"parentMonthlyBudgetId": "MB/2022-11",
 					"categoryId": "28901741-CC63-3536-5068-66A125711653"
 				},
 				{
+					"entityVersion": "A-292",
 					"entityId": "MCB/2022-11/4A60FACD-8328-819D-9892-753B4E92C81A",
 					"entityType": "monthlyCategoryBudget",
-					"entityVersion": "A-292",
 					"budgeted": 0,
 					"overspendingHandling": "AffectsBuffer",
 					"parentMonthlyBudgetId": "MB/2022-11",
 					"categoryId": "4A60FACD-8328-819D-9892-753B4E92C81A"
 				}
-			],
-			"entityVersion": "A-53"
+			]
 		},
 		{
 			"month": "2022-12-01",
+			"entityVersion": "A-54",
 			"entityId": "MB/2022-12",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-54"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-01-01",
+			"entityVersion": "A-55",
 			"entityId": "MB/2023-01",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-55"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-02-01",
+			"entityVersion": "A-56",
 			"entityId": "MB/2023-02",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-56"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-03-01",
+			"entityVersion": "A-57",
 			"entityId": "MB/2023-03",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-57"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-04-01",
+			"entityVersion": "A-58",
 			"entityId": "MB/2023-04",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-58"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-05-01",
+			"entityVersion": "A-59",
 			"entityId": "MB/2023-05",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-59"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-06-01",
+			"entityVersion": "A-60",
 			"entityId": "MB/2023-06",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-60"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-07-01",
+			"entityVersion": "A-61",
 			"entityId": "MB/2023-07",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-61"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-08-01",
+			"entityVersion": "A-62",
 			"entityId": "MB/2023-08",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-62"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-09-01",
+			"entityVersion": "A-63",
 			"entityId": "MB/2023-09",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-63"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-10-01",
+			"entityVersion": "A-154",
 			"entityId": "MB/2023-10",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-154"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-11-01",
+			"entityVersion": "A-236",
 			"entityId": "MB/2023-11",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-236"
+			"monthlySubCategoryBudgets": []
 		},
 		{
 			"month": "2023-12-01",
+			"entityVersion": "A-271",
 			"entityId": "MB/2023-12",
 			"entityType": "monthlyBudget",
-			"monthlySubCategoryBudgets": [],
-			"entityVersion": "A-271"
+			"monthlySubCategoryBudgets": []
 		}
 	],
 	"fileMetaData": {
+		"entityType": "fileMetaData",
 		"budgetDataVersion": "4.2",
-		"currentKnowledge": "A-292",
-		"entityType": "fileMetaData"
+		"currentKnowledge": "A-312"
 	},
 	"masterCategories": [
 		{
-			"deleteable": false,
-			"subCategories": [
-				{
-					"sortableIndex": 1879048191,
-					"entityId": "C4AAAB5C-548F-7855-46F9-843D4C631ABC",
-					"entityType": "category",
-					"entityVersion": "A-254",
-					"type": "OUTFLOW",
-					"masterCategoryId": "MasterCategory/__Hidden__",
-					"cachedBalance": 0,
-					"name": "Running Costs ` Groceries (Hidden) ` BF7831EA-8CAC-A3C0-E420-66A1254D658C"
-				},
-				{
-					"sortableIndex": 2013265919,
-					"entityId": "E261ACE3-149F-F9F8-421D-85DE6CC3FCAE",
-					"entityType": "category",
-					"entityVersion": "A-256",
-					"type": "OUTFLOW",
-					"masterCategoryId": "MasterCategory/__Hidden__",
-					"cachedBalance": 0,
-					"name": "Some old master category (Hidden) ` Subcategory for old master category ` 7AAFDC85-9004-7806-69E8-85DE54041591"
-				}
-			],
-			"sortableIndex": -1073741824,
+			"entityVersion": "A-1",
 			"entityId": "MasterCategory/__Hidden__",
 			"entityType": "masterCategory",
-			"entityVersion": "A-1",
+			"sortableIndex": -1073741824,
 			"type": "OUTFLOW",
+			"name": "Hidden Categories",
 			"expanded": true,
-			"name": "Hidden Categories"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
-					"sortableIndex": 0,
-					"entityId": "A5",
+					"entityVersion": "A-254",
+					"entityId": "C4AAAB5C-548F-7855-46F9-843D4C631ABC",
 					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-69",
+					"sortableIndex": 1879048191,
 					"type": "OUTFLOW",
-					"masterCategoryId": "A4",
+					"name": "Running Costs ` Groceries (Hidden) ` BF7831EA-8CAC-A3C0-E420-66A1254D658C",
 					"cachedBalance": 0,
-					"name": "Tithing"
+					"masterCategoryId": "MasterCategory/__Hidden__"
 				},
 				{
-					"sortableIndex": 1073741823,
-					"entityId": "A6",
+					"entityVersion": "A-256",
+					"entityId": "E261ACE3-149F-F9F8-421D-85DE6CC3FCAE",
 					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-68",
+					"sortableIndex": 2013265919,
 					"type": "OUTFLOW",
-					"masterCategoryId": "A4",
+					"name": "Some old master category (Hidden) ` Subcategory for old master category ` 7AAFDC85-9004-7806-69E8-85DE54041591",
 					"cachedBalance": 0,
-					"name": "Charitable"
+					"masterCategoryId": "MasterCategory/__Hidden__"
 				}
 			],
-			"sortableIndex": 1879048191,
-			"entityId": "A4",
-			"entityType": "masterCategory",
+			"deleteable": false
+		},
+		{
 			"isTombstone": true,
 			"entityVersion": "A-70",
+			"entityId": "A4",
+			"entityType": "masterCategory",
+			"sortableIndex": 1879048191,
 			"type": "OUTFLOW",
+			"name": "Giving",
 			"expanded": true,
-			"name": "Giving"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
+					"isTombstone": true,
+					"entityVersion": "A-69",
+					"entityId": "A5",
+					"entityType": "category",
 					"sortableIndex": 0,
-					"entityId": "A8",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-77",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A7",
+					"name": "Tithing",
 					"cachedBalance": 0,
-					"name": "Rent/Mortgage"
+					"masterCategoryId": "A4"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-68",
+					"entityId": "A6",
+					"entityType": "category",
 					"sortableIndex": 1073741823,
-					"entityId": "A9",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-76",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A7",
+					"name": "Charitable",
 					"cachedBalance": 0,
-					"name": "Phone"
-				},
-				{
-					"sortableIndex": 1610612735,
-					"entityId": "A10",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-75",
-					"type": "OUTFLOW",
-					"masterCategoryId": "A7",
-					"cachedBalance": 0,
-					"name": "Internet"
-				},
-				{
-					"sortableIndex": 1879048191,
-					"entityId": "A11",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-74",
-					"type": "OUTFLOW",
-					"masterCategoryId": "A7",
-					"cachedBalance": 0,
-					"name": "Cable TV"
-				},
-				{
-					"sortableIndex": 2013265919,
-					"entityId": "A12",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-73",
-					"type": "OUTFLOW",
-					"masterCategoryId": "A7",
-					"cachedBalance": 0,
-					"name": "Electricity"
-				},
-				{
-					"sortableIndex": 2080374783,
-					"entityId": "A13",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-72",
-					"type": "OUTFLOW",
-					"masterCategoryId": "A7",
-					"cachedBalance": 0,
-					"name": "Water"
-				},
-				{
-					"sortableIndex": 2113929215,
-					"entityId": "A14",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-71",
-					"type": "OUTFLOW",
-					"masterCategoryId": "A7",
-					"cachedBalance": 0,
-					"name": "Natural Gas/Propane/Oil"
+					"masterCategoryId": "A4"
 				}
 			],
-			"sortableIndex": 2013265919,
-			"entityId": "A7",
-			"entityType": "masterCategory",
+			"deleteable": true
+		},
+		{
 			"isTombstone": true,
 			"entityVersion": "A-78",
+			"entityId": "A7",
+			"entityType": "masterCategory",
+			"sortableIndex": 2013265919,
 			"type": "OUTFLOW",
+			"name": "Monthly Bills",
 			"expanded": true,
-			"name": "Monthly Bills"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
+					"isTombstone": true,
+					"entityVersion": "A-77",
+					"entityId": "A8",
+					"entityType": "category",
 					"sortableIndex": 0,
-					"entityId": "A16",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-85",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A15",
+					"name": "Rent/Mortgage",
 					"cachedBalance": 0,
-					"name": "Groceries"
+					"masterCategoryId": "A7"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-76",
+					"entityId": "A9",
+					"entityType": "category",
 					"sortableIndex": 1073741823,
-					"entityId": "A17",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-84",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A15",
+					"name": "Phone",
 					"cachedBalance": 0,
-					"name": "Fuel"
+					"masterCategoryId": "A7"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-75",
+					"entityId": "A10",
+					"entityType": "category",
 					"sortableIndex": 1610612735,
-					"entityId": "A18",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-83",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A15",
+					"name": "Internet",
 					"cachedBalance": 0,
-					"name": "Spending Money"
+					"masterCategoryId": "A7"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-74",
+					"entityId": "A11",
+					"entityType": "category",
 					"sortableIndex": 1879048191,
-					"entityId": "A19",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-82",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A15",
+					"name": "Cable TV",
 					"cachedBalance": 0,
-					"name": "Restaurants"
+					"masterCategoryId": "A7"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-73",
+					"entityId": "A12",
+					"entityType": "category",
 					"sortableIndex": 2013265919,
-					"entityId": "A20",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-81",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A15",
+					"name": "Electricity",
 					"cachedBalance": 0,
-					"name": "Medical"
+					"masterCategoryId": "A7"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-72",
+					"entityId": "A13",
+					"entityType": "category",
 					"sortableIndex": 2080374783,
-					"entityId": "A21",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-80",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A15",
+					"name": "Water",
 					"cachedBalance": 0,
-					"name": "Clothing"
+					"masterCategoryId": "A7"
 				},
 				{
-					"sortableIndex": 2113929215,
-					"entityId": "A22",
-					"entityType": "category",
 					"isTombstone": true,
-					"entityVersion": "A-79",
+					"entityVersion": "A-71",
+					"entityId": "A14",
+					"entityType": "category",
+					"sortableIndex": 2113929215,
 					"type": "OUTFLOW",
-					"masterCategoryId": "A15",
+					"name": "Natural Gas/Propane/Oil",
 					"cachedBalance": 0,
-					"name": "Household Goods"
+					"masterCategoryId": "A7"
 				}
 			],
-			"sortableIndex": 2080374783,
-			"entityId": "A15",
-			"entityType": "masterCategory",
+			"deleteable": true
+		},
+		{
 			"isTombstone": true,
 			"entityVersion": "A-86",
+			"entityId": "A15",
+			"entityType": "masterCategory",
+			"sortableIndex": 2080374783,
 			"type": "OUTFLOW",
+			"name": "Everyday Expenses",
 			"expanded": true,
-			"name": "Everyday Expenses"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
+					"isTombstone": true,
+					"entityVersion": "A-85",
+					"entityId": "A16",
+					"entityType": "category",
 					"sortableIndex": 0,
-					"entityId": "A24",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-94",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
+					"name": "Groceries",
 					"cachedBalance": 0,
-					"name": "Emergency Fund"
+					"masterCategoryId": "A15"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-84",
+					"entityId": "A17",
+					"entityType": "category",
 					"sortableIndex": 1073741823,
-					"entityId": "A25",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-93",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
+					"name": "Fuel",
 					"cachedBalance": 0,
-					"name": "Car Repairs"
+					"masterCategoryId": "A15"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-83",
+					"entityId": "A18",
+					"entityType": "category",
 					"sortableIndex": 1610612735,
-					"entityId": "A26",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-92",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
+					"name": "Spending Money",
 					"cachedBalance": 0,
-					"name": "Home Maintenance"
+					"masterCategoryId": "A15"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-82",
+					"entityId": "A19",
+					"entityType": "category",
 					"sortableIndex": 1879048191,
-					"entityId": "A27",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-91",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
+					"name": "Restaurants",
 					"cachedBalance": 0,
-					"name": "Car Insurance"
+					"masterCategoryId": "A15"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-81",
+					"entityId": "A20",
+					"entityType": "category",
 					"sortableIndex": 2013265919,
-					"entityId": "A28",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-90",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
+					"name": "Medical",
 					"cachedBalance": 0,
-					"name": "Life Insurance"
+					"masterCategoryId": "A15"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-80",
+					"entityId": "A21",
+					"entityType": "category",
 					"sortableIndex": 2080374783,
-					"entityId": "A29",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-89",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
+					"name": "Clothing",
 					"cachedBalance": 0,
-					"name": "Health Insurance"
+					"masterCategoryId": "A15"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-79",
+					"entityId": "A22",
+					"entityType": "category",
 					"sortableIndex": 2113929215,
-					"entityId": "A30",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-88",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
+					"name": "Household Goods",
 					"cachedBalance": 0,
-					"name": "Birthdays"
-				},
-				{
-					"sortableIndex": 2130706431,
-					"entityId": "A31",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-87",
-					"type": "OUTFLOW",
-					"masterCategoryId": "A23",
-					"cachedBalance": 0,
-					"name": "Christmas"
+					"masterCategoryId": "A15"
 				}
 			],
-			"sortableIndex": 2113929215,
-			"entityId": "A23",
-			"entityType": "masterCategory",
+			"deleteable": true
+		},
+		{
 			"isTombstone": true,
 			"entityVersion": "A-95",
+			"entityId": "A23",
+			"entityType": "masterCategory",
+			"sortableIndex": 2113929215,
 			"type": "OUTFLOW",
+			"name": "Rainy Day Funds",
 			"expanded": true,
-			"name": "Rainy Day Funds"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
-					"sortableIndex": 0,
-					"entityId": "A33",
-					"entityType": "category",
 					"isTombstone": true,
-					"entityVersion": "A-97",
+					"entityVersion": "A-94",
+					"entityId": "A24",
+					"entityType": "category",
+					"sortableIndex": 0,
 					"type": "OUTFLOW",
-					"masterCategoryId": "A32",
+					"name": "Emergency Fund",
 					"cachedBalance": 0,
-					"name": "Car Replacement"
+					"masterCategoryId": "A23"
 				},
 				{
-					"sortableIndex": 1073741823,
-					"entityId": "A34",
-					"entityType": "category",
 					"isTombstone": true,
-					"entityVersion": "A-96",
+					"entityVersion": "A-93",
+					"entityId": "A25",
+					"entityType": "category",
+					"sortableIndex": 1073741823,
 					"type": "OUTFLOW",
-					"masterCategoryId": "A32",
+					"name": "Car Repairs",
 					"cachedBalance": 0,
-					"name": "Vacation"
+					"masterCategoryId": "A23"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-92",
+					"entityId": "A26",
+					"entityType": "category",
+					"sortableIndex": 1610612735,
+					"type": "OUTFLOW",
+					"name": "Home Maintenance",
+					"cachedBalance": 0,
+					"masterCategoryId": "A23"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-91",
+					"entityId": "A27",
+					"entityType": "category",
+					"sortableIndex": 1879048191,
+					"type": "OUTFLOW",
+					"name": "Car Insurance",
+					"cachedBalance": 0,
+					"masterCategoryId": "A23"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-90",
+					"entityId": "A28",
+					"entityType": "category",
+					"sortableIndex": 2013265919,
+					"type": "OUTFLOW",
+					"name": "Life Insurance",
+					"cachedBalance": 0,
+					"masterCategoryId": "A23"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-89",
+					"entityId": "A29",
+					"entityType": "category",
+					"sortableIndex": 2080374783,
+					"type": "OUTFLOW",
+					"name": "Health Insurance",
+					"cachedBalance": 0,
+					"masterCategoryId": "A23"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-88",
+					"entityId": "A30",
+					"entityType": "category",
+					"sortableIndex": 2113929215,
+					"type": "OUTFLOW",
+					"name": "Birthdays",
+					"cachedBalance": 0,
+					"masterCategoryId": "A23"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-87",
+					"entityId": "A31",
+					"entityType": "category",
+					"sortableIndex": 2130706431,
+					"type": "OUTFLOW",
+					"name": "Christmas",
+					"cachedBalance": 0,
+					"masterCategoryId": "A23"
 				}
 			],
-			"sortableIndex": 2130706431,
-			"entityId": "A32",
-			"entityType": "masterCategory",
+			"deleteable": true
+		},
+		{
 			"isTombstone": true,
 			"entityVersion": "A-98",
+			"entityId": "A32",
+			"entityType": "masterCategory",
+			"sortableIndex": 2130706431,
 			"type": "OUTFLOW",
+			"name": "Savings Goals",
 			"expanded": true,
-			"name": "Savings Goals"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
+					"isTombstone": true,
+					"entityVersion": "A-97",
+					"entityId": "A33",
+					"entityType": "category",
 					"sortableIndex": 0,
-					"entityId": "A36",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-101",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A35",
+					"name": "Car Replacement",
 					"cachedBalance": 0,
-					"name": "Car Payment"
+					"masterCategoryId": "A32"
 				},
 				{
+					"isTombstone": true,
+					"entityVersion": "A-96",
+					"entityId": "A34",
+					"entityType": "category",
 					"sortableIndex": 1073741823,
-					"entityId": "A37",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-100",
 					"type": "OUTFLOW",
-					"masterCategoryId": "A35",
+					"name": "Vacation",
 					"cachedBalance": 0,
-					"name": "Student Loan Payment"
-				},
-				{
-					"sortableIndex": 1610612735,
-					"entityId": "A38",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-99",
-					"type": "OUTFLOW",
-					"masterCategoryId": "A35",
-					"cachedBalance": 0,
-					"name": "Personal Loan Payment"
+					"masterCategoryId": "A32"
 				}
 			],
-			"sortableIndex": 2139095039,
-			"entityId": "A35",
-			"entityType": "masterCategory",
+			"deleteable": true
+		},
+		{
 			"isTombstone": true,
 			"entityVersion": "A-102",
+			"entityId": "A35",
+			"entityType": "masterCategory",
+			"sortableIndex": 2139095039,
 			"type": "OUTFLOW",
+			"name": "Debt",
 			"expanded": true,
-			"name": "Debt"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
-					"note": "note for rent",
-					"sortableIndex": 1073741823,
-					"entityId": "B988C739-E4C9-8036-CA52-843D631764CD",
+					"isTombstone": true,
+					"entityVersion": "A-101",
+					"entityId": "A36",
 					"entityType": "category",
-					"entityVersion": "A-185",
+					"sortableIndex": 0,
 					"type": "OUTFLOW",
-					"masterCategoryId": "B16339FC-9C95-7881-5F38-843D363522B2",
+					"name": "Car Payment",
 					"cachedBalance": 0,
-					"name": "Rent"
+					"masterCategoryId": "A35"
 				},
 				{
-					"sortableIndex": 1610612735,
-					"entityId": "4A60FACD-8328-819D-9892-753B4E92C81A",
+					"isTombstone": true,
+					"entityVersion": "A-100",
+					"entityId": "A37",
 					"entityType": "category",
-					"entityVersion": "A-187",
+					"sortableIndex": 1073741823,
 					"type": "OUTFLOW",
-					"masterCategoryId": "B16339FC-9C95-7881-5F38-843D363522B2",
+					"name": "Student Loan Payment",
 					"cachedBalance": 0,
-					"name": "Insurances"
+					"masterCategoryId": "A35"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-99",
+					"entityId": "A38",
+					"entityType": "category",
+					"sortableIndex": 1610612735,
+					"type": "OUTFLOW",
+					"name": "Personal Loan Payment",
+					"cachedBalance": 0,
+					"masterCategoryId": "A35"
 				}
 			],
-			"sortableIndex": 1879048191,
+			"deleteable": true
+		},
+		{
+			"entityVersion": "A-161",
 			"entityId": "B16339FC-9C95-7881-5F38-843D363522B2",
 			"entityType": "masterCategory",
-			"entityVersion": "A-161",
+			"sortableIndex": 1879048191,
 			"type": "OUTFLOW",
+			"name": "Fixed Costs",
 			"expanded": true,
-			"name": "Fixed Costs"
-		},
-		{
-			"deleteable": true,
 			"subCategories": [
 				{
-					"sortableIndex": 0,
-					"entityId": "28901741-CC63-3536-5068-66A125711653",
+					"entityVersion": "A-185",
+					"note": "note for rent",
+					"entityId": "B988C739-E4C9-8036-CA52-843D631764CD",
 					"entityType": "category",
-					"entityVersion": "A-224",
-					"type": "OUTFLOW",
-					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C",
-					"cachedBalance": 0,
-					"name": "Restaurants"
-				},
-				{
 					"sortableIndex": 1073741823,
-					"entityId": "41253F13-FA30-979D-C24A-A3A379A63DE7",
-					"entityType": "category",
-					"entityVersion": "A-239",
 					"type": "OUTFLOW",
-					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C",
+					"name": "Rent",
 					"cachedBalance": 0,
-					"name": "Toiletries"
+					"masterCategoryId": "B16339FC-9C95-7881-5F38-843D363522B2"
 				},
 				{
+					"entityVersion": "A-187",
+					"entityId": "4A60FACD-8328-819D-9892-753B4E92C81A",
+					"entityType": "category",
 					"sortableIndex": 1610612735,
-					"entityId": "732E598D-821B-4C4C-B0CA-A3A3D7186AAD",
-					"entityType": "category",
-					"entityVersion": "A-240",
 					"type": "OUTFLOW",
-					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C",
+					"name": "Insurances",
 					"cachedBalance": 0,
-					"name": "Beverages"
-				},
-				{
-					"sortableIndex": 1879048191,
-					"entityId": "5405270C-83DF-F1BB-76D7-B22BF5E4413B",
-					"entityType": "category",
-					"isTombstone": true,
-					"entityVersion": "A-262",
-					"type": "OUTFLOW",
-					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C",
-					"cachedBalance": 0,
-					"name": "Some Deleted Subcategory"
+					"masterCategoryId": "B16339FC-9C95-7881-5F38-843D363522B2"
 				}
 			],
-			"sortableIndex": 2013265919,
+			"deleteable": true
+		},
+		{
+			"entityVersion": "A-222",
 			"entityId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C",
 			"entityType": "masterCategory",
-			"entityVersion": "A-222",
+			"sortableIndex": 2013265919,
 			"type": "OUTFLOW",
+			"name": "Running Costs",
 			"expanded": true,
-			"name": "Running Costs"
+			"subCategories": [
+				{
+					"entityVersion": "A-224",
+					"entityId": "28901741-CC63-3536-5068-66A125711653",
+					"entityType": "category",
+					"sortableIndex": 0,
+					"type": "OUTFLOW",
+					"name": "Restaurants",
+					"cachedBalance": 0,
+					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C"
+				},
+				{
+					"entityVersion": "A-239",
+					"entityId": "41253F13-FA30-979D-C24A-A3A379A63DE7",
+					"entityType": "category",
+					"sortableIndex": 1073741823,
+					"type": "OUTFLOW",
+					"name": "Toiletries",
+					"cachedBalance": 0,
+					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C"
+				},
+				{
+					"entityVersion": "A-240",
+					"entityId": "732E598D-821B-4C4C-B0CA-A3A3D7186AAD",
+					"entityType": "category",
+					"sortableIndex": 1610612735,
+					"type": "OUTFLOW",
+					"name": "Beverages",
+					"cachedBalance": 0,
+					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C"
+				},
+				{
+					"isTombstone": true,
+					"entityVersion": "A-262",
+					"entityId": "5405270C-83DF-F1BB-76D7-B22BF5E4413B",
+					"entityType": "category",
+					"sortableIndex": 1879048191,
+					"type": "OUTFLOW",
+					"name": "Some Deleted Subcategory",
+					"cachedBalance": 0,
+					"masterCategoryId": "BF7831EA-8CAC-A3C0-E420-66A1254D658C"
+				}
+			],
+			"deleteable": true
 		},
 		{
-			"deleteable": true,
-			"subCategories": [],
-			"sortableIndex": 2080374783,
-			"entityId": "7AAFDC85-9004-7806-69E8-85DE54041591",
-			"entityType": "masterCategory",
 			"isTombstone": true,
 			"entityVersion": "A-255",
+			"entityId": "7AAFDC85-9004-7806-69E8-85DE54041591",
+			"entityType": "masterCategory",
+			"sortableIndex": 2080374783,
 			"type": "OUTFLOW",
+			"name": "Some old master category (Hidden)",
 			"expanded": true,
-			"name": "Some old master category (Hidden)"
+			"subCategories": [],
+			"deleteable": true
 		},
 		{
-			"deleteable": true,
-			"subCategories": null,
-			"sortableIndex": 1744830463,
-			"entityId": "A8E1A52A-4A1D-6862-FA16-B22BE17503D6",
-			"entityType": "masterCategory",
 			"isTombstone": true,
 			"entityVersion": "A-258",
+			"entityId": "A8E1A52A-4A1D-6862-FA16-B22BE17503D6",
+			"entityType": "masterCategory",
+			"sortableIndex": 1744830463,
 			"type": "OUTFLOW",
+			"name": "New Master Category",
 			"expanded": true,
-			"name": "New Master Category"
+			"subCategories": null,
+			"deleteable": true
 		},
 		{
-			"deleteable": true,
-			"subCategories": null,
-			"sortableIndex": 1744830463,
-			"entityId": "A2899064-65AC-9A46-53D9-B22C4E192A59",
-			"entityType": "masterCategory",
 			"isTombstone": true,
 			"entityVersion": "A-264",
+			"entityId": "A2899064-65AC-9A46-53D9-B22C4E192A59",
+			"entityType": "masterCategory",
+			"sortableIndex": 1744830463,
 			"type": "OUTFLOW",
+			"name": "Some deleted master category",
 			"expanded": true,
-			"name": "Some deleted master category"
+			"subCategories": null,
+			"deleteable": true
 		}
 	],
 	"scheduledTransactions": [
 		{
-			"entityId": "19BD11E4-9302-6448-629E-753ABC9E7722",
-			"entityType": "scheduledTransaction",
-			"twiceAMonthStartDay": 0,
 			"amount": 1000,
 			"frequency": "Monthly",
+			"twiceAMonthStartDay": 0,
 			"categoryId": "Category/__DeferredIncome__",
-			"date": "2022-11-25",
+			"date": "2022-12-25",
 			"accepted": true,
+			"entityVersion": "A-294",
+			"entityId": "19BD11E4-9302-6448-629E-753ABC9E7722",
 			"payeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
-			"entityVersion": "A-273",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Uncleared"
+			"entityType": "scheduledTransaction",
+			"cleared": "Uncleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "DA741AE1-EB14-A519-2F1D-753AFDFAF038",
-			"entityType": "scheduledTransaction",
-			"twiceAMonthStartDay": 0,
 			"amount": -72.5,
 			"frequency": "Yearly",
+			"twiceAMonthStartDay": 0,
 			"categoryId": "4A60FACD-8328-819D-9892-753B4E92C81A",
 			"date": "2023-10-19",
-			"accepted": true,
 			"memo": "Yearly liability insurance",
-			"payeeId": "FD50AF20-7C5D-38C7-1E75-753B8030CBA2",
+			"accepted": true,
 			"entityVersion": "A-275",
-			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"cleared": "Uncleared"
+			"entityId": "DA741AE1-EB14-A519-2F1D-753AFDFAF038",
+			"payeeId": "FD50AF20-7C5D-38C7-1E75-753B8030CBA2",
+			"entityType": "scheduledTransaction",
+			"cleared": "Uncleared",
+			"accountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
 		},
 		{
-			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4",
-			"entityType": "scheduledTransaction",
-			"twiceAMonthStartDay": 0,
 			"amount": -5,
 			"frequency": "Weekly",
+			"twiceAMonthStartDay": 0,
 			"categoryId": "28901741-CC63-3536-5068-66A125711653",
-			"date": "2022-11-16",
-			"accepted": true,
+			"date": "2022-11-30",
 			"memo": "Ich hab 'ne Zwiebel auf dem Kopf",
+			"accepted": true,
+			"entityVersion": "A-296",
+			"entityId": "B9923864-ABE1-EE96-694F-753C7EBE66A4",
 			"payeeId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
-			"entityVersion": "A-277",
-			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"cleared": "Uncleared"
+			"entityType": "scheduledTransaction",
+			"cleared": "Uncleared",
+			"accountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
 		}
 	],
-	"accountMappings": [],
-	"payees": [
-		{
-			"autoFillCategoryId": null,
-			"entityId": "Payee/Transfer:14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"autoFillMemo": "",
-			"entityType": "payee",
-			"autoFillAmount": -200,
-			"renameConditions": null,
-			"entityVersion": "A-208",
-			"enabled": true,
-			"locations": null,
-			"name": "Transfer : Cash",
-			"targetAccountId": "14960788-5E84-761E-CEAB-843CC3BC16F5"
-		},
-		{
-			"autoFillCategoryId": null,
-			"entityId": "4256A548-2572-B2CD-0860-843CC3CD8D38",
-			"autoFillMemo": null,
-			"entityType": "payee",
-			"autoFillAmount": 0,
-			"renameConditions": null,
-			"entityVersion": "A-67",
-			"enabled": false,
-			"locations": null,
-			"name": "Starting Balance"
-		},
-		{
-			"autoFillCategoryId": "Category/__ImmediateIncome__",
-			"entityId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
-			"autoFillMemo": "Salary",
-			"entityType": "payee",
-			"autoFillAmount": 1000,
-			"renameConditions": [
-				{
-					"parentPayeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
-					"entityId": "62BA8597-0F1D-6F4D-8425-753BE93C3452",
-					"entityType": "payeeStringCondition",
-					"isTombstone": true,
-					"entityVersion": "A-196",
-					"operator": "Is",
-					"operand": "Employer"
-				},
-				{
-					"parentPayeeId": "E8C1D7B4-F18A-3FF7-8A69-843DD2629BBD",
-					"entityId": "EF778A34-071F-B264-571F-753C35B3E9F8",
-					"entityType": "payeeStringCondition",
-					"entityVersion": "A-197",
-					"operator": "Is",
-					"operand": "Employer"
-				}
-			],
-			"entityVersion": "A-212",
-			"enabled": true,
-			"locations": null,
-			"name": "Company Name"
-		},
-		{
-			"autoFillCategoryId": "C4AAAB5C-548F-7855-46F9-843D4C631ABC",
-			"entityId": "3139A659-EAA9-846C-3F36-845CDB81C55E",
-			"autoFillMemo": "",
-			"entityType": "payee",
-			"autoFillAmount": -20,
-			"renameConditions": null,
-			"entityVersion": "A-116",
-			"enabled": true,
-			"locations": null,
-			"name": "Grocery Store"
-		},
-		{
-			"autoFillCategoryId": "B988C739-E4C9-8036-CA52-843D631764CD",
-			"entityId": "25A421B8-B860-B5C3-C9F7-84631E6BDB42",
-			"autoFillMemo": "Why does my Kebap person pay my rent?",
-			"entityType": "payee",
-			"autoFillAmount": 10,
-			"renameConditions": null,
-			"entityVersion": "A-210",
-			"enabled": true,
-			"locations": null,
-			"name": "Döner"
-		},
-		{
-			"autoFillCategoryId": null,
-			"entityId": "Payee/Transfer:E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"autoFillMemo": null,
-			"entityType": "payee",
-			"autoFillAmount": 0,
-			"renameConditions": null,
-			"entityVersion": "A-164",
-			"enabled": true,
-			"locations": null,
-			"name": "Transfer : Checking",
-			"targetAccountId": "E640A420-6FEA-5D9D-9128-66A1D1D70591"
-		},
-		{
-			"autoFillCategoryId": null,
-			"entityId": "FD50AF20-7C5D-38C7-1E75-753B8030CBA2",
-			"autoFillMemo": null,
-			"entityType": "payee",
-			"autoFillAmount": 0,
-			"renameConditions": null,
-			"entityVersion": "A-189",
-			"enabled": true,
-			"locations": null,
-			"name": "Insurance"
-		},
-		{
-			"autoFillCategoryId": "Category/__ImmediateIncome__",
-			"entityId": "1A855BF7-F175-44C5-F0A0-753C0B3AD139",
-			"autoFillMemo": null,
-			"entityType": "payee",
-			"autoFillAmount": 0,
-			"renameConditions": null,
-			"isTombstone": true,
-			"entityVersion": "A-195",
-			"enabled": true,
-			"locations": null,
-			"name": "Employer"
-		},
-		{
-			"autoFillCategoryId": null,
-			"entityId": "Payee/Transfer:722E5112-E43F-0558-BFAD-7581E452BEF6",
-			"autoFillMemo": null,
-			"entityType": "payee",
-			"autoFillAmount": 0,
-			"renameConditions": null,
-			"entityVersion": "A-219",
-			"enabled": false,
-			"locations": null,
-			"name": "Transfer : Deleted Account",
-			"targetAccountId": "722E5112-E43F-0558-BFAD-7581E452BEF6"
-		},
-		{
-			"autoFillCategoryId": null,
-			"entityId": "Payee/Transfer:BD495219-9D21-5B84-0116-B2570214B439",
-			"autoFillMemo": null,
-			"entityType": "payee",
-			"autoFillAmount": 0,
-			"renameConditions": null,
-			"entityVersion": "A-269",
-			"enabled": false,
-			"locations": null,
-			"name": "Transfer : Starting Balance Tester",
-			"targetAccountId": "BD495219-9D21-5B84-0116-B2570214B439"
-		}
-	],
-	"accounts": [
-		{
-			"lastReconciledDate": null,
-			"note": "This is the cash I carry around",
-			"entityId": "14960788-5E84-761E-CEAB-843CC3BC16F5",
-			"entityType": "account",
-			"sortableIndex": 0,
-			"entityVersion": "A-207",
-			"lastEnteredCheckNumber": -1,
-			"onBudget": true,
-			"accountType": "Cash",
-			"hidden": false,
-			"lastReconciledBalance": 0,
-			"accountName": "Cash"
-		},
-		{
-			"lastReconciledDate": "2022-09-22",
-			"note": "My default bank account",
-			"entityId": "E640A420-6FEA-5D9D-9128-66A1D1D70591",
-			"entityType": "account",
-			"sortableIndex": 1073741823,
-			"entityVersion": "A-184",
-			"lastEnteredCheckNumber": -1,
-			"onBudget": true,
-			"accountType": "Checking",
-			"hidden": false,
-			"lastReconciledBalance": 0,
-			"accountName": "Checking"
-		},
-		{
-			"lastReconciledDate": null,
-			"entityId": "722E5112-E43F-0558-BFAD-7581E452BEF6",
-			"entityType": "account",
-			"sortableIndex": 1610612735,
-			"entityVersion": "A-218",
-			"lastEnteredCheckNumber": -1,
-			"onBudget": true,
-			"accountType": "Cash",
-			"hidden": true,
-			"lastReconciledBalance": 0,
-			"accountName": "Deleted Account"
-		},
-		{
-			"lastReconciledDate": null,
-			"entityId": "BD495219-9D21-5B84-0116-B2570214B439",
-			"entityType": "account",
-			"sortableIndex": 1879048191,
-			"entityVersion": "A-268",
-			"lastEnteredCheckNumber": -1,
-			"onBudget": true,
-			"accountType": "Checking",
-			"hidden": true,
-			"lastReconciledBalance": 0,
-			"accountName": "Starting Balance Tester"
-		}
-	]
+	"accountMappings": []
 }
