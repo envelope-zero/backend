@@ -18,6 +18,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Sum of allocations for Grocery Envelope until 2022-03: 67
 	// Allocations for Grocery Envelope - Outgoing transactions = -43.62
 	marchFifteenthTwentyTwentyTwo := time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC)
+	marchFirstTwentyTwentyTwo := time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC)
 
 	budget := models.Budget{}
 	err := suite.db.Save(&budget).Error
@@ -101,7 +102,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(17.42),
-			Month:      marchFifteenthTwentyTwentyTwo.AddDate(0, -2, 0),
+			Month:      marchFirstTwentyTwentyTwo.AddDate(0, -2, 0),
 		},
 	}
 	err = suite.db.Save(&allocation1).Error
@@ -113,7 +114,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(24.58),
-			Month:      marchFifteenthTwentyTwentyTwo.AddDate(0, -1, 0),
+			Month:      marchFirstTwentyTwentyTwo.AddDate(0, -1, 0),
 		},
 	}
 	err = suite.db.Save(&allocation2).Error
@@ -125,7 +126,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(25),
-			Month:      marchFifteenthTwentyTwentyTwo,
+			Month:      marchFirstTwentyTwentyTwo,
 		},
 	}
 	err = suite.db.Save(&allocationCurrentMonth).Error

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"sort"
 	"time"
 
 	"github.com/google/uuid"
@@ -70,70 +71,196 @@ func (e Envelope) Spent(db *gorm.DB, t time.Time) decimal.Decimal {
 	return outgoingSum.Sub(incomingSum)
 }
 
-// Balance calculates the balance of an Envelope in a specific month
-// This code performs negative and positive rollover. See also
-// https://github.com/envelope-zero/backend/issues/327
-func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
-	// We add one month as the balance should include all transactions and the allocation for the present month
-	// With that, we can query for all resources where the date/month is < the month
-	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
+type AggregatedTransaction struct {
+	Amount                     decimal.Decimal
+	Date                       time.Time
+	SourceAccountExternal      bool
+	DestinationAccountExternal bool
+}
 
-	// Sum of incoming transactions
-	var incoming decimal.NullDecimal
+type EnvelopeMonthAllocation struct {
+	Month      time.Time
+	Allocation decimal.Decimal
+}
+
+type EnvelopeMonthConfig struct {
+	Month         time.Time
+	OverspendMode OverspendMode
+}
+
+// Balance calculates the balance of an Envelope in a specific month.
+func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
+	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	// Get all relevant data for rawTransactions
+	var rawTransactions []AggregatedTransaction
 	err := db.
 		Table("transactions").
-		Select("SUM(amount)").
 		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
 		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
-		Where("source_account.external = 1 AND destination_account.external = 0 AND transactions.envelope_id = ?", e.ID).
-		Where("transactions.date < date(?) ", month).
-		Find(&incoming).Error
+		Where("transactions.date < date(?)", month.AddDate(0, 1, 0)).
+		Where("transactions.envelope_id = ?", e.ID).
+		Select("transactions.amount AS Amount, transactions.date AS Date, source_account.external AS SourceAccountExternal, destination_account.external AS DestinationAccountExternal").
+		Find(&rawTransactions).Error
 	if err != nil {
 		return decimal.Zero, err
 	}
 
-	// If no transactions are found, the value is nil
-	if !incoming.Valid {
-		incoming.Decimal = decimal.Zero
+	// Sort monthTransactions by month
+	monthTransactions := make(map[time.Time][]AggregatedTransaction)
+	for _, transaction := range rawTransactions {
+		tDate := time.Date(transaction.Date.Year(), transaction.Date.Month(), 1, 0, 0, 0, 0, time.UTC)
+		monthTransactions[tDate] = append(monthTransactions[tDate], transaction)
 	}
 
-	// Sum of outgoing transactions
-	var outgoing decimal.NullDecimal
+	// Get allocations
+	var rawAllocations []Allocation
 	err = db.
-		Table("transactions").
-		Select("SUM(amount)").
-		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
-		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
-		Where("source_account.external = 0 AND destination_account.external = 1 AND transactions.envelope_id = ?", e.ID).
-		Where("transactions.date < date(?) ", month).
-		Find(&outgoing).Error
-	if err != nil {
-		return decimal.Zero, err
-	}
-
-	// If no transactions are found, the value is nil
-	if !outgoing.Valid {
-		outgoing.Decimal = decimal.Zero
-	}
-
-	var budgeted decimal.NullDecimal
-	err = db.
-		Select("SUM(amount)").
-		Where("allocations.envelope_id = ?", e.ID).
-		Where("allocations.month < date(?) ", month).
 		Table("allocations").
-		Find(&budgeted).
-		Error
+		Where("allocations.month < date(?)", month.AddDate(0, 1, 0)).
+		Where("allocations.envelope_id = ?", e.ID).
+		Find(&rawAllocations).Error
 	if err != nil {
-		return decimal.Zero, err
+		return decimal.Zero, nil
 	}
 
-	// If no transactions are found, the value is nil
-	if !budgeted.Valid {
-		budgeted.Decimal = decimal.Zero
+	// Sort allocations by month
+	allocationMonths := make(map[time.Time]Allocation)
+	for _, allocation := range rawAllocations {
+		allocationMonths[allocation.Month] = allocation
 	}
 
-	return budgeted.Decimal.Add(incoming.Decimal).Sub(outgoing.Decimal), nil
+	// Get MonthConfigs
+	var rawConfigs []MonthConfig
+	err = db.
+		Table("month_configs").
+		Where("month_configs.month < date(?)", month.AddDate(0, 1, 0)).
+		Where("month_configs.envelope_id = ?", e.ID).
+		Find(&rawConfigs).Error
+	if err != nil {
+		return decimal.Zero, nil
+	}
+
+	// Sort MonthConfigs by month
+	configMonths := make(map[time.Time]MonthConfig)
+	for _, monthConfig := range rawConfigs {
+		configMonths[monthConfig.Month] = monthConfig
+	}
+
+	// This is a helper map to only add unique months to the
+	// monthKeys slice
+	monthsWithData := make(map[time.Time]bool)
+
+	// Create a slice of the months that have Allocation
+	// data to have a sorted list we can iterate over
+	monthKeys := make([]time.Time, 0)
+	for k := range allocationMonths {
+		monthKeys = append(monthKeys, k)
+		monthsWithData[k] = true
+	}
+
+	// Add the months that have MonthConfigs
+	for k := range configMonths {
+		if _, ok := monthsWithData[k]; !ok {
+			monthKeys = append(monthKeys, k)
+			monthsWithData[k] = true
+		}
+	}
+
+	// Add the months that have transaction data
+	for k := range monthTransactions {
+		if _, ok := monthsWithData[k]; !ok {
+			monthKeys = append(monthKeys, k)
+		}
+	}
+
+	// Sort by time so that earlier months are first
+	sort.Slice(monthKeys, func(i, j int) bool {
+		return monthKeys[i].Before(monthKeys[j])
+	})
+
+	if len(monthKeys) == 0 {
+		return decimal.Zero, nil
+	}
+
+	sum := decimal.Zero
+	loopMonth := monthKeys[0]
+	for i := 0; i < len(monthKeys); i++ {
+		currentMonthTransactions, transactionsOk := monthTransactions[loopMonth]
+		currentMonthAllocation, allocationOk := allocationMonths[loopMonth]
+		currentMonthConfig, configOk := configMonths[loopMonth]
+
+		// We always go forward one month until we
+		// reach the last one with data
+		loopMonth = loopMonth.AddDate(0, 1, 0)
+
+		// If there is no data for the current month,
+		// we loop once more and go on to the next month
+		//
+		// We also reset the balance to 0 if it is negative
+		// since with no MonthConfig, the balance starts from 0 again
+		if !transactionsOk && !allocationOk && !configOk {
+			i--
+			if sum.IsNegative() {
+				sum = decimal.Zero
+			}
+			continue
+		}
+
+		// Initialize the sum for this month
+		monthSum := sum
+
+		for _, transaction := range currentMonthTransactions {
+			if transaction.SourceAccountExternal {
+				// Incoming money gets added to the balance
+				monthSum = monthSum.Add(transaction.Amount)
+			} else {
+				// Outgoing gets subtracted
+				monthSum = monthSum.Sub(transaction.Amount)
+			}
+		}
+
+		// The zero value for a decimal is Zero, so we don't need to check
+		// if there is an allocation
+		monthSum = monthSum.Add(currentMonthAllocation.Amount)
+
+		// If the value is not negative, we're done here.
+		if !monthSum.IsNegative() {
+			sum = monthSum
+			continue
+		}
+
+		// If there is overspend and the overspend should affect the envelope,
+		// the sum for the month is subtracted (using decimal.Add since the
+		// number is negative)
+		if monthSum.IsNegative() && configOk && currentMonthConfig.OverspendMode == AffectEnvelope {
+			sum = monthSum
+			// If this is the last month, the sum is the monthSum
+		} else if monthSum.IsNegative() && loopMonth.After(month) {
+			sum = monthSum
+			// In all other cases, the overspend affects Available to Budget,
+			// not the envelope balance
+		} else if monthSum.IsNegative() {
+			sum = decimal.Zero
+		}
+
+		// In cases where the sum is negative and we do not have
+		// configuration for the month before the month we are
+		// calculating the balance for, we set the balance to 0
+		// in the last loop iteration.
+		//
+		// This stops the rollover of overflow without configuration
+		// infinitely far into the future.
+		//
+		// We check the month before the month we are calculating for
+		// because if we do not have configuration for the current month,
+		// negative balance from the month before could still roll over.
+		if monthSum.IsNegative() && i+1 == len(monthKeys) && loopMonth.Before(month) {
+			sum = decimal.Zero
+		}
+	}
+
+	return sum, nil
 }
 
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth and allocation ID for them.
