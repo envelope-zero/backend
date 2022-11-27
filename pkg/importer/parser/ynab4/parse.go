@@ -319,7 +319,12 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 				newTransaction.Envelope = mapping.Envelope
 				newTransaction.Category = mapping.Category
 			}
-			newTransaction.Model.Amount = sub.Amount
+
+			if sub.Amount.IsPositive() {
+				newTransaction.Model.Amount = sub.Amount
+			} else {
+				newTransaction.Model.Amount = sub.Amount.Neg()
+			}
 
 			resources.Transactions = append(resources.Transactions, newTransaction)
 		}
