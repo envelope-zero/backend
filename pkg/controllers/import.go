@@ -38,7 +38,7 @@ func (co Controller) OptionsImport(c *gin.Context) {
 }
 
 // @Summary     Import
-// @Description Imports data from other sources. Resources with the same name are ignored. Accepts CSV files in the following formats: YNAB Import (use [YNAP](https://ynap.leolabs.org/) to convert your bank statement), YNAB 4 Register export, and YNAB 4 Budget export.
+// @Description Imports budgets from YNAB 4
 // @Tags        Import
 // @Accept      multipart/form-data
 // @Produce     json
@@ -46,7 +46,7 @@ func (co Controller) OptionsImport(c *gin.Context) {
 // @Failure     400        {object} httperrors.HTTPError
 // @Failure     500        {object} httperrors.HTTPError
 // @Param       file       formData file   true  "File to import"
-// @Param       budgetName query    string false "Name of the Budget to create for a YNAB 4 import. Ignored for all other imports"
+// @Param       budgetName query    string false "Name of the Budget to create"
 // @Router      /v1/import [post]
 func (co Controller) Import(c *gin.Context) {
 	var query ImportQuery
