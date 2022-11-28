@@ -1960,18 +1960,14 @@ paths:
     post:
       consumes:
       - multipart/form-data
-      description: 'Imports data from other sources. Resources with the same name
-        are ignored. Accepts CSV files in the following formats: YNAB Import (use
-        [YNAP](https://ynap.leolabs.org/) to convert your bank statement), YNAB 4
-        Register export, and YNAB 4 Budget export.'
+      description: Imports budgets from YNAB 4
       parameters:
       - description: File to import
         in: formData
         name: file
         required: true
         type: file
-      - description: Name of the Budget to create for a YNAB 4 import. Ignored for
-          all other imports
+      - description: Name of the Budget to create
         in: query
         name: budgetName
         type: string
