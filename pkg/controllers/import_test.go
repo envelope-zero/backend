@@ -41,6 +41,10 @@ func (suite *TestSuiteStandard) TestOptionsImport() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/import", "")
 	suite.Assert().Equal(http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 	suite.Assert().Equal(recorder.Header().Get("allow"), "OPTIONS, POST")
+
+	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/import/ynab4", "")
+	suite.Assert().Equal(http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+	suite.Assert().Equal(recorder.Header().Get("allow"), "OPTIONS, POST")
 }
 
 func (suite *TestSuiteStandard) TestImportFails() {

@@ -24,7 +24,21 @@ func (co Controller) RegisterImportRoutes(r *gin.RouterGroup) {
 	{
 		r.OPTIONS("", co.OptionsImport)
 		r.POST("", co.Import)
+
+		r.OPTIONS("/ynab4", co.OptionsImportYnab4)
+		r.POST("/ynab4", co.ImportYnab4)
 	}
+}
+
+// @Summary     Allowed HTTP verbs
+// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Please use /v1/import/ynab4, which works exactly the same.**
+// @Tags        Import
+// @Success     204
+// @Failure     500 {object} httperrors.HTTPError
+// @Router      /v1/import [options]
+// @Deprecated  true
+func (co Controller) OptionsImport(c *gin.Context) {
+	httputil.OptionsPost(c)
 }
 
 // @Summary     Allowed HTTP verbs
@@ -32,9 +46,25 @@ func (co Controller) RegisterImportRoutes(r *gin.RouterGroup) {
 // @Tags        Import
 // @Success     204
 // @Failure     500 {object} httperrors.HTTPError
-// @Router      /v1/import [options]
-func (co Controller) OptionsImport(c *gin.Context) {
+// @Router      /v1/import/ynab4 [options]
+func (co Controller) OptionsImportYnab4(c *gin.Context) {
 	httputil.OptionsPost(c)
+}
+
+// @Summary     Import
+// @Description Imports budgets from YNAB 4. **Please use /v1/import/ynab4, which works exactly the same.**
+// @Tags        Import
+// @Accept      multipart/form-data
+// @Produce     json
+// @Success     204
+// @Failure     400        {object} httperrors.HTTPError
+// @Failure     500        {object} httperrors.HTTPError
+// @Param       file       formData file   true  "File to import"
+// @Param       budgetName query    string false "Name of the Budget to create"
+// @Router      /v1/import [post]
+// @Deprecated  true
+func (co Controller) Import(c *gin.Context) {
+	co.ImportYnab4(c)
 }
 
 // @Summary     Import
@@ -47,8 +77,8 @@ func (co Controller) OptionsImport(c *gin.Context) {
 // @Failure     500        {object} httperrors.HTTPError
 // @Param       file       formData file   true  "File to import"
 // @Param       budgetName query    string false "Name of the Budget to create"
-// @Router      /v1/import [post]
-func (co Controller) Import(c *gin.Context) {
+// @Router      /v1/import/ynab4 [post]
+func (co Controller) ImportYnab4(c *gin.Context) {
 	var query ImportQuery
 	if err := c.BindQuery(&query); err != nil {
 		httperrors.New(c, http.StatusBadRequest, "The budgetName parameter must be set")

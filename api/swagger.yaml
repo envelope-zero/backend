@@ -1945,6 +1945,54 @@ paths:
       - Envelopes
   /v1/import:
     options:
+      deprecated: true
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs. **Please use /v1/import/ynab4, which works exactly the
+        same.**
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+    post:
+      consumes:
+      - multipart/form-data
+      deprecated: true
+      description: Imports budgets from YNAB 4. **Please use /v1/import/ynab4, which
+        works exactly the same.**
+      parameters:
+      - description: File to import
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Name of the Budget to create
+        in: query
+        name: budgetName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Import
+      tags:
+      - Import
+  /v1/import/ynab4:
+    options:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
