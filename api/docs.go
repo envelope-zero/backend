@@ -1769,6 +1769,73 @@ const docTemplate = `{
         },
         "/v1/import": {
             "post": {
+                "description": "Imports budgets from YNAB 4. **Please use /v1/import/ynab4, which works exactly the same.**",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Import",
+                "deprecated": true,
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to import",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of the Budget to create",
+                        "name": "budgetName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs. **Please use /v1/import/ynab4, which works exactly the same.**",
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "deprecated": true,
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/import/ynab4": {
+            "post": {
                 "description": "Imports budgets from YNAB 4",
                 "consumes": [
                     "multipart/form-data"
