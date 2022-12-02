@@ -458,6 +458,9 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 						monthConfigs = append(monthConfigs, types.MonthConfig{
 							Model: models.MonthConfig{
 								Month: checkMonth,
+								MonthConfigCreate: models.MonthConfigCreate{
+									OverspendMode: models.AffectEnvelope,
+								},
 							},
 							Category: mConfig.Category,
 							Envelope: mConfig.Envelope,
