@@ -318,6 +318,9 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			if mapping, ok := envelopeIDNames[sub.CategoryID]; ok {
 				newTransaction.Envelope = mapping.Envelope
 				newTransaction.Category = mapping.Category
+			} else {
+				newTransaction.Envelope = ""
+				newTransaction.Category = ""
 			}
 
 			if sub.Amount.IsPositive() {
