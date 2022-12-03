@@ -98,6 +98,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 					Month:   time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 					Income:  decimal.NewFromFloat(0),
 					Balance: decimal.NewFromFloat(10.99),
+					Spent:   decimal.NewFromFloat(10),
 					Categories: []models.CategoryEnvelopes{
 						{
 							Name: category.Data.Name,
@@ -126,6 +127,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 					Month:   time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
 					Income:  decimal.NewFromFloat(0),
 					Balance: decimal.NewFromFloat(53.11),
+					Spent:   decimal.NewFromFloat(5),
 					Categories: []models.CategoryEnvelopes{
 						{
 							Name: category.Data.Name,
@@ -154,6 +156,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 					Month:   time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
 					Income:  decimal.NewFromFloat(1500),
 					Balance: decimal.NewFromFloat(69.28),
+					Spent:   decimal.NewFromFloat(15),
 					Categories: []models.CategoryEnvelopes{
 						{
 							Name: category.Data.Name,
@@ -196,6 +199,8 @@ func (suite *TestSuiteStandard) TestMonth() {
 		if !suite.Assert().Len(month.Data.Categories[0].Envelopes, 1) {
 			suite.Assert().FailNow("Response envelope length does not match!", "Envelope list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Data.Categories[0].Envelopes), r.Header().Get("x-request-id"))
 		}
+
+		suite.Assert().True(month.Data.Spent.Equal(tt.response.Data.Spent), "Month spent is wrong. Should be %v, but is %v: %#v", tt.response.Data.Spent, month.Data.Spent, month.Data)
 
 		expected := tt.response.Data.Categories[0].Envelopes[0]
 		envelope := month.Data.Categories[0].Envelopes[0]

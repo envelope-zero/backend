@@ -159,6 +159,7 @@ func (co Controller) GetMonth(c *gin.Context) {
 
 			// Update the month's balance
 			month.Balance = month.Balance.Add(envelopeMonth.Balance)
+			month.Spent = month.Spent.Add(envelopeMonth.Spent)
 
 			// Set the allocation link. If there is no allocation, we send the collection endpoint.
 			// With this, any client will be able to see that the "Budgeted" amount is 0 and therefore
