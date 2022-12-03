@@ -21,5 +21,6 @@ type Month struct {
 	Income     decimal.Decimal     `json:"income" example:"2317.34"`                          // The total income for the month (sum of all incoming transactions without an Envelope)
 	Available  decimal.Decimal     `json:"available" example:"217.34"`                        // The amount available to budget
 	Balance    decimal.Decimal     `json:"balance" example:"5231.37"`                         // The sum of all envelope balances
+	Spent      decimal.Decimal     `json:"spent" example:"133.70"`                            // The amount of money spent in this month
 	Categories []CategoryEnvelopes `json:"categories"`                                        // A list of envelope month calculations grouped by category
 }

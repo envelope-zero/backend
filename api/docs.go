@@ -3579,6 +3579,11 @@ const docTemplate = `{
                     "description": "The name of the Budget",
                     "type": "string",
                     "example": "Zero budget"
+                },
+                "spent": {
+                    "description": "The amount of money spent in this month",
+                    "type": "number",
+                    "example": 133.7
                 }
             }
         },

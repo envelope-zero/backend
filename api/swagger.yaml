@@ -651,6 +651,10 @@ definitions:
         description: The name of the Budget
         example: Zero budget
         type: string
+      spent:
+        description: The amount of money spent in this month
+        example: 133.7
+        type: number
     type: object
   models.MonthConfigCreate:
     properties:
