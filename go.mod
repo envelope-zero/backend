@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.28.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.1
-	github.com/swaggo/files v0.0.0-20221208230613-cf1eeac86b11
+	github.com/swaggo/files v1.0.0
 	github.com/swaggo/gin-swagger v1.5.3
 	github.com/swaggo/swag v1.8.7
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
