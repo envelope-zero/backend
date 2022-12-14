@@ -21,6 +21,11 @@ issues:
         - gocyclo
       text: "func `Create`"
 
+    - path: pkg/models/envelope.go
+      linters:
+        - gocyclo
+      text: "func `\\(Envelope\\).Balance`"
+
 linters:
   enable:
     - gocyclo

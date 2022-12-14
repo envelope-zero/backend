@@ -10,8 +10,8 @@ import (
 type OverspendMode string
 
 const (
-	AffectEnvelope  OverspendMode = "AFFECT_ENVELOPE"
 	AffectAvailable OverspendMode = "AFFECT_AVAILABLE"
+	AffectEnvelope  OverspendMode = "AFFECT_ENVELOPE"
 )
 
 type MonthConfig struct {
