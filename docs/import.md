@@ -30,7 +30,7 @@ YNAB 4 saves all data in a file that can be imported directly to Envelope Zero. 
 1. Open the `Budget.ymeta` file with any text editor. This file tells us which directory to look into next. Check the `relativeDataFolderName` string. Open this directory
 1. In the directory, you will find another directory with a UUID as name, for example `F90E864E-8D96-4E0E-A723-776CEEB1C2F0`. Open this directory, too.
 1. In there, you will find a Budget.yfull file. This is the one you need, copy it to e.g. your Desktop.
-1. Navigate to http://example.com/api/docs/index.html#/Import/post_v1_import. Replace `example.com` with the URL of your Envelope Zero instance.
+1. Navigate to http://example.com/api/docs/index.html#/Import/post_v1_import_ynab4. Replace `example.com` with the URL of your Envelope Zero instance.
 1. Click the "Try it out" button on the top right
 1. Select your file and a Budget Name (it must be a name that does not exist yet), then click "Execute".
 1. Check the "Server response" section that appeared below. It should have a "Code" of 204. If it does not, check the box at the right for the error message.
