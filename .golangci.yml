@@ -34,7 +34,9 @@ linters:
     # therefore disagrees with swag fmt about the formatting of the swagger comments.
     # See https://github.com/mvdan/gofumpt/issues/254
     # - gofumpt
-    - goimports
+
+    # Disabled since goimports reformats correct 1.19 doc comments
+    # - goimports
     - govet
     - revive
     - whitespace
