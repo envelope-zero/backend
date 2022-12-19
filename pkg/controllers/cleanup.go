@@ -8,12 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary     Delete everything
-// @Description Permanently deletes all resources
-// @Tags        v1
-// @Success     204
-// @Failure     500 {object} httperrors.HTTPError
-// @Router      /v1 [delete]
+//	@Summary		Delete everything
+//	@Description	Permanently deletes all resources
+//	@Tags			v1
+//	@Success		204
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Router			/v1 [delete]
 func (co Controller) DeleteAll(c *gin.Context) {
 	err := co.DB.Unscoped().Where("true").Delete(&models.Transaction{}).Error
 	if err != nil {

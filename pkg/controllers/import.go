@@ -30,54 +30,54 @@ func (co Controller) RegisterImportRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Please use /v1/import/ynab4, which works exactly the same.**
-// @Tags        Import
-// @Success     204
-// @Failure     500 {object} httperrors.HTTPError
-// @Router      /v1/import [options]
-// @Deprecated  true
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Please use /v1/import/ynab4, which works exactly the same.**
+//	@Tags			Import
+//	@Success		204
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Router			/v1/import [options]
+//	@Deprecated		true
 func (co Controller) OptionsImport(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags        Import
-// @Success     204
-// @Failure     500 {object} httperrors.HTTPError
-// @Router      /v1/import/ynab4 [options]
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			Import
+//	@Success		204
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Router			/v1/import/ynab4 [options]
 func (co Controller) OptionsImportYnab4(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
 
-// @Summary     Import
-// @Description Imports budgets from YNAB 4. **Please use /v1/import/ynab4, which works exactly the same.**
-// @Tags        Import
-// @Accept      multipart/form-data
-// @Produce     json
-// @Success     204
-// @Failure     400        {object} httperrors.HTTPError
-// @Failure     500        {object} httperrors.HTTPError
-// @Param       file       formData file   true  "File to import"
-// @Param       budgetName query    string false "Name of the Budget to create"
-// @Router      /v1/import [post]
-// @Deprecated  true
+//	@Summary		Import
+//	@Description	Imports budgets from YNAB 4. **Please use /v1/import/ynab4, which works exactly the same.**
+//	@Tags			Import
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Success		204
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			file		formData	file	true	"File to import"
+//	@Param			budgetName	query		string	false	"Name of the Budget to create"
+//	@Router			/v1/import [post]
+//	@Deprecated		true
 func (co Controller) Import(c *gin.Context) {
 	co.ImportYnab4(c)
 }
 
-// @Summary     Import
-// @Description Imports budgets from YNAB 4
-// @Tags        Import
-// @Accept      multipart/form-data
-// @Produce     json
-// @Success     204
-// @Failure     400        {object} httperrors.HTTPError
-// @Failure     500        {object} httperrors.HTTPError
-// @Param       file       formData file   true  "File to import"
-// @Param       budgetName query    string false "Name of the Budget to create"
-// @Router      /v1/import/ynab4 [post]
+//	@Summary		Import
+//	@Description	Imports budgets from YNAB 4
+//	@Tags			Import
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Success		204
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			file		formData	file	true	"File to import"
+//	@Param			budgetName	query		string	false	"Name of the Budget to create"
+//	@Router			/v1/import/ynab4 [post]
 func (co Controller) ImportYnab4(c *gin.Context) {
 	var query ImportQuery
 	if err := c.BindQuery(&query); err != nil {

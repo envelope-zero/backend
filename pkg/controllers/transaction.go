@@ -101,21 +101,21 @@ func (co Controller) RegisterTransactionRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags        Transactions
-// @Success     204
-// @Router      /v1/transactions [options]
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			Transactions
+//	@Success		204
+//	@Router			/v1/transactions [options]
 func (co Controller) OptionsTransactionList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags        Transactions
-// @Success     204
-// @Param       transactionId path string true "ID formatted as string"
-// @Router      /v1/transactions/{transactionId} [options]
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			Transactions
+//	@Success		204
+//	@Param			transactionId	path	string	true	"ID formatted as string"
+//	@Router			/v1/transactions/{transactionId} [options]
 func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
@@ -130,16 +130,16 @@ func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// @Summary     Create transaction
-// @Description Creates a new transaction
-// @Tags        Transactions
-// @Produce     json
-// @Success     201 {object} TransactionResponse
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500         {object} httperrors.HTTPError
-// @Param       transaction body     models.TransactionCreate true "Transaction"
-// @Router      /v1/transactions [post]
+//	@Summary		Create transaction
+//	@Description	Creates a new transaction
+//	@Tags			Transactions
+//	@Produce		json
+//	@Success		201	{object}	TransactionResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			transaction	body		models.TransactionCreate	true	"Transaction"
+//	@Router			/v1/transactions [post]
 func (co Controller) CreateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 
@@ -186,24 +186,24 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
 }
 
-// @Summary     Get transactions
-// @Description Returns a list of transactions
-// @Tags        Transactions
-// @Produce     json
-// @Success     200 {object} TransactionListResponse
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500 {object} httperrors.HTTPError
-// @Router      /v1/transactions [get]
-// @Param       date        query time.Time       false "Filter by date"
-// @Param       amount      query decimal.Decimal false "Filter by amount"
-// @Param       note        query string          false "Filter by note"
-// @Param       budget      query string          false "Filter by budget ID"
-// @Param       account     query string          false "Filter by ID of associated account, regardeless of source or destination"
-// @Param       source      query string          false "Filter by source account ID"
-// @Param       destination query string          false "Filter by destination account ID"
-// @Param       envelope    query string          false "Filter by envelope ID"
-// @Param       reconciled  query bool            false "Filter by reconcilication state"
+//	@Summary		Get transactions
+//	@Description	Returns a list of transactions
+//	@Tags			Transactions
+//	@Produce		json
+//	@Success		200	{object}	TransactionListResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Router			/v1/transactions [get]
+//	@Param			date		query	time.Time		false	"Filter by date"
+//	@Param			amount		query	decimal.Decimal	false	"Filter by amount"
+//	@Param			note		query	string			false	"Filter by note"
+//	@Param			budget		query	string			false	"Filter by budget ID"
+//	@Param			account		query	string			false	"Filter by ID of associated account, regardeless of source or destination"
+//	@Param			source		query	string			false	"Filter by source account ID"
+//	@Param			destination	query	string			false	"Filter by destination account ID"
+//	@Param			envelope	query	string			false	"Filter by envelope ID"
+//	@Param			reconciled	query	bool			false	"Filter by reconcilication state"
 func (co Controller) GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -259,16 +259,16 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionListResponse{Data: transactionObjects})
 }
 
-// @Summary     Get transaction
-// @Description Returns a specific transaction
-// @Tags        Transactions
-// @Produce     json
-// @Success     200 {object} TransactionResponse
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500           {object} httperrors.HTTPError
-// @Param       transactionId path     string true "ID formatted as string"
-// @Router      /v1/transactions/{transactionId} [get]
+//	@Summary		Get transaction
+//	@Description	Returns a specific transaction
+//	@Tags			Transactions
+//	@Produce		json
+//	@Success		200	{object}	TransactionResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			transactionId	path		string	true	"ID formatted as string"
+//	@Router			/v1/transactions/{transactionId} [get]
 func (co Controller) GetTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
@@ -284,18 +284,18 @@ func (co Controller) GetTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
-// @Summary     Update transaction
-// @Description Updates an existing transaction. Only values to be updated need to be specified.
-// @Tags        Transactions
-// @Accept      json
-// @Produce     json
-// @Success     200 {object} TransactionResponse
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500           {object} httperrors.HTTPError
-// @Param       transactionId path     string                   true "ID formatted as string"
-// @Param       transaction   body     models.TransactionCreate true "Transaction"
-// @Router      /v1/transactions/{transactionId} [patch]
+//	@Summary		Update transaction
+//	@Description	Updates an existing transaction. Only values to be updated need to be specified.
+//	@Tags			Transactions
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	TransactionResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			transactionId	path		string						true	"ID formatted as string"
+//	@Param			transaction		body		models.TransactionCreate	true	"Transaction"
+//	@Router			/v1/transactions/{transactionId} [patch]
 func (co Controller) UpdateTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
@@ -365,15 +365,15 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
-// @Summary     Delete transaction
-// @Description Deletes a transaction
-// @Tags        Transactions
-// @Success     204
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500           {object} httperrors.HTTPError
-// @Param       transactionId path     string true "ID formatted as string"
-// @Router      /v1/transactions/{transactionId} [delete]
+//	@Summary		Delete transaction
+//	@Description	Deletes a transaction
+//	@Tags			Transactions
+//	@Success		204
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			transactionId	path		string	true	"ID formatted as string"
+//	@Router			/v1/transactions/{transactionId} [delete]
 func (co Controller) DeleteTransaction(c *gin.Context) {
 	p, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {

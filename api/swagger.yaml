@@ -116,6 +116,14 @@ definitions:
           $ref: '#/definitions/controllers.Allocation'
         type: array
     type: object
+  controllers.AllocationMode:
+    enum:
+    - ALLOCATE_LAST_MONTH_BUDGET
+    - ALLOCATE_LAST_MONTH_SPEND
+    type: string
+    x-enum-varnames:
+    - AllocateLastMonthBudget
+    - AllocateLastMonthSpend
   controllers.AllocationResponse:
     properties:
       data:
@@ -153,8 +161,9 @@ definitions:
   controllers.BudgetAllocationMode:
     properties:
       mode:
+        allOf:
+        - $ref: '#/definitions/controllers.AllocationMode'
         example: ALLOCATE_LAST_MONTH_SPEND
-        type: string
     type: object
   controllers.BudgetLinks:
     properties:
@@ -343,9 +352,10 @@ definitions:
         example: "1969-06-01T00:00:00.000000Z"
         type: string
       overspendMode:
+        allOf:
+        - $ref: '#/definitions/models.OverspendMode'
         default: AFFECT_AVAILABLE
         example: AFFECT_ENVELOPE
-        type: string
       updatedAt:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
@@ -659,10 +669,19 @@ definitions:
   models.MonthConfigCreate:
     properties:
       overspendMode:
+        allOf:
+        - $ref: '#/definitions/models.OverspendMode'
         default: AFFECT_AVAILABLE
         example: AFFECT_ENVELOPE
-        type: string
     type: object
+  models.OverspendMode:
+    enum:
+    - AFFECT_AVAILABLE
+    - AFFECT_ENVELOPE
+    type: string
+    x-enum-varnames:
+    - AffectAvailable
+    - AffectEnvelope
   models.TransactionCreate:
     properties:
       amount:

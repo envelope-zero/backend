@@ -65,26 +65,26 @@ func (co Controller) RegisterMonthRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs.
-// @Tags        Months
-// @Success     204
-// @Router      /v1/months [options]
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs.
+//	@Tags			Months
+//	@Success		204
+//	@Router			/v1/months [options]
 func (co Controller) OptionsMonth(c *gin.Context) {
 	httputil.OptionsGetPostDelete(c)
 }
 
-// @Summary     Get data about a month
-// @Description Returns data about a specific month.
-// @Tags        Months
-// @Produce     json
-// @Success     200 {object} MonthResponse
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500    {object} httperrors.HTTPError
-// @Param       budget query    string true "ID formatted as string"
-// @Param       month  query    string true "The month in YYYY-MM format"
-// @Router      /v1/months [get]
+//	@Summary		Get data about a month
+//	@Description	Returns data about a specific month.
+//	@Tags			Months
+//	@Produce		json
+//	@Success		200	{object}	MonthResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			budget	query		string	true	"ID formatted as string"
+//	@Param			month	query		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/months [get]
 func (co Controller) GetMonth(c *gin.Context) {
 	qMonth, budget, ok := co.parseMonthQuery(c)
 	if !ok {
@@ -178,16 +178,16 @@ func (co Controller) GetMonth(c *gin.Context) {
 	c.JSON(http.StatusOK, MonthResponse{Data: month})
 }
 
-// @Summary     Delete allocations for a month
-// @Description Deletes all allocation for the specified month
-// @Tags        Months
-// @Success     204
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500    {object} httperrors.HTTPError
-// @Param       budget query    string true "ID formatted as string"
-// @Param       month  query    string true "The month in YYYY-MM format"
-// @Router      /v1/months [delete]
+//	@Summary		Delete allocations for a month
+//	@Description	Deletes all allocation for the specified month
+//	@Tags			Months
+//	@Success		204
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			budget	query		string	true	"ID formatted as string"
+//	@Param			month	query		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/months [delete]
 func (co Controller) DeleteAllocations(c *gin.Context) {
 	month, budget, ok := co.parseMonthQuery(c)
 	if !ok {
@@ -216,17 +216,17 @@ func (co Controller) DeleteAllocations(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-// @Summary     Set allocations for a month
-// @Description Sets allocations for a month for all envelopes that do not have an allocation yet
-// @Tags        Months
-// @Success     204
-// @Failure     400 {object} httperrors.HTTPError
-// @Failure     404
-// @Failure     500    {object} httperrors.HTTPError
-// @Param       budget query    string               true "ID formatted as string"
-// @Param       month  query    string               true "The month in YYYY-MM format"
-// @Param       mode   body     BudgetAllocationMode true "Budget"
-// @Router      /v1/months [post]
+//	@Summary		Set allocations for a month
+//	@Description	Sets allocations for a month for all envelopes that do not have an allocation yet
+//	@Tags			Months
+//	@Success		204
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			budget	query		string					true	"ID formatted as string"
+//	@Param			month	query		string					true	"The month in YYYY-MM format"
+//	@Param			mode	body		BudgetAllocationMode	true	"Budget"
+//	@Router			/v1/months [post]
 func (co Controller) SetAllocations(c *gin.Context) {
 	month, _, ok := co.parseMonthQuery(c)
 	if !ok {
