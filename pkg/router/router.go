@@ -147,11 +147,11 @@ type RootLinks struct {
 	V1      string `json:"v1" example:"https://example.com/api/v1"`
 }
 
-// @Summary     API root
-// @Description Entrypoint for the API, listing all endpoints
-// @Tags        General
-// @Success     200 {object} RootResponse
-// @Router      / [get]
+//	@Summary		API root
+//	@Description	Entrypoint for the API, listing all endpoints
+//	@Tags			General
+//	@Success		200	{object}	RootResponse
+//	@Router			/ [get]
 func GetRoot(c *gin.Context) {
 	c.JSON(http.StatusOK, RootResponse{
 		Links: RootLinks{
@@ -169,11 +169,11 @@ type VersionObject struct {
 	Version string `json:"version" example:"1.1.0"`
 }
 
-// @Summary     API version
-// @Description Returns the software version of the API
-// @Tags        General
-// @Success     200 {object} VersionResponse
-// @Router      /version [get]
+//	@Summary		API version
+//	@Description	Returns the software version of the API
+//	@Tags			General
+//	@Success		200	{object}	VersionResponse
+//	@Router			/version [get]
 func GetVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, VersionResponse{
 		Data: VersionObject{
@@ -182,20 +182,20 @@ func GetVersion(c *gin.Context) {
 	})
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags        General
-// @Success     204
-// @Router      / [options]
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			General
+//	@Success		204
+//	@Router			/ [options]
 func OptionsRoot(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags        General
-// @Success     204
-// @Router      /version [options]
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			General
+//	@Success		204
+//	@Router			/version [options]
 func OptionsVersion(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
@@ -215,11 +215,11 @@ type V1Links struct {
 	Import       string `json:"import" example:"https://example.com/api/v1/import"`
 }
 
-// @Summary     v1 API
-// @Description Returns general information about the v1 API
-// @Tags        v1
-// @Success     200 {object} V1Response
-// @Router      /v1 [get]
+//	@Summary		v1 API
+//	@Description	Returns general information about the v1 API
+//	@Tags			v1
+//	@Success		200	{object}	V1Response
+//	@Router			/v1 [get]
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
@@ -235,11 +235,11 @@ func GetV1(c *gin.Context) {
 	})
 }
 
-// @Summary     Allowed HTTP verbs
-// @Description Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-// @Tags        v1
-// @Success     204
-// @Router      /v1 [options]
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			v1
+//	@Success		204
+//	@Router			/v1 [options]
 func OptionsV1(c *gin.Context) {
 	httputil.OptionsGetDelete(c)
 }

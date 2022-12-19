@@ -2847,6 +2847,17 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.AllocationMode": {
+            "type": "string",
+            "enum": [
+                "ALLOCATE_LAST_MONTH_BUDGET",
+                "ALLOCATE_LAST_MONTH_SPEND"
+            ],
+            "x-enum-varnames": [
+                "AllocateLastMonthBudget",
+                "AllocateLastMonthSpend"
+            ]
+        },
         "controllers.AllocationResponse": {
             "type": "object",
             "properties": {
@@ -2899,7 +2910,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "mode": {
-                    "type": "string",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.AllocationMode"
+                        }
+                    ],
                     "example": "ALLOCATE_LAST_MONTH_SPEND"
                 }
             }
@@ -3164,8 +3179,12 @@ const docTemplate = `{
                     "example": "1969-06-01T00:00:00.000000Z"
                 },
                 "overspendMode": {
-                    "type": "string",
                     "default": "AFFECT_AVAILABLE",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OverspendMode"
+                        }
+                    ],
                     "example": "AFFECT_ENVELOPE"
                 },
                 "updatedAt": {
@@ -3591,11 +3610,26 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "overspendMode": {
-                    "type": "string",
                     "default": "AFFECT_AVAILABLE",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OverspendMode"
+                        }
+                    ],
                     "example": "AFFECT_ENVELOPE"
                 }
             }
+        },
+        "models.OverspendMode": {
+            "type": "string",
+            "enum": [
+                "AFFECT_AVAILABLE",
+                "AFFECT_ENVELOPE"
+            ],
+            "x-enum-varnames": [
+                "AffectAvailable",
+                "AffectEnvelope"
+            ]
         },
         "models.TransactionCreate": {
             "type": "object",
