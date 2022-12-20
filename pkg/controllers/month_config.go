@@ -72,6 +72,8 @@ func (co Controller) RegisterMonthConfigRoutes(r *gin.RouterGroup) {
 	r.DELETE("/:envelopeId/:month", co.DeleteMonthConfig)
 }
 
+// OptionsMonthConfigList returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs.
 //	@Tags			MonthConfigs
@@ -81,6 +83,8 @@ func (co Controller) OptionsMonthConfigList(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
 
+// OptionsMonthConfigDetail returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			MonthConfigs
@@ -106,6 +110,8 @@ func (co Controller) OptionsMonthConfigDetail(c *gin.Context) {
 	httputil.OptionsGetPostPatchDelete(c)
 }
 
+// GetMonthConfig returns config for a specific envelope and month
+//
 //	@Summary		Get MonthConfig
 //	@Description	Returns configuration for a specific month
 //	@Tags			MonthConfigs
@@ -142,6 +148,8 @@ func (co Controller) GetMonthConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, MonthConfigResponse{Data: co.getMonthConfigObject(c, mConfig)})
 }
 
+// GetMonthConfigs returns all month configs filtered by the query parameters
+//
 //	@Summary		List MonthConfigs
 //	@Description	Returns a list of MonthConfigs
 //	@Tags			MonthConfigs
@@ -190,6 +198,8 @@ func (co Controller) GetMonthConfigs(c *gin.Context) {
 	c.JSON(http.StatusOK, MonthConfigListResponse{Data: mConfigObjects})
 }
 
+// CreateMonthConfig creates a new month config
+//
 //	@Summary		Create MonthConfig
 //	@Description	Creates a new MonthConfig
 //	@Tags			MonthConfigs
@@ -244,6 +254,8 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 	c.JSON(http.StatusCreated, MonthConfigResponse{Data: mConfigObject})
 }
 
+// UpdateMonthConfig updates configuration data for a specific envelope and month
+//
 //	@Summary		Update MonthConfig
 //	@Description	Changes settings of an existing MonthConfig
 //	@Tags			MonthConfigs
@@ -295,6 +307,8 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, MonthConfigResponse{Data: co.getMonthConfigObject(c, mConfig)})
 }
 
+// DeleteMonthConfig deletes configuration data for a specific envelope and month
+//
 //	@Summary		Delete MonthConfig
 //	@Description	Deletes configuration settings for a specific month
 //	@Tags			MonthConfigs

@@ -69,6 +69,8 @@ func (co Controller) RegisterAllocationRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsAllocationList returns the allowed HTTP verbs
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Allocations
@@ -78,6 +80,8 @@ func (co Controller) OptionsAllocationList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
+// OptionsAllocationDetail returns the allowed HTTP verbs
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Allocations
@@ -98,6 +102,8 @@ func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
+// CreateAllocation creates a new allocation
+//
 //	@Summary		Create allocations
 //	@Description	Create a new allocation of funds to an envelope for a specific month
 //	@Tags			Allocations
@@ -132,6 +138,8 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 	c.JSON(http.StatusCreated, AllocationResponse{Data: allocationObject})
 }
 
+// GetAllocations returns a list of allocations matching the search parameters
+//
 //	@Summary		Get allocations
 //	@Description	Returns a list of allocations
 //	@Tags			Allocations
@@ -180,6 +188,8 @@ func (co Controller) GetAllocations(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationListResponse{Data: allocationObjects})
 }
 
+// GetAllocation returns data about a specific allocation
+//
 //	@Summary		Get allocation
 //	@Description	Returns a specific allocation
 //	@Tags			Allocations
@@ -205,6 +215,8 @@ func (co Controller) GetAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
+// UpdateAllocation updates allocation data
+//
 //	@Summary		Update allocation
 //	@Description	Update an allocation. Only values to be updated need to be specified.
 //	@Tags			Allocations
@@ -250,6 +262,8 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
 }
 
+// DeleteAllocation deletes an allocation
+//
 //	@Summary		Delete allocation
 //	@Description	Deletes an allocation
 //	@Tags			Allocations

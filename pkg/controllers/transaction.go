@@ -101,6 +101,8 @@ func (co Controller) RegisterTransactionRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsTransactionList returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Transactions
@@ -110,6 +112,8 @@ func (co Controller) OptionsTransactionList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
+// OptionsTransactionDetail returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Transactions
@@ -130,6 +134,8 @@ func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
+// CreateTransaction creates a new transaction
+//
 //	@Summary		Create transaction
 //	@Description	Creates a new transaction
 //	@Tags			Transactions
@@ -186,6 +192,8 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
 }
 
+// GetTransactions returns transactions filtered by the query parameters
+//
 //	@Summary		Get transactions
 //	@Description	Returns a list of transactions
 //	@Tags			Transactions
@@ -259,6 +267,8 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionListResponse{Data: transactionObjects})
 }
 
+// GetTransaction returns a specific transaction
+//
 //	@Summary		Get transaction
 //	@Description	Returns a specific transaction
 //	@Tags			Transactions
@@ -284,6 +294,8 @@ func (co Controller) GetTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
+// UpdateTransaction updates a specific transaction
+//
 //	@Summary		Update transaction
 //	@Description	Updates an existing transaction. Only values to be updated need to be specified.
 //	@Tags			Transactions
@@ -365,6 +377,8 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
+// DeleteTransaction deletes a specific transaction
+//
 //	@Summary		Delete transaction
 //	@Description	Deletes a transaction
 //	@Tags			Transactions

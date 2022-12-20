@@ -147,6 +147,8 @@ type RootLinks struct {
 	V1      string `json:"v1" example:"https://example.com/api/v1"`
 }
 
+// GetRoot returns the link list for the API root
+//
 //	@Summary		API root
 //	@Description	Entrypoint for the API, listing all endpoints
 //	@Tags			General
@@ -169,6 +171,8 @@ type VersionObject struct {
 	Version string `json:"version" example:"1.1.0"`
 }
 
+// GetVersion returns the API version object
+//
 //	@Summary		API version
 //	@Description	Returns the software version of the API
 //	@Tags			General
@@ -182,6 +186,8 @@ func GetVersion(c *gin.Context) {
 	})
 }
 
+// OptionsRoot returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			General
@@ -191,6 +197,8 @@ func OptionsRoot(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
 
+// OptionsVersion returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			General
@@ -215,6 +223,8 @@ type V1Links struct {
 	Import       string `json:"import" example:"https://example.com/api/v1/import"`
 }
 
+// GetV1 returns the link list for v1
+//
 //	@Summary		v1 API
 //	@Description	Returns general information about the v1 API
 //	@Tags			v1
@@ -235,6 +245,8 @@ func GetV1(c *gin.Context) {
 	})
 }
 
+// OptionsV1 returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			v1

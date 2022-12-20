@@ -68,6 +68,8 @@ func (co Controller) RegisterCategoryRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsCategoryList returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Categories
@@ -79,6 +81,8 @@ func (co Controller) OptionsCategoryList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
+// OptionsCategoryDetail returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Categories
@@ -101,6 +105,8 @@ func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
+// CreateCategory creates a new category
+//
 //	@Summary		Create category
 //	@Description	Creates a new category
 //	@Tags			Categories
@@ -132,6 +138,8 @@ func (co Controller) CreateCategory(c *gin.Context) {
 	c.JSON(http.StatusCreated, CategoryResponse{Data: categoryObject})
 }
 
+// GetCategories returns a list of categories filtered by the query parameters
+//
 //	@Summary		Get categories
 //	@Description	Returns a list of categories
 //	@Tags			Categories
@@ -179,6 +187,8 @@ func (co Controller) GetCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, CategoryListResponse{Data: categoryObjects})
 }
 
+// GetCategory returns data for a specific category
+//
 //	@Summary		Get category
 //	@Description	Returns a specific category
 //	@Tags			Categories
@@ -204,6 +214,8 @@ func (co Controller) GetCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
 
+// UpdateCategory updates data for a specific category
+//
 //	@Summary		Update category
 //	@Description	Update an existing category. Only values to be updated need to be specified.
 //	@Tags			Categories
@@ -246,6 +258,8 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
 }
 
+// DeleteCategory deletes a specific category
+//
 //	@Summary		Delete category
 //	@Description	Deletes a category
 //	@Tags			Categories

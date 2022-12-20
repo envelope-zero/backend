@@ -83,6 +83,8 @@ func (co Controller) RegisterBudgetRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsBudgetList returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Budgets
@@ -93,6 +95,8 @@ func (co Controller) OptionsBudgetList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
+// OptionsBudgetDetail returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Budgets
@@ -116,6 +120,8 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
+// OptionsBudgetMonth returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
@@ -147,6 +153,8 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
 
+// OptionsBudgetMonthAllocations returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
@@ -179,6 +187,8 @@ func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 	httputil.OptionsDelete(c)
 }
 
+// CreateBudget creates a new budget
+//
 //	@Summary		Create budget
 //	@Description	Creates a new budget
 //	@Tags			Budgets
@@ -208,6 +218,8 @@ func (co Controller) CreateBudget(c *gin.Context) {
 	c.JSON(http.StatusCreated, BudgetResponse{Data: budgetObject})
 }
 
+// GetBudgets returns data for all budgets filtered by the query parameters
+//
 //	@Summary		List budgets
 //	@Description	Returns a list of budgets
 //	@Tags			Budgets
@@ -252,6 +264,8 @@ func (co Controller) GetBudgets(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetListResponse{Data: budgetObjects})
 }
 
+// GetBudget returns data for a single budget
+//
 //	@Summary		Get budget
 //	@Description	Returns a specific budget
 //	@Tags			Budgets
@@ -277,6 +291,8 @@ func (co Controller) GetBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
 }
 
+// GetBudgetMonth returns data for a month for a specific budget
+//
 //	@Summary		Get Budget month data
 //	@Description	Returns data about a budget for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
@@ -391,6 +407,8 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 	}})
 }
 
+// UpdateBudget updates data for a budget
+//
 //	@Summary		Update budget
 //	@Description	Update an existing budget. Only values to be updated need to be specified.
 //	@Tags			Budgets
@@ -437,6 +455,8 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
 }
 
+// Do stuff
+//
 //	@Summary		Delete budget
 //	@Description	Deletes a budget
 //	@Tags			Budgets
@@ -465,6 +485,8 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
+// DeleteAllocationsMonth deletes all allocations for a specific month
+//
 //	@Summary		Delete allocations for a month
 //	@Description	Deletes all allocation for the specified month. **Use DELETE /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
@@ -520,6 +542,8 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
+// SetAllocationsMonth sets all allocations for a specific month
+//
 //	@Summary		Set allocations for a month
 //	@Description	Sets allocations for a month for all envelopes that do not have an allocation yet. **Use POST /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets

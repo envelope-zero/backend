@@ -65,6 +65,8 @@ func (co Controller) RegisterMonthRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsMonth returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs.
 //	@Tags			Months
@@ -74,6 +76,8 @@ func (co Controller) OptionsMonth(c *gin.Context) {
 	httputil.OptionsGetPostDelete(c)
 }
 
+// GetMonth returns data for a specific budget and month
+//
 //	@Summary		Get data about a month
 //	@Description	Returns data about a specific month.
 //	@Tags			Months
@@ -178,6 +182,8 @@ func (co Controller) GetMonth(c *gin.Context) {
 	c.JSON(http.StatusOK, MonthResponse{Data: month})
 }
 
+// DeleteAllocations deletes all allocations for a month
+//
 //	@Summary		Delete allocations for a month
 //	@Description	Deletes all allocation for the specified month
 //	@Tags			Months
@@ -216,6 +222,8 @@ func (co Controller) DeleteAllocations(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
+// SetAllocations sets all allocations for a month
+//
 //	@Summary		Set allocations for a month
 //	@Description	Sets allocations for a month for all envelopes that do not have an allocation yet
 //	@Tags			Months

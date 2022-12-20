@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// DeleteAll permanently deletes all resources in the database
+//
 //	@Summary		Delete everything
 //	@Description	Permanently deletes all resources
 //	@Tags			v1

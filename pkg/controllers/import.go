@@ -30,6 +30,8 @@ func (co Controller) RegisterImportRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsImport returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Please use /v1/import/ynab4, which works exactly the same.**
 //	@Tags			Import
@@ -41,6 +43,8 @@ func (co Controller) OptionsImport(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
 
+// OptionsImportYnab4 returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Import
@@ -51,6 +55,8 @@ func (co Controller) OptionsImportYnab4(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
 
+// Import imports a YNAB 4 budget
+//
 //	@Summary		Import
 //	@Description	Imports budgets from YNAB 4. **Please use /v1/import/ynab4, which works exactly the same.**
 //	@Tags			Import
@@ -67,6 +73,8 @@ func (co Controller) Import(c *gin.Context) {
 	co.ImportYnab4(c)
 }
 
+// ImportYnab4 imports a YNAB 4 budget
+//
 //	@Summary		Import
 //	@Description	Imports budgets from YNAB 4
 //	@Tags			Import
