@@ -71,6 +71,8 @@ func (co Controller) RegisterAccountRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsAccountList returns the allowed HTTP verbs
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Accounts
@@ -82,6 +84,8 @@ func (co Controller) OptionsAccountList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
+// OptionsAccountDetail returns the allowed HTTP verbs
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Accounts
@@ -104,6 +108,8 @@ func (co Controller) OptionsAccountDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
+// CreateAccount creates a new account
+//
 //	@Summary		Create account
 //	@Description	Creates a new account
 //	@Tags			Accounts
@@ -135,6 +141,8 @@ func (co Controller) CreateAccount(c *gin.Context) {
 	c.JSON(http.StatusCreated, AccountResponse{Data: accountObject})
 }
 
+// GetAccounts returns a list of all accounts matching the filter parameters
+//
 //	@Summary		List accounts
 //	@Description	Returns a list of accounts
 //	@Tags			Accounts
@@ -185,6 +193,8 @@ func (co Controller) GetAccounts(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountListResponse{Data: accountObjects})
 }
 
+// GetAccount returns data for a specific account
+//
 //	@Summary		Get account
 //	@Description	Returns a specific account
 //	@Tags			Accounts
@@ -210,6 +220,8 @@ func (co Controller) GetAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
 
+// UpdateAccount updates data for a specific account
+//
 //	@Summary		Update account
 //	@Description	Updates an account. Only values to be updated need to be specified.
 //	@Tags			Accounts
@@ -251,6 +263,8 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
 
+// DeleteAccount deletes an account
+//
 //	@Summary		Delete account
 //	@Description	Deletes an account
 //	@Tags			Accounts

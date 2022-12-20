@@ -30,13 +30,8 @@ linters:
   enable:
     - gocyclo
     - godot
-    # Disabled as the latest version - 0.4.0 from 2022-09-27 is not built with go 1.19 and
-    # therefore disagrees with swag fmt about the formatting of the swagger comments.
-    # See https://github.com/mvdan/gofumpt/issues/254
-    # - gofumpt
-
-    # Disabled since goimports reformats correct 1.19 doc comments
-    # - goimports
+    - gofumpt
+    - goimports
     - govet
     - revive
     - whitespace
@@ -50,4 +45,4 @@ linters-settings:
 
   godot:
     exclude:
-      - "^ @[A-Za-z]+ "
+      - "^\t+@[A-Za-z]+\t+"

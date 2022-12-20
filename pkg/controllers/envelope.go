@@ -74,6 +74,8 @@ func (co Controller) RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 	}
 }
 
+// OptionsEnvelopeList returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Envelopes
@@ -83,6 +85,8 @@ func (co Controller) OptionsEnvelopeList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
+// OptionsEnvelopeDetail returns the allowed HTTP methods
+//
 //	@Summary		Allowed HTTP verbs
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Envelopes
@@ -104,6 +108,8 @@ func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
+// CreateEnvelope creates a new envelope
+//
 //	@Summary		Create envelope
 //	@Description	Creates a new envelope
 //	@Tags			Envelopes
@@ -135,6 +141,8 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelopeObject})
 }
 
+// GetEnvelopes returns a list of envelopes filtered by the query parameters
+//
 //	@Summary		Get envelopes
 //	@Description	Returns a list of envelopes
 //	@Tags			Envelopes
@@ -181,6 +189,8 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 	c.JSON(http.StatusOK, EnvelopeListResponse{Data: envelopeObjects})
 }
 
+// GetEnvelope returns data about a specific envelope
+//
 //	@Summary		Get envelope
 //	@Description	Returns a specific envelope
 //	@Tags			Envelopes
@@ -206,6 +216,8 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
 
+// GetEnvelopeMonth returns month data for a specific envelope
+//
 //	@Summary		Get Envelope month data
 //	@Description	Returns data about an envelope for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Envelopes
@@ -251,6 +263,8 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 	c.JSON(http.StatusOK, EnvelopeMonthResponse{Data: envelopeMonth})
 }
 
+// UpdateEnvelope updates data for an envelope
+//
 //	@Summary		Update envelope
 //	@Description	Updates an existing envelope. Only values to be updated need to be specified.
 //	@Tags			Envelopes
@@ -293,6 +307,8 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
 }
 
+// DeleteEnvelope deletes an envelope
+//
 //	@Summary		Delete envelope
 //	@Description	Deletes an envelope
 //	@Tags			Envelopes
