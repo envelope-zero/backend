@@ -24,14 +24,6 @@
       "matchStrings": [
         "# renovate:\\sdatasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s.*@(?<currentValue>.*)"
       ]
-    },
-    {
-      "description": "Upgrade go minor for golangci-lint",
-      "fileMatch": ["^\\.golangci\\.yml"],
-      "matchStrings": ["lang-version: \"(?<currentValue>.*)\""],
-      "datasourceTemplate": "github-tags",
-      "depNameTemplate": "golang/go",
-      "versioningTemplate": "docker"
     }
   ],
   "packageRules": [
