@@ -9,6 +9,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/exp/slices"
 )
 
 type EnvelopeListResponse struct {
@@ -36,9 +37,9 @@ type EnvelopeLinks struct {
 }
 
 type EnvelopeQueryFilter struct {
-	Name       string `form:"name"`
+	Name       string `form:"name" filterField:"false"`
 	CategoryID string `form:"category"`
-	Note       string `form:"note"`
+	Note       string `form:"note" filterField:"false"`
 }
 
 func (e EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bool) {
@@ -48,8 +49,6 @@ func (e EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bo
 	}
 
 	return models.EnvelopeCreate{
-		Name:       e.Name,
-		Note:       e.Note,
 		CategoryID: categoryID,
 	}, true
 }
@@ -161,7 +160,7 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 	// The filters contain only strings, so this will always succeed
 	_ = c.Bind(&filter)
 
-	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)
@@ -169,10 +168,24 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 		return
 	}
 
-	var envelopes []models.Envelope
-	if !queryWithRetry(c, co.DB.Where(&models.Envelope{
+	query := co.DB.Where(&models.Envelope{
 		EnvelopeCreate: create,
-	}, queryFields...).Find(&envelopes)) {
+	}, queryFields...)
+
+	if filter.Name != "" {
+		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", filter.Name))
+	} else if slices.Contains(setFields, "Name") {
+		query = query.Where("name = ''")
+	}
+
+	if filter.Note != "" {
+		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
+	} else if slices.Contains(setFields, "Note") {
+		query = query.Where("note = ''")
+	}
+
+	var envelopes []models.Envelope
+	if !queryWithRetry(c, query.Find(&envelopes)) {
 		return
 	}
 

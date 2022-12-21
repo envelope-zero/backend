@@ -121,6 +121,8 @@ func (suite *TestSuiteStandard) TestGetEnvelopesFilter() {
 		{"Empty Note", "note=", 0},
 		{"Empty Name", "name=", 0},
 		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1},
+		{"Fuzzy name", "name=es", 2},
+		{"Fuzzy note", "note=Because", 2},
 	}
 
 	for _, tt := range tests {
