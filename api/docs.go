@@ -3471,19 +3471,37 @@ const docTemplate = `{
         "models.CategoryEnvelopes": {
             "type": "object",
             "properties": {
+                "allocation": {
+                    "description": "Sum of allocations for the envelopes",
+                    "type": "number",
+                    "example": 90
+                },
+                "balance": {
+                    "description": "Sum of the balances of the envelopes",
+                    "type": "number",
+                    "example": -10.13
+                },
                 "envelopes": {
+                    "description": "Slice of all envelopes",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.EnvelopeMonth"
                     }
                 },
                 "id": {
+                    "description": "ID of the category",
                     "type": "string",
                     "example": "dafd9a74-6aeb-46b9-9f5a-cfca624fea85"
                 },
                 "name": {
+                    "description": "Name of the category",
                     "type": "string",
                     "example": "Rainy Day Funds"
+                },
+                "spent": {
+                    "description": "Sum spent for all envelopes",
+                    "type": "number",
+                    "example": 100.13
                 }
             }
         },
@@ -3557,6 +3575,11 @@ const docTemplate = `{
         "models.Month": {
             "type": "object",
             "properties": {
+                "allocation": {
+                    "description": "The sum of all allocations for this month",
+                    "type": "number",
+                    "example": 1200.5
+                },
                 "available": {
                     "description": "The amount available to budget",
                     "type": "number",
@@ -3568,7 +3591,7 @@ const docTemplate = `{
                     "example": 5231.37
                 },
                 "budgeted": {
-                    "description": "The sum of all allocations for the month",
+                    "description": "The sum of all allocations for the month. **Deprecated, please use the ` + "`" + `allocation` + "`" + ` field**",
                     "type": "number",
                     "example": 2100
                 },

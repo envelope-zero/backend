@@ -109,6 +109,7 @@ func (co Controller) GetMonth(c *gin.Context) {
 		return
 	}
 	month.Budgeted = budgeted
+	month.Allocation = budgeted
 
 	// Add income to response
 	income, err := budget.Income(co.DB, month.Month)
@@ -161,9 +162,14 @@ func (co Controller) GetMonth(c *gin.Context) {
 				return
 			}
 
-			// Update the month's balance
+			// Update the month's summarized data
 			month.Balance = month.Balance.Add(envelopeMonth.Balance)
 			month.Spent = month.Spent.Add(envelopeMonth.Spent)
+
+			// Update the category's summarized data
+			categoryEnvelopes.Balance = categoryEnvelopes.Balance.Add(envelopeMonth.Balance)
+			categoryEnvelopes.Spent = categoryEnvelopes.Spent.Add(envelopeMonth.Spent)
+			categoryEnvelopes.Allocation = categoryEnvelopes.Allocation.Add(envelopeMonth.Allocation)
 
 			// Set the allocation link. If there is no allocation, we send the collection endpoint.
 			// With this, any client will be able to see that the "Budgeted" amount is 0 and therefore
