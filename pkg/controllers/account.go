@@ -9,6 +9,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/exp/slices"
 )
 
 type AccountListResponse struct {
@@ -30,8 +31,8 @@ type AccountLinks struct {
 }
 
 type AccountQueryFilter struct {
-	Name     string `form:"name"`
-	Note     string `form:"note"`
+	Name     string `form:"name" filterField:"false"` // Fuzzy filter for the account name
+	Note     string `form:"note" filterField:"false"` // Fuzzy filter for the note
 	BudgetID string `form:"budget"`
 	OnBudget bool   `form:"onBudget"`
 	External bool   `form:"external"`
@@ -44,8 +45,6 @@ func (a AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool
 	}
 
 	return models.AccountCreate{
-		Name:     a.Name,
-		Note:     a.Note,
 		BudgetID: budgetID,
 		OnBudget: a.OnBudget,
 		External: a.External,
@@ -165,7 +164,7 @@ func (co Controller) GetAccounts(c *gin.Context) {
 	}
 
 	// Get the set parameters in the query string
-	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)
@@ -173,10 +172,24 @@ func (co Controller) GetAccounts(c *gin.Context) {
 		return
 	}
 
-	var accounts []models.Account
-	if !queryWithRetry(c, co.DB.Where(&models.Account{
+	query := co.DB.Where(&models.Account{
 		AccountCreate: create,
-	}, queryFields...).Find(&accounts)) {
+	}, queryFields...)
+
+	if filter.Name != "" {
+		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", filter.Name))
+	} else if slices.Contains(setFields, "Name") {
+		query = query.Where("name = ''")
+	}
+
+	if filter.Note != "" {
+		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
+	} else if slices.Contains(setFields, "Note") {
+		query = query.Where("note = ''")
+	}
+
+	var accounts []models.Account
+	if !queryWithRetry(c, query.Find(&accounts)) {
 		return
 	}
 
