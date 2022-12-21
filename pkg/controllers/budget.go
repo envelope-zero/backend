@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"golang.org/x/exp/slices"
 )
 
 type BudgetListResponse struct {
@@ -42,8 +43,8 @@ type BudgetMonthResponse struct {
 }
 
 type BudgetQueryFilter struct {
-	Name     string `form:"name"`
-	Note     string `form:"note"`
+	Name     string `form:"name" filterField:"false"`
+	Note     string `form:"note" filterField:"false"`
 	Currency string `form:"currency"`
 }
 
@@ -237,17 +238,31 @@ func (co Controller) GetBudgets(c *gin.Context) {
 	_ = c.Bind(&filter)
 
 	// Get the fields that we're filtering for
-	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	var budgets []models.Budget
 
-	if !queryWithRetry(c, co.DB.Where(&models.Budget{
+	query := co.DB.Where(&models.Budget{
 		BudgetCreate: models.BudgetCreate{
 			Name:     filter.Name,
 			Note:     filter.Note,
 			Currency: filter.Currency,
 		},
-	}, queryFields...).Find(&budgets)) {
+	}, queryFields...)
+
+	if filter.Name != "" {
+		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", filter.Name))
+	} else if slices.Contains(setFields, "Name") {
+		query = query.Where("name = ''")
+	}
+
+	if filter.Note != "" {
+		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
+	} else if slices.Contains(setFields, "Note") {
+		query = query.Where("note = ''")
+	}
+
+	if !queryWithRetry(c, query.Find(&budgets)) {
 		return
 	}
 

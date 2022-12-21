@@ -134,7 +134,7 @@ func (suite *TestSuiteStandard) TestGetBudgetsFilter() {
 			r := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/budgets?%s", tt.query), "")
 			suite.assertHTTPStatus(&r, http.StatusOK)
 			suite.decodeResponse(&r, &re)
-			assert.Equal(suite.T(), tt.len, len(re.Data))
+			assert.Equal(t, tt.len, len(re.Data))
 		})
 	}
 }
