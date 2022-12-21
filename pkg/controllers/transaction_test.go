@@ -345,6 +345,40 @@ func (suite *TestSuiteStandard) TestCreateNoEnvelopeTransactionOutgoing() {
 	suite.assertHTTPStatus(&recorder, http.StatusCreated)
 }
 
+func (suite *TestSuiteStandard) TestCreateTransferOnBudgetWithEnvelope() {
+	eID := suite.createTestEnvelope(models.EnvelopeCreate{}).Data.ID
+	c := models.TransactionCreate{
+		BudgetID:             suite.createTestBudget(models.BudgetCreate{Name: "Testing budget for transfer"}).Data.ID,
+		SourceAccountID:      suite.createTestAccount(models.AccountCreate{Name: "Internal On-Budget Source Account", External: false, OnBudget: true}).Data.ID,
+		DestinationAccountID: suite.createTestAccount(models.AccountCreate{Name: "Internal On-Budget destination account", External: false, OnBudget: true}).Data.ID,
+		Amount:               decimal.NewFromFloat(1337),
+		EnvelopeID:           &eID,
+	}
+
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
+	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+}
+
+func (suite *TestSuiteStandard) TestUpdateTransferOnBudgetWithEnvelope() {
+	eID := suite.createTestEnvelope(models.EnvelopeCreate{}).Data.ID
+	c := models.TransactionCreate{
+		BudgetID:             suite.createTestBudget(models.BudgetCreate{Name: "Testing budget for transfer"}).Data.ID,
+		SourceAccountID:      suite.createTestAccount(models.AccountCreate{Name: "Internal On-Budget Source Account", External: false, OnBudget: true}).Data.ID,
+		DestinationAccountID: suite.createTestAccount(models.AccountCreate{Name: "Internal On-Budget destination account", External: false, OnBudget: true}).Data.ID,
+		Amount:               decimal.NewFromFloat(1337),
+	}
+
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
+	suite.assertHTTPStatus(&recorder, http.StatusCreated)
+
+	var transaction controllers.TransactionResponse
+	suite.decodeResponse(&recorder, &transaction)
+
+	c.EnvelopeID = &eID
+	recorder = test.Request(suite.controller, suite.T(), http.MethodPatch, transaction.Data.Links.Self, c)
+	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+}
+
 func (suite *TestSuiteStandard) TestCreateNonExistingEnvelopeTransactionTransfer() {
 	id := uuid.New()
 
