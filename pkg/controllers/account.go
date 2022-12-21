@@ -165,7 +165,7 @@ func (co Controller) GetAccounts(c *gin.Context) {
 	}
 
 	// Get the set parameters in the query string
-	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)
