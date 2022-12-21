@@ -25,11 +25,13 @@ func GetURLFields(url *url.URL, filter any) []any {
 		field := val.Type().Field(i).Name
 		param := val.Type().Field(i).Tag.Get("form")
 
-		// createField is a struct tag that allows to specify if the field is part
-		// of the fields to filter for on the original struct
-		createField := val.Type().Field(i).Tag.Get("createField")
+		// filterField is a struct tag that allows to specify if the field
+		// is used to filter resources directly (e.g. SourceAccountID on a TransactionQueryFilter)
+		// or if it is a meta field that is processed by explicit logic outside of
+		// GetURLFields (e.g. AccountID on a TransactionQueryFilter)
+		filterField := val.Type().Field(i).Tag.Get("filterField")
 
-		if url.Query().Has(param) && createField != "false" {
+		if url.Query().Has(param) && filterField != "false" {
 			queryFields = append(queryFields, field)
 		}
 	}
