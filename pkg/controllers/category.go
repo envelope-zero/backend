@@ -9,6 +9,7 @@ import (
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/exp/slices"
 )
 
 type CategoryListResponse struct {
@@ -31,9 +32,9 @@ type CategoryLinks struct {
 }
 
 type CategoryQueryFilter struct {
-	Name     string `form:"name"`
+	Name     string `form:"name" filterField:"false"`
 	BudgetID string `form:"budget"`
-	Note     string `form:"note"`
+	Note     string `form:"note" filterField:"false"`
 }
 
 func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, bool) {
@@ -43,9 +44,7 @@ func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, bo
 	}
 
 	return models.CategoryCreate{
-		Name:     f.Name,
 		BudgetID: budgetID,
-		Note:     f.Note,
 	}, true
 }
 
@@ -159,7 +158,7 @@ func (co Controller) GetCategories(c *gin.Context) {
 	_ = c.Bind(&filter)
 
 	// Get the fields that we are filtering for
-	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)
@@ -167,10 +166,24 @@ func (co Controller) GetCategories(c *gin.Context) {
 		return
 	}
 
-	var categories []models.Category
-	if !queryWithRetry(c, co.DB.Where(&models.Category{
+	query := co.DB.Where(&models.Category{
 		CategoryCreate: create,
-	}, queryFields...).Find(&categories)) {
+	}, queryFields...)
+
+	if filter.Name != "" {
+		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", filter.Name))
+	} else if slices.Contains(setFields, "Name") {
+		query = query.Where("name = ''")
+	}
+
+	if filter.Note != "" {
+		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
+	} else if slices.Contains(setFields, "Note") {
+		query = query.Where("note = ''")
+	}
+
+	var categories []models.Category
+	if !queryWithRetry(c, query.Find(&categories)) {
 		return
 	}
 

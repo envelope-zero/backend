@@ -128,8 +128,8 @@ func (suite *TestSuiteStandard) TestGetCategoriesFilter() {
 	})
 
 	_ = suite.createTestCategory(models.CategoryCreate{
-		Name:     "Saving",
-		Note:     "For later",
+		Name:     "Groceries",
+		Note:     "For Groceries",
 		BudgetID: b2.Data.ID,
 	})
 
@@ -149,6 +149,10 @@ func (suite *TestSuiteStandard) TestGetCategoriesFilter() {
 		{"Empty Note", "note=", 0},
 		{"Empty Name", "name=", 0},
 		{"Name & Note", "name=Category Name&note=A note for this category", 1},
+		{"Fuzzy name, no note", "name=Category&note=", 0},
+		{"Fuzzy name", "name=t", 2},
+		{"Fuzzy note, no name", "name=&note=Groceries", 0},
+		{"Fuzzy note", "note=Groceries", 2},
 	}
 
 	for _, tt := range tests {
