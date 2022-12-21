@@ -159,7 +159,7 @@ func (co Controller) GetCategories(c *gin.Context) {
 	_ = c.Bind(&filter)
 
 	// Get the fields that we are filtering for
-	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)

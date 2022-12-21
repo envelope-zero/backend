@@ -224,7 +224,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	}
 
 	// Get the fields set in the filter
-	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)

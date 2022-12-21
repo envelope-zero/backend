@@ -15,8 +15,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetURLFields(url *url.URL, filter any) []any {
+// GetURLFields checks which query parameters are set and which query
+// parameters are set and can be used directly in a gorm query
+//
+// queryFields contains all field names that can be used directly
+// in a gorm Where statament as argument to specify the fields filtered on.
+// As gorm uses interface{} as type for the Where statement, we cannot use
+// a []string type here.
+//
+// setFields returns a []string with all field names set in the query parameters.
+// This can be useful to filter for zero values without defining them as pointer
+// fields in gorm.
+func GetURLFields(url *url.URL, filter any) ([]any, []string) {
 	var queryFields []any
+	var setFields []string
 
 	// Add all parameters set in the query string to the queryFields
 	// This is used to determine which fields are queried in the database
@@ -31,11 +43,17 @@ func GetURLFields(url *url.URL, filter any) []any {
 		// GetURLFields (e.g. AccountID on a TransactionQueryFilter)
 		filterField := val.Type().Field(i).Tag.Get("filterField")
 
-		if url.Query().Has(param) && filterField != "false" {
-			queryFields = append(queryFields, field)
+		if url.Query().Has(param) {
+			// All fields are added to SetFields
+			setFields = append(setFields, field)
+
+			// If the field is a filterField (true by default), add it to the queryFields
+			if filterField != "false" {
+				queryFields = append(queryFields, field)
+			}
 		}
 	}
-	return queryFields
+	return queryFields, setFields
 }
 
 // GetBodyFields returns a slice of strings with the field names

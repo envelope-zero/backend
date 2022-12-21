@@ -161,7 +161,7 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 	// The filters contain only strings, so this will always succeed
 	_ = c.Bind(&filter)
 
-	queryFields := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)
