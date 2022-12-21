@@ -40,7 +40,7 @@ type TransactionQueryFilter struct {
 	DestinationAccountID string          `form:"destination"`
 	EnvelopeID           string          `form:"envelope"`
 	Reconciled           bool            `form:"reconciled"`
-	AccountID            string          `form:"account" createField:"false"`
+	AccountID            string          `form:"account" filterField:"false"`
 }
 
 func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, bool) {
