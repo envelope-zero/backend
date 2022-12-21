@@ -156,6 +156,7 @@ func (suite *TestSuiteStandard) TestGetTransactionsFilter() {
 		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(2.718).String()), 2},
 		{"Note", "note=Not important", 1},
 		{"No note", "note=", 1},
+		{"Fuzzy note", "note=important", 2},
 		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 3},
 		{"Envelope 2", fmt.Sprintf("envelope=%s", e2.Data.ID), 1},
 		{"Non-existing Source Account", "source=3340a084-acf8-4cb4-8f86-9e7f88a86190", 0},

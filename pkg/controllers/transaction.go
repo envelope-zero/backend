@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +35,7 @@ type TransactionLinks struct {
 type TransactionQueryFilter struct {
 	Date                 time.Time       `form:"date"`
 	Amount               decimal.Decimal `form:"amount"`
-	Note                 string          `form:"note"`
+	Note                 string          `form:"note" filterField:"false"`
 	BudgetID             string          `form:"budget"`
 	SourceAccountID      string          `form:"source"`
 	DestinationAccountID string          `form:"destination"`
@@ -73,7 +74,6 @@ func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCrea
 	return models.TransactionCreate{
 		Date:                 f.Date,
 		Amount:               f.Amount,
-		Note:                 f.Note,
 		BudgetID:             budgetID,
 		SourceAccountID:      sourceAccountID,
 		DestinationAccountID: destinationAccountID,
@@ -224,7 +224,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	}
 
 	// Get the fields set in the filter
-	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
+	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
 	create, ok := filter.ToCreate(c)
@@ -252,6 +252,12 @@ func (co Controller) GetTransactions(c *gin.Context) {
 				DestinationAccountID: accountID,
 			},
 		})
+	}
+
+	if filter.Note != "" {
+		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
+	} else if slices.Contains(setFields, "Note") {
+		query = query.Where("note = ''")
 	}
 
 	var transactions []models.Transaction
