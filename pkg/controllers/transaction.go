@@ -160,22 +160,26 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 	}
 
 	// Check the source account
-	_, ok = co.getAccountResource(c, transaction.SourceAccountID)
+	sourceAccount, ok := co.getAccountResource(c, transaction.SourceAccountID)
 	if !ok {
 		return
 	}
 
 	// Check the destination account
-	_, ok = co.getAccountResource(c, transaction.DestinationAccountID)
+	destinationAccount, ok := co.getAccountResource(c, transaction.DestinationAccountID)
 	if !ok {
 		return
 	}
 
-	// Check the envelope ID only if it is set.
+	// Check the envelope only if it is set.
 	if transaction.EnvelopeID != nil {
 		_, ok := co.getEnvelopeResource(c, *transaction.EnvelopeID)
 		if !ok {
 			return
+		}
+
+		if sourceAccount.OnBudget && destinationAccount.OnBudget {
+			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
 		}
 	}
 
@@ -346,7 +350,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	if data.SourceAccountID != uuid.Nil {
 		sourceAccountID = data.SourceAccountID
 	}
-	_, ok = co.getAccountResource(c, sourceAccountID)
+	sourceAccount, ok := co.getAccountResource(c, sourceAccountID)
 	if !ok {
 		return
 	}
@@ -356,7 +360,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	if data.DestinationAccountID != uuid.Nil {
 		destinationAccountID = data.DestinationAccountID
 	}
-	_, ok = co.getAccountResource(c, destinationAccountID)
+	destinationAccount, ok := co.getAccountResource(c, destinationAccountID)
 	if !ok {
 		return
 	}
@@ -366,6 +370,10 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		_, ok := co.getEnvelopeResource(c, *data.EnvelopeID)
 		if !ok {
 			return
+		}
+
+		if sourceAccount.OnBudget && destinationAccount.OnBudget {
+			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
 		}
 	}
 
