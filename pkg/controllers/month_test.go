@@ -95,14 +95,18 @@ func (suite *TestSuiteStandard) TestMonth() {
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-01", -1),
 			controllers.MonthResponse{
 				Data: models.Month{
-					Month:   time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
-					Income:  decimal.NewFromFloat(0),
-					Balance: decimal.NewFromFloat(10.99),
-					Spent:   decimal.NewFromFloat(10),
+					Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+					Income:     decimal.NewFromFloat(0),
+					Balance:    decimal.NewFromFloat(10.99),
+					Spent:      decimal.NewFromFloat(10),
+					Allocation: decimal.NewFromFloat(20.99),
 					Categories: []models.CategoryEnvelopes{
 						{
-							Name: category.Data.Name,
-							ID:   category.Data.ID,
+							Name:       category.Data.Name,
+							ID:         category.Data.ID,
+							Balance:    decimal.NewFromFloat(10.99),
+							Spent:      decimal.NewFromFloat(10),
+							Allocation: decimal.NewFromFloat(20.99),
 							Envelopes: []models.EnvelopeMonth{
 								{
 									Name:       "Utilities",
@@ -124,14 +128,18 @@ func (suite *TestSuiteStandard) TestMonth() {
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-02", -1),
 			controllers.MonthResponse{
 				Data: models.Month{
-					Month:   time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
-					Income:  decimal.NewFromFloat(0),
-					Balance: decimal.NewFromFloat(53.11),
-					Spent:   decimal.NewFromFloat(5),
+					Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+					Income:     decimal.NewFromFloat(0),
+					Balance:    decimal.NewFromFloat(53.11),
+					Spent:      decimal.NewFromFloat(5),
+					Allocation: decimal.NewFromFloat(47.12),
 					Categories: []models.CategoryEnvelopes{
 						{
-							Name: category.Data.Name,
-							ID:   category.Data.ID,
+							Name:       category.Data.Name,
+							ID:         category.Data.ID,
+							Balance:    decimal.NewFromFloat(53.11),
+							Spent:      decimal.NewFromFloat(5),
+							Allocation: decimal.NewFromFloat(47.12),
 							Envelopes: []models.EnvelopeMonth{
 								{
 									Name:       "Utilities",
@@ -153,14 +161,18 @@ func (suite *TestSuiteStandard) TestMonth() {
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-03", -1),
 			controllers.MonthResponse{
 				Data: models.Month{
-					Month:   time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
-					Income:  decimal.NewFromFloat(1500),
-					Balance: decimal.NewFromFloat(69.28),
-					Spent:   decimal.NewFromFloat(15),
+					Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+					Income:     decimal.NewFromFloat(1500),
+					Balance:    decimal.NewFromFloat(69.28),
+					Spent:      decimal.NewFromFloat(15),
+					Allocation: decimal.NewFromFloat(31.17),
 					Categories: []models.CategoryEnvelopes{
 						{
-							Name: category.Data.Name,
-							ID:   category.Data.ID,
+							Name:       category.Data.Name,
+							ID:         category.Data.ID,
+							Balance:    decimal.NewFromFloat(69.28),
+							Spent:      decimal.NewFromFloat(15),
+							Allocation: decimal.NewFromFloat(31.17),
 							Envelopes: []models.EnvelopeMonth{
 								{
 									Name:       "Utilities",
@@ -192,6 +204,12 @@ func (suite *TestSuiteStandard) TestMonth() {
 		// Verify month balance calculation
 		suite.Assert().True(month.Data.Balance.Equal(tt.response.Data.Balance), "Month balance calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, tt.response.Data.Balance, month.Data.Balance, month.Data)
 
+		// Verify allocation calculation
+		suite.Assert().True(month.Data.Allocation.Equal(tt.response.Data.Allocation), "Month allocation sum for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, tt.response.Data.Allocation, month.Data.Allocation, month.Data)
+
+		// Verify month spent calculation
+		suite.Assert().True(month.Data.Spent.Equal(tt.response.Data.Spent), "Month spent is wrong. Should be %v, but is %v: %#v", tt.response.Data.Spent, month.Data.Spent, month.Data)
+
 		if !suite.Assert().Len(month.Data.Categories, 1) {
 			suite.Assert().FailNow("Response category length does not match!", "Category list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Data.Categories), r.Header().Get("x-request-id"))
 		}
@@ -200,15 +218,23 @@ func (suite *TestSuiteStandard) TestMonth() {
 			suite.Assert().FailNow("Response envelope length does not match!", "Envelope list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Data.Categories[0].Envelopes), r.Header().Get("x-request-id"))
 		}
 
-		suite.Assert().True(month.Data.Spent.Equal(tt.response.Data.Spent), "Month spent is wrong. Should be %v, but is %v: %#v", tt.response.Data.Spent, month.Data.Spent, month.Data)
+		// Category calculations
+		expectedCategory := tt.response.Data.Categories[0]
+		category := month.Data.Categories[0]
 
-		expected := tt.response.Data.Categories[0].Envelopes[0]
+		suite.Assert().True(category.Spent.Equal(expectedCategory.Spent), "Monthly category spent calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expectedCategory.Spent, category.Spent, month.Data)
+		suite.Assert().True(category.Balance.Equal(expectedCategory.Balance), "Monthly category balance calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expectedCategory.Balance, category.Balance, month.Data)
+		suite.Assert().True(category.Allocation.Equal(expectedCategory.Allocation), "Monthly category allocation fetch for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expectedCategory.Allocation, category.Allocation, month.Data)
+
+		// Envelope calculation
+		expectedEnvelope := tt.response.Data.Categories[0].Envelopes[0]
 		envelope := month.Data.Categories[0].Envelopes[0]
-		suite.Assert().True(envelope.Spent.Equal(expected.Spent), "Monthly spent calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expected.Spent, envelope.Spent, month.Data)
-		suite.Assert().True(envelope.Balance.Equal(expected.Balance), "Monthly balance calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expected.Balance, envelope.Balance, month.Data)
-		suite.Assert().True(envelope.Allocation.Equal(expected.Allocation), "Monthly allocation fetch for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expected.Allocation, envelope.Allocation, month.Data)
 
-		suite.Assert().Equal(expected.Links.Allocation, envelope.Links.Allocation)
+		suite.Assert().True(envelope.Spent.Equal(expectedEnvelope.Spent), "Monthly envelope spent calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expectedEnvelope.Spent, envelope.Spent, month.Data)
+		suite.Assert().True(envelope.Balance.Equal(expectedEnvelope.Balance), "Monthly envelope balance calculation for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expectedEnvelope.Balance, envelope.Balance, month.Data)
+		suite.Assert().True(envelope.Allocation.Equal(expectedEnvelope.Allocation), "Monthly envelope allocation fetch for %v is wrong: should be %v, but is %v: %#v", month.Data.Month, expectedEnvelope.Allocation, envelope.Allocation, month.Data)
+
+		suite.Assert().Equal(expectedEnvelope.Links.Allocation, envelope.Links.Allocation)
 	}
 }
 
