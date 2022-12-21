@@ -100,6 +100,18 @@ func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 		External: true,
 	})
 
+	_ = suite.createTestAccount(models.AccountCreate{
+		Name:     "",
+		Note:     "specific note",
+		BudgetID: b1.Data.ID,
+	})
+
+	_ = suite.createTestAccount(models.AccountCreate{
+		Name:     "Name only",
+		Note:     "",
+		BudgetID: b1.Data.ID,
+	})
+
 	tests := []struct {
 		name  string
 		query string
@@ -107,12 +119,17 @@ func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 	}{
 		{"Name single", "name=Exact Account Match", 1},
 		{"Name multiple", "name=External Account Filter", 2},
+		{"Fuzzy name", "name=Account", 3},
 		{"Note", "note=A different note", 1},
-		{"Budget", fmt.Sprintf("budget=%s", b1.Data.ID), 2},
+		{"Fuzzy Note", "note=note", 4},
+		{"Empty name with note", "name=&note=specific", 1},
+		{"Empty note with name", "note=&name=Name", 1},
+		{"Empty note and name", "note=&name=&onBudget=false", 0},
+		{"Budget", fmt.Sprintf("budget=%s", b1.Data.ID), 4},
 		{"On budget", "onBudget=true", 1},
-		{"Off budget", "onBudget=false", 2},
+		{"Off budget", "onBudget=false", 4},
 		{"External", "external=true", 2},
-		{"Internal", "external=false", 1},
+		{"Internal", "external=false", 3},
 	}
 
 	for _, tt := range tests {
@@ -126,7 +143,7 @@ func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 			for _, d := range re.Data {
 				accountNames = append(accountNames, d.Name)
 			}
-			assert.Equal(t, tt.len, len(re.Data), "Existing accounts: %#v", strings.Join(accountNames, ", "))
+			assert.Equal(t, tt.len, len(re.Data), "Existing accounts: %#v, Request-ID: %s", strings.Join(accountNames, ", "), r.Header().Get("x-request-id"))
 		})
 	}
 
