@@ -106,3 +106,25 @@ func TransactionsSum(db *gorm.DB, incoming, outgoing Transaction) decimal.Decima
 
 	return incomingSum.Decimal.Sub(outgoingSum.Decimal)
 }
+
+// RecentEnvelopes returns the most common envelopes used in the last 10
+// transactions where the account is the destination account.
+//
+// The list is sorted by decending frequency of the envelope being used.
+func (a Account) RecentEnvelopes(db *gorm.DB) (envelopes []Envelope, err error) {
+	err = db.
+		Table("transactions").
+		Select("envelopes.*, count(envelopes.id) AS count").
+		Joins("JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
+		Order("count DESC, date(transactions.date) DESC").
+		Where(&Transaction{
+			TransactionCreate: TransactionCreate{
+				DestinationAccountID: a.ID,
+			},
+		}).
+		Limit(10).
+		Group("envelopes.id").
+		Find(&envelopes).Error
+
+	return
+}

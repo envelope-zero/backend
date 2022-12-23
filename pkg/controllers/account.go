@@ -22,7 +22,8 @@ type AccountResponse struct {
 
 type Account struct {
 	models.Account
-	Links AccountLinks `json:"links"`
+	RecentEnvelopes []models.Envelope `json:"recentEnvelopes"`
+	Links           AccountLinks      `json:"links"`
 }
 
 type AccountLinks struct {
@@ -328,16 +329,23 @@ func (co Controller) getAccountResource(c *gin.Context, id uuid.UUID) (models.Ac
 }
 
 func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
-	resource, ok := co.getAccountResource(c, id)
+	account, ok := co.getAccountResource(c, id)
 	if !ok {
 		return Account{}, false
 	}
 
+	recentEnvelopes, err := account.RecentEnvelopes(co.DB)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return Account{}, false
+	}
+
 	return Account{
-		resource.WithCalculations(co.DB),
+		account.WithCalculations(co.DB),
+		recentEnvelopes,
 		AccountLinks{
-			Self:         fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), resource.ID),
-			Transactions: fmt.Sprintf("%s/v1/transactions?account=%s", c.GetString("baseURL"), resource.ID),
+			Self:         fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), account.ID),
+			Transactions: fmt.Sprintf("%s/v1/transactions?account=%s", c.GetString("baseURL"), account.ID),
 		},
 	}, true
 }

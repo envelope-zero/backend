@@ -2732,6 +2732,12 @@
                     "default": false,
                     "example": true
                 },
+                "recentEnvelopes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Envelope"
+                    }
+                },
                 "reconciledBalance": {
                     "type": "number",
                     "example": 2539.57
@@ -3490,6 +3496,44 @@
                     "description": "Sum spent for all envelopes",
                     "type": "number",
                     "example": 100.13
+                }
+            }
+        },
+        "models.Envelope": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "hidden": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
