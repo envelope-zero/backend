@@ -41,6 +41,10 @@ definitions:
         description: 'Always false when external: true'
         example: true
         type: boolean
+      recentEnvelopes:
+        items:
+          $ref: '#/definitions/models.Envelope'
+        type: array
       reconciledBalance:
         example: 2539.57
         type: number
@@ -589,6 +593,34 @@ definitions:
         description: Sum spent for all envelopes
         example: 100.13
         type: number
+    type: object
+  models.Envelope:
+    properties:
+      categoryId:
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      hidden:
+        default: false
+        example: true
+        type: boolean
+      id:
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        example: Groceries
+        type: string
+      note:
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      updatedAt:
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   models.EnvelopeCreate:
     properties:
