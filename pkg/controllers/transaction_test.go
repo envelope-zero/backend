@@ -547,3 +547,34 @@ func (suite *TestSuiteStandard) TestDeleteNullTransaction() {
 	r := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/transactions/00000000-0000-0000-0000-000000000000", "")
 	suite.assertHTTPStatus(&r, http.StatusBadRequest)
 }
+
+func (suite *TestSuiteStandard) TestTransactionSourceDestinationExternal() {
+	// Test create
+	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			BudgetID:             suite.createTestBudget(models.BudgetCreate{}).Data.ID,
+			SourceAccountID:      suite.createTestAccount(models.AccountCreate{External: true, Name: "SourceDestinationExternal Source"}).Data.ID,
+			DestinationAccountID: suite.createTestAccount(models.AccountCreate{External: true}).Data.ID,
+			Amount:               decimal.NewFromFloat(12),
+		},
+	})
+	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+
+	// Check the error
+	err := test.DecodeError(suite.T(), r.Body.Bytes())
+	suite.Assert().Contains(err, "transaction between two external accounts is not possible")
+
+	// Test update
+	transaction := suite.createTestTransaction(models.TransactionCreate{
+		Amount: decimal.NewFromFloat(11),
+	})
+	r = test.Request(suite.controller, suite.T(), http.MethodPatch, transaction.Data.Links.Self, map[string]any{
+		"sourceAccountId":      suite.createTestAccount(models.AccountCreate{External: true}).Data.ID,
+		"destinationAccountId": suite.createTestAccount(models.AccountCreate{External: true}).Data.ID,
+	})
+	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+
+	// Check the error
+	err = test.DecodeError(suite.T(), r.Body.Bytes())
+	suite.Assert().Contains(err, "transaction between two external accounts is not possible")
+}

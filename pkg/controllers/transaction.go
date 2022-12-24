@@ -449,6 +449,11 @@ func (co Controller) checkTransaction(c *gin.Context, transaction models.Transac
 		return false
 	}
 
+	if source.External && destination.External {
+		httperrors.New(c, http.StatusBadRequest, "A transaction between two external accounts is not possible.")
+		return false
+	}
+
 	// Check envelope being set for transfer between on-budget accounts
 	if transaction.EnvelopeID != nil {
 		if source.OnBudget && destination.OnBudget {
