@@ -171,20 +171,8 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	// Check the envelope only if it is set.
-	if transaction.EnvelopeID != nil {
-		_, ok := co.getEnvelopeResource(c, *transaction.EnvelopeID)
-		if !ok {
-			return
-		}
-
-		if sourceAccount.OnBudget && destinationAccount.OnBudget {
-			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
-		}
-	}
-
-	if !decimal.Decimal.IsPositive(transaction.Amount) {
-		httperrors.New(c, http.StatusBadRequest, "The transaction amount must be positive")
+	// Check the transaction
+	if !co.checkTransaction(c, transaction, sourceAccount, destinationAccount) {
 		return
 	}
 
@@ -346,11 +334,6 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		data.Amount = transaction.Amount
 	}
 
-	if !decimal.Decimal.IsPositive(data.Amount) {
-		httperrors.New(c, http.StatusBadRequest, "The transaction amount must positive")
-		return
-	}
-
 	// Check the source account
 	sourceAccountID := transaction.SourceAccountID
 	if data.SourceAccountID != uuid.Nil {
@@ -371,16 +354,9 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	// Check the envelope ID only if it is set.
-	if data.EnvelopeID != nil {
-		_, ok := co.getEnvelopeResource(c, *data.EnvelopeID)
-		if !ok {
-			return
-		}
-
-		if sourceAccount.OnBudget && destinationAccount.OnBudget {
-			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
-		}
+	// Check the transaction that is set
+	if !co.checkTransaction(c, data, sourceAccount, destinationAccount) {
+		return
 	}
 
 	if !queryWithRetry(c, co.DB.Model(&transaction).Select("", updateFields...).Updates(data)) {
@@ -453,4 +429,35 @@ func (co Controller) getTransactionObject(c *gin.Context, id uuid.UUID) (Transac
 			Self: fmt.Sprintf("%s/v1/transactions/%s", c.GetString("baseURL"), id),
 		},
 	}, true
+}
+
+// checkTransaction verifies that the transaction is correct
+//
+// It checks that
+//   - the transaction is not between two external accounts
+//   - if an envelope is set: the transaction is not between two on-budget accounts
+//   - if an envelope is set: the envelope exists
+//
+// It returns true if the transaction is valid, false in all
+// other cases.
+func (co Controller) checkTransaction(c *gin.Context, transaction models.Transaction, source, destination models.Account) (ok bool) {
+	// If we don't mark the transaction as invalid, it is okay
+	ok = true
+
+	if !decimal.Decimal.IsPositive(transaction.Amount) {
+		httperrors.New(c, http.StatusBadRequest, "The transaction amount must be positive")
+		return false
+	}
+
+	// Check envelope being set for transfer between on-budget accounts
+	if transaction.EnvelopeID != nil {
+		if source.OnBudget && destination.OnBudget {
+			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
+			return false
+		}
+
+		_, ok = co.getEnvelopeResource(c, *transaction.EnvelopeID)
+	}
+
+	return
 }
