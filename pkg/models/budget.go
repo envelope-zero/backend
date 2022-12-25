@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -28,7 +29,7 @@ type BudgetCreate struct {
 type BudgetMonth struct {
 	ID        uuid.UUID       `json:"id" example:"1e777d24-3f5b-4c43-8000-04f65f895578"` // The ID of the Budget
 	Name      string          `json:"name" example:"Groceries"`                          // The name of the Budget
-	Month     time.Time       `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // This is always set to 00:00 UTC on the first of the month.
+	Month     types.Month     `json:"month" example:"2006-05-01T00:00:00.000000Z"`
 	Budgeted  decimal.Decimal `json:"budgeted" example:"2100"`
 	Income    decimal.Decimal `json:"income" example:"2317.34"`
 	Available decimal.Decimal `json:"available" example:"217.34"`
@@ -57,7 +58,7 @@ func (b Budget) WithCalculations(db *gorm.DB) Budget {
 }
 
 // Income returns the income for a budget in a given month.
-func (b Budget) Income(db *gorm.DB, t time.Time) (decimal.Decimal, error) {
+func (b Budget) Income(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
 	var income decimal.NullDecimal
 
 	err := db.
@@ -67,8 +68,8 @@ func (b Budget) Income(db *gorm.DB, t time.Time) (decimal.Decimal, error) {
 		Where("source_account.external = 1").
 		Where("destination_account.external = 0").
 		Where("transactions.envelope_id IS NULL").
-		Where("strftime('%m', transactions.date) = ?", fmt.Sprintf("%02d", t.Month())).
-		Where("strftime('%Y', transactions.date) = ?", fmt.Sprintf("%d", t.Year())).
+		Where("strftime('%m', transactions.date) = ?", fmt.Sprintf("%02d", time.Time(month).Month())).
+		Where("strftime('%Y', transactions.date) = ?", fmt.Sprintf("%d", time.Time(month).Year())).
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{
 				BudgetID: b.ID,
@@ -90,13 +91,13 @@ func (b Budget) Income(db *gorm.DB, t time.Time) (decimal.Decimal, error) {
 }
 
 // Available calculates the amount that is available to be budgeted in the specified monht.
-func (b Budget) Available(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
+func (b Budget) Available(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
 	income, err := b.TotalIncome(db, month)
 	if err != nil {
 		return decimal.Zero, err
 	}
 
-	overspent, err := b.Overspent(db, month.AddDate(0, -1, 0))
+	overspent, err := b.Overspent(db, month.AddDate(0, -1))
 	if err != nil {
 		return decimal.Zero, err
 	}
@@ -110,10 +111,8 @@ func (b Budget) Available(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 }
 
 // TotalIncome calculates the total income over all time.
-func (b Budget) TotalIncome(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
-	// Only use the year and month values, everything else is reset to the start
-	// Add a month to also factor in all allocations in the requested month
-	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
+func (b Budget) TotalIncome(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
+	month = month.AddDate(0, 1)
 
 	var income decimal.NullDecimal
 	err := db.
@@ -145,10 +144,7 @@ func (b Budget) TotalIncome(db *gorm.DB, month time.Time) (decimal.Decimal, erro
 }
 
 // Budgeted calculates the sum that has been budgeted for a specific month.
-func (b Budget) Budgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
-	// Only use the year and month values, everything else is reset to the start
-	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC)
-
+func (b Budget) Budgeted(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
 	var budgeted decimal.NullDecimal
 	err := db.
 		Select("SUM(amount)").
@@ -157,7 +153,7 @@ func (b Budget) Budgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) 
 		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
 		Where("budgets.id = ?", b.ID).
 		Where("allocations.month >= date(?)", month).
-		Where("allocations.month < date(?)", month.AddDate(0, 1, 0)).
+		Where("allocations.month < date(?)", month.AddDate(0, 1)).
 		Table("allocations").
 		Find(&budgeted).
 		Error
@@ -174,10 +170,8 @@ func (b Budget) Budgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) 
 }
 
 // TotalBudgeted calculates the total sum that has been budgeted before a specific month.
-func (b Budget) TotalBudgeted(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
-	// Only use the year and month values, everything else is reset to the start
-	// Add a month to also factor in all allocations in the requested month
-	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0)
+func (b Budget) TotalBudgeted(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
+	month = month.AddDate(0, 1)
 
 	var budgeted decimal.NullDecimal
 	err := db.
@@ -203,10 +197,7 @@ func (b Budget) TotalBudgeted(db *gorm.DB, month time.Time) (decimal.Decimal, er
 }
 
 // Overspent calculates overspend for a specific month.
-func (b Budget) Overspent(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
-	// Only use the year and month values, everything else is reset to the start
-	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC)
-
+func (b Budget) Overspent(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
 	var envelopes []Envelope
 	err := db.
 		Joins("Category", db.Where(&Category{CategoryCreate: CategoryCreate{BudgetID: b.ID}})).
@@ -237,7 +228,7 @@ func (b Budget) Overspent(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 		Where("destination_account.external = 1").
 		Where("transactions.envelope_id IS NULL").
 		// Add a month to also factor in all allocations in the requested month
-		Where("transactions.date < date(?) ", month.AddDate(0, 1, 0)).
+		Where("transactions.date < date(?) ", month.AddDate(0, 1)).
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{
 				BudgetID: b.ID,

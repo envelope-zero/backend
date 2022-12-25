@@ -3,11 +3,11 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -32,19 +32,25 @@ type AllocationLinks struct {
 }
 
 type AllocationQueryFilter struct {
-	Month      time.Time       `form:"month"`
+	Month      string          `form:"month"`
 	Amount     decimal.Decimal `form:"amount"`
 	EnvelopeID string          `form:"envelope"`
 }
 
-func (f AllocationQueryFilter) ToCreate(c *gin.Context) (models.AllocationCreate, bool) {
+func (f AllocationQueryFilter) Parse(c *gin.Context) (models.AllocationCreate, bool) {
 	envelopeID, ok := httputil.UUIDFromString(c, f.EnvelopeID)
 	if !ok {
 		return models.AllocationCreate{}, false
 	}
 
+	var month QueryMonth
+	if err := c.Bind(&month); err != nil {
+		httperrors.Handler(c, err)
+		return models.AllocationCreate{}, false
+	}
+
 	return models.AllocationCreate{
-		Month:      f.Month,
+		Month:      types.MonthOf(month.Month),
 		Amount:     f.Amount,
 		EnvelopeID: envelopeID,
 	}, true
@@ -122,9 +128,6 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	// Ignore every field that is not Year or Month
-	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
-
 	_, ok := co.getEnvelopeResource(c, allocation.EnvelopeID)
 	if !ok {
 		return
@@ -163,7 +166,7 @@ func (co Controller) GetAllocations(c *gin.Context) {
 	queryFields, _ := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, ok := filter.ToCreate(c)
+	create, ok := filter.Parse(c)
 	if !ok {
 		return
 	}
@@ -250,9 +253,6 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
-
-	// Ignore every field that is not Year or Month
-	allocation.Month = time.Date(allocation.Month.Year(), allocation.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	if !queryWithRetry(c, co.DB.Model(&allocation).Select("", updateFields...).Updates(data)) {
 		return

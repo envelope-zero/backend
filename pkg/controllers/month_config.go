@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -38,7 +38,7 @@ type MonthConfigQueryFilter struct {
 
 type MonthConfigFilter struct {
 	EnvelopeID uuid.UUID
-	Month      time.Time
+	Month      types.Month
 }
 
 func (m MonthConfigQueryFilter) Parse(c *gin.Context) (MonthConfigFilter, bool) {
@@ -55,7 +55,7 @@ func (m MonthConfigQueryFilter) Parse(c *gin.Context) (MonthConfigFilter, bool) 
 
 	return MonthConfigFilter{
 		EnvelopeID: envelopeID,
-		Month:      month.Month,
+		Month:      types.MonthOf(month.Month),
 	}, true
 }
 
@@ -140,7 +140,7 @@ func (co Controller) GetMonthConfig(c *gin.Context) {
 		return
 	}
 
-	mConfig, ok := co.getMonthConfigResource(c, envelopeID, month.Month)
+	mConfig, ok := co.getMonthConfigResource(c, envelopeID, types.MonthOf(month.Month))
 	if !ok {
 		return
 	}
@@ -232,7 +232,7 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 
 	// Set config to path parameters
 	mConfig.EnvelopeID = envelopeID
-	mConfig.Month = month.Month
+	mConfig.Month = types.MonthOf(month.Month)
 
 	_, ok := co.getEnvelopeResource(c, mConfig.EnvelopeID)
 	if !ok {
@@ -285,7 +285,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	mConfig, ok := co.getMonthConfigResource(c, envelopeID, month.Month)
+	mConfig, ok := co.getMonthConfigResource(c, envelopeID, types.MonthOf(month.Month))
 	if !ok {
 		return
 	}
@@ -337,7 +337,7 @@ func (co Controller) DeleteMonthConfig(c *gin.Context) {
 		return
 	}
 
-	mConfig, ok := co.getMonthConfigResource(c, envelopeID, month.Month)
+	mConfig, ok := co.getMonthConfigResource(c, envelopeID, types.MonthOf(month.Month))
 	if !ok {
 		return
 	}
@@ -353,14 +353,14 @@ func (co Controller) getMonthConfigObject(c *gin.Context, mConfig models.MonthCo
 	return MonthConfig{
 		mConfig,
 		MonthConfigLinks{
-			Self:     fmt.Sprintf("%s/v1/month-configs/%s/%04d-%02d", c.GetString("baseURL"), mConfig.EnvelopeID, mConfig.Month.Year(), mConfig.Month.Month()),
+			Self:     fmt.Sprintf("%s/v1/month-configs/%s/%s", c.GetString("baseURL"), mConfig.EnvelopeID, mConfig.Month),
 			Envelope: fmt.Sprintf("%s/v1/envelopes/%s", c.GetString("baseURL"), mConfig.EnvelopeID),
 		},
 	}
 }
 
 // getMonthConfigResource verifies that the request URI is valid for the transaction and returns it.
-func (co Controller) getMonthConfigResource(c *gin.Context, envelopeID uuid.UUID, month time.Time) (models.MonthConfig, bool) {
+func (co Controller) getMonthConfigResource(c *gin.Context, envelopeID uuid.UUID, month types.Month) (models.MonthConfig, bool) {
 	if envelopeID == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "no envelope ID specified")
 		return models.MonthConfig{}, false

@@ -1,8 +1,7 @@
 package models
 
 import (
-	"time"
-
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/google/uuid"
 )
 
@@ -15,9 +14,9 @@ const (
 )
 
 type MonthConfig struct {
-	Timestamps           // To include the gorm timestamps
-	EnvelopeID uuid.UUID `json:"envelopeId" gorm:"primaryKey" example:"10b9705d-3356-459e-9d5a-28d42a6c4547" `
-	Month      time.Time `json:"month" gorm:"primaryKey" example:"1969-06-01T00:00:00.000000Z"` // This is always set to 00:00 UTC on the first of the month.
+	Timestamps             // To include the gorm timestamps
+	EnvelopeID uuid.UUID   `json:"envelopeId" gorm:"primaryKey" example:"10b9705d-3356-459e-9d5a-28d42a6c4547"`
+	Month      types.Month `json:"month" gorm:"primaryKey" example:"1969-06-01T00:00:00.000000Z"` // This is always set to 00:00 UTC on the first of the month.
 	MonthConfigCreate
 }
 

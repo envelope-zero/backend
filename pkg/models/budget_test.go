@@ -3,6 +3,7 @@ package models_test
 import (
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +18,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Outgoing total: 130.62
 	// Sum of allocations for Grocery Envelope until 2022-03: 67
 	// Allocations for Grocery Envelope - Outgoing transactions = -43.62
-	marchFifteenthTwentyTwentyTwo := time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC)
-	marchFirstTwentyTwentyTwo := time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC)
+	marchTwentyTwentyTwo := types.NewMonth(2022, 3)
 
 	budget := models.Budget{}
 	err := suite.db.Save(&budget).Error
@@ -102,7 +102,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(17.42),
-			Month:      marchFirstTwentyTwentyTwo.AddDate(0, -2, 0),
+			Month:      marchTwentyTwentyTwo.AddDate(0, -2),
 		},
 	}
 	err = suite.db.Save(&allocation1).Error
@@ -114,7 +114,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(24.58),
-			Month:      marchFirstTwentyTwentyTwo.AddDate(0, -1, 0),
+			Month:      marchTwentyTwentyTwo.AddDate(0, -1),
 		},
 	}
 	err = suite.db.Save(&allocation2).Error
@@ -126,7 +126,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(25),
-			Month:      marchFirstTwentyTwentyTwo,
+			Month:      marchTwentyTwentyTwo,
 		},
 	}
 	err = suite.db.Save(&allocationCurrentMonth).Error
@@ -138,7 +138,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		AllocationCreate: models.AllocationCreate{
 			EnvelopeID: envelope.ID,
 			Amount:     decimal.NewFromFloat(24.58),
-			Month:      time.Date(2170, 2, 1, 0, 0, 0, 0, time.UTC),
+			Month:      types.NewMonth(2170, 2),
 		},
 	}
 	err = suite.db.Save(&allocationFuture).Error
@@ -148,7 +148,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	salaryTransactionFebruary := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
-			Date:                 marchFifteenthTwentyTwentyTwo,
+			Date:                 time.Time(marchTwentyTwentyTwo),
 			BudgetID:             budget.ID,
 			EnvelopeID:           nil,
 			SourceAccountID:      employerAccount.ID,
@@ -164,7 +164,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	salaryTransactionMarch := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
-			Date:                 marchFifteenthTwentyTwentyTwo,
+			Date:                 time.Time(marchTwentyTwentyTwo),
 			BudgetID:             budget.ID,
 			EnvelopeID:           nil,
 			SourceAccountID:      employerAccount.ID,
@@ -180,7 +180,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	salaryTransactionApril := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
-			Date:                 marchFifteenthTwentyTwentyTwo.AddDate(0, 1, 0),
+			Date:                 time.Time(marchTwentyTwentyTwo.AddDate(0, 1)),
 			BudgetID:             budget.ID,
 			EnvelopeID:           nil,
 			SourceAccountID:      employerAccount.ID,
@@ -196,7 +196,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	outgoingTransactionBank := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
-			Date:                 marchFifteenthTwentyTwentyTwo,
+			Date:                 time.Time(marchTwentyTwentyTwo),
 			BudgetID:             budget.ID,
 			EnvelopeID:           &envelope.ID,
 			SourceAccountID:      bankAccount.ID,
@@ -211,7 +211,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	outgoingTransactionCash := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
-			Date:                 marchFifteenthTwentyTwentyTwo,
+			Date:                 time.Time(marchTwentyTwentyTwo),
 			BudgetID:             budget.ID,
 			EnvelopeID:           &envelope.ID,
 			SourceAccountID:      cashAccount.ID,
@@ -226,7 +226,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	overspendTransaction := models.Transaction{
 		TransactionCreate: models.TransactionCreate{
-			Date:                 marchFifteenthTwentyTwentyTwo,
+			Date:                 time.Time(marchTwentyTwentyTwo),
 			BudgetID:             budget.ID,
 			SourceAccountID:      cashAccount.ID,
 			DestinationAccountID: groceryAccount.ID,
@@ -245,68 +245,68 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	// Verify income for used budget in March
 	shouldIncome := decimal.NewFromFloat(4600)
-	income, err := budget.Income(suite.db, marchFifteenthTwentyTwentyTwo)
+	income, err := budget.Income(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncome), "Income is %s, should be %s", income, shouldIncome)
 
 	// Verify total income for used budget
 	shouldIncomeTotal := decimal.NewFromFloat(4600)
-	income, err = budget.TotalIncome(suite.db, marchFifteenthTwentyTwentyTwo)
+	income, err = budget.TotalIncome(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncomeTotal), "Income is %s, should be %s", income, shouldIncomeTotal)
 
 	// Verify income for empty budget in March
-	income, err = emptyBudget.Income(suite.db, marchFifteenthTwentyTwentyTwo)
+	income, err = emptyBudget.Income(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify total income for empty budget
-	income, err = emptyBudget.TotalIncome(suite.db, marchFifteenthTwentyTwentyTwo)
+	income, err = emptyBudget.TotalIncome(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify total budgeted for used budget
-	budgeted, err := budget.TotalBudgeted(suite.db, marchFifteenthTwentyTwentyTwo)
+	budgeted, err := budget.TotalBudgeted(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
 
 	// Verify total budgeted for used budget in January after (regression test for using AddDate(0, 1, 0) with the month instead of the whole date)
-	budgeted, err = budget.TotalBudgeted(suite.db, time.Date(marchFifteenthTwentyTwentyTwo.AddDate(1, 0, 0).Year(), 1, 1, 0, 0, 0, 0, time.UTC))
+	budgeted, err = budget.TotalBudgeted(suite.db, types.NewMonth(2023, 1))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
 
 	// Verify budgeted for used budget
-	budgeted, err = budget.Budgeted(suite.db, marchFifteenthTwentyTwentyTwo)
+	budgeted, err = budget.Budgeted(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(25)), "Budgeted is %s, should be 25", budgeted)
 
 	// Verify total budgeted for empty budget
-	budgeted, err = emptyBudget.TotalBudgeted(suite.db, marchFifteenthTwentyTwentyTwo)
+	budgeted, err = emptyBudget.TotalBudgeted(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 
 	// Verify budgeted for empty budget
-	budgeted, err = emptyBudget.Budgeted(suite.db, marchFifteenthTwentyTwentyTwo)
+	budgeted, err = emptyBudget.Budgeted(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 
 	// Verify overspent calculation for month without spend
-	overspent, err := budget.Overspent(suite.db, time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))
+	overspent, err := budget.Overspent(suite.db, types.NewMonth(2022, 1))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), overspent.IsZero(), "Overspent is %s, should be 0", overspent)
 
 	// Verify overspent calculation for month with spend
-	overspent, err = budget.Overspent(suite.db, marchFifteenthTwentyTwentyTwo)
+	overspent, err = budget.Overspent(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), overspent.Equal(decimal.NewFromFloat(63.62)), "Overspent is %s, should be 63.62", overspent)
 
 	// Verify available in month with overspend
-	available, err := budget.Available(suite.db, marchFifteenthTwentyTwentyTwo)
+	available, err := budget.Available(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(4533)), "Available is %s, should be 4533", available)
 
 	// Verify available in month after overspend
-	available, err = budget.Available(suite.db, marchFifteenthTwentyTwentyTwo.AddDate(0, 1, 0))
+	available, err = budget.Available(suite.db, marchTwentyTwentyTwo.AddDate(0, 1))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), available.Equal(decimal.NewFromFloat(7269.38)), "Available is %s, should be 7269.38", available)
 }
@@ -318,7 +318,7 @@ func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	income, err := budget.Income(suite.db, time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC))
+	income, err := budget.Income(suite.db, types.NewMonth(2022, 3))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }
@@ -330,7 +330,7 @@ func (suite *TestSuiteStandard) TestTotalIncomeNoTransactions() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	income, err := budget.TotalIncome(suite.db, time.Date(2031, 3, 17, 0, 0, 0, 0, time.UTC))
+	income, err := budget.TotalIncome(suite.db, types.NewMonth(2031, 3))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }
@@ -342,7 +342,7 @@ func (suite *TestSuiteStandard) TestTotalBudgetedNoTransactions() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	budgeted, err := budget.TotalBudgeted(suite.db, time.Date(1913, 8, 3, 0, 0, 0, 0, time.UTC))
+	budgeted, err := budget.TotalBudgeted(suite.db, types.NewMonth(1913, 8))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", budgeted)
 }
@@ -357,7 +357,7 @@ func (suite *TestSuiteStandard) TestBudgetAvailableDBFail() {
 
 	suite.CloseDB()
 
-	_, err = budget.Available(suite.db, time.Now())
+	_, err = budget.Available(suite.db, types.NewMonth(1990, 1))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
@@ -372,7 +372,7 @@ func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
 
 	suite.CloseDB()
 
-	_, err = budget.Income(suite.db, time.Now())
+	_, err = budget.Income(suite.db, types.NewMonth(1995, 2))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
@@ -387,7 +387,7 @@ func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
 
 	suite.CloseDB()
 
-	_, err = budget.Budgeted(suite.db, time.Now())
+	_, err = budget.Budgeted(suite.db, types.NewMonth(200, 2))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
@@ -402,7 +402,7 @@ func (suite *TestSuiteStandard) TestBudgetTotalBudgetedDBFail() {
 
 	suite.CloseDB()
 
-	_, err = budget.TotalBudgeted(suite.db, time.Now())
+	_, err = budget.TotalBudgeted(suite.db, types.NewMonth(2017, 7))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
@@ -417,7 +417,7 @@ func (suite *TestSuiteStandard) TestBudgetTotalIncomeDBFail() {
 
 	suite.CloseDB()
 
-	_, err = budget.TotalIncome(suite.db, time.Now())
+	_, err = budget.TotalIncome(suite.db, types.NewMonth(1300, 12))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
@@ -432,7 +432,7 @@ func (suite *TestSuiteStandard) TestBudgetOverspentDBFail() {
 
 	suite.CloseDB()
 
-	_, err = budget.Overspent(suite.db, time.Now())
+	_, err = budget.Overspent(suite.db, types.NewMonth(2023, 9))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }

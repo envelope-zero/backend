@@ -1,14 +1,9 @@
 package controllers
 
-import (
-	"time"
-)
+import "time"
 
-// This file holds types that are used over multiple files.
-
-// Month is used to parse requests for data about a specific month.
 type URIMonth struct {
-	Month time.Time `uri:"month" time_format:"2006-01" time_utc:"1"`
+	Month time.Time `uri:"month" time_format:"2006-01" time_utc:"1" example:"2013-11"`
 }
 
 type QueryMonth struct {

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/test"
@@ -13,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestMonthConfig(envelopeID uuid.UUID, month time.Time, c models.MonthConfigCreate, expectedStatus ...int) controllers.MonthConfigResponse {
+func (suite *TestSuiteStandard) createTestMonthConfig(envelopeID uuid.UUID, month types.Month, c models.MonthConfigCreate, expectedStatus ...int) controllers.MonthConfigResponse {
 	if envelopeID == uuid.Nil {
 		envelopeID = suite.createTestEnvelope(models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
 	}
@@ -23,8 +24,7 @@ func (suite *TestSuiteStandard) createTestMonthConfig(envelopeID uuid.UUID, mont
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	monthString := fmt.Sprintf("%04d-%02d", month.Year(), month.Month())
-	path := fmt.Sprintf("http://example.com/v1/month-configs/%s/%s", envelopeID, monthString)
+	path := fmt.Sprintf("http://example.com/v1/month-configs/%s/%s", envelopeID, month.String())
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, path, c)
 	suite.assertHTTPStatus(&r, expectedStatus...)
 
@@ -47,12 +47,12 @@ func (suite *TestSuiteStandard) TestMonthConfigsEmptyList() {
 
 func (suite *TestSuiteStandard) TestMonthConfigsCreate() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
-	someMonth := time.Date(2020, 3, 1, 0, 0, 0, 0, time.UTC)
+	someMonth := types.NewMonth(2020, 3)
 
 	tests := []struct {
 		name       string
 		envelopeID uuid.UUID
-		month      time.Time
+		month      types.Month
 		status     int
 	}{
 		{"Standard create", envelope.Data.ID, someMonth, http.StatusCreated},
@@ -93,8 +93,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsCreateInvalid() {
 
 func (suite *TestSuiteStandard) TestMonthConfigsGet() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
-	someMonth := time.Date(2020, 3, 1, 0, 0, 0, 0, time.UTC)
-	someMonthString := fmt.Sprintf("%04d-%02d", someMonth.Year(), someMonth.Month())
+	someMonth := types.NewMonth(2020, 3)
 
 	_ = suite.createTestMonthConfig(envelope.Data.ID, someMonth, models.MonthConfigCreate{})
 
@@ -104,9 +103,9 @@ func (suite *TestSuiteStandard) TestMonthConfigsGet() {
 		month      string
 		status     int
 	}{
-		{"Standard get", envelope.Data.ID.String(), someMonthString, http.StatusOK},
-		{"No envelope", uuid.New().String(), someMonthString, http.StatusNotFound},
-		{"Invalid UUID", "Not a UUID", someMonthString, http.StatusBadRequest},
+		{"Standard get", envelope.Data.ID.String(), someMonth.String(), http.StatusOK},
+		{"No envelope", uuid.New().String(), someMonth.String(), http.StatusNotFound},
+		{"Invalid UUID", "Not a UUID", someMonth.String(), http.StatusBadRequest},
 		{"Invalid month", envelope.Data.ID.String(), "2193-1", http.StatusBadRequest},
 		{"No MonthConfig", envelope.Data.ID.String(), "0333-11", http.StatusNotFound},
 	}
@@ -136,14 +135,14 @@ func (suite *TestSuiteStandard) TestMonthConfigsCreateDBError() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
 	suite.CloseDB()
 
-	_ = suite.createTestMonthConfig(envelope.Data.ID, time.Date(2020, 3, 1, 0, 0, 0, 0, time.UTC), models.MonthConfigCreate{}, http.StatusInternalServerError)
+	_ = suite.createTestMonthConfig(envelope.Data.ID, types.NewMonth(2020, 3), models.MonthConfigCreate{}, http.StatusInternalServerError)
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsOptions() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
 	_ = suite.createTestMonthConfig(
 		envelope.Data.ID,
-		time.Date(2014, 5, 1, 0, 0, 0, 0, time.UTC),
+		types.NewMonth(2014, 5),
 		models.MonthConfigCreate{},
 	)
 
@@ -178,13 +177,13 @@ func (suite *TestSuiteStandard) TestMonthConfigsGetList() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
 	_ = suite.createTestMonthConfig(
 		envelope.Data.ID,
-		time.Date(2007, 10, 1, 0, 0, 0, 0, time.UTC),
+		types.NewMonth(2007, 10),
 		models.MonthConfigCreate{},
 	)
 
 	_ = suite.createTestMonthConfig(
 		envelope.Data.ID,
-		time.Date(3017, 10, 1, 0, 0, 0, 0, time.UTC),
+		types.NewMonth(3017, 10),
 		models.MonthConfigCreate{},
 	)
 
@@ -226,8 +225,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsGetDBError() {
 
 func (suite *TestSuiteStandard) TestMonthConfigsDelete() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
-	someMonth := time.Date(2020, 3, 1, 0, 0, 0, 0, time.UTC)
-	someMonthString := fmt.Sprintf("%04d-%02d", someMonth.Year(), someMonth.Month())
+	someMonth := types.NewMonth(2020, 3)
 
 	_ = suite.createTestMonthConfig(envelope.Data.ID, someMonth, models.MonthConfigCreate{})
 
@@ -237,9 +235,9 @@ func (suite *TestSuiteStandard) TestMonthConfigsDelete() {
 		month      string
 		status     int
 	}{
-		{"Standard get", envelope.Data.ID.String(), someMonthString, http.StatusNoContent},
-		{"No envelope", uuid.New().String(), someMonthString, http.StatusNotFound},
-		{"Invalid UUID", "Not a UUID", someMonthString, http.StatusBadRequest},
+		{"Standard get", envelope.Data.ID.String(), someMonth.String(), http.StatusNoContent},
+		{"No envelope", uuid.New().String(), someMonth.String(), http.StatusNotFound},
+		{"Invalid UUID", "Not a UUID", someMonth.String(), http.StatusBadRequest},
 		{"Invalid month", envelope.Data.ID.String(), "2193-1", http.StatusBadRequest},
 		{"No MonthConfig", envelope.Data.ID.String(), "0333-11", http.StatusNotFound},
 	}
@@ -255,7 +253,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsDelete() {
 }
 
 func (suite *TestSuiteStandard) TestUpdateMonthConfig() {
-	mConfig := suite.createTestMonthConfig(uuid.Nil, time.Now(), models.MonthConfigCreate{})
+	mConfig := suite.createTestMonthConfig(uuid.Nil, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, mConfig.Data.Links.Self, models.MonthConfigCreate{
 		OverspendMode: "AFFECT_ENVELOPE",
@@ -271,8 +269,7 @@ func (suite *TestSuiteStandard) TestUpdateMonthConfig() {
 
 func (suite *TestSuiteStandard) TestMonthConfigsUpdateInvalid() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
-	mConfig := suite.createTestMonthConfig(envelope.Data.ID, time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC), models.MonthConfigCreate{})
-	mConfigMonthString := fmt.Sprintf("%04d-%02d", mConfig.Data.Month.Year(), mConfig.Data.Month.Month())
+	mConfig := suite.createTestMonthConfig(envelope.Data.ID, types.NewMonth(2022, 3), models.MonthConfigCreate{})
 
 	tests := []struct {
 		name       string
@@ -281,12 +278,12 @@ func (suite *TestSuiteStandard) TestMonthConfigsUpdateInvalid() {
 		body       string
 		status     int
 	}{
-		{"Invalid Body", envelope.Data.ID.String(), mConfigMonthString, `{"name": "not valid body"`, http.StatusBadRequest},
+		{"Invalid Body", envelope.Data.ID.String(), mConfig.Data.Month.String(), `{"name": "not valid body"`, http.StatusBadRequest},
 		{"Invaid UUID", "not a uuid", "2017-04", "", http.StatusBadRequest},
 		{"Invalid month", envelope.Data.ID.String(), "September Seventy Seven", "", http.StatusBadRequest},
-		{"No envelope", uuid.NewString(), mConfigMonthString, "", http.StatusNotFound},
+		{"No envelope", uuid.NewString(), mConfig.Data.Month.String(), "", http.StatusNotFound},
 		{"No month config", envelope.Data.ID.String(), "0137-12", "", http.StatusNotFound},
-		{"Broken values", envelope.Data.ID.String(), mConfigMonthString, `{"overspendMode": 2 }`, http.StatusBadRequest},
+		{"Broken values", envelope.Data.ID.String(), mConfig.Data.Month.String(), `{"overspendMode": 2 }`, http.StatusBadRequest},
 	}
 
 	for _, tt := range tests {
@@ -300,21 +297,8 @@ func (suite *TestSuiteStandard) TestMonthConfigsUpdateInvalid() {
 }
 
 func (suite *TestSuiteStandard) TestUpdateMonthConfigBrokenJSON() {
-	mConfig := suite.createTestMonthConfig(uuid.Nil, time.Now(), models.MonthConfigCreate{})
+	mConfig := suite.createTestMonthConfig(uuid.Nil, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, mConfig.Data.Links.Self, `{ test`)
 	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
 }
-
-// func (suite *TestSuiteStandard) TestUpdateEnvelopeInvalidCategoryID() {
-// 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
-
-// 	// Sets the CategoryID to uuid.Nil
-// 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, models.EnvelopeCreate{})
-// 	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
-// }
-
-// func (suite *TestSuiteStandard) TestUpdateNonExistingEnvelope() {
-// 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/envelopes/dcf472ba-a64e-4f0f-900e-a789319e432c", `{ "name": "2" }`)
-// 	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
-// }

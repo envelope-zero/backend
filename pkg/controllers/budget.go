@@ -3,8 +3,8 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -342,8 +342,6 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 		httperrors.New(c, http.StatusBadRequest, "You cannot request data for no month")
 		return
 	}
-	// Set the month to the first of the month at midnight
-	month.Month = time.Date(month.Month.Year(), month.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	var envelopes []models.Envelope
 
@@ -366,7 +364,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 
 	var envelopeMonths []models.EnvelopeMonth
 	for _, envelope := range envelopes {
-		envelopeMonth, _, err := envelope.Month(co.DB, month.Month)
+		envelopeMonth, _, err := envelope.Month(co.DB, types.MonthOf(month.Month))
 		if err != nil {
 			httperrors.Handler(c, err)
 			return
@@ -382,7 +380,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 		if !queryWithRetry(c, co.DB.Where(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: envelope.ID,
-				Month:      month.Month,
+				Month:      types.MonthOf(month.Month),
 			},
 		}).Find(&a)) {
 			return
@@ -398,14 +396,14 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 	}
 
 	// Calculate the income
-	income, err := budget.Income(co.DB, month.Month)
+	income, err := budget.Income(co.DB, types.MonthOf(month.Month))
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
 	}
 
 	// Get the available sum for budgeting
-	available, err := budget.Available(co.DB, month.Month)
+	available, err := budget.Available(co.DB, types.MonthOf(month.Month))
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
@@ -414,7 +412,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetMonthResponse{Data: models.BudgetMonth{
 		ID:        budget.ID,
 		Name:      budget.Name,
-		Month:     month.Month,
+		Month:     types.MonthOf(month.Month),
 		Income:    income,
 		Budgeted:  budgeted,
 		Envelopes: envelopeMonths,
@@ -531,10 +529,6 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 		return
 	}
 
-	// As URIMonth has a time_format of YYYY-MM, it is parsed without timezone
-	// by gorm. Therefore, we need to create a new time.Time object.
-	queryMonth := time.Date(month.Month.Year(), month.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
-
 	// We query for all allocations here
 	var allocations []models.Allocation
 
@@ -542,7 +536,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 		Joins("JOIN envelopes ON envelopes.id = allocations.envelope_id").
 		Joins("JOIN categories ON categories.id = envelopes.category_id").
 		Joins("JOIN budgets on budgets.id = categories.budget_id").
-		Where(models.Allocation{AllocationCreate: models.AllocationCreate{Month: queryMonth}}).
+		Where(models.Allocation{AllocationCreate: models.AllocationCreate{Month: types.MonthOf(month.Month)}}).
 		Where("budgets.id = ?", budgetID).
 		Find(&allocations)) {
 		return
@@ -601,12 +595,9 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 		return
 	}
 
-	// As URIMonth has a time_format of YYYY-MM, it is parsed without timezone
-	// by gorm. Therefore, we need to create a new time.Time object.
-	requestMonth := time.Date(month.Month.Year(), month.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
-	pastMonth := requestMonth.AddDate(0, -1, 0)
+	pastMonth := types.MonthOf(month.Month.AddDate(0, -1, 0))
 
-	queryCurrentMonth := co.DB.Select("id").Table("allocations").Where("allocations.envelope_id = envelopes.id AND allocations.month = ?", requestMonth)
+	queryCurrentMonth := co.DB.Select("id").Table("allocations").Where("allocations.envelope_id = envelopes.id AND allocations.month = ?", month.Month)
 
 	// Get all envelopes that do not have an allocation for the target month
 	// but for the month before
@@ -637,7 +628,7 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: allocation.EnvelopeID,
 				Amount:     amount,
-				Month:      requestMonth,
+				Month:      types.MonthOf(month.Month),
 			},
 		})) {
 			return

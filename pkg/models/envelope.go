@@ -4,6 +4,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -31,7 +32,7 @@ type EnvelopeMonthLinks struct {
 type EnvelopeMonth struct {
 	ID         uuid.UUID          `json:"id" example:"10b9705d-3356-459e-9d5a-28d42a6c4547"`               // The ID of the Envelope
 	Name       string             `json:"name" example:"Groceries"`                                        // The name of the Envelope
-	Month      time.Time          `json:"month" example:"1969-06-01T00:00:00.000000Z" hidden:"deprecated"` // This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**
+	Month      types.Month        `json:"month" example:"1969-06-01T00:00:00.000000Z" hidden:"deprecated"` // This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**
 	Spent      decimal.Decimal    `json:"spent" example:"73.12"`
 	Balance    decimal.Decimal    `json:"balance" example:"12.32"`
 	Allocation decimal.Decimal    `json:"allocation" example:"85.44"`
@@ -39,7 +40,7 @@ type EnvelopeMonth struct {
 }
 
 // Spent returns the amount spent for the month the time.Time instance is in.
-func (e Envelope) Spent(db *gorm.DB, t time.Time) decimal.Decimal {
+func (e Envelope) Spent(db *gorm.DB, month types.Month) decimal.Decimal {
 	// All transactions where the Envelope ID matches and that have an external account as source and an internal account as destination
 	var incoming []Transaction
 
@@ -50,7 +51,7 @@ func (e Envelope) Spent(db *gorm.DB, t time.Time) decimal.Decimal {
 	// Add all incoming transactions that are in the correct month
 	incomingSum := decimal.Zero
 	for _, transaction := range incoming {
-		if transaction.Date.UTC().Year() == t.UTC().Year() && transaction.Date.UTC().Month() == t.UTC().Month() {
+		if month.Contains(transaction.Date) {
 			incomingSum = incomingSum.Add(transaction.Amount)
 		}
 	}
@@ -63,7 +64,7 @@ func (e Envelope) Spent(db *gorm.DB, t time.Time) decimal.Decimal {
 	// Add all outgoing transactions that are in the correct month
 	outgoingSum := decimal.Zero
 	for _, transaction := range outgoing {
-		if transaction.Date.UTC().Year() == t.UTC().Year() && transaction.Date.UTC().Month() == t.UTC().Month() {
+		if month.Contains(transaction.Date) {
 			outgoingSum = outgoingSum.Add(transaction.Amount)
 		}
 	}
@@ -89,16 +90,14 @@ type EnvelopeMonthConfig struct {
 }
 
 // Balance calculates the balance of an Envelope in a specific month.
-func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error) {
-	month = time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, time.UTC)
-
+func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
 	// Get all relevant data for rawTransactions
 	var rawTransactions []AggregatedTransaction
 	err := db.
 		Table("transactions").
 		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
 		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
-		Where("transactions.date < date(?)", month.AddDate(0, 1, 0)).
+		Where("transactions.date < date(?)", month.AddDate(0, 1)).
 		Where("transactions.envelope_id = ?", e.ID).
 		Select("transactions.amount AS Amount, transactions.date AS Date, source_account.external AS SourceAccountExternal, destination_account.external AS DestinationAccountExternal").
 		Find(&rawTransactions).Error
@@ -107,9 +106,9 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 	}
 
 	// Sort monthTransactions by month
-	monthTransactions := make(map[time.Time][]AggregatedTransaction)
+	monthTransactions := make(map[types.Month][]AggregatedTransaction)
 	for _, transaction := range rawTransactions {
-		tDate := time.Date(transaction.Date.Year(), transaction.Date.Month(), 1, 0, 0, 0, 0, time.UTC)
+		tDate := types.NewMonth(transaction.Date.Year(), transaction.Date.Month())
 		monthTransactions[tDate] = append(monthTransactions[tDate], transaction)
 	}
 
@@ -117,7 +116,7 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 	var rawAllocations []Allocation
 	err = db.
 		Table("allocations").
-		Where("allocations.month < date(?)", month.AddDate(0, 1, 0)).
+		Where("allocations.month < date(?)", month.AddDate(0, 1)).
 		Where("allocations.envelope_id = ?", e.ID).
 		Find(&rawAllocations).Error
 	if err != nil {
@@ -125,7 +124,7 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 	}
 
 	// Sort allocations by month
-	allocationMonths := make(map[time.Time]Allocation)
+	allocationMonths := make(map[types.Month]Allocation)
 	for _, allocation := range rawAllocations {
 		allocationMonths[allocation.Month] = allocation
 	}
@@ -134,7 +133,7 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 	var rawConfigs []MonthConfig
 	err = db.
 		Table("month_configs").
-		Where("month_configs.month < date(?)", month.AddDate(0, 1, 0)).
+		Where("month_configs.month < date(?)", month.AddDate(0, 1)).
 		Where("month_configs.envelope_id = ?", e.ID).
 		Find(&rawConfigs).Error
 	if err != nil {
@@ -142,18 +141,18 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 	}
 
 	// Sort MonthConfigs by month
-	configMonths := make(map[time.Time]MonthConfig)
+	configMonths := make(map[types.Month]MonthConfig)
 	for _, monthConfig := range rawConfigs {
 		configMonths[monthConfig.Month] = monthConfig
 	}
 
 	// This is a helper map to only add unique months to the
 	// monthKeys slice
-	monthsWithData := make(map[time.Time]bool)
+	monthsWithData := make(map[types.Month]bool)
 
 	// Create a slice of the months that have Allocation
 	// data to have a sorted list we can iterate over
-	monthKeys := make([]time.Time, 0)
+	monthKeys := make([]types.Month, 0)
 	for k := range allocationMonths {
 		monthKeys = append(monthKeys, k)
 		monthsWithData[k] = true
@@ -192,7 +191,7 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 
 		// We always go forward one month until we
 		// reach the last one with data
-		loopMonth = loopMonth.AddDate(0, 1, 0)
+		loopMonth = loopMonth.AddDate(0, 1)
 
 		// If there is no data for the current month,
 		// we loop once more and go on to the next month
@@ -264,10 +263,8 @@ func (e Envelope) Balance(db *gorm.DB, month time.Time) (decimal.Decimal, error)
 }
 
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth and allocation ID for them.
-func (e Envelope) Month(db *gorm.DB, t time.Time) (EnvelopeMonth, uuid.UUID, error) {
-	spent := e.Spent(db, t)
-	month := time.Date(t.UTC().Year(), t.UTC().Month(), 1, 0, 0, 0, 0, time.UTC)
-
+func (e Envelope) Month(db *gorm.DB, month types.Month) (EnvelopeMonth, uuid.UUID, error) {
+	spent := e.Spent(db, month)
 	envelopeMonth := EnvelopeMonth{
 		ID:         e.ID,
 		Name:       e.Name,

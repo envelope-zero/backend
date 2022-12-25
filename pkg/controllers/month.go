@@ -3,8 +3,8 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -14,14 +14,36 @@ import (
 )
 
 type MonthResponse struct {
-	Data models.Month `json:"data"`
+	Data Month `json:"data"`
 }
 
-// parseQuery takes in the context and parses the request
+type CategoryEnvelopes struct {
+	ID         uuid.UUID              `json:"id" example:"dafd9a74-6aeb-46b9-9f5a-cfca624fea85"` // ID of the category
+	Name       string                 `json:"name" example:"Rainy Day Funds" default:""`         // Name of the category
+	Envelopes  []models.EnvelopeMonth `json:"envelopes"`                                         // Slice of all envelopes
+	Balance    decimal.Decimal        `json:"balance" example:"-10.13"`                          // Sum of the balances of the envelopes
+	Allocation decimal.Decimal        `json:"allocation" example:"90"`                           // Sum of allocations for the envelopes
+	Spent      decimal.Decimal        `json:"spent" example:"100.13"`                            // Sum spent for all envelopes
+}
+
+type Month struct {
+	ID         uuid.UUID           `json:"id" example:"1e777d24-3f5b-4c43-8000-04f65f895578"` // The ID of the Budget
+	Name       string              `json:"name" example:"Zero budget"`                        // The name of the Budget
+	Month      types.Month         `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // The month
+	Budgeted   decimal.Decimal     `json:"budgeted" example:"2100"`                           // The sum of all allocations for the month. **Deprecated, please use the `allocation` field**
+	Income     decimal.Decimal     `json:"income" example:"2317.34"`                          // The total income for the month (sum of all incoming transactions without an Envelope)
+	Available  decimal.Decimal     `json:"available" example:"217.34"`                        // The amount available to budget
+	Balance    decimal.Decimal     `json:"balance" example:"5231.37"`                         // The sum of all envelope balances
+	Spent      decimal.Decimal     `json:"spent" example:"133.70"`                            // The amount of money spent in this month
+	Allocation decimal.Decimal     `json:"allocation" example:"1200.50"`                      // The sum of all allocations for this month
+	Categories []CategoryEnvelopes `json:"categories"`                                        // A list of envelope month calculations grouped by category
+}
+
+// parseMonthQuery takes in the context and parses the request
 //
 // It verifies that the requested budget exists and parses the ID to return
 // the budget resource itself.
-func (co Controller) parseMonthQuery(c *gin.Context) (time.Time, models.Budget, bool) {
+func (co Controller) parseMonthQuery(c *gin.Context) (types.Month, models.Budget, bool) {
 	var query struct {
 		QueryMonth
 		BudgetID string `form:"budget" example:"81b0c9ce-6fd3-4e1e-becc-106055898a2a"`
@@ -29,29 +51,26 @@ func (co Controller) parseMonthQuery(c *gin.Context) (time.Time, models.Budget, 
 
 	if err := c.Bind(&query); err != nil {
 		httperrors.Handler(c, err)
-		return time.Time{}, models.Budget{}, false
+		return types.Month{}, models.Budget{}, false
 	}
-
-	// For a month, we always use the first day at 00:00 UTC
-	query.Month = time.Date(query.Month.Year(), query.Month.Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	if query.Month.IsZero() {
 		httperrors.New(c, http.StatusBadRequest, "The month query parameter must be set")
-		return time.Time{}, models.Budget{}, false
+		return types.Month{}, models.Budget{}, false
 	}
 
 	budgetID, err := uuid.Parse(query.BudgetID)
 	if err != nil {
 		httperrors.InvalidUUID(c)
-		return time.Time{}, models.Budget{}, false
+		return types.Month{}, models.Budget{}, false
 	}
 
 	budget, ok := co.getBudgetResource(c, budgetID)
 	if !ok {
-		return time.Time{}, models.Budget{}, false
+		return types.Month{}, models.Budget{}, false
 	}
 
-	return query.Month, budget, true
+	return types.MonthOf(query.Month), budget, true
 }
 
 // RegisterMonthRoutes registers the routes for months with
@@ -96,7 +115,7 @@ func (co Controller) GetMonth(c *gin.Context) {
 	}
 
 	// Initialize the response object
-	month := models.Month{
+	month := Month{
 		ID:    budget.ID,
 		Name:  budget.Name,
 		Month: qMonth,
@@ -133,12 +152,12 @@ func (co Controller) GetMonth(c *gin.Context) {
 		return
 	}
 
-	month.Categories = make([]models.CategoryEnvelopes, 0)
+	month.Categories = make([]CategoryEnvelopes, 0)
 	month.Balance = decimal.Zero
 
 	// Get envelopes for all categories
 	for _, category := range categories {
-		var categoryEnvelopes models.CategoryEnvelopes
+		var categoryEnvelopes CategoryEnvelopes
 
 		// Set the basic category values
 		categoryEnvelopes.ID = category.ID
@@ -258,7 +277,7 @@ func (co Controller) SetAllocations(c *gin.Context) {
 		return
 	}
 
-	pastMonth := month.AddDate(0, -1, 0)
+	pastMonth := month.AddDate(0, -1)
 	queryCurrentMonth := co.DB.Select("id").Table("allocations").Where("allocations.envelope_id = envelopes.id AND allocations.month = ?", month)
 
 	// Get all envelopes that do not have an allocation for the target month
