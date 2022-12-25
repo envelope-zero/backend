@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	internal_types "github.com/envelope-zero/backend/internal/types"
+
 	"github.com/envelope-zero/backend/pkg/importer/types"
 	"github.com/envelope-zero/backend/pkg/models"
 	"golang.org/x/exp/maps"
@@ -353,7 +355,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 
 func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
 	for _, monthBudget := range monthlyBudgets {
-		month, err := time.Parse("2006-01-02", monthBudget.Month)
+		month, err := internal_types.ParseMonth(monthBudget.Month)
 		if err != nil {
 			return fmt.Errorf("could not parse date: %w", err)
 		}
@@ -449,12 +451,12 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 				monthConfigs = append(monthConfigs, mConfig)
 
 				// Start with the next month since we already appended the current one
-				checkMonth := mConfig.Model.Month.AddDate(0, 1, 0)
+				checkMonth := mConfig.Model.Month.AddDate(0, 1)
 
 				// If this is the last month, we set all months including the one of today to "AFFECT_ENVELOPE"
 				// to preserve the YNAB 4 behaviour up to the switch to EZ
 				if i+1 == len(envelope) {
-					for ok := true; ok; ok = !checkMonth.After(time.Now()) {
+					for ok := true; ok; ok = !checkMonth.AfterTime(time.Now()) {
 						monthConfigs = append(monthConfigs, types.MonthConfig{
 							Model: models.MonthConfig{
 								Month: checkMonth,
@@ -466,7 +468,7 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 							Envelope: mConfig.Envelope,
 						})
 
-						checkMonth = checkMonth.AddDate(0, 1, 0)
+						checkMonth = checkMonth.AddDate(0, 1)
 					}
 
 					continue
@@ -485,7 +487,7 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 						Envelope: mConfig.Envelope,
 					})
 
-					checkMonth = checkMonth.AddDate(0, 1, 0)
+					checkMonth = checkMonth.AddDate(0, 1)
 				}
 			}
 		}

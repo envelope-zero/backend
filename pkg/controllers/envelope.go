@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/httperrors"
 	"github.com/envelope-zero/backend/pkg/httputil"
 	"github.com/envelope-zero/backend/pkg/models"
@@ -267,7 +268,7 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelopeMonth, _, err := envelope.Month(co.DB, month.Month)
+	envelopeMonth, _, err := envelope.Month(co.DB, types.MonthOf(month.Month))
 	if err != nil {
 		httperrors.Handler(c, err)
 		return

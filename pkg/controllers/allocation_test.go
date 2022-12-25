@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/test"
@@ -49,14 +50,14 @@ func (suite *TestSuiteStandard) TestOptionsAllocation() {
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/allocations/NotParseableAsUUID", "")
 	assert.Equal(suite.T(), http.StatusBadRequest, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 
-	path = suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC)}).Data.Links.Self
+	path = suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2022, 2)}).Data.Links.Self
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteStandard) TestGetAllocations() {
 	_ = suite.createTestAllocation(models.AllocationCreate{
-		Month:  time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:  types.NewMonth(2022, 1),
 		Amount: decimal.NewFromFloat(20.99),
 	})
 
@@ -67,7 +68,7 @@ func (suite *TestSuiteStandard) TestGetAllocations() {
 
 	suite.assertHTTPStatus(&recorder, http.StatusOK)
 	assert.Len(suite.T(), response.Data, 1)
-	assert.Equal(suite.T(), time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC), response.Data[0].Month)
+	assert.Equal(suite.T(), types.NewMonth(2022, 1), response.Data[0].Month)
 
 	if !decimal.NewFromFloat(20.99).Equal(response.Data[0].Amount) {
 		assert.Fail(suite.T(), "Allocation amount does not equal 20.99", response.Data[0].Amount)
@@ -83,19 +84,19 @@ func (suite *TestSuiteStandard) TestGetAllocationsFilter() {
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: e1.Data.ID,
-		Month:      time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2018, 9),
 		Amount:     decimal.NewFromFloat(314.1592),
 	})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: e1.Data.ID,
-		Month:      time.Date(2018, 10, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2018, 10),
 		Amount:     decimal.NewFromFloat(1371),
 	})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: e2.Data.ID,
-		Month:      time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2018, 9),
 		Amount:     decimal.NewFromFloat(1204),
 	})
 
@@ -107,7 +108,7 @@ func (suite *TestSuiteStandard) TestGetAllocationsFilter() {
 		{"Envelope 1", fmt.Sprintf("envelope=%s", e1.Data.ID), 2},
 		{"Envelope Not Existing", "envelope=f1411c94-0ec6-417a-bb00-9e51d3c1c6e0", 0},
 		{"Amount", "amount=1204", 1},
-		{"Month", fmt.Sprintf("month=%s", time.Date(2018, 9, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339)), 2},
+		{"Month", fmt.Sprintf("month=%s", types.NewMonth(2018, 9)), 2},
 	}
 
 	for _, tt := range tests {
@@ -177,7 +178,7 @@ func (suite *TestSuiteStandard) TestAllocationInvalidIDs() {
 
 func (suite *TestSuiteStandard) TestCreateAllocation() {
 	a := suite.createTestAllocation(models.AllocationCreate{
-		Month:  time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC),
+		Month:  types.NewMonth(2022, 10),
 		Amount: decimal.NewFromFloat(15.42),
 	})
 
@@ -202,7 +203,7 @@ func (suite *TestSuiteStandard) TestCreateAllocationNonExistingEnvelope() {
 }
 
 func (suite *TestSuiteStandard) TestCreateDuplicateAllocation() {
-	allocation := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC)})
+	allocation := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2022, 2)})
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/allocations", models.AllocationCreate{
 		EnvelopeID: allocation.Data.EnvelopeID,
 		Month:      allocation.Data.Month,
@@ -216,12 +217,12 @@ func (suite *TestSuiteStandard) TestCreateNonDuplicateAllocationSameMonth() {
 	e2 := suite.createTestEnvelope(models.EnvelopeCreate{})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 2),
 		EnvelopeID: e1.Data.ID,
 	})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 2),
 		EnvelopeID: e2.Data.ID,
 	})
 }
@@ -233,7 +234,7 @@ func (suite *TestSuiteStandard) TestCreateAllocationNoBody() {
 
 func (suite *TestSuiteStandard) TestGetAllocation() {
 	a := suite.createTestAllocation(models.AllocationCreate{
-		Month: time.Date(2022, 8, 1, 0, 0, 0, 0, time.UTC),
+		Month: types.NewMonth(2022, 8),
 	})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, a.Data.Links.Self, "")
@@ -241,42 +242,42 @@ func (suite *TestSuiteStandard) TestGetAllocation() {
 }
 
 func (suite *TestSuiteStandard) TestUpdateAllocation() {
-	a := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2100, 6, 1, 0, 0, 0, 0, time.UTC)})
+	a := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2100, 6)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
-		"month": time.Date(2022, 6, 1, 0, 0, 0, 0, time.UTC),
+		"month": types.NewMonth(2022, 6),
 	})
 	suite.assertHTTPStatus(&r, http.StatusOK)
 
 	var updatedAllocation controllers.AllocationResponse
 	suite.decodeResponse(&r, &updatedAllocation)
 
-	assert.Equal(suite.T(), 2022, updatedAllocation.Data.Month.Year())
+	assert.Equal(suite.T(), 2022, time.Time(updatedAllocation.Data.Month).Year())
 }
 
 func (suite *TestSuiteStandard) TestUpdateAllocationZeroValues() {
-	a := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2100, 8, 1, 0, 0, 0, 0, time.UTC)})
+	a := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2100, 8)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
-		"month": time.Date(0, 8, 1, 0, 0, 0, 0, time.UTC),
+		"month": types.NewMonth(0, 8),
 	})
 	suite.assertHTTPStatus(&r, http.StatusOK)
 
 	var updatedAllocation controllers.AllocationResponse
 	suite.decodeResponse(&r, &updatedAllocation)
 
-	assert.Equal(suite.T(), 0, updatedAllocation.Data.Month.Year(), "Year is not updated correctly")
+	assert.Equal(suite.T(), 0, time.Time(updatedAllocation.Data.Month).Year(), "Year is not updated correctly")
 }
 
 func (suite *TestSuiteStandard) TestUpdateAllocationBrokenJSON() {
-	a := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2054, 5, 1, 0, 0, 0, 0, time.UTC)})
+	a := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2054, 5)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, `{ "name": 2" }`)
 	suite.assertHTTPStatus(&r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateAllocationInvalidType() {
-	a := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2062, 3, 1, 0, 0, 0, 0, time.UTC)})
+	a := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2062, 3)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
 		"month": "A long time ago in a galaxy far, far away",
@@ -285,28 +286,28 @@ func (suite *TestSuiteStandard) TestUpdateAllocationInvalidType() {
 }
 
 func (suite *TestSuiteStandard) TestUpdateAllocationInvalidEnvelopeID() {
-	a := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2099, 11, 1, 0, 0, 0, 0, time.UTC)})
+	a := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2099, 11)})
 
 	// Sets the EnvelopeID to uuid.Nil by not specifying it
-	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, models.AllocationCreate{Month: time.Date(2099, 11, 1, 0, 0, 0, 0, time.UTC)})
+	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, models.AllocationCreate{Month: types.NewMonth(2099, 11)})
 	suite.assertHTTPStatus(&r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateNonExistingAllocation() {
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/allocations/df684988-31df-444c-8aaa-b53195d55d6e", models.AllocationCreate{Month: time.Date(2142, 3, 1, 0, 0, 0, 0, time.UTC)})
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/allocations/df684988-31df-444c-8aaa-b53195d55d6e", models.AllocationCreate{Month: types.NewMonth(2142, 3)})
 	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteAllocation() {
 	e := suite.createTestEnvelope(models.EnvelopeCreate{})
-	a := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC), EnvelopeID: e.Data.ID})
+	a := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2058, 7), EnvelopeID: e.Data.ID})
 	r := test.Request(suite.controller, suite.T(), http.MethodDelete, a.Data.Links.Self, "")
 
 	suite.assertHTTPStatus(&r, http.StatusNoContent)
 
 	// Regression Test: Verify that allocations are hard deleted instantly to avoid problems
 	// with the UNIQUE(id,month)
-	_ = suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2058, 7, 1, 0, 0, 0, 0, time.UTC), EnvelopeID: e.Data.ID})
+	_ = suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2058, 7), EnvelopeID: e.Data.ID})
 }
 
 func (suite *TestSuiteStandard) TestDeleteNonExistingAllocation() {
@@ -315,9 +316,9 @@ func (suite *TestSuiteStandard) TestDeleteNonExistingAllocation() {
 }
 
 func (suite *TestSuiteStandard) TestDeleteAllocationWithBody() {
-	a := suite.createTestAllocation(models.AllocationCreate{Month: time.Date(2067, 3, 1, 0, 0, 0, 0, time.UTC)})
+	a := suite.createTestAllocation(models.AllocationCreate{Month: types.NewMonth(2067, 3)})
 
-	r := test.Request(suite.controller, suite.T(), http.MethodDelete, a.Data.Links.Self, models.AllocationCreate{Month: time.Date(2067, 3, 1, 0, 0, 0, 0, time.UTC)})
+	r := test.Request(suite.controller, suite.T(), http.MethodDelete, a.Data.Links.Self, models.AllocationCreate{Month: types.NewMonth(2067, 3)})
 	suite.assertHTTPStatus(&r, http.StatusNoContent)
 }
 

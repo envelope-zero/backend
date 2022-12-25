@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/controllers"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/test"
@@ -28,19 +29,19 @@ func (suite *TestSuiteStandard) TestMonth() {
 
 	allocationJanuary := suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(20.99),
 	})
 
 	allocationFebruary := suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 2),
 		Amount:     decimal.NewFromFloat(47.12),
 	})
 
 	allocationMarch := suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
-		Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 3),
 		Amount:     decimal.NewFromFloat(31.17),
 	})
 
@@ -94,13 +95,13 @@ func (suite *TestSuiteStandard) TestMonth() {
 		{
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-01", -1),
 			controllers.MonthResponse{
-				Data: models.Month{
-					Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+				Data: controllers.Month{
+					Month:      types.NewMonth(2022, 1),
 					Income:     decimal.NewFromFloat(0),
 					Balance:    decimal.NewFromFloat(10.99),
 					Spent:      decimal.NewFromFloat(10),
 					Allocation: decimal.NewFromFloat(20.99),
-					Categories: []models.CategoryEnvelopes{
+					Categories: []controllers.CategoryEnvelopes{
 						{
 							Name:       category.Data.Name,
 							ID:         category.Data.ID,
@@ -110,7 +111,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 							Envelopes: []models.EnvelopeMonth{
 								{
 									Name:       "Utilities",
-									Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+									Month:      types.NewMonth(2022, 1),
 									Spent:      decimal.NewFromFloat(10),
 									Balance:    decimal.NewFromFloat(10.99),
 									Allocation: decimal.NewFromFloat(20.99),
@@ -127,13 +128,13 @@ func (suite *TestSuiteStandard) TestMonth() {
 		{
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-02", -1),
 			controllers.MonthResponse{
-				Data: models.Month{
-					Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+				Data: controllers.Month{
+					Month:      types.NewMonth(2022, 2),
 					Income:     decimal.NewFromFloat(0),
 					Balance:    decimal.NewFromFloat(53.11),
 					Spent:      decimal.NewFromFloat(5),
 					Allocation: decimal.NewFromFloat(47.12),
-					Categories: []models.CategoryEnvelopes{
+					Categories: []controllers.CategoryEnvelopes{
 						{
 							Name:       category.Data.Name,
 							ID:         category.Data.ID,
@@ -143,7 +144,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 							Envelopes: []models.EnvelopeMonth{
 								{
 									Name:       "Utilities",
-									Month:      time.Date(2022, 2, 1, 0, 0, 0, 0, time.UTC),
+									Month:      types.NewMonth(2022, 2),
 									Balance:    decimal.NewFromFloat(53.11),
 									Spent:      decimal.NewFromFloat(5),
 									Allocation: decimal.NewFromFloat(47.12),
@@ -160,13 +161,13 @@ func (suite *TestSuiteStandard) TestMonth() {
 		{
 			strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-03", -1),
 			controllers.MonthResponse{
-				Data: models.Month{
-					Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+				Data: controllers.Month{
+					Month:      types.NewMonth(2022, 3),
 					Income:     decimal.NewFromFloat(1500),
 					Balance:    decimal.NewFromFloat(69.28),
 					Spent:      decimal.NewFromFloat(15),
 					Allocation: decimal.NewFromFloat(31.17),
-					Categories: []models.CategoryEnvelopes{
+					Categories: []controllers.CategoryEnvelopes{
 						{
 							Name:       category.Data.Name,
 							ID:         category.Data.ID,
@@ -176,7 +177,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 							Envelopes: []models.EnvelopeMonth{
 								{
 									Name:       "Utilities",
-									Month:      time.Date(2022, 3, 1, 0, 0, 0, 0, time.UTC),
+									Month:      types.NewMonth(2022, 3),
 									Balance:    decimal.NewFromFloat(69.28),
 									Spent:      decimal.NewFromFloat(15),
 									Allocation: decimal.NewFromFloat(31.17),
@@ -260,7 +261,7 @@ func (suite *TestSuiteStandard) TestEnvelopeAllocationLink() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
-	allocation := suite.createTestAllocation(models.AllocationCreate{Amount: decimal.New(1, 1), EnvelopeID: envelope.Data.ID, Month: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)})
+	allocation := suite.createTestAllocation(models.AllocationCreate{Amount: decimal.New(1, 1), EnvelopeID: envelope.Data.ID, Month: types.NewMonth(2022, 1)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "2022-01", 1), "")
 	suite.assertHTTPStatus(&r, http.StatusOK)
@@ -326,13 +327,13 @@ func (suite *TestSuiteStandard) TestDeleteMonth() {
 	envelope2 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
 
 	allocation1 := suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(15.42),
 		EnvelopeID: envelope1.Data.ID,
 	})
 
 	allocation2 := suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(15.42),
 		EnvelopeID: envelope2.Data.ID,
 	})
@@ -372,13 +373,13 @@ func (suite *TestSuiteStandard) TestSetMonthBudgeted() {
 	envelope2 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
 
 	allocation1 := suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(30),
 		EnvelopeID: envelope1.Data.ID,
 	})
 
 	allocation2 := suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(40),
 		EnvelopeID: envelope2.Data.ID,
 	})
@@ -412,13 +413,13 @@ func (suite *TestSuiteStandard) TestSetMonthSpend() {
 	envelope2 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(30),
 		EnvelopeID: envelope1.Data.ID,
 	})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
-		Month:      time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
+		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(40),
 		EnvelopeID: envelope2.Data.ID,
 	})

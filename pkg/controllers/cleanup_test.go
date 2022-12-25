@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/envelope-zero/backend/test"
 	"github.com/shopspring/decimal"
@@ -18,7 +19,7 @@ func (suite *TestSuiteStandard) TestCleanup() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
 	_ = suite.createTestAllocation(models.AllocationCreate{})
 	_ = suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
-	_ = suite.createTestMonthConfig(envelope.Data.ID, time.Now(), models.MonthConfigCreate{})
+	_ = suite.createTestMonthConfig(envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
 
 	tests := []string{
 		"http://example.com/v1/budgets",
