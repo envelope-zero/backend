@@ -147,58 +147,6 @@ func (b Budget) TotalBudgeted(db *gorm.DB, month types.Month) (decimal.Decimal, 
 	return budgeted.Decimal, nil
 }
 
-// Overspent calculates overspend for a specific month.
-func (b Budget) Overspent(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
-	var envelopes []Envelope
-	err := db.
-		Joins("Category", db.Where(&Category{CategoryCreate: CategoryCreate{BudgetID: b.ID}})).
-		Find(&envelopes).
-		Error
-	if err != nil {
-		return decimal.Zero, err
-	}
-
-	var overspent decimal.Decimal
-	for _, envelope := range envelopes {
-		balance, err := envelope.Balance(db, month)
-		if err != nil {
-			return decimal.Zero, err
-		}
-
-		if balance.IsNegative() {
-			overspent = overspent.Add(balance.Neg())
-		}
-	}
-
-	var noEnvelopeSum decimal.NullDecimal
-	err = db.
-		Select("SUM(amount)").
-		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
-		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
-		Where("source_account.external = 0").
-		Where("destination_account.external = 1").
-		Where("transactions.envelope_id IS NULL").
-		// Add a month to also factor in all allocations in the requested month
-		Where("transactions.date < date(?) ", month.AddDate(0, 1)).
-		Where(&Transaction{
-			TransactionCreate: TransactionCreate{
-				BudgetID: b.ID,
-			},
-		}).
-		Table("transactions").
-		Find(&noEnvelopeSum).
-		Error
-	if err != nil {
-		return decimal.Zero, err
-	}
-
-	if noEnvelopeSum.Valid {
-		overspent = overspent.Add(noEnvelopeSum.Decimal)
-	}
-
-	return overspent, nil
-}
-
 type CategoryEnvelopes struct {
 	ID         uuid.UUID       `json:"id" example:"dafd9a74-6aeb-46b9-9f5a-cfca624fea85"` // ID of the category
 	Name       string          `json:"name" example:"Rainy Day Funds" default:""`         // Name of the category
