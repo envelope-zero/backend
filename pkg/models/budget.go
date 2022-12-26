@@ -120,33 +120,6 @@ func (b Budget) Budgeted(db *gorm.DB, month types.Month) (decimal.Decimal, error
 	return budgeted.Decimal, nil
 }
 
-// TotalBudgeted calculates the total sum that has been budgeted before a specific month.
-func (b Budget) TotalBudgeted(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
-	month = month.AddDate(0, 1)
-
-	var budgeted decimal.NullDecimal
-	err := db.
-		Select("SUM(amount)").
-		Joins("JOIN envelopes ON allocations.envelope_id = envelopes.id AND envelopes.deleted_at IS NULL").
-		Joins("JOIN categories ON envelopes.category_id = categories.id AND categories.deleted_at IS NULL").
-		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
-		Where("budgets.id = ?", b.ID).
-		Where("allocations.month < date(?) ", month).
-		Table("allocations").
-		Find(&budgeted).
-		Error
-	if err != nil {
-		return decimal.Zero, err
-	}
-
-	// If no transactions are found, the value is nil
-	if !budgeted.Valid {
-		return decimal.NewFromFloat(0), nil
-	}
-
-	return budgeted.Decimal, nil
-}
-
 type CategoryEnvelopes struct {
 	ID         uuid.UUID       `json:"id" example:"dafd9a74-6aeb-46b9-9f5a-cfca624fea85"` // ID of the category
 	Name       string          `json:"name" example:"Rainy Day Funds" default:""`         // Name of the category
