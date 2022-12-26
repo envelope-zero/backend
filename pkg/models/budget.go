@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/envelope-zero/backend/internal/types"
 	"github.com/google/uuid"
@@ -63,11 +62,10 @@ func (b Budget) WithCalculations(db *gorm.DB) (Budget, error) {
 }
 
 // Income returns the income for a budget in a given month.
-func (b Budget) Income(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
-	var income decimal.NullDecimal
+func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, err error) {
+	var transactions []Transaction
 
-	err := db.
-		Select("SUM(amount)").
+	err = db.
 		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
 		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
 		Where("source_account.external = 1").
@@ -79,19 +77,17 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (decimal.Decimal, error) 
 				BudgetID: b.ID,
 			},
 		}).
-		Table("transactions").
-		Find(&income).
+		Find(&transactions).
 		Error
 	if err != nil {
 		return decimal.Zero, err
 	}
 
-	// If no transactions are found, the value is nil
-	if !income.Valid {
-		return decimal.NewFromFloat(0), nil
+	for _, t := range transactions {
+		income = income.Add(t.Amount)
 	}
 
-	return income.Decimal, nil
+	return
 }
 
 // Budgeted calculates the sum that has been budgeted for a specific month.
