@@ -256,34 +256,6 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  controllers.CategoryEnvelopes:
-    properties:
-      allocation:
-        description: Sum of allocations for the envelopes
-        example: 90
-        type: number
-      balance:
-        description: Sum of the balances of the envelopes
-        example: -10.13
-        type: number
-      envelopes:
-        description: Slice of all envelopes
-        items:
-          $ref: '#/definitions/models.EnvelopeMonth'
-        type: array
-      id:
-        description: ID of the category
-        example: dafd9a74-6aeb-46b9-9f5a-cfca624fea85
-        type: string
-      name:
-        description: Name of the category
-        example: Rainy Day Funds
-        type: string
-      spent:
-        description: Sum spent for all envelopes
-        example: 100.13
-        type: number
-    type: object
   controllers.CategoryLinks:
     properties:
       envelopes:
@@ -369,52 +341,6 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Envelope'
     type: object
-  controllers.Month:
-    properties:
-      allocation:
-        description: The sum of all allocations for this month
-        example: 1200.5
-        type: number
-      available:
-        description: The amount available to budget
-        example: 217.34
-        type: number
-      balance:
-        description: The sum of all envelope balances
-        example: 5231.37
-        type: number
-      budgeted:
-        description: The sum of all allocations for the month. **Deprecated, please
-          use the `allocation` field**
-        example: 2100
-        type: number
-      categories:
-        description: A list of envelope month calculations grouped by category
-        items:
-          $ref: '#/definitions/controllers.CategoryEnvelopes'
-        type: array
-      id:
-        description: The ID of the Budget
-        example: 1e777d24-3f5b-4c43-8000-04f65f895578
-        type: string
-      income:
-        description: The total income for the month (sum of all incoming transactions
-          without an Envelope)
-        example: 2317.34
-        type: number
-      month:
-        description: The month
-        example: "2006-05-01T00:00:00.000000Z"
-        type: string
-      name:
-        description: The name of the Budget
-        example: Zero budget
-        type: string
-      spent:
-        description: The amount of money spent in this month
-        example: 133.7
-        type: number
-    type: object
   controllers.MonthConfig:
     properties:
       createdAt:
@@ -465,7 +391,7 @@ definitions:
   controllers.MonthResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.Month'
+        $ref: '#/definitions/models.Month'
     type: object
   controllers.Transaction:
     properties:
@@ -645,6 +571,34 @@ definitions:
         example: All envelopes for long-term saving
         type: string
     type: object
+  models.CategoryEnvelopes:
+    properties:
+      allocation:
+        description: Sum of allocations for the envelopes
+        example: 90
+        type: number
+      balance:
+        description: Sum of the balances of the envelopes
+        example: -10.13
+        type: number
+      envelopes:
+        description: Slice of all envelopes
+        items:
+          $ref: '#/definitions/models.EnvelopeMonth'
+        type: array
+      id:
+        description: ID of the category
+        example: dafd9a74-6aeb-46b9-9f5a-cfca624fea85
+        type: string
+      name:
+        description: Name of the category
+        example: Rainy Day Funds
+        type: string
+      spent:
+        description: Sum spent for all envelopes
+        example: 100.13
+        type: number
+    type: object
   models.Envelope:
     properties:
       categoryId:
@@ -722,6 +676,52 @@ definitions:
         description: This is an empty string when no allocation exists
         example: https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3
         type: string
+    type: object
+  models.Month:
+    properties:
+      allocation:
+        description: The sum of all allocations for this month
+        example: 1200.5
+        type: number
+      available:
+        description: The amount available to budget
+        example: 217.34
+        type: number
+      balance:
+        description: The sum of all envelope balances
+        example: 5231.37
+        type: number
+      budgeted:
+        description: The sum of all allocations for the month. **Deprecated, please
+          use the `allocation` field**
+        example: 2100
+        type: number
+      categories:
+        description: A list of envelope month calculations grouped by category
+        items:
+          $ref: '#/definitions/models.CategoryEnvelopes'
+        type: array
+      id:
+        description: The ID of the Budget
+        example: 1e777d24-3f5b-4c43-8000-04f65f895578
+        type: string
+      income:
+        description: The total income for the month (sum of all incoming transactions
+          without an Envelope)
+        example: 2317.34
+        type: number
+      month:
+        description: The month
+        example: "2006-05-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: The name of the Budget
+        example: Zero budget
+        type: string
+      spent:
+        description: The amount of money spent in this month
+        example: 133.7
+        type: number
     type: object
   models.MonthConfigCreate:
     properties:

@@ -88,6 +88,11 @@ func (m Month) After(n Month) bool {
 	return time.Time(m).After(time.Time(n))
 }
 
+// BeforeTime reports whether the month instant m is before the time instant t.
+func (m Month) BeforeTime(t time.Time) bool {
+	return time.Time(m).Before(t)
+}
+
 // AfterTime reports whether the month instant m is after the time instant t.
 func (m Month) AfterTime(t time.Time) bool {
 	return time.Time(m).After(t)

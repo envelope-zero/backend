@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/internal/types"
@@ -14,29 +13,7 @@ import (
 )
 
 type MonthResponse struct {
-	Data Month `json:"data"`
-}
-
-type CategoryEnvelopes struct {
-	ID         uuid.UUID              `json:"id" example:"dafd9a74-6aeb-46b9-9f5a-cfca624fea85"` // ID of the category
-	Name       string                 `json:"name" example:"Rainy Day Funds" default:""`         // Name of the category
-	Envelopes  []models.EnvelopeMonth `json:"envelopes"`                                         // Slice of all envelopes
-	Balance    decimal.Decimal        `json:"balance" example:"-10.13"`                          // Sum of the balances of the envelopes
-	Allocation decimal.Decimal        `json:"allocation" example:"90"`                           // Sum of allocations for the envelopes
-	Spent      decimal.Decimal        `json:"spent" example:"100.13"`                            // Sum spent for all envelopes
-}
-
-type Month struct {
-	ID         uuid.UUID           `json:"id" example:"1e777d24-3f5b-4c43-8000-04f65f895578"` // The ID of the Budget
-	Name       string              `json:"name" example:"Zero budget"`                        // The name of the Budget
-	Month      types.Month         `json:"month" example:"2006-05-01T00:00:00.000000Z"`       // The month
-	Budgeted   decimal.Decimal     `json:"budgeted" example:"2100"`                           // The sum of all allocations for the month. **Deprecated, please use the `allocation` field**
-	Income     decimal.Decimal     `json:"income" example:"2317.34"`                          // The total income for the month (sum of all incoming transactions without an Envelope)
-	Available  decimal.Decimal     `json:"available" example:"217.34"`                        // The amount available to budget
-	Balance    decimal.Decimal     `json:"balance" example:"5231.37"`                         // The sum of all envelope balances
-	Spent      decimal.Decimal     `json:"spent" example:"133.70"`                            // The amount of money spent in this month
-	Allocation decimal.Decimal     `json:"allocation" example:"1200.50"`                      // The sum of all allocations for this month
-	Categories []CategoryEnvelopes `json:"categories"`                                        // A list of envelope month calculations grouped by category
+	Data models.Month `json:"data"`
 }
 
 // parseMonthQuery takes in the context and parses the request
@@ -114,94 +91,9 @@ func (co Controller) GetMonth(c *gin.Context) {
 		return
 	}
 
-	// Initialize the response object
-	month := Month{
-		ID:    budget.ID,
-		Name:  budget.Name,
-		Month: qMonth,
-	}
-
-	// Add budgeted sum to response
-	budgeted, err := budget.Budgeted(co.DB, month.Month)
+	month, err := budget.Month(co.DB, qMonth, c.GetString("baseURL"))
 	if err != nil {
 		httperrors.Handler(c, err)
-		return
-	}
-	month.Budgeted = budgeted
-	month.Allocation = budgeted
-
-	// Add income to response
-	income, err := budget.Income(co.DB, month.Month)
-	if err != nil {
-		httperrors.Handler(c, err)
-		return
-	}
-	month.Income = income
-
-	// Add available sum to response
-	available, err := budget.Available(co.DB, month.Month)
-	if err != nil {
-		httperrors.Handler(c, err)
-		return
-	}
-	month.Available = available
-
-	// Get all categories to iterate over
-	categories, ok := co.getCategoryResources(c, budget.ID)
-	if !ok {
-		return
-	}
-
-	month.Categories = make([]CategoryEnvelopes, 0)
-	month.Balance = decimal.Zero
-
-	// Get envelopes for all categories
-	for _, category := range categories {
-		var categoryEnvelopes CategoryEnvelopes
-
-		// Set the basic category values
-		categoryEnvelopes.ID = category.ID
-		categoryEnvelopes.Name = category.Name
-		categoryEnvelopes.Envelopes = make([]models.EnvelopeMonth, 0)
-
-		var envelopes []models.Envelope
-
-		if !queryWithRetry(c, co.DB.Where(&models.Envelope{
-			EnvelopeCreate: models.EnvelopeCreate{
-				CategoryID: category.ID,
-			},
-		}).Find(&envelopes)) {
-			return
-		}
-
-		for _, envelope := range envelopes {
-			envelopeMonth, allocationID, err := envelope.Month(co.DB, month.Month)
-			if err != nil {
-				httperrors.Handler(c, err)
-				return
-			}
-
-			// Update the month's summarized data
-			month.Balance = month.Balance.Add(envelopeMonth.Balance)
-			month.Spent = month.Spent.Add(envelopeMonth.Spent)
-
-			// Update the category's summarized data
-			categoryEnvelopes.Balance = categoryEnvelopes.Balance.Add(envelopeMonth.Balance)
-			categoryEnvelopes.Spent = categoryEnvelopes.Spent.Add(envelopeMonth.Spent)
-			categoryEnvelopes.Allocation = categoryEnvelopes.Allocation.Add(envelopeMonth.Allocation)
-
-			// Set the allocation link. If there is no allocation, we send the collection endpoint.
-			// With this, any client will be able to see that the "Budgeted" amount is 0 and therefore
-			// send a HTTP POST for creation instead of a patch.
-			envelopeMonth.Links.Allocation = fmt.Sprintf("%s/v1/allocations", c.GetString("baseURL"))
-			if allocationID != uuid.Nil {
-				envelopeMonth.Links.Allocation = fmt.Sprintf("%s/%s", envelopeMonth.Links.Allocation, allocationID)
-			}
-
-			categoryEnvelopes.Envelopes = append(categoryEnvelopes.Envelopes, envelopeMonth)
-		}
-
-		month.Categories = append(month.Categories, categoryEnvelopes)
 	}
 
 	c.JSON(http.StatusOK, MonthResponse{Data: month})

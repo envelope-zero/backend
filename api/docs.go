@@ -3043,43 +3043,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.CategoryEnvelopes": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "description": "Sum of allocations for the envelopes",
-                    "type": "number",
-                    "example": 90
-                },
-                "balance": {
-                    "description": "Sum of the balances of the envelopes",
-                    "type": "number",
-                    "example": -10.13
-                },
-                "envelopes": {
-                    "description": "Slice of all envelopes",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.EnvelopeMonth"
-                    }
-                },
-                "id": {
-                    "description": "ID of the category",
-                    "type": "string",
-                    "example": "dafd9a74-6aeb-46b9-9f5a-cfca624fea85"
-                },
-                "name": {
-                    "description": "Name of the category",
-                    "type": "string",
-                    "example": "Rainy Day Funds"
-                },
-                "spent": {
-                    "description": "Sum spent for all envelopes",
-                    "type": "number",
-                    "example": 100.13
-                }
-            }
-        },
         "controllers.CategoryLinks": {
             "type": "object",
             "properties": {
@@ -3202,63 +3165,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.Month": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "description": "The sum of all allocations for this month",
-                    "type": "number",
-                    "example": 1200.5
-                },
-                "available": {
-                    "description": "The amount available to budget",
-                    "type": "number",
-                    "example": 217.34
-                },
-                "balance": {
-                    "description": "The sum of all envelope balances",
-                    "type": "number",
-                    "example": 5231.37
-                },
-                "budgeted": {
-                    "description": "The sum of all allocations for the month. **Deprecated, please use the ` + "`" + `allocation` + "`" + ` field**",
-                    "type": "number",
-                    "example": 2100
-                },
-                "categories": {
-                    "description": "A list of envelope month calculations grouped by category",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.CategoryEnvelopes"
-                    }
-                },
-                "id": {
-                    "description": "The ID of the Budget",
-                    "type": "string",
-                    "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
-                },
-                "income": {
-                    "description": "The total income for the month (sum of all incoming transactions without an Envelope)",
-                    "type": "number",
-                    "example": 2317.34
-                },
-                "month": {
-                    "description": "The month",
-                    "type": "string",
-                    "example": "2006-05-01T00:00:00.000000Z"
-                },
-                "name": {
-                    "description": "The name of the Budget",
-                    "type": "string",
-                    "example": "Zero budget"
-                },
-                "spent": {
-                    "description": "The amount of money spent in this month",
-                    "type": "number",
-                    "example": 133.7
-                }
-            }
-        },
         "controllers.MonthConfig": {
             "type": "object",
             "properties": {
@@ -3333,7 +3239,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.Month"
+                    "$ref": "#/definitions/models.Month"
                 }
             }
         },
@@ -3575,6 +3481,43 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CategoryEnvelopes": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "Sum of allocations for the envelopes",
+                    "type": "number",
+                    "example": 90
+                },
+                "balance": {
+                    "description": "Sum of the balances of the envelopes",
+                    "type": "number",
+                    "example": -10.13
+                },
+                "envelopes": {
+                    "description": "Slice of all envelopes",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EnvelopeMonth"
+                    }
+                },
+                "id": {
+                    "description": "ID of the category",
+                    "type": "string",
+                    "example": "dafd9a74-6aeb-46b9-9f5a-cfca624fea85"
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Rainy Day Funds"
+                },
+                "spent": {
+                    "description": "Sum spent for all envelopes",
+                    "type": "number",
+                    "example": 100.13
+                }
+            }
+        },
         "models.Envelope": {
             "type": "object",
             "properties": {
@@ -3677,6 +3620,63 @@ const docTemplate = `{
                     "description": "This is an empty string when no allocation exists",
                     "type": "string",
                     "example": "https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"
+                }
+            }
+        },
+        "models.Month": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The sum of all allocations for this month",
+                    "type": "number",
+                    "example": 1200.5
+                },
+                "available": {
+                    "description": "The amount available to budget",
+                    "type": "number",
+                    "example": 217.34
+                },
+                "balance": {
+                    "description": "The sum of all envelope balances",
+                    "type": "number",
+                    "example": 5231.37
+                },
+                "budgeted": {
+                    "description": "The sum of all allocations for the month. **Deprecated, please use the ` + "`" + `allocation` + "`" + ` field**",
+                    "type": "number",
+                    "example": 2100
+                },
+                "categories": {
+                    "description": "A list of envelope month calculations grouped by category",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CategoryEnvelopes"
+                    }
+                },
+                "id": {
+                    "description": "The ID of the Budget",
+                    "type": "string",
+                    "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
+                },
+                "income": {
+                    "description": "The total income for the month (sum of all incoming transactions without an Envelope)",
+                    "type": "number",
+                    "example": 2317.34
+                },
+                "month": {
+                    "description": "The month",
+                    "type": "string",
+                    "example": "2006-05-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "The name of the Budget",
+                    "type": "string",
+                    "example": "Zero budget"
+                },
+                "spent": {
+                    "description": "The amount of money spent in this month",
+                    "type": "number",
+                    "example": 133.7
                 }
             }
         },

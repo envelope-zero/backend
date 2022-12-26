@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -70,7 +71,40 @@ func (a Account) SumReconciledTransactions(db *gorm.DB) decimal.Decimal {
 	))
 }
 
-// GetBalance returns the balance of the account, including all transactions.
+// GetBalanceMonth calculates the balance at the end of a specific month.
+func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
+	var transactions []Transaction
+
+	err := db.
+		Where("transactions.date < date(?)", month.AddDate(0, 1)).
+		Where(
+			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).
+				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}}))).
+		Find(&transactions).
+		Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	sum := decimal.Zero
+
+	if a.InitialBalanceDate != nil && month.AddDate(0, 1).AfterTime(*a.InitialBalanceDate) {
+		sum = a.InitialBalance
+	}
+
+	// Add incoming transactions, subtract outgoing transactions
+	for _, t := range transactions {
+		if t.DestinationAccountID == a.ID {
+			sum = sum.Add(t.Amount)
+		} else {
+			sum = sum.Sub(t.Amount)
+		}
+	}
+
+	return sum, nil
+}
+
+// getBalance returns the balance of the account calculated over all transactions.
 func (a Account) getBalance(db *gorm.DB) decimal.Decimal {
 	return a.InitialBalance.Add(TransactionsSum(db,
 		Transaction{
