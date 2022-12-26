@@ -28,6 +28,9 @@ definitions:
         default: 0
         example: 173.12
         type: number
+      initialBalanceDate:
+        example: "2017-05-12T00:00:00Z"
+        type: string
       links:
         $ref: '#/definitions/controllers.AccountLinks'
       name:
@@ -552,6 +555,9 @@ definitions:
         default: 0
         example: 173.12
         type: number
+      initialBalanceDate:
+        example: "2017-05-12T00:00:00Z"
+        type: string
       name:
         example: Cash
         type: string
