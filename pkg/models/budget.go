@@ -37,7 +37,7 @@ type BudgetMonth struct {
 }
 
 // WithCalculations computes all the calculated values.
-func (b Budget) WithCalculations(db *gorm.DB) Budget {
+func (b Budget) WithCalculations(db *gorm.DB) (Budget, error) {
 	b.Balance = decimal.Zero
 
 	// Get all OnBudget accounts for the budget
@@ -51,10 +51,15 @@ func (b Budget) WithCalculations(db *gorm.DB) Budget {
 
 	// Add all their balances to the budget's balance
 	for _, account := range accounts {
-		b.Balance = b.Balance.Add(account.WithCalculations(db).Balance)
+		account, err := account.WithCalculations(db)
+		if err != nil {
+			return Budget{}, err
+		}
+
+		b.Balance = b.Balance.Add(account.Balance)
 	}
 
-	return b
+	return b, nil
 }
 
 // Income returns the income for a budget in a given month.
@@ -68,8 +73,7 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (decimal.Decimal, error) 
 		Where("source_account.external = 1").
 		Where("destination_account.external = 0").
 		Where("transactions.envelope_id IS NULL").
-		Where("strftime('%m', transactions.date) = ?", fmt.Sprintf("%02d", time.Time(month).Month())).
-		Where("strftime('%Y', transactions.date) = ?", fmt.Sprintf("%d", time.Time(month).Year())).
+		Where("transactions.available_from >= date(?) AND transactions.available_from < date(?)", month, month.AddDate(0, 1)).
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{
 				BudgetID: b.ID,

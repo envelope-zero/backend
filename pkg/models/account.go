@@ -29,11 +29,19 @@ type AccountCreate struct {
 	Hidden             bool            `json:"hidden" example:"true" default:"false"`
 }
 
-func (a Account) WithCalculations(db *gorm.DB) Account {
-	a.Balance = a.getBalance(db)
-	a.ReconciledBalance = a.SumReconciledTransactions(db)
+func (a Account) WithCalculations(db *gorm.DB) (Account, error) {
+	balance, _, err := a.GetBalanceMonth(db, types.NewMonth(1, 1))
+	if err != nil {
+		return Account{}, err
+	}
+	a.Balance = balance
 
-	return a
+	a.ReconciledBalance, err = a.SumReconciled(db)
+	if err != nil {
+		return Account{}, err
+	}
+
+	return a, nil
 }
 
 // BeforeSave sets OnBudget to false when External is true.
@@ -54,21 +62,33 @@ func (a Account) Transactions(db *gorm.DB) []Transaction {
 }
 
 // Transactions returns all transactions for this account.
-func (a Account) SumReconciledTransactions(db *gorm.DB) decimal.Decimal {
-	return a.InitialBalance.Add(TransactionsSum(db,
-		Transaction{
-			TransactionCreate: TransactionCreate{
-				Reconciled:           true,
-				DestinationAccountID: a.ID,
-			},
-		},
-		Transaction{
-			TransactionCreate: TransactionCreate{
-				Reconciled:      true,
-				SourceAccountID: a.ID,
-			},
-		},
-	))
+func (a Account) SumReconciled(db *gorm.DB) (balance decimal.Decimal, err error) {
+	var transactions []Transaction
+
+	err = db.
+		Preload("DestinationAccount").
+		Preload("SourceAccount").
+		Where(
+			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID, Reconciled: true}}).
+				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID, Reconciled: true}}))).
+		Find(&transactions).Error
+
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	balance = a.InitialBalance
+
+	// Add incoming transactions, subtract outgoing transactions
+	for _, t := range transactions {
+		if t.DestinationAccountID == a.ID {
+			balance = balance.Add(t.Amount)
+		} else {
+			balance = balance.Sub(t.Amount)
+		}
+	}
+
+	return
 }
 
 // GetBalanceMonth calculates the balance and available sums for a specific month.
@@ -78,20 +98,24 @@ func (a Account) SumReconciledTransactions(db *gorm.DB) decimal.Decimal {
 func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, available decimal.Decimal, err error) {
 	var transactions []Transaction
 
-	err = db.
+	query := db.
 		Preload("DestinationAccount").
 		Preload("SourceAccount").
-		Where("transactions.date < date(?)", month.AddDate(0, 1)).
 		Where(
 			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).
-				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}}))).
-		Find(&transactions).
-		Error
+				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}})))
+
+	// Limit to the month if it is specified
+	if !month.IsZero() {
+		query = query.Where("transactions.date < date(?)", month.AddDate(0, 1))
+	}
+
+	err = query.Find(&transactions).Error
 	if err != nil {
 		return decimal.Zero, decimal.Zero, err
 	}
 
-	if a.InitialBalanceDate != nil && month.AddDate(0, 1).AfterTime(*a.InitialBalanceDate) {
+	if month.IsZero() || (a.InitialBalanceDate != nil && month.AddDate(0, 1).AfterTime(*a.InitialBalanceDate)) {
 		balance = a.InitialBalance
 		available = a.InitialBalance
 	}
@@ -114,46 +138,6 @@ func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, avail
 	}
 
 	return
-}
-
-// getBalance returns the balance of the account calculated over all transactions.
-func (a Account) getBalance(db *gorm.DB) decimal.Decimal {
-	return a.InitialBalance.Add(TransactionsSum(db,
-		Transaction{
-			TransactionCreate: TransactionCreate{
-				DestinationAccountID: a.ID,
-			},
-		},
-		Transaction{
-			TransactionCreate: TransactionCreate{
-				SourceAccountID: a.ID,
-			},
-		},
-	))
-}
-
-// TransactionSums returns the sum of all transactions matching two Transaction structs
-//
-// The incoming Transactions fields is used to add the amount of all matching transactions to the overall sum
-// The outgoing Transactions fields is used to subtract the amount of all matching transactions from the overall sum.
-func TransactionsSum(db *gorm.DB, incoming, outgoing Transaction) decimal.Decimal {
-	var outgoingSum, incomingSum decimal.NullDecimal
-
-	_ = db.Table("transactions").
-		Where(&outgoing).
-		Where("deleted_at is NULL").
-		Select("SUM(amount)").
-		Row().
-		Scan(&outgoingSum)
-
-	_ = db.Table("transactions").
-		Where(&incoming).
-		Where("deleted_at is NULL").
-		Select("SUM(amount)").
-		Row().
-		Scan(&incomingSum)
-
-	return incomingSum.Decimal.Sub(outgoingSum.Decimal)
 }
 
 // RecentEnvelopes returns the most common envelopes used in the last 10

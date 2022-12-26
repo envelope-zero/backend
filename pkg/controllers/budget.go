@@ -657,7 +657,13 @@ func (co Controller) getBudgetResource(c *gin.Context, id uuid.UUID) (models.Bud
 		return models.Budget{}, false
 	}
 
-	return budget.WithCalculations(co.DB), true
+	budget, err := budget.WithCalculations(co.DB)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return models.Budget{}, false
+	}
+
+	return budget, true
 }
 
 func (co Controller) getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool) {
