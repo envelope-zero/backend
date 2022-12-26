@@ -340,8 +340,14 @@ func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (Account, bo
 		return Account{}, false
 	}
 
+	account, err = account.WithCalculations(co.DB)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return Account{}, false
+	}
+
 	return Account{
-		account.WithCalculations(co.DB),
+		account,
 		recentEnvelopes,
 		AccountLinks{
 			Self:         fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), account.ID),

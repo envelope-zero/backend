@@ -240,7 +240,8 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	budget = budget.WithCalculations(suite.db)
+	budget, err = budget.WithCalculations(suite.db)
+	assert.Nil(suite.T(), err)
 
 	shouldBalance := decimal.NewFromFloat(7269.38)
 	assert.True(suite.T(), budget.Balance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, budget.Balance)
@@ -381,7 +382,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.ID, Name: "Upkeep"})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.ID, Name: "Utilities"})
-	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.ID, OnBudget: true})
+	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.ID, OnBudget: true, Name: "TestMonth"})
 	externalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.ID, External: true})
 
 	allocationJanuary := suite.createTestAllocation(models.AllocationCreate{

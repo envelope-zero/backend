@@ -108,7 +108,8 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	a := account.WithCalculations(suite.db)
+	a, err := account.WithCalculations(suite.db)
+	assert.Nil(suite.T(), err)
 
 	expected := incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(a.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
 	assert.True(suite.T(), a.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, a.Balance)
@@ -130,7 +131,9 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	a = account.WithCalculations(suite.db)
+	a, err = account.WithCalculations(suite.db)
+	assert.Nil(suite.T(), err)
+
 	expected = outgoingTransaction.Amount.Neg().Add(a.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
 	assert.True(suite.T(), a.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, a.Balance)
 
