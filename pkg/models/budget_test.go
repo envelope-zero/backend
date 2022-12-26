@@ -258,12 +258,12 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify budgeted for used budget
-	budgeted, err := budget.Budgeted(suite.db, marchTwentyTwentyTwo)
+	budgeted, err := budget.Allocated(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(25)), "Budgeted is %s, should be 25", budgeted)
 
 	// Verify budgeted for empty budget
-	budgeted, err = emptyBudget.Budgeted(suite.db, marchTwentyTwentyTwo)
+	budgeted, err = emptyBudget.Allocated(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 }
@@ -305,7 +305,7 @@ func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
 
 	suite.CloseDB()
 
-	_, err = budget.Budgeted(suite.db, types.NewMonth(200, 2))
+	_, err = budget.Allocated(suite.db, types.NewMonth(200, 2))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }

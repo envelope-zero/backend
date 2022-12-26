@@ -90,30 +90,27 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, 
 	return
 }
 
-// Budgeted calculates the sum that has been budgeted for a specific month.
-func (b Budget) Budgeted(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
-	var budgeted decimal.NullDecimal
-	err := db.
-		Select("SUM(amount)").
+// Allocated calculates the sum that has been budgeted for a specific month.
+func (b Budget) Allocated(db *gorm.DB, month types.Month) (allocated decimal.Decimal, err error) {
+	var allocations []Allocation
+	err = db.
 		Joins("JOIN envelopes ON allocations.envelope_id = envelopes.id AND envelopes.deleted_at IS NULL").
 		Joins("JOIN categories ON envelopes.category_id = categories.id AND categories.deleted_at IS NULL").
 		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
 		Where("budgets.id = ?", b.ID).
 		Where("allocations.month >= date(?)", month).
 		Where("allocations.month < date(?)", month.AddDate(0, 1)).
-		Table("allocations").
-		Find(&budgeted).
+		Find(&allocations).
 		Error
 	if err != nil {
 		return decimal.Zero, err
 	}
 
-	// If no transactions are found, the value is nil
-	if !budgeted.Valid {
-		return decimal.NewFromFloat(0), nil
+	for _, a := range allocations {
+		allocated = allocated.Add(a.Amount)
 	}
 
-	return budgeted.Decimal, nil
+	return
 }
 
 type CategoryEnvelopes struct {
@@ -149,7 +146,7 @@ func (b Budget) Month(db *gorm.DB, month types.Month, baseURL string) (Month, er
 	}
 
 	// Add budgeted sum to response
-	budgeted, err := b.Budgeted(db, result.Month)
+	budgeted, err := b.Allocated(db, result.Month)
 	if err != nil {
 		return Month{}, err
 	}
