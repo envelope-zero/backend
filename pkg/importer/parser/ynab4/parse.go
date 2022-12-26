@@ -304,6 +304,10 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			newTransaction.Model.TransactionCreate.Reconciled = true
 		}
 
+		if transaction.CategoryID == "Category/__DeferredIncome__" {
+			newTransaction.Model.AvailableFrom = internal_types.MonthOf(date).AddDate(0, 1)
+		}
+
 		// No subtransactions, add transaction directly
 		if len(transaction.SubTransactions) == 0 {
 			if mapping, ok := envelopeIDNames[transaction.CategoryID]; ok {
@@ -324,6 +328,12 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			} else {
 				newTransaction.Envelope = ""
 				newTransaction.Category = ""
+			}
+
+			if sub.CategoryID == "Category/__DeferredIncome__" {
+				newTransaction.Model.AvailableFrom = internal_types.MonthOf(date).AddDate(0, 1)
+			} else {
+				newTransaction.Model.AvailableFrom = internal_types.MonthOf(date)
 			}
 
 			if sub.Amount.IsPositive() {

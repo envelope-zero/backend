@@ -313,11 +313,11 @@ func (b Budget) Month(db *gorm.DB, month types.Month, baseURL string) (Month, er
 
 	// Add all on-balance accounts to the available sum
 	for _, a := range accounts {
-		b, err := a.GetBalanceMonth(db, month)
+		_, available, err := a.GetBalanceMonth(db, month)
 		if err != nil {
 			return Month{}, err
 		}
-		result.Available = result.Available.Add(b)
+		result.Available = result.Available.Add(available)
 	}
 
 	return result, nil

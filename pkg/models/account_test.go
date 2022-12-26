@@ -95,16 +95,35 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
+	futureIncomeTransaction := suite.createTestTransaction(models.TransactionCreate{
+		BudgetID:             budget.ID,
+		SourceAccountID:      externalAccount.ID,
+		DestinationAccountID: account.ID,
+		Amount:               decimal.NewFromFloat(100),
+		AvailableFrom:        types.MonthOf(time.Now()).AddDate(0, 1),
+		Note:                 "Future Income Transaction",
+	})
+	err = suite.db.Save(&futureIncomeTransaction).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
 	a := account.WithCalculations(suite.db)
 
-	assert.True(suite.T(), a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(a.InitialBalance)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
+	expected := incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(a.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
+	assert.True(suite.T(), a.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, a.Balance)
 
-	assert.True(suite.T(), a.ReconciledBalance.Equal(incomingTransaction.Amount.Add(a.InitialBalance)), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
+	expected = incomingTransaction.Amount.Add(a.InitialBalance)
+	assert.True(suite.T(), a.ReconciledBalance.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, a.ReconciledBalance)
 
-	balanceNow, err := account.GetBalanceMonth(suite.db, types.Month(time.Now()))
-
+	balanceNow, availableNow, err := account.GetBalanceMonth(suite.db, types.MonthOf(time.Now()))
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), balanceNow.Equal(decimal.NewFromFloat(184.72)), "Current balance for account is not correct. Should be: %v but is %v", decimal.NewFromFloat(184.72), balanceNow)
+
+	expected = decimal.NewFromFloat(284.72)
+	assert.True(suite.T(), balanceNow.Equal(expected), "Current balance for account is not correct. Should be: %v but is %v", expected, balanceNow)
+
+	expected = decimal.NewFromFloat(184.72)
+	assert.True(suite.T(), availableNow.Equal(expected), "Available balance for account is not correct. Should be: %v but is %v", expected, availableNow)
 
 	err = suite.db.Delete(&incomingTransaction).Error
 	if err != nil {
@@ -112,8 +131,11 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	}
 
 	a = account.WithCalculations(suite.db)
-	assert.True(suite.T(), a.Balance.Equal(outgoingTransaction.Amount.Neg().Add(a.InitialBalance)), "Balance for account is not correct. Should be: %v but is %v", outgoingTransaction.Amount.Neg(), a.Balance)
-	assert.True(suite.T(), a.ReconciledBalance.Equal(decimal.NewFromFloat(0).Add(a.InitialBalance)), "Reconciled balance for account is not correct. Should be: %v but is %v", decimal.NewFromFloat(0), a.ReconciledBalance)
+	expected = outgoingTransaction.Amount.Neg().Add(a.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
+	assert.True(suite.T(), a.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, a.Balance)
+
+	expected = decimal.NewFromFloat(0).Add(a.InitialBalance)
+	assert.True(suite.T(), a.ReconciledBalance.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, a.ReconciledBalance)
 }
 
 func (suite *TestSuiteStandard) TestAccountTransactions() {
@@ -256,7 +278,7 @@ func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
 
 	suite.CloseDB()
 
-	_, err := account.GetBalanceMonth(suite.db, types.NewMonth(2017, 7))
+	_, _, err := account.GetBalanceMonth(suite.db, types.NewMonth(2017, 7))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }

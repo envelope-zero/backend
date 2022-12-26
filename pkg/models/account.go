@@ -71,11 +71,16 @@ func (a Account) SumReconciledTransactions(db *gorm.DB) decimal.Decimal {
 	))
 }
 
-// GetBalanceMonth calculates the balance at the end of a specific month.
-func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (decimal.Decimal, error) {
+// GetBalanceMonth calculates the balance and available sums for a specific month.
+//
+// The balance Decimal is the actual account balance, factoring in all transactions before the end of the month.
+// The available Decimal is the sum that is available for budgeting at the end of the specified month.
+func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, available decimal.Decimal, err error) {
 	var transactions []Transaction
 
-	err := db.
+	err = db.
+		Preload("DestinationAccount").
+		Preload("SourceAccount").
 		Where("transactions.date < date(?)", month.AddDate(0, 1)).
 		Where(
 			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).
@@ -83,25 +88,32 @@ func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (decimal.Decima
 		Find(&transactions).
 		Error
 	if err != nil {
-		return decimal.Zero, err
+		return decimal.Zero, decimal.Zero, err
 	}
 
-	sum := decimal.Zero
-
 	if a.InitialBalanceDate != nil && month.AddDate(0, 1).AfterTime(*a.InitialBalanceDate) {
-		sum = a.InitialBalance
+		balance = a.InitialBalance
+		available = a.InitialBalance
 	}
 
 	// Add incoming transactions, subtract outgoing transactions
+	// For available, only do so if the next month is after the availableFrom date
 	for _, t := range transactions {
 		if t.DestinationAccountID == a.ID {
-			sum = sum.Add(t.Amount)
+			balance = balance.Add(t.Amount)
+
+			// If the transaction is an income transaction, but its AvailableFrom is after this month, skip it
+			if !month.AddDate(0, 1).After(t.AvailableFrom) && t.SourceAccount.External && t.EnvelopeID == nil {
+				continue
+			}
+			available = available.Add(t.Amount)
 		} else {
-			sum = sum.Sub(t.Amount)
+			balance = balance.Sub(t.Amount)
+			available = available.Sub(t.Amount)
 		}
 	}
 
-	return sum, nil
+	return
 }
 
 // getBalance returns the balance of the account calculated over all transactions.
