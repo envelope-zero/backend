@@ -257,25 +257,10 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
-	// Verify total budgeted for used budget
-	budgeted, err := budget.TotalBudgeted(suite.db, marchTwentyTwentyTwo)
-	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
-
-	// Verify total budgeted for used budget in January after (regression test for using AddDate(0, 1, 0) with the month instead of the whole date)
-	budgeted, err = budget.TotalBudgeted(suite.db, types.NewMonth(2023, 1))
-	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(67)), "Budgeted is %s, should be 67", budgeted)
-
 	// Verify budgeted for used budget
-	budgeted, err = budget.Budgeted(suite.db, marchTwentyTwentyTwo)
+	budgeted, err := budget.Budgeted(suite.db, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(25)), "Budgeted is %s, should be 25", budgeted)
-
-	// Verify total budgeted for empty budget
-	budgeted, err = emptyBudget.TotalBudgeted(suite.db, marchTwentyTwentyTwo)
-	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 
 	// Verify budgeted for empty budget
 	budgeted, err = emptyBudget.Budgeted(suite.db, marchTwentyTwentyTwo)
@@ -293,18 +278,6 @@ func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
 	income, err := budget.Income(suite.db, types.NewMonth(2022, 3))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
-}
-
-func (suite *TestSuiteStandard) TestTotalBudgetedNoTransactions() {
-	budget := models.Budget{}
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
-
-	budgeted, err := budget.TotalBudgeted(suite.db, types.NewMonth(1913, 8))
-	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), budgeted.IsZero(), "Income is %s, should be 0", budgeted)
 }
 
 func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
@@ -333,21 +306,6 @@ func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
 	suite.CloseDB()
 
 	_, err = budget.Budgeted(suite.db, types.NewMonth(200, 2))
-	suite.Assert().NotNil(err)
-	suite.Assert().Equal("sql: database is closed", err.Error())
-}
-
-func (suite *TestSuiteStandard) TestBudgetTotalBudgetedDBFail() {
-	budget := models.Budget{}
-
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
-
-	suite.CloseDB()
-
-	_, err = budget.TotalBudgeted(suite.db, types.NewMonth(2017, 7))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
