@@ -57,3 +57,75 @@ func (suite *TestSuiteStandard) CloseDB() {
 	}
 	sqlDB.Close()
 }
+
+func (suite *TestSuiteStandard) createTestBudget(c models.BudgetCreate) models.Budget {
+	budget := models.Budget{
+		BudgetCreate: c,
+	}
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Budget could not be saved", "Error: %s, Budget: %#v", err, budget)
+	}
+
+	return budget
+}
+
+func (suite *TestSuiteStandard) createTestCategory(c models.CategoryCreate) models.Category {
+	category := models.Category{
+		CategoryCreate: c,
+	}
+	err := suite.db.Save(&category).Error
+	if err != nil {
+		suite.Assert().Fail("category could not be saved", "Error: %s, Budget: %#v", err, category)
+	}
+
+	return category
+}
+
+func (suite *TestSuiteStandard) createTestEnvelope(c models.EnvelopeCreate) models.Envelope {
+	envelope := models.Envelope{
+		EnvelopeCreate: c,
+	}
+	err := suite.db.Save(&envelope).Error
+	if err != nil {
+		suite.Assert().Fail("Envelope could not be saved", "Error: %s, Envelope: %#v", err, envelope)
+	}
+
+	return envelope
+}
+
+func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models.Account {
+	account := models.Account{
+		AccountCreate: c,
+	}
+	err := suite.db.Save(&account).Error
+	if err != nil {
+		suite.Assert().Fail("Account could not be saved", "Error: %s, Account: %#v", err, account)
+	}
+
+	return account
+}
+
+func (suite *TestSuiteStandard) createTestAllocation(c models.AllocationCreate) models.Allocation {
+	allocation := models.Allocation{
+		AllocationCreate: c,
+	}
+	err := suite.db.Save(&allocation).Error
+	if err != nil {
+		suite.Assert().Fail("Allocation could not be saved", "Error: %s, Allocation: %#v", err, allocation)
+	}
+
+	return allocation
+}
+
+func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate) models.Transaction {
+	transaction := models.Transaction{
+		TransactionCreate: c,
+	}
+	err := suite.db.Save(&transaction).Error
+	if err != nil {
+		suite.Assert().Fail("Transaction could not be saved", "Error: %s, Transaction: %#v", err, transaction)
+	}
+
+	return transaction
+}

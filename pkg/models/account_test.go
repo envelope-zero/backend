@@ -2,7 +2,9 @@ package models_test
 
 import (
 	"strconv"
+	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -16,12 +18,16 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
+	initialBalanceDate := time.Now()
+
 	account := models.Account{
 		AccountCreate: models.AccountCreate{
-			BudgetID:       budget.ID,
-			OnBudget:       true,
-			External:       false,
-			InitialBalance: decimal.NewFromFloat(170),
+			Name:               "TestAccountCalculations",
+			BudgetID:           budget.ID,
+			OnBudget:           true,
+			External:           false,
+			InitialBalance:     decimal.NewFromFloat(170),
+			InitialBalanceDate: &initialBalanceDate,
 		},
 	}
 	err = suite.db.Save(&account).Error
@@ -94,6 +100,11 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	assert.True(suite.T(), a.Balance.Equal(incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(a.InitialBalance)), "Balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount.Sub(outgoingTransaction.Amount), a.Balance)
 
 	assert.True(suite.T(), a.ReconciledBalance.Equal(incomingTransaction.Amount.Add(a.InitialBalance)), "Reconciled balance for account is not correct. Should be: %v but is %v", incomingTransaction.Amount, a.ReconciledBalance)
+
+	balanceNow, err := account.GetBalanceMonth(suite.db, types.Month(time.Now()))
+
+	assert.Nil(suite.T(), err)
+	assert.True(suite.T(), balanceNow.Equal(decimal.NewFromFloat(184.72)), "Current balance for account is not correct. Should be: %v but is %v", decimal.NewFromFloat(184.72), balanceNow)
 
 	err = suite.db.Delete(&incomingTransaction).Error
 	if err != nil {
@@ -238,4 +249,14 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 
 	// The first envelope is the last one
 	suite.Assert().Equal(*envelopeIDs[0], recent[2].ID)
+}
+
+func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
+	account := models.Account{}
+
+	suite.CloseDB()
+
+	_, err := account.GetBalanceMonth(suite.db, types.NewMonth(2017, 7))
+	suite.Assert().NotNil(err)
+	suite.Assert().Equal("sql: database is closed", err.Error())
 }

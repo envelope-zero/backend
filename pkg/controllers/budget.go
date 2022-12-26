@@ -403,7 +403,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 	}
 
 	// Get the available sum for budgeting
-	available, err := budget.Available(co.DB, types.MonthOf(month.Month))
+	bMonth, err := budget.Month(co.DB, types.MonthOf(month.Month), c.GetString("baseURL"))
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
@@ -416,7 +416,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 		Income:    income,
 		Budgeted:  budgeted,
 		Envelopes: envelopeMonths,
-		Available: available,
+		Available: bMonth.Available,
 	}})
 }
 
