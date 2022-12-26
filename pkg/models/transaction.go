@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/envelope-zero/backend/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -27,6 +28,7 @@ type TransactionCreate struct {
 	DestinationAccountID uuid.UUID       `json:"destinationAccountId" example:"8e16b456-a719-48ce-9fec-e115cfa7cbcc"`
 	EnvelopeID           *uuid.UUID      `json:"envelopeId" example:"2649c965-7999-4873-ae16-89d5d5fa972e"`
 	Reconciled           bool            `json:"reconciled" example:"true" default:"false"`
+	AvailableFrom        types.Month     `json:"availableFrom" example:"2021-11-17:00:00:00Z"` // The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.
 }
 
 // AfterFind updates the timestamps to use UTC as
@@ -50,6 +52,11 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 		t.Date = time.Now().In(time.UTC)
 	} else {
 		t.Date = t.Date.In(time.UTC)
+	}
+
+	// Default the AvailableForBudget date to the transaction date
+	if t.AvailableFrom.IsZero() {
+		t.AvailableFrom = types.MonthOf(t.Date)
 	}
 
 	return nil

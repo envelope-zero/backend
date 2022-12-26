@@ -3245,6 +3245,11 @@
                     "multipleOf": 1e-8,
                     "example": 14.03
                 },
+                "availableFrom": {
+                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string",
+                    "example": "2021-11-17:00:00:00Z"
+                },
                 "budgetId": {
                     "type": "string",
                     "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
@@ -3706,6 +3711,11 @@
                     "minimum": 1e-8,
                     "multipleOf": 1e-8,
                     "example": 14.03
+                },
+                "availableFrom": {
+                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string",
+                    "example": "2021-11-17:00:00:00Z"
                 },
                 "budgetId": {
                     "type": "string",
