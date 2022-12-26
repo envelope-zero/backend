@@ -2727,6 +2727,10 @@ const docTemplate = `{
                     "default": 0,
                     "example": 173.12
                 },
+                "initialBalanceDate": {
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
                 "links": {
                     "$ref": "#/definitions/controllers.AccountLinks"
                 },
@@ -3452,6 +3456,10 @@ const docTemplate = `{
                     "type": "number",
                     "default": 0,
                     "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
                 },
                 "name": {
                     "type": "string",

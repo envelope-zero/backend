@@ -262,22 +262,23 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			addNoPayee = true
 		}
 
+		// Parse the date of the transaction
+		date, err := time.Parse("2006-01-02", transaction.Date)
+		if err != nil {
+			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
+		}
+
 		// Envelope Zero does not use a magic “Starting Balance” account, instead
 		// every account has a field for the starting balance
 		if payee == "Starting Balance" {
 			account := resources.Accounts[accountIDNames[transaction.AccountID]]
 			account.Model.InitialBalance = transaction.Amount
+			account.Model.InitialBalanceDate = &date
 
 			resources.Accounts[accountIDNames[transaction.AccountID]] = account
 
 			// Initial balance is set, no more processing needed
 			continue
-		}
-
-		// Parse the date of the transaction
-		date, err := time.Parse("2006-01-02", transaction.Date)
-		if err != nil {
-			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
 		}
 
 		newTransaction := types.Transaction{
