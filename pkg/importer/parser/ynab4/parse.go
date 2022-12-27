@@ -251,7 +251,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			continue
 		}
 
-		// For transactions, the payee string has the prefix "Payee/Transfer:"
+		// For transfers, the payee string has the prefix "Payee/Transfer:"
 		payeeID := strings.TrimPrefix(transaction.PayeeID, "Payee/Transfer:")
 
 		// If we do not have a Payee for a transaction, we use the special import payee/account
