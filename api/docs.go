@@ -1863,8 +1863,11 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponse"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",

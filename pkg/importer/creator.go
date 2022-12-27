@@ -4,11 +4,12 @@ import (
 	"errors"
 
 	"github.com/envelope-zero/backend/pkg/importer/types"
+	"github.com/envelope-zero/backend/pkg/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) error {
+func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) (models.Budget, error) {
 	// Start a transaction so we can roll back all created resources if an error occurs
 	tx := db.Begin()
 
@@ -18,7 +19,7 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 	err := tx.Create(&budget).Error
 	if err != nil {
 		tx.Rollback()
-		return err
+		return models.Budget{}, err
 	}
 
 	// Create accounts
@@ -30,7 +31,7 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 		err := tx.Create(&account).Error
 		if err != nil {
 			tx.Rollback()
-			return err
+			return models.Budget{}, err
 		}
 
 		// Update the account in the resources struct so that it also contains the ID
@@ -44,7 +45,7 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 		err := tx.Create(&category.Model).Error
 		if err != nil {
 			tx.Rollback()
-			return err
+			return models.Budget{}, err
 		}
 		resources.Categories[cName] = category
 
@@ -55,7 +56,7 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 			err := tx.Create(&envelope.Model).Error
 			if err != nil {
 				tx.Rollback()
-				return err
+				return models.Budget{}, err
 			}
 			resources.Categories[category.Model.Name].Envelopes[eName] = envelope
 		}
@@ -64,7 +65,7 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 	// Create transactions
 	for _, r := range resources.Transactions {
 		if r.Model.Amount.IsNegative() {
-			return errors.New("a transaction to be imported has a negative amount, this is invalid")
+			return models.Budget{}, errors.New("a transaction to be imported has a negative amount, this is invalid")
 		}
 
 		transaction := r.Model
@@ -80,7 +81,7 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 		err := tx.Create(&transaction).Error
 		if err != nil {
 			tx.Rollback()
-			return err
+			return models.Budget{}, err
 		}
 	}
 
@@ -92,7 +93,7 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 		err := tx.Create(&allocation).Error
 		if err != nil {
 			tx.Rollback()
-			return err
+			return models.Budget{}, err
 		}
 	}
 
@@ -104,11 +105,11 @@ func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) err
 		err := tx.Create(&mConfig).Error
 		if err != nil {
 			tx.Rollback()
-			return err
+			return models.Budget{}, err
 		}
 	}
 
 	// No errors happened, commit the transaction
 	tx.Commit()
-	return nil
+	return budget, nil
 }
