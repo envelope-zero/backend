@@ -87,5 +87,5 @@ func (suite *TestSuiteStandard) TestImport() {
 	// Import one
 	body, headers := suite.loadTestFile("Budget.yfull")
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/import?budgetName=Test Budget", body, headers)
-	suite.Assert().Equal(http.StatusNoContent, recorder.Code, "Request ID %s, response %s", recorder.Header().Get("x-request-id"), recorder.Body.String())
+	suite.Assert().Equal(http.StatusCreated, recorder.Code, "Request ID %s, response %s", recorder.Header().Get("x-request-id"), recorder.Body.String())
 }

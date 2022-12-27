@@ -80,7 +80,7 @@ func (co Controller) Import(c *gin.Context) {
 //	@Tags			Import
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Success		204
+//	@Success		201			{object}	BudgetResponse
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			file		formData	file	true	"File to import"
@@ -140,11 +140,15 @@ func (co Controller) ImportYnab4(c *gin.Context) {
 		return
 	}
 
-	err = importer.Create(co.DB, query.BudgetName, resources)
+	budget, err = importer.Create(co.DB, query.BudgetName, resources)
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
 	}
 
-	c.JSON(http.StatusNoContent, nil)
+	b, ok := co.getBudgetObject(c, budget.ID)
+	if !ok {
+		return
+	}
+	c.JSON(http.StatusCreated, BudgetResponse{Data: b})
 }
