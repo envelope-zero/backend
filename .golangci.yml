@@ -14,6 +14,11 @@ issues:
         - gocyclo
       text: "func `\\(Envelope\\).Balance`"
 
+    - path: pkg/importer/parser/ynab4/parse.go
+      linters:
+        - gocyclo
+      text: "func `parseTransactions`"
+
 linters:
   enable:
     - gocyclo

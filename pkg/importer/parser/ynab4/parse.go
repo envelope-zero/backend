@@ -240,7 +240,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 
 	// Add all transactions
 	for _, transaction := range transactions {
-		// Don't import deleted transactions or transactions that are 0
+		// Don't import deleted transactions or transactions that have an amount of 0
 		//
 		// Transfers create two corresponding transaction entries in YNAB 4
 		//
@@ -251,12 +251,15 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			continue
 		}
 
-		// For transfers, the payee string has the prefix "Payee/Transfer:"
-		payeeID := strings.TrimPrefix(transaction.PayeeID, "Payee/Transfer:")
+		// For transfers, the payee string has the prefix "Payee/Transfer:",
+		// the actual account is stored in the TargetAccountID
+		if strings.HasPrefix(transaction.PayeeID, "Payee/Transfer:") {
+			transaction.PayeeID = transaction.TargetAccountID
+		}
 
 		// If we do not have a Payee for a transaction, we use the special import payee/account
 		// that will be created only if it is needed
-		payee := accountIDNames[payeeID]
+		payee := accountIDNames[transaction.PayeeID]
 		if payee == "" {
 			payee = "YNAB 4 Import - No Payee"
 			addNoPayee = true
@@ -322,27 +325,36 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 
 		// Transaction has subtransactions, add them
 		for _, sub := range transaction.SubTransactions {
+			subTransaction := newTransaction
+
 			if mapping, ok := envelopeIDNames[sub.CategoryID]; ok {
-				newTransaction.Envelope = mapping.Envelope
-				newTransaction.Category = mapping.Category
-			} else {
-				newTransaction.Envelope = ""
-				newTransaction.Category = ""
+				subTransaction.Envelope = mapping.Envelope
+				subTransaction.Category = mapping.Category
 			}
 
 			if sub.CategoryID == "Category/__DeferredIncome__" {
-				newTransaction.Model.AvailableFrom = internal_types.MonthOf(date).AddDate(0, 1)
+				subTransaction.Model.AvailableFrom = internal_types.MonthOf(date).AddDate(0, 1)
 			} else {
-				newTransaction.Model.AvailableFrom = internal_types.MonthOf(date)
+				subTransaction.Model.AvailableFrom = internal_types.MonthOf(date)
 			}
 
 			if sub.Amount.IsPositive() {
-				newTransaction.Model.Amount = sub.Amount
+				subTransaction.Model.Amount = sub.Amount
 			} else {
-				newTransaction.Model.Amount = sub.Amount.Neg()
+				subTransaction.Model.Amount = sub.Amount.Neg()
 			}
 
-			resources.Transactions = append(resources.Transactions, newTransaction)
+			if sub.TargetAccountID != "" {
+				subTransaction.DestinationAccount = accountIDNames[sub.TargetAccountID]
+			}
+
+			if sub.Memo != "" && subTransaction.Model.Note != "" {
+				subTransaction.Model.Note = subTransaction.Model.Note + ": " + sub.Memo
+			} else if sub.Memo != "" {
+				subTransaction.Model.Note = sub.Memo
+			}
+
+			resources.Transactions = append(resources.Transactions, subTransaction)
 		}
 	}
 

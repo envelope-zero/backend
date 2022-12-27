@@ -76,9 +76,12 @@ type Transaction struct {
 	PayeeID         string          `json:"payeeId"`
 	AccountID       string          `json:"accountId"`
 	Cleared         string          `json:"cleared"`
+	TargetAccountID string          `json:"targetAccountId"`
 	SubTransactions []struct {
-		CategoryID string          `json:"categoryId"`
-		Amount     decimal.Decimal `json:"amount"`
+		CategoryID      string          `json:"categoryId"`
+		Amount          decimal.Decimal `json:"amount"`
+		Memo            string          `json:"memo"`
+		TargetAccountID string          `json:"targetAccountId"`
 	} `json:"subTransactions"`
 }
 
