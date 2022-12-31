@@ -400,8 +400,11 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 
 			// If the overspendHandling is configured, work with it
 			if !(subCategoryBudget.OverspendingHandling == "") {
-				// This might actually be needed in some use cases, but I could not find one
-				// when implementing, so we're skipping it here.
+				// All occurrences of PreYNABDebt configurations that I could find are set for
+				// months before there is any budget data.
+				// Configuration for months before any data exists is not needed and therefore skipped
+				//
+				// If you find a budget where it is actually needed, please let me know!
 				if strings.HasPrefix(subCategoryBudget.CategoryID, "Category/PreYNABDebt") {
 					continue
 				}
@@ -459,13 +462,13 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 
 	// Fix handling for all envelopes
 	for _, category := range sorter {
-		for _, envelope := range category {
+		for _, monthConfig := range category {
 			// Sort by time so that earlier months are first
-			sort.Slice(envelope, func(i, j int) bool {
-				return envelope[i].Model.Month.Before(envelope[j].Model.Month)
+			sort.Slice(monthConfig, func(i, j int) bool {
+				return monthConfig[i].Model.Month.Before(monthConfig[j].Model.Month)
 			})
 
-			for i, mConfig := range envelope {
+			for i, mConfig := range monthConfig {
 				// If we are switching back to "Available for budget", we don't need to do anything
 				if mConfig.Model.OverspendMode == "AFFECT_AVAILABLE" || mConfig.Model.OverspendMode == "" {
 					continue
@@ -478,7 +481,7 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 
 				// If this is the last month, we set all months including the one of today to "AFFECT_ENVELOPE"
 				// to preserve the YNAB 4 behaviour up to the switch to EZ
-				if i+1 == len(envelope) {
+				if i+1 == len(monthConfig) {
 					for ok := true; ok; ok = !checkMonth.AfterTime(time.Now()) {
 						monthConfigs = append(monthConfigs, types.MonthConfig{
 							Model: models.MonthConfig{
@@ -498,7 +501,7 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 				}
 
 				// Set all months up to the next one with a configuration to "AFFECT_ENVELOPE"
-				for ok := !checkMonth.Equal(envelope[i+1].Model.Month); ok; ok = !checkMonth.Equal(envelope[i+1].Model.Month) {
+				for ok := !checkMonth.Equal(monthConfig[i+1].Model.Month); ok; ok = !checkMonth.Equal(monthConfig[i+1].Model.Month) {
 					monthConfigs = append(monthConfigs, types.MonthConfig{
 						Model: models.MonthConfig{
 							Month: checkMonth,
