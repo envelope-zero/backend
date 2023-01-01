@@ -45,9 +45,15 @@ type Account struct {
 }
 
 type Payee struct {
-	EntityID string `json:"entityId"`
-	Name     string `json:"name"`
-	Deleted  bool   `json:"isTombstone,omitempty"`
+	EntityID         string            `json:"entityId"`
+	Name             string            `json:"name"`
+	RenameConditions []RenameCondition `json:"renameConditions"` // Currently unused, will be relevant for future renaming features in EZ
+}
+
+type RenameCondition struct {
+	Deleted  bool   `json:"isTombstone"`
+	Operand  string `json:"operand"`
+	Operator string `json:"operator"`
 }
 
 type SubCategory struct {
@@ -55,7 +61,7 @@ type SubCategory struct {
 	CategoryID string `json:"masterCategoryId"`
 	Name       string `json:"name"`
 	Note       string `json:"note"`
-	Deleted    bool   `json:"isTombstone,omitempty"`
+	Deleted    bool   `json:"isTombstone"`
 }
 
 type Category struct {
@@ -63,7 +69,7 @@ type Category struct {
 	EntityID      string        `json:"entityId"`
 	Name          string        `json:"name"`
 	Note          string        `json:"note"`
-	Deleted       bool          `json:"isTombstone,omitempty"`
+	Deleted       bool          `json:"isTombstone"`
 }
 
 type Transaction struct {
@@ -76,6 +82,7 @@ type Transaction struct {
 	PayeeID         string          `json:"payeeId"`
 	AccountID       string          `json:"accountId"`
 	Cleared         string          `json:"cleared"`
+	Flag            string          `json:"flag"` // Currently unused, will be relevant for tagging: https://github.com/envelope-zero/backend/issues/20
 	TargetAccountID string          `json:"targetAccountId"`
 	SubTransactions []struct {
 		CategoryID      string          `json:"categoryId"`
@@ -98,17 +105,17 @@ type MonthlyBudget struct {
 
 // TODO: Clean up when implementing https://github.com/envelope-zero/backend/issues/379
 type ScheduledTransaction struct {
-	EntityID            string          `json:"entityId"`
-	EntityType          string          `json:"entityType"`
 	TwiceAMonthStartDay int             `json:"twiceAMonthStartDay"`
 	Amount              decimal.Decimal `json:"amount"`
 	Frequency           string          `json:"frequency"`
+	AccountID           string          `json:"accountId"`
+	TargetAccountID     string          `json:"targetAccountId"` // Used for transfers
 	CategoryID          string          `json:"categoryId"`
 	Date                string          `json:"date"`
 	Accepted            bool            `json:"accepted"`
 	PayeeID             string          `json:"payeeId"`
 	EntityVersion       string          `json:"entityVersion"`
-	AccountID           string          `json:"accountId"`
 	Cleared             string          `json:"cleared"`
-	Memo                string          `json:"memo,omitempty"`
+	Memo                string          `json:"memo"`
+	Flag                string          `json:"flag"`
 }
