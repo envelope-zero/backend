@@ -140,7 +140,11 @@ func (co Controller) ImportYnab4(c *gin.Context) {
 		return
 	}
 
-	budget, err = importer.Create(co.DB, query.BudgetName, resources)
+	// Set the budget name explicitly since YNAB 4 files
+	// do not contain it
+	resources.Budget.BudgetCreate.Name = query.BudgetName
+
+	budget, err = importer.Create(co.DB, resources)
 	if err != nil {
 		httperrors.Handler(c, err)
 		return

@@ -9,13 +9,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func Create(db *gorm.DB, budgetName string, resources types.ParsedResources) (models.Budget, error) {
+func Create(db *gorm.DB, resources types.ParsedResources) (models.Budget, error) {
 	// Start a transaction so we can roll back all created resources if an error occurs
 	tx := db.Begin()
 
 	// Create the budget
 	budget := resources.Budget
-	budget.BudgetCreate.Name = budgetName
 	err := tx.Create(&budget).Error
 	if err != nil {
 		tx.Rollback()
