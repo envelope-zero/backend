@@ -117,10 +117,6 @@ func parsePayees(resources *types.ParsedResources, payees []Payee) (IDToName, er
 
 	// Payees in YNAB 4 map to External Accounts in Envelope Zero
 	for _, payee := range payees {
-		if payee.Deleted {
-			continue
-		}
-
 		// Transfers are also stored as Payees with an entity ID of "Payee/Transfer:[Target account ID]"
 		// As we do not need this hack for Envelope Zero, we skip those Payees
 		if strings.HasPrefix(payee.EntityID, "Payee/Transfer") {
