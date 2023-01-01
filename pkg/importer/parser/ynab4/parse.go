@@ -117,14 +117,17 @@ func parsePayees(resources *types.ParsedResources, payees []Payee) (IDToName, er
 
 	// Payees in YNAB 4 map to External Accounts in Envelope Zero
 	for _, payee := range payees {
+		idToNames[payee.EntityID] = payee.Name
+
 		// Transfers are also stored as Payees with an entity ID of "Payee/Transfer:[Target account ID]"
 		// As we do not need this hack for Envelope Zero, we skip those Payees
-		if strings.HasPrefix(payee.EntityID, "Payee/Transfer") {
+		//
+		// We also do not need a magic "Starting Balance" payee since this is a feature of accounts
+		if payee.Name == "Starting Balance" || strings.HasPrefix(payee.EntityID, "Payee/Transfer") {
 			continue
 		}
 
 		// Create the account
-		idToNames[payee.EntityID] = payee.Name
 		resources.Accounts[payee.Name] = types.Account{
 			Model: models.Account{
 				AccountCreate: models.AccountCreate{
