@@ -20,7 +20,7 @@ type IDToEnvelope struct {
 	Envelope string
 }
 
-// This has been converted from testdata/Budget.yfull with the help of
+// This has been converted from testdata/importer/Budget.yfull with the help of
 // https://mholt.github.io/json-to-go/
 //
 // Unused fields have been removed to keep the struct as small as possible.

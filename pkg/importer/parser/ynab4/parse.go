@@ -2,7 +2,6 @@ package ynab4
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -41,16 +40,9 @@ func Parse(f io.Reader) (types.ParsedResources, error) {
 		},
 	}
 
-	// Add all accounts
-	accountIDNames, err := parseAccounts(&resources, budget.Accounts)
-	if err != nil {
-		return types.ParsedResources{}, fmt.Errorf("error parsing accounts: %w", err)
-	}
-
-	payeeIDNames, err := parsePayees(&resources, budget.Payees)
-	if err != nil {
-		return types.ParsedResources{}, fmt.Errorf("error parsing payees: %w", err)
-	}
+	// Parse accounts and payees
+	accountIDNames := parseAccounts(&resources, budget.Accounts)
+	payeeIDNames := parsePayees(&resources, budget.Payees)
 
 	// Copy all payee mappings to the account mappings as for Envelope Zero, both are accounts
 	maps.Copy(accountIDNames, payeeIDNames)
@@ -91,7 +83,7 @@ func parseHiddenCategoryName(f string) (category, envelope string, err error) {
 	return
 }
 
-func parseAccounts(resources *types.ParsedResources, accounts []Account) (IDToName, error) {
+func parseAccounts(resources *types.ParsedResources, accounts []Account) IDToName {
 	idToNames := make(IDToName)
 
 	resources.Accounts = make(map[string]types.Account)
@@ -109,10 +101,10 @@ func parseAccounts(resources *types.ParsedResources, accounts []Account) (IDToNa
 		}
 	}
 
-	return idToNames, nil
+	return idToNames
 }
 
-func parsePayees(resources *types.ParsedResources, payees []Payee) (IDToName, error) {
+func parsePayees(resources *types.ParsedResources, payees []Payee) IDToName {
 	idToNames := make(IDToName)
 
 	// Payees in YNAB 4 map to External Accounts in Envelope Zero
@@ -139,7 +131,7 @@ func parsePayees(resources *types.ParsedResources, payees []Payee) (IDToName, er
 		}
 	}
 
-	return idToNames, nil
+	return idToNames
 }
 
 func parseCategories(resources *types.ParsedResources, categories []Category) (IDToEnvelopes, error) {
@@ -196,7 +188,7 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 				var err error
 				mapping.Category, mapping.Envelope, err = parseHiddenCategoryName(mapping.Envelope)
 				if err != nil {
-					return IDToEnvelopes{}, fmt.Errorf("hidden category could not be parsed: %w", err)
+					return IDToEnvelopes{}, fmt.Errorf("hidden category could not be parsed, your Budget.yfull file seems to be corrupted: %w", err)
 				}
 
 				hidden = true
@@ -224,15 +216,10 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 
 	// Add all envelopes, adding categories as needed
 	for _, envelope := range tEnvelopes {
-		category, ok := tCategories[envelope.Category]
-		if !ok {
-			return IDToEnvelopes{}, errors.New("an envelope referenced a non-existing category. Your Budget.yfull file seems to be inconsistent")
-		}
-
 		// Check if the category already exists in the resources. If not, create it
-		_, ok = resources.Categories[envelope.Category]
+		_, ok := resources.Categories[envelope.Category]
 		if !ok {
-			resources.Categories[envelope.Category] = category
+			resources.Categories[envelope.Category] = tCategories[envelope.Category]
 		}
 
 		resources.Categories[envelope.Category].Envelopes[envelope.Envelope.Model.Name] = envelope.Envelope
@@ -389,7 +376,7 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 	for _, monthBudget := range monthlyBudgets {
 		month, err := internal_types.ParseMonth(monthBudget.Month)
 		if err != nil {
-			return fmt.Errorf("could not parse date: %w", err)
+			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
 		}
 
 		for _, subCategoryBudget := range monthBudget.MonthlySubCategoryBudgets {
