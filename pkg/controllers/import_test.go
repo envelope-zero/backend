@@ -59,13 +59,13 @@ func (suite *TestSuiteStandard) TestImportFails() {
 	suite.Assert().Contains(test.DecodeError(suite.T(), recorder.Body.Bytes()), "You must send a file to this endpoint")
 
 	// Wrong file name
-	body, headers := suite.loadTestFile("wrong-name.json")
+	body, headers := suite.loadTestFile("importer/wrong-name.json")
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/import?budgetName=same", body, headers)
 	suite.Assert().Equal(http.StatusBadRequest, recorder.Code, "Request ID %s, response %s", recorder.Header().Get("x-request-id"), recorder.Body.String())
 	suite.Assert().Contains(test.DecodeError(suite.T(), recorder.Body.Bytes()), "If you tried to upload a YNAB 4 budget, make sure its file name ends with .yfull")
 
 	// Empty file
-	body, headers = suite.loadTestFile("EmptyFile.yfull")
+	body, headers = suite.loadTestFile("importer/EmptyFile.yfull")
 	recorder = test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/import?budgetName=same", body, headers)
 	suite.Assert().Equal(http.StatusBadRequest, recorder.Code, "Request ID %s, response %s", recorder.Header().Get("x-request-id"), recorder.Body.String())
 	suite.Assert().Contains(test.DecodeError(suite.T(), recorder.Body.Bytes()), "not a valid YNAB4 Budget.yfull file: unexpected end of JSON input")
@@ -85,7 +85,7 @@ func (suite *TestSuiteStandard) TestImportFails() {
 
 func (suite *TestSuiteStandard) TestImport() {
 	// Import one
-	body, headers := suite.loadTestFile("Budget.yfull")
+	body, headers := suite.loadTestFile("importer/Budget.yfull")
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/import?budgetName=Test Budget", body, headers)
 	suite.Assert().Equal(http.StatusCreated, recorder.Code, "Request ID %s, response %s", recorder.Header().Get("x-request-id"), recorder.Body.String())
 }
