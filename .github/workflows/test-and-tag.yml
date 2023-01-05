@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
 
       - name: go test
         uses: ./.github/actions/go-test
@@ -21,7 +21,7 @@ jobs:
     container: ghcr.io/caarlos0/svu
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
         with:
           fetch-depth: 0
           token: ${{ secrets.EZ_BOT_TOKEN }}
