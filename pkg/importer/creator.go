@@ -3,8 +3,8 @@ package importer
 import (
 	"errors"
 
-	"github.com/envelope-zero/backend/pkg/importer/types"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/pkg/importer/types"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

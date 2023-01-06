@@ -1,6 +1,6 @@
 package types
 
-import "github.com/envelope-zero/backend/pkg/models"
+import "github.com/envelope-zero/backend/v2/pkg/models"
 
 // ParsedResources is the struct containing all resources that are to be created
 // Named resources are in maps with their names as keys to enable easy deduplication

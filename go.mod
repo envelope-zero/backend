@@ -1,4 +1,4 @@
-module github.com/envelope-zero/backend
+module github.com/envelope-zero/backend/v2
 
 go 1.19
 
@@ -62,7 +62,3 @@ require (
 	modernc.org/memory v1.4.0 // indirect
 	modernc.org/sqlite v1.20.0 // indirect
 )
-
-replace github.com/envelope-zero/backend/pkg/controllers => ./pkg/controllers
-
-replace github.com/envelope-zero/backend/api => ./api

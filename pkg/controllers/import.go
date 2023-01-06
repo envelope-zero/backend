@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/envelope-zero/backend/pkg/httperrors"
-	"github.com/envelope-zero/backend/pkg/httputil"
-	"github.com/envelope-zero/backend/pkg/importer"
-	"github.com/envelope-zero/backend/pkg/importer/parser/ynab4"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/pkg/httperrors"
+	"github.com/envelope-zero/backend/v2/pkg/httputil"
+	"github.com/envelope-zero/backend/v2/pkg/importer"
+	"github.com/envelope-zero/backend/v2/pkg/importer/parser/ynab4"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

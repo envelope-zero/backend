@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/envelope-zero/backend/internal/types"
+	"github.com/envelope-zero/backend/v2/internal/types"
 	"github.com/google/uuid"
 )
 

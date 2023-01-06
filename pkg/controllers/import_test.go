@@ -8,8 +8,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/envelope-zero/backend/pkg/models"
-	"github.com/envelope-zero/backend/test"
+	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v2/test"
 )
 
 func (suite *TestSuiteStandard) loadTestFile(filePath string) (*bytes.Buffer, map[string]string) {

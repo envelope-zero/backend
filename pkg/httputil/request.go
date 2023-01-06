@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/envelope-zero/backend/pkg/httperrors"
+	"github.com/envelope-zero/backend/v2/pkg/httperrors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

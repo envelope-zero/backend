@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"reflect"
 
-	"github.com/envelope-zero/backend/pkg/httperrors"
+	"github.com/envelope-zero/backend/v2/pkg/httperrors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/pkg/httperrors"
-	"github.com/envelope-zero/backend/pkg/httputil"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/pkg/httperrors"
+	"github.com/envelope-zero/backend/v2/pkg/httputil"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
