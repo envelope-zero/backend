@@ -156,6 +156,14 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 	var tEnvelopes []tEnvelope
 
 	for _, category := range categories {
+		// The name "Pre-YNAB Debt" is used for a category created by YNAB for the starting balances
+		// of accounts that have a negative starting balance. Since accounts on Enevelope Zero have
+		// a starting balance that is not a transaction with a "magic" payee, this category is
+		// not needed.
+		if category.Name == "Pre-YNAB Debt" {
+			continue
+		}
+
 		// Add the category
 		tCategories[category.Name] = types.Category{
 			Model: models.Category{
