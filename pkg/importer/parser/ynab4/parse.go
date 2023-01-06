@@ -287,7 +287,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			Model: models.Transaction{
 				TransactionCreate: models.TransactionCreate{
 					Date: date,
-					Note: transaction.Memo,
+					Note: strings.TrimSpace(transaction.Memo),
 				},
 			},
 		}
@@ -350,9 +350,9 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			}
 
 			if sub.Memo != "" && subTransaction.Model.Note != "" {
-				subTransaction.Model.Note = subTransaction.Model.Note + ": " + sub.Memo
+				subTransaction.Model.Note = subTransaction.Model.Note + ": " + strings.TrimSpace(sub.Memo)
 			} else if sub.Memo != "" {
-				subTransaction.Model.Note = sub.Memo
+				subTransaction.Model.Note = strings.TrimSpace(sub.Memo)
 			}
 
 			resources.Transactions = append(resources.Transactions, subTransaction)
