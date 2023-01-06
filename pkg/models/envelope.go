@@ -69,7 +69,7 @@ func (e Envelope) Spent(db *gorm.DB, month types.Month) decimal.Decimal {
 		}
 	}
 
-	return outgoingSum.Sub(incomingSum)
+	return outgoingSum.Neg().Add(incomingSum)
 }
 
 type AggregatedTransaction struct {

@@ -83,7 +83,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:             budget.ID,
 			EnvelopeID:           &envelope.ID,
-			Amount:               spent.Neg(),
+			Amount:               spent,
 			SourceAccountID:      externalAccount.ID,
 			DestinationAccountID: internalAccount.ID,
 			Date:                 time.Time(january.AddDate(0, 1)),
@@ -96,7 +96,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 
 	envelopeMonth, _, err := envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
+	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)
 
 	envelopeMonth, _, err = envelope.Month(suite.db, january.AddDate(0, 1))
 	assert.Nil(suite.T(), err)

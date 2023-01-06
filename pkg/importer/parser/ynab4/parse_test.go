@@ -133,9 +133,9 @@ func TestParse(t *testing.T) {
 		budgeted  float32
 		income    float32
 	}{
-		{types.NewMonth(2022, 10), 46.17, -110, 185, 75, 0},
-		{types.NewMonth(2022, 11), 906.17, -140, 170, 140, 1000},
-		{types.NewMonth(2022, 12), 866.17, -115, 110, 115, 95},
+		{types.NewMonth(2022, 10), 46.17, -110, -185, 75, 0},
+		{types.NewMonth(2022, 11), 906.17, -140, -170, 140, 1000},
+		{types.NewMonth(2022, 12), 866.17, -115, -110, 115, 95},
 		{types.NewMonth(2023, 1), 556.17, -5, 0, 0, 0},
 		{types.NewMonth(2023, 2), 436.17, 115, 0, 0, 0},
 	}
