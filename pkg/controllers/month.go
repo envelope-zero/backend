@@ -194,7 +194,7 @@ func (co Controller) SetAllocations(c *gin.Context) {
 		// If the mode is the spend of last month, calculate and set it
 		amount := allocation.Amount
 		if data.Mode == AllocateLastMonthSpend {
-			amount = models.Envelope{DefaultModel: models.DefaultModel{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth)
+			amount = models.Envelope{DefaultModel: models.DefaultModel{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth).Neg()
 		}
 
 		if !queryWithRetry(c, co.DB.Create(&models.Allocation{

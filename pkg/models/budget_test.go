@@ -389,7 +389,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 				Month:      types.NewMonth(2022, 1),
 				Income:     decimal.NewFromFloat(0),
 				Balance:    decimal.NewFromFloat(10.99),
-				Spent:      decimal.NewFromFloat(10),
+				Spent:      decimal.NewFromFloat(-10),
 				Allocation: decimal.NewFromFloat(20.99),
 				Available:  decimal.NewFromFloat(-20.99),
 				Categories: []models.CategoryEnvelopes{
@@ -397,13 +397,13 @@ func (suite *TestSuiteStandard) TestMonth() {
 						Name:       category.Name,
 						ID:         category.ID,
 						Balance:    decimal.NewFromFloat(10.99),
-						Spent:      decimal.NewFromFloat(10),
+						Spent:      decimal.NewFromFloat(-10),
 						Allocation: decimal.NewFromFloat(20.99),
 						Envelopes: []models.EnvelopeMonth{
 							{
 								Name:       "Utilities",
 								Month:      types.NewMonth(2022, 1),
-								Spent:      decimal.NewFromFloat(10),
+								Spent:      decimal.NewFromFloat(-10),
 								Balance:    decimal.NewFromFloat(10.99),
 								Allocation: decimal.NewFromFloat(20.99),
 								Links: models.EnvelopeMonthLinks{
@@ -421,7 +421,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 				Month:      types.NewMonth(2022, 2),
 				Income:     decimal.NewFromFloat(0),
 				Balance:    decimal.NewFromFloat(53.11),
-				Spent:      decimal.NewFromFloat(5),
+				Spent:      decimal.NewFromFloat(-5),
 				Allocation: decimal.NewFromFloat(47.12),
 				Available:  decimal.NewFromFloat(-68.11),
 				Categories: []models.CategoryEnvelopes{
@@ -429,14 +429,14 @@ func (suite *TestSuiteStandard) TestMonth() {
 						Name:       category.Name,
 						ID:         category.ID,
 						Balance:    decimal.NewFromFloat(53.11),
-						Spent:      decimal.NewFromFloat(5),
+						Spent:      decimal.NewFromFloat(-5),
 						Allocation: decimal.NewFromFloat(47.12),
 						Envelopes: []models.EnvelopeMonth{
 							{
 								Name:       "Utilities",
 								Month:      types.NewMonth(2022, 2),
 								Balance:    decimal.NewFromFloat(53.11),
-								Spent:      decimal.NewFromFloat(5),
+								Spent:      decimal.NewFromFloat(-5),
 								Allocation: decimal.NewFromFloat(47.12),
 								Links: models.EnvelopeMonthLinks{
 									Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationFebruary.ID),
@@ -453,7 +453,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 				Month:      types.NewMonth(2022, 3),
 				Income:     decimal.NewFromFloat(1500),
 				Balance:    decimal.NewFromFloat(69.28),
-				Spent:      decimal.NewFromFloat(15),
+				Spent:      decimal.NewFromFloat(-15),
 				Allocation: decimal.NewFromFloat(31.17),
 				Available:  decimal.NewFromFloat(1400.72),
 				Categories: []models.CategoryEnvelopes{
@@ -461,14 +461,14 @@ func (suite *TestSuiteStandard) TestMonth() {
 						Name:       category.Name,
 						ID:         category.ID,
 						Balance:    decimal.NewFromFloat(69.28),
-						Spent:      decimal.NewFromFloat(15),
+						Spent:      decimal.NewFromFloat(-15),
 						Allocation: decimal.NewFromFloat(31.17),
 						Envelopes: []models.EnvelopeMonth{
 							{
 								Name:       "Utilities",
 								Month:      types.NewMonth(2022, 3),
 								Balance:    decimal.NewFromFloat(69.28),
-								Spent:      decimal.NewFromFloat(15),
+								Spent:      decimal.NewFromFloat(-15),
 								Allocation: decimal.NewFromFloat(31.17),
 								Links: models.EnvelopeMonthLinks{
 									Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationMarch.ID),
