@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/pkg/database"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/pkg/database"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )

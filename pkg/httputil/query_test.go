@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/envelope-zero/backend/pkg/controllers"
-	"github.com/envelope-zero/backend/pkg/httputil"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/pkg/controllers"
+	"github.com/envelope-zero/backend/v2/pkg/httputil"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

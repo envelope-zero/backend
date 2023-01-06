@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/pkg/router"
+	"github.com/envelope-zero/backend/v2/pkg/router"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

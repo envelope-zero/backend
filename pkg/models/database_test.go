@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 )
 
 func (suite *TestSuiteStandard) TestMigrate() {

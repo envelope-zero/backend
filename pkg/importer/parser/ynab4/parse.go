@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	internal_types "github.com/envelope-zero/backend/internal/types"
+	internal_types "github.com/envelope-zero/backend/v2/internal/types"
 
-	"github.com/envelope-zero/backend/pkg/importer/types"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/pkg/importer/types"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"golang.org/x/exp/maps"
 	"golang.org/x/text/currency"
 )

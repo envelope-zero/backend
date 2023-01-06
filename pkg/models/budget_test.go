@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/internal/types"
-	"github.com/envelope-zero/backend/pkg/models"
+	"github.com/envelope-zero/backend/v2/internal/types"
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )

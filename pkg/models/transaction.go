@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/envelope-zero/backend/internal/types"
+	"github.com/envelope-zero/backend/v2/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
