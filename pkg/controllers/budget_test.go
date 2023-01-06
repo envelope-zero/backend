@@ -209,7 +209,7 @@ func (suite *TestSuiteStandard) TestBudgetMonth() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
-	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID})
+	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, OnBudget: true})
 	externalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, External: true})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
@@ -565,7 +565,7 @@ func (suite *TestSuiteStandard) TestSetAllocationsMonthBudgeted() {
 
 func (suite *TestSuiteStandard) TestSetAllocationsMonthSpend() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	cashAccount := suite.createTestAccount(models.AccountCreate{External: false})
+	cashAccount := suite.createTestAccount(models.AccountCreate{External: false, OnBudget: true})
 	externalAccount := suite.createTestAccount(models.AccountCreate{External: true})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})

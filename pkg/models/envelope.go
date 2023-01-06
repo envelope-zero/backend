@@ -45,7 +45,7 @@ func (e Envelope) Spent(db *gorm.DB, month types.Month) decimal.Decimal {
 	var incoming []Transaction
 
 	db.Joins("SourceAccount").Joins("DestinationAccount").Where(
-		"SourceAccount__external = 1 AND DestinationAccount__external = 0 AND transactions.envelope_id = ?", e.ID,
+		"SourceAccount__on_budget = 0 AND DestinationAccount__on_budget = 1 AND transactions.envelope_id = ?", e.ID,
 	).Find(&incoming)
 
 	// Add all incoming transactions that are in the correct month
@@ -58,7 +58,7 @@ func (e Envelope) Spent(db *gorm.DB, month types.Month) decimal.Decimal {
 
 	var outgoing []Transaction
 	db.Joins("SourceAccount").Joins("DestinationAccount").Where(
-		"SourceAccount__external = 0 AND DestinationAccount__external = 1 AND transactions.envelope_id = ?", e.ID,
+		"SourceAccount__on_budget = 1 AND DestinationAccount__on_budget = 0 AND transactions.envelope_id = ?", e.ID,
 	).Find(&outgoing)
 
 	// Add all outgoing transactions that are in the correct month
