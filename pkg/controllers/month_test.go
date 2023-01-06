@@ -193,7 +193,7 @@ func (suite *TestSuiteStandard) TestSetMonthBudgeted() {
 
 func (suite *TestSuiteStandard) TestSetMonthSpend() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	cashAccount := suite.createTestAccount(models.AccountCreate{External: false})
+	cashAccount := suite.createTestAccount(models.AccountCreate{External: false, OnBudget: true})
 	externalAccount := suite.createTestAccount(models.AccountCreate{External: true})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})

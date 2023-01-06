@@ -20,6 +20,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		AccountCreate: models.AccountCreate{
 			Name:     "Internal Source Account",
 			BudgetID: budget.ID,
+			OnBudget: true,
 		},
 	}
 	err = suite.db.Create(internalAccount).Error
