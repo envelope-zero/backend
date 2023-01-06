@@ -341,6 +341,8 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 				subTransaction.Model.Amount = sub.Amount
 			} else {
 				subTransaction.Model.Amount = sub.Amount.Neg()
+				subTransaction.DestinationAccount = payee
+				subTransaction.SourceAccount = accountIDNames[transaction.AccountID]
 			}
 
 			if sub.TargetAccountID != "" {
