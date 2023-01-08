@@ -139,6 +139,7 @@ definitions:
   controllers.Budget:
     properties:
       balance:
+        description: DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
         example: 3423.42
         type: number
       createdAt:

@@ -16,7 +16,7 @@ import (
 type Budget struct {
 	DefaultModel
 	BudgetCreate
-	Balance decimal.Decimal `json:"balance" gorm:"-" example:"3423.42"`
+	Balance decimal.Decimal `json:"balance" gorm:"-" example:"3423.42"` // DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
 }
 
 type BudgetCreate struct {
