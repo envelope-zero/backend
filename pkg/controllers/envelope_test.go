@@ -104,6 +104,7 @@ func (suite *TestSuiteStandard) TestGetEnvelopesFilter() {
 		Name:       "Hairdresser",
 		Note:       "Because… Hair!",
 		CategoryID: c2.Data.ID,
+		Hidden:     true,
 	})
 
 	_ = suite.createTestEnvelope(models.EnvelopeCreate{
@@ -124,6 +125,8 @@ func (suite *TestSuiteStandard) TestGetEnvelopesFilter() {
 		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1},
 		{"Fuzzy name", "name=es", 2},
 		{"Fuzzy note", "note=Because", 2},
+		{"Not hidden", "hidden=false", 2},
+		{"Hidden", "hidden=true", 1},
 	}
 
 	for _, tt := range tests {

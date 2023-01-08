@@ -41,16 +41,18 @@ type EnvelopeQueryFilter struct {
 	Name       string `form:"name" filterField:"false"`
 	CategoryID string `form:"category"`
 	Note       string `form:"note" filterField:"false"`
+	Hidden     bool   `form:"hidden"`
 }
 
-func (e EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bool) {
-	categoryID, ok := httputil.UUIDFromString(c, e.CategoryID)
+func (f EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bool) {
+	categoryID, ok := httputil.UUIDFromString(c, f.CategoryID)
 	if !ok {
 		return models.EnvelopeCreate{}, false
 	}
 
 	return models.EnvelopeCreate{
 		CategoryID: categoryID,
+		Hidden:     f.Hidden,
 	}, true
 }
 
