@@ -98,6 +98,7 @@ func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 		BudgetID: b1.Data.ID,
 		OnBudget: false,
 		External: true,
+		Hidden:   true,
 	})
 
 	_ = suite.createTestAccount(models.AccountCreate{
@@ -110,6 +111,7 @@ func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 		Name:     "Name only",
 		Note:     "",
 		BudgetID: b1.Data.ID,
+		Hidden:   true,
 	})
 
 	tests := []struct {
@@ -130,6 +132,8 @@ func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 		{"Off budget", "onBudget=false", 4},
 		{"External", "external=true", 2},
 		{"Internal", "external=false", 3},
+		{"Not Hidden", "hidden=false", 3},
+		{"Hidden", "hidden=true", 2},
 	}
 
 	for _, tt := range tests {

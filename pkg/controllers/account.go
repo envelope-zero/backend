@@ -34,21 +34,23 @@ type AccountLinks struct {
 type AccountQueryFilter struct {
 	Name     string `form:"name" filterField:"false"` // Fuzzy filter for the account name
 	Note     string `form:"note" filterField:"false"` // Fuzzy filter for the note
-	BudgetID string `form:"budget"`
-	OnBudget bool   `form:"onBudget"`
-	External bool   `form:"external"`
+	BudgetID string `form:"budget"`                   // By budget ID
+	OnBudget bool   `form:"onBudget"`                 // Is the account on-budget?
+	External bool   `form:"external"`                 // Is the account external?
+	Hidden   bool   `form:"hidden"`                   // Is the account hidden?
 }
 
-func (a AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool) {
-	budgetID, ok := httputil.UUIDFromString(c, a.BudgetID)
+func (f AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool) {
+	budgetID, ok := httputil.UUIDFromString(c, f.BudgetID)
 	if !ok {
 		return models.AccountCreate{}, false
 	}
 
 	return models.AccountCreate{
 		BudgetID: budgetID,
-		OnBudget: a.OnBudget,
-		External: a.External,
+		OnBudget: f.OnBudget,
+		External: f.External,
+		Hidden:   f.Hidden,
 	}, true
 }
 
