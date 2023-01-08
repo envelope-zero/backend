@@ -157,6 +157,7 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 //	@Param			name		query	string	false	"Filter by name"
 //	@Param			note		query	string	false	"Filter by note"
 //	@Param			category	query	string	false	"Filter by category ID"
+//	@Param			hidden		query	bool	false	"Is the envelope hidden?"
 func (co Controller) GetEnvelopes(c *gin.Context) {
 	var filter EnvelopeQueryFilter
 

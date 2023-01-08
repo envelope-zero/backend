@@ -153,6 +153,7 @@ func (co Controller) CreateCategory(c *gin.Context) {
 //	@Param			name	query	string	false	"Filter by name"
 //	@Param			note	query	string	false	"Filter by note"
 //	@Param			budget	query	string	false	"Filter by budget ID"
+//	@Param			hidden	query	bool	false	"Is the category hidden?"
 func (co Controller) GetCategories(c *gin.Context) {
 	var filter CategoryQueryFilter
 

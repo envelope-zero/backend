@@ -915,13 +915,17 @@ paths:
         in: query
         name: budget
         type: string
-      - description: Filter by on/off-budget
+      - description: Is the account on-budget?
         in: query
         name: onBudget
         type: boolean
-      - description: Filter internal/external
+      - description: Is the account external?
         in: query
         name: external
+        type: boolean
+      - description: Is the account hidden?
+        in: query
+        name: hidden
         type: boolean
       produces:
       - application/json
@@ -1645,6 +1649,10 @@ paths:
         in: query
         name: budget
         type: string
+      - description: Is the category hidden?
+        in: query
+        name: hidden
+        type: boolean
       produces:
       - application/json
       responses:
@@ -1836,6 +1844,10 @@ paths:
         in: query
         name: category
         type: string
+      - description: Is the envelope hidden?
+        in: query
+        name: hidden
+        type: boolean
       produces:
       - application/json
       responses:

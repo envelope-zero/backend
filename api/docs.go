@@ -123,14 +123,20 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "description": "Filter by on/off-budget",
+                        "description": "Is the account on-budget?",
                         "name": "onBudget",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "description": "Filter internal/external",
+                        "description": "Is the account external?",
                         "name": "external",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the account hidden?",
+                        "name": "hidden",
                         "in": "query"
                     }
                 ],
@@ -1193,6 +1199,12 @@ const docTemplate = `{
                         "description": "Filter by budget ID",
                         "name": "budget",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the category hidden?",
+                        "name": "hidden",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1476,6 +1488,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Filter by category ID",
                         "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the envelope hidden?",
+                        "name": "hidden",
                         "in": "query"
                     }
                 ],
