@@ -35,6 +35,7 @@ type CategoryQueryFilter struct {
 	Name     string `form:"name" filterField:"false"`
 	BudgetID string `form:"budget"`
 	Note     string `form:"note" filterField:"false"`
+	Hidden   bool   `form:"hidden"`
 }
 
 func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, bool) {
@@ -45,6 +46,7 @@ func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, bo
 
 	return models.CategoryCreate{
 		BudgetID: budgetID,
+		Hidden:   f.Hidden,
 	}, true
 }
 
