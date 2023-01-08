@@ -157,8 +157,9 @@ func (co Controller) CreateAccount(c *gin.Context) {
 //	@Param			name		query	string	false	"Filter by name"
 //	@Param			note		query	string	false	"Filter by note"
 //	@Param			budget		query	string	false	"Filter by budget ID"
-//	@Param			onBudget	query	bool	false	"Filter by on/off-budget"
-//	@Param			external	query	bool	false	"Filter internal/external"
+//	@Param			onBudget	query	bool	false	"Is the account on-budget?"
+//	@Param			external	query	bool	false	"Is the account external?"
+//	@Param			hidden		query	bool	false	"Is the account hidden?"
 func (co Controller) GetAccounts(c *gin.Context) {
 	var filter AccountQueryFilter
 	if err := c.Bind(&filter); err != nil {
