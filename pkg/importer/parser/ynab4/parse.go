@@ -2,6 +2,7 @@ package ynab4
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 	"github.com/envelope-zero/backend/v2/pkg/importer/types"
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 	"golang.org/x/text/currency"
 )
 
@@ -297,8 +299,32 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			newTransaction.Model.Amount = transaction.Amount.Neg()
 		}
 
+		// Set the reconciled flags
 		if transaction.Cleared == "Reconciled" {
-			newTransaction.Model.TransactionCreate.Reconciled = true
+			if transaction.Amount.IsNegative() {
+				newTransaction.Model.TransactionCreate.ReconciledSource = true
+			} else {
+				newTransaction.Model.TransactionCreate.ReconciledDestination = true
+			}
+		}
+
+		// If the transaction is a transfer, we need to set ReconciledDestination
+		if transaction.TargetAccountID != "" {
+			// We find the corresponding transaction with the TransferTransactionID
+			idx := slices.IndexFunc(transactions, func(t Transaction) bool { return t.EntityID == transaction.TransferTransactionID })
+			if idx == -1 {
+				return errors.New("could not find corresponding transaction, the Budget.yfull file seems to be corrupt")
+			}
+
+			// Depending on the transaction direction from the perspective of the current account, we need
+			// to set which Reconciled flag we set.
+			if transactions[idx].Cleared == "Reconciled" {
+				if transaction.Amount.IsNegative() {
+					newTransaction.Model.TransactionCreate.ReconciledDestination = true
+				} else {
+					newTransaction.Model.TransactionCreate.ReconciledSource = true
+				}
+			}
 		}
 
 		if transaction.CategoryID == "Category/__DeferredIncome__" {
@@ -340,8 +366,25 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 				subTransaction.SourceAccount = accountIDNames[transaction.AccountID]
 			}
 
+			// The transaction is a transfer
 			if sub.TargetAccountID != "" {
 				subTransaction.DestinationAccount = accountIDNames[sub.TargetAccountID]
+
+				// We find the corresponding transaction with the TransferTransactionID
+				idx := slices.IndexFunc(transactions, func(t Transaction) bool { return t.EntityID == sub.TransferTransactionID })
+				if idx == -1 {
+					return errors.New("could not find corresponding transaction, the Budget.yfull file seems to be corrupt")
+				}
+
+				// Depending on the transaction direction from the perspective of the current account, we need
+				// to set which Reconciled flag we set.
+				if transactions[idx].Cleared == "Reconciled" {
+					if transaction.Amount.IsNegative() {
+						subTransaction.Model.TransactionCreate.ReconciledDestination = true
+					} else {
+						subTransaction.Model.TransactionCreate.ReconciledSource = true
+					}
+				}
 			}
 
 			if sub.Memo != "" && subTransaction.Model.Note != "" {
