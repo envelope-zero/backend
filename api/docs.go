@@ -2913,6 +2913,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
+                    "description": "DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.",
                     "type": "number",
                     "example": 3423.42
                 },
