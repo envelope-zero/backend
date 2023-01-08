@@ -73,22 +73,24 @@ type Category struct {
 }
 
 type Transaction struct {
-	EntityID        string          `json:"entityId"`
-	Amount          decimal.Decimal `json:"amount"`
-	CategoryID      string          `json:"categoryId"`
-	Date            string          `json:"date"`
-	Memo            string          `json:"memo"`
-	Deleted         bool            `json:"isTombstone"`
-	PayeeID         string          `json:"payeeId"`
-	AccountID       string          `json:"accountId"`
-	Cleared         string          `json:"cleared"`
-	Flag            string          `json:"flag"` // Currently unused, will be relevant for tagging: https://github.com/envelope-zero/backend/issues/20
-	TargetAccountID string          `json:"targetAccountId"`
-	SubTransactions []struct {
-		CategoryID      string          `json:"categoryId"`
-		Amount          decimal.Decimal `json:"amount"`
-		Memo            string          `json:"memo"`
-		TargetAccountID string          `json:"targetAccountId"`
+	EntityID              string          `json:"entityId"`
+	Amount                decimal.Decimal `json:"amount"`
+	CategoryID            string          `json:"categoryId"`
+	Date                  string          `json:"date"`
+	Memo                  string          `json:"memo"`
+	Deleted               bool            `json:"isTombstone"`
+	PayeeID               string          `json:"payeeId"`
+	AccountID             string          `json:"accountId"`
+	Cleared               string          `json:"cleared"`
+	Flag                  string          `json:"flag"` // Currently unused, will be relevant for tagging: https://github.com/envelope-zero/backend/issues/20
+	TargetAccountID       string          `json:"targetAccountId"`
+	TransferTransactionID string          `json:"transferTransactionId"`
+	SubTransactions       []struct {
+		CategoryID            string          `json:"categoryId"`
+		Amount                decimal.Decimal `json:"amount"`
+		Memo                  string          `json:"memo"`
+		TargetAccountID       string          `json:"targetAccountId"`
+		TransferTransactionID string          `json:"transferTransactionId"`
 	} `json:"subTransactions"`
 }
 

@@ -57,6 +57,7 @@ func TestParseFail(t *testing.T) {
 		{"EmptyFile", "not a valid YNAB4 Budget.yfull file"},
 		{"CorruptNonParseableTransactionDate", "error parsing transactions: could not parse date"},
 		{"CorruptMonthlyBudget", "error parsing budget allocations: could not parse date"},
+		{"CorruptNoMatchingTransfer", "could not find corresponding transaction"},
 	}
 
 	for _, tt := range tests {
@@ -283,29 +284,30 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 	assert.Len(t, transactions, 14, "Number of transactions is wrong")
 
 	tests := []struct {
-		date               time.Time
-		amount             float32
-		note               string
-		sourceAccount      string
-		destinationAccount string
-		envelope           string
-		reconciled         bool
-		availableFrom      types.Month
+		date                  time.Time
+		amount                float32
+		note                  string
+		sourceAccount         string
+		destinationAccount    string
+		envelope              string
+		reconciledSource      bool
+		reconciledDestination bool
+		availableFrom         types.Month
 	}{
-		{date(2022, 10, 10), 120, "", "Checking", "Hospital", "Medical", false, types.Month{}},
-		{date(2022, 10, 20), 15, "", "Checking", "Some Restaurant", "Restaurants", true, types.Month{}},
-		{date(2022, 10, 21), 50, "", "Checking", "Savings", "Vacation", true, types.Month{}},
-		{date(2022, 10, 25), 1000, "", "Employer", "Checking", "", true, types.NewMonth(2022, 11)},
-		{date(2022, 11, 1), 30, "Sweatpants", "Checking", "Online Shop", "Clothing", true, types.Month{}},
-		{date(2022, 11, 1), 120, "Kitchen Appliance", "Checking", "Online Shop", "Household Goods", true, types.Month{}},
-		{date(2022, 11, 10), 100, "Needed some cash", "Checking", "Cash", "", false, types.Month{}},
-		{date(2022, 11, 10), 5, "Needed some cash: Withdrawal Fee", "Checking", "YNAB 4 Import - No Payee", "Spending Money", false, types.Month{}},
-		{date(2022, 11, 15), 95, "Compensation for returned goods", "Online Platform", "Checking", "", false, types.NewMonth(2022, 12)},
-		{date(2022, 11, 15), 15, "", "Checking", "Online Platform", "Clothing", false, types.Month{}},
-		{date(2022, 11, 28), 10, "", "Checking", "Accidental Account", "", false, types.Month{}},
-		{date(2022, 12, 15), 10, "", "Cash", "Takeout", "Restaurants", false, types.Month{}},
-		{date(2022, 12, 30), 20, "", "Checking", "Cash", "", false, types.Month{}},
-		{date(2022, 12, 31), 100, "Car is slowly breaking down", "Checking", "Savings", "", false, types.Month{}},
+		{date(2022, 10, 10), 120, "", "Checking", "Hospital", "Medical", false, false, types.Month{}},
+		{date(2022, 10, 20), 15, "", "Checking", "Some Restaurant", "Restaurants", true, false, types.Month{}},
+		{date(2022, 10, 21), 50, "", "Checking", "Savings", "Vacation", true, false, types.Month{}},
+		{date(2022, 10, 25), 1000, "", "Employer", "Checking", "", false, true, types.NewMonth(2022, 11)},
+		{date(2022, 11, 1), 30, "Sweatpants", "Checking", "Online Shop", "Clothing", true, false, types.Month{}},
+		{date(2022, 11, 1), 120, "Kitchen Appliance", "Checking", "Online Shop", "Household Goods", true, false, types.Month{}},
+		{date(2022, 11, 10), 100, "Needed some cash", "Checking", "Cash", "", false, true, types.Month{}},
+		{date(2022, 11, 10), 5, "Needed some cash: Withdrawal Fee", "Checking", "YNAB 4 Import - No Payee", "Spending Money", false, false, types.Month{}},
+		{date(2022, 11, 15), 95, "Compensation for returned goods", "Online Platform", "Checking", "", false, false, types.NewMonth(2022, 12)},
+		{date(2022, 11, 15), 15, "", "Checking", "Online Platform", "Clothing", false, false, types.Month{}},
+		{date(2022, 11, 28), 10, "", "Checking", "Accidental Account", "", false, false, types.Month{}},
+		{date(2022, 12, 15), 10, "", "Cash", "Takeout", "Restaurants", false, false, types.Month{}},
+		{date(2022, 12, 30), 20, "", "Checking", "Cash", "", false, false, types.Month{}},
+		{date(2022, 12, 31), 100, "Car is slowly breaking down", "Checking", "Savings", "", false, false, types.Month{}},
 	}
 
 	for _, tt := range tests {
@@ -345,7 +347,8 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 			assert.Equal(t, destination.ID, tr.DestinationAccountID, "Destination account ID is not correct, is %s, should be %s", tr.DestinationAccountID, destination.ID)
 			assert.True(t, decimal.NewFromFloat32(tt.amount).Equal(tr.Amount), "Amount does not match. Is %s, expected %f", tr.Amount, tt.amount)
 			assert.Equal(t, tt.note, tr.Note, "Note differs. Should be '%s', but is '%s'", tt.note, tr.Note)
-			assert.Equal(t, tt.reconciled, tr.Reconciled, "Reconciled flag is wrong")
+			assert.Equal(t, tt.reconciledSource, tr.ReconciledSource, "ReconciledSource flag is wrong")
+			assert.Equal(t, tt.reconciledDestination, tr.ReconciledDestination, "ReconciledDestination flag is wrong")
 
 			// Only check availableFrom if it is set
 			if !tt.availableFrom.Equal(types.Month{}) {
