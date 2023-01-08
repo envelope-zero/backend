@@ -437,6 +437,17 @@ definitions:
         type: string
       reconciled:
         default: false
+        description: DEPRECATED. Do not use, this field does not work as intended.
+          See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
+          and reconciledDestination instead.
+        example: true
+        type: boolean
+      reconciledDestination:
+        default: false
+        example: true
+        type: boolean
+      reconciledSource:
+        default: false
         example: true
         type: boolean
       sourceAccountId:
@@ -777,6 +788,17 @@ definitions:
         example: Lunch
         type: string
       reconciled:
+        default: false
+        description: DEPRECATED. Do not use, this field does not work as intended.
+          See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
+          and reconciledDestination instead.
+        example: true
+        type: boolean
+      reconciledDestination:
+        default: false
+        example: true
+        type: boolean
+      reconciledSource:
         default: false
         example: true
         type: boolean
@@ -2488,9 +2510,17 @@ paths:
         in: query
         name: envelope
         type: string
-      - description: Filter by reconcilication state
+      - description: DEPRECATED. Filter by reconcilication state
         in: query
         name: reconciled
+        type: boolean
+      - description: Reconcilication state in source account
+        in: query
+        name: reconciledSource
+        type: boolean
+      - description: Reconcilication state in destination account
+        in: query
+        name: reconciledDestination
         type: boolean
       produces:
       - application/json

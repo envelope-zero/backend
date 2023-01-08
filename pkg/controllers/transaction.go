@@ -33,15 +33,17 @@ type TransactionLinks struct {
 }
 
 type TransactionQueryFilter struct {
-	Date                 time.Time       `form:"date"`
-	Amount               decimal.Decimal `form:"amount"`
-	Note                 string          `form:"note" filterField:"false"`
-	BudgetID             string          `form:"budget"`
-	SourceAccountID      string          `form:"source"`
-	DestinationAccountID string          `form:"destination"`
-	EnvelopeID           string          `form:"envelope"`
-	Reconciled           bool            `form:"reconciled"`
-	AccountID            string          `form:"account" filterField:"false"`
+	Date                  time.Time       `form:"date"`
+	Amount                decimal.Decimal `form:"amount"`
+	Note                  string          `form:"note" filterField:"false"`
+	BudgetID              string          `form:"budget"`
+	SourceAccountID       string          `form:"source"`
+	DestinationAccountID  string          `form:"destination"`
+	EnvelopeID            string          `form:"envelope"`
+	Reconciled            bool            `form:"reconciled"`            // DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.
+	ReconciledSource      bool            `form:"reconciledSource"`      // Is the transaction reconciled in the source account?
+	ReconciledDestination bool            `form:"reconciledDestination"` // Is the transaction reconciled in the destination account?
+	AccountID             string          `form:"account" filterField:"false"`
 }
 
 func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, bool) {
@@ -72,13 +74,15 @@ func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCrea
 	}
 
 	return models.TransactionCreate{
-		Date:                 f.Date,
-		Amount:               f.Amount,
-		BudgetID:             budgetID,
-		SourceAccountID:      sourceAccountID,
-		DestinationAccountID: destinationAccountID,
-		EnvelopeID:           eID,
-		Reconciled:           f.Reconciled,
+		Date:                  f.Date,
+		Amount:                f.Amount,
+		BudgetID:              budgetID,
+		SourceAccountID:       sourceAccountID,
+		DestinationAccountID:  destinationAccountID,
+		EnvelopeID:            eID,
+		Reconciled:            f.Reconciled,
+		ReconciledSource:      f.ReconciledSource,
+		ReconciledDestination: f.ReconciledDestination,
 	}, true
 }
 
@@ -195,15 +199,17 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 //	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/transactions [get]
-//	@Param			date		query	time.Time		false	"Filter by date"
-//	@Param			amount		query	decimal.Decimal	false	"Filter by amount"
-//	@Param			note		query	string			false	"Filter by note"
-//	@Param			budget		query	string			false	"Filter by budget ID"
-//	@Param			account		query	string			false	"Filter by ID of associated account, regardeless of source or destination"
-//	@Param			source		query	string			false	"Filter by source account ID"
-//	@Param			destination	query	string			false	"Filter by destination account ID"
-//	@Param			envelope	query	string			false	"Filter by envelope ID"
-//	@Param			reconciled	query	bool			false	"Filter by reconcilication state"
+//	@Param			date					query	time.Time		false	"Filter by date"
+//	@Param			amount					query	decimal.Decimal	false	"Filter by amount"
+//	@Param			note					query	string			false	"Filter by note"
+//	@Param			budget					query	string			false	"Filter by budget ID"
+//	@Param			account					query	string			false	"Filter by ID of associated account, regardeless of source or destination"
+//	@Param			source					query	string			false	"Filter by source account ID"
+//	@Param			destination				query	string			false	"Filter by destination account ID"
+//	@Param			envelope				query	string			false	"Filter by envelope ID"
+//	@Param			reconciled				query	bool			false	"DEPRECATED. Filter by reconcilication state"
+//	@Param			reconciledSource		query	bool			false	"Reconcilication state in source account"
+//	@Param			reconciledDestination	query	bool			false	"Reconcilication state in destination account"
 func (co Controller) GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {

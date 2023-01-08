@@ -20,15 +20,18 @@ type Transaction struct {
 }
 
 type TransactionCreate struct {
-	Date                 time.Time       `json:"date" example:"1815-12-10T18:43:00.271152Z"`
-	Amount               decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)" example:"14.03" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
-	Note                 string          `json:"note" example:"Lunch" default:""`
-	BudgetID             uuid.UUID       `json:"budgetId" example:"55eecbd8-7c46-4b06-ada9-f287802fb05e"`
-	SourceAccountID      uuid.UUID       `json:"sourceAccountId" gorm:"check:source_destination_different,source_account_id != destination_account_id" example:"fd81dc45-a3a2-468e-a6fa-b2618f30aa45"`
-	DestinationAccountID uuid.UUID       `json:"destinationAccountId" example:"8e16b456-a719-48ce-9fec-e115cfa7cbcc"`
-	EnvelopeID           *uuid.UUID      `json:"envelopeId" example:"2649c965-7999-4873-ae16-89d5d5fa972e"`
-	Reconciled           bool            `json:"reconciled" example:"true" default:"false"`
-	AvailableFrom        types.Month     `json:"availableFrom" example:"2021-11-17:00:00:00Z"` // The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.
+	Date                  time.Time       `json:"date" example:"1815-12-10T18:43:00.271152Z"`
+	Amount                decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)" example:"14.03" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
+	Note                  string          `json:"note" example:"Lunch" default:""`
+	BudgetID              uuid.UUID       `json:"budgetId" example:"55eecbd8-7c46-4b06-ada9-f287802fb05e"`
+	SourceAccountID       uuid.UUID       `json:"sourceAccountId" gorm:"check:source_destination_different,source_account_id != destination_account_id" example:"fd81dc45-a3a2-468e-a6fa-b2618f30aa45"`
+	DestinationAccountID  uuid.UUID       `json:"destinationAccountId" example:"8e16b456-a719-48ce-9fec-e115cfa7cbcc"`
+	EnvelopeID            *uuid.UUID      `json:"envelopeId" example:"2649c965-7999-4873-ae16-89d5d5fa972e"`
+	Reconciled            bool            `json:"reconciled" example:"true" default:"false"` // DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.
+	ReconciledSource      bool            `json:"reconciledSource" example:"true" default:"false"`
+	ReconciledDestination bool            `json:"reconciledDestination" example:"true" default:"false"`
+
+	AvailableFrom types.Month `json:"availableFrom" example:"2021-11-17:00:00:00Z"` // The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.
 }
 
 // AfterFind updates the timestamps to use UTC as
