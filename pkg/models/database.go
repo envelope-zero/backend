@@ -29,6 +29,8 @@ func Migrate(db *gorm.DB) error {
 
 	// Transaction
 	db.Unscoped().Model(&Transaction{}).Select("Reconciled").Where("transactions.reconciled IS NULL").Update("Reconciled", false)
+	db.Unscoped().Model(&Transaction{}).Select("ReconciledSource").Where("transactions.reconciled_source IS NULL").Update("ReconciledSource", false)
+	db.Unscoped().Model(&Transaction{}).Select("ReconciledDestination").Where("transactions.reconciled_destination IS NULL").Update("ReconciledDestination", false)
 
 	return nil
 }

@@ -2438,8 +2438,20 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "description": "Filter by reconcilication state",
+                        "description": "DEPRECATED. Filter by reconcilication state",
                         "name": "reconciled",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Reconcilication state in source account",
+                        "name": "reconciledSource",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Reconcilication state in destination account",
+                        "name": "reconciledDestination",
                         "in": "query"
                     }
                 ],
@@ -3316,6 +3328,17 @@ const docTemplate = `{
                     "example": "Lunch"
                 },
                 "reconciled": {
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledDestination": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledSource": {
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3768,6 +3791,17 @@ const docTemplate = `{
                     "example": "Lunch"
                 },
                 "reconciled": {
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledDestination": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledSource": {
                     "type": "boolean",
                     "default": false,
                     "example": true
