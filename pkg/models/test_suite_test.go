@@ -40,9 +40,9 @@ func (suite *TestSuiteStandard) SetupTest() {
 		log.Fatalf("Database connection failed with: %#v", err)
 	}
 
-	models.Migrate(db)
+	err = models.Migrate(db)
 	if err != nil {
-		log.Fatalf("Database migration failed with: %#v", err)
+		log.Fatalf("Database migration failed with: %s", err)
 	}
 
 	suite.db = db
