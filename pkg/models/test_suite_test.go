@@ -64,7 +64,7 @@ func (suite *TestSuiteStandard) createTestBudget(c models.BudgetCreate) models.B
 	}
 	err := suite.db.Save(&budget).Error
 	if err != nil {
-		suite.Assert().Fail("Budget could not be saved", "Error: %s, Budget: %#v", err, budget)
+		suite.Assert().FailNow("Budget could not be saved", "Error: %s, Budget: %#v", err, budget)
 	}
 
 	return budget
@@ -76,7 +76,7 @@ func (suite *TestSuiteStandard) createTestCategory(c models.CategoryCreate) mode
 	}
 	err := suite.db.Save(&category).Error
 	if err != nil {
-		suite.Assert().Fail("category could not be saved", "Error: %s, Budget: %#v", err, category)
+		suite.Assert().FailNow("category could not be saved", "Error: %s, Budget: %#v", err, category)
 	}
 
 	return category
@@ -88,7 +88,7 @@ func (suite *TestSuiteStandard) createTestEnvelope(c models.EnvelopeCreate) mode
 	}
 	err := suite.db.Save(&envelope).Error
 	if err != nil {
-		suite.Assert().Fail("Envelope could not be saved", "Error: %s, Envelope: %#v", err, envelope)
+		suite.Assert().FailNow("Envelope could not be saved", "Error: %s, Envelope: %#v", err, envelope)
 	}
 
 	return envelope
@@ -100,7 +100,7 @@ func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models
 	}
 	err := suite.db.Save(&account).Error
 	if err != nil {
-		suite.Assert().Fail("Account could not be saved", "Error: %s, Account: %#v", err, account)
+		suite.Assert().FailNow("Account could not be saved", "Error: %s, Account: %#v", err, account)
 	}
 
 	return account
@@ -112,7 +112,7 @@ func (suite *TestSuiteStandard) createTestAllocation(c models.AllocationCreate) 
 	}
 	err := suite.db.Save(&allocation).Error
 	if err != nil {
-		suite.Assert().Fail("Allocation could not be saved", "Error: %s, Allocation: %#v", err, allocation)
+		suite.Assert().FailNow("Allocation could not be saved", "Error: %s, Allocation: %#v", err, allocation)
 	}
 
 	return allocation
@@ -124,7 +124,7 @@ func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate
 	}
 	err := suite.db.Save(&transaction).Error
 	if err != nil {
-		suite.Assert().Fail("Transaction could not be saved", "Error: %s, Transaction: %#v", err, transaction)
+		suite.Assert().FailNow("Transaction could not be saved", "Error: %s, Transaction: %#v", err, transaction)
 	}
 
 	return transaction
