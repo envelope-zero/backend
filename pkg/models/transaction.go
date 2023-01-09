@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/envelope-zero/backend/v2/internal/types"
@@ -46,10 +47,12 @@ func (t *Transaction) AfterFind(tx *gorm.DB) (err error) {
 	}
 
 	t.Date = t.Date.In(time.UTC)
-	return nil
+	return
 }
 
-// BeforeSave sets the timezone for the Date for UTC.
+// BeforeSave
+//   - sets the timezone for the Date for UTC
+//   - ensures that ReconciledSource and ReconciledDestination are set to valid values
 func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 	if t.Date.IsZero() {
 		t.Date = time.Now().In(time.UTC)
@@ -62,5 +65,43 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 		t.AvailableFrom = types.MonthOf(t.Date)
 	}
 
-	return nil
+	// Enforce ReconciledSource = false when source account is external
+	// Only verify when ReconciledSource is true as false is always acceptable
+	if t.SourceAccount.ID == uuid.Nil && t.ReconciledSource {
+		a := Account{}
+		err = tx.Where(&Account{DefaultModel: DefaultModel{ID: t.SourceAccountID}}).First(&a).Error
+		if err != nil {
+			return fmt.Errorf("no existing account with specified SourceAccountID: %w", err)
+		}
+
+		if a.External {
+			t.ReconciledSource = false
+		}
+
+		// We only need to enforce the value if the source account is external,
+		// therefore else if is acceptable here
+	} else if t.SourceAccount.External {
+		t.ReconciledSource = false
+	}
+
+	// Enforce ReconciledDestination = false when destination account is external
+	// Only verify when ReconciledDestination is true as false is always acceptable
+	if t.DestinationAccount.ID == uuid.Nil && t.ReconciledDestination {
+		a := Account{}
+		err = tx.Where(&Account{DefaultModel: DefaultModel{ID: t.DestinationAccountID}}).First(&a).Error
+		if err != nil {
+			return fmt.Errorf("no existing account with specified DestinationAccountID: %w", err)
+		}
+
+		if a.External {
+			t.ReconciledDestination = false
+		}
+
+		// We only need to enforce the value if the source account is external,
+		// therefore else if is acceptable here
+	} else if t.DestinationAccount.External {
+		t.ReconciledDestination = false
+	}
+
+	return
 }
