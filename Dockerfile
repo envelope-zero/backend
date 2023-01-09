@@ -16,3 +16,13 @@ FROM scratch
 WORKDIR /
 COPY --from=builder /app/backend /backend
 ENTRYPOINT ["/backend"]
+
+# Keep "maintainer" and "org.opencontainers.image.authors" in sync
+LABEL "maintainer"="Envelope Zero Maintainers <envelope-zero@maurice-meyer.de>"
+LABEL "org.opencontainers.image.authors"="Envelope Zero Maintainers <envelope-zero@maurice-meyer.de>"
+LABEL "org.opencontainers.image.description"="Backend for Envelope Zero"
+LABEL "org.opencontainers.image.documentation"="https://github.com/envelope-zero/backend"
+LABEL "org.opencontainers.image.licenses"="AGPL-3.0-or-later"
+LABEL "org.opencontainers.image.source"="https://github.com/envelope-zero/backend"
+LABEL "org.opencontainers.image.url"="https://github.com/envelope-zero/backend"
+LABEL "org.opencontainers.image.vendor"="Envelope Zero Maintainers"

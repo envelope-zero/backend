@@ -43,3 +43,9 @@ dockers:
       - "ghcr.io/envelope-zero/backend:v{{ .Major }}"
       - "ghcr.io/envelope-zero/backend:v{{ .Major }}.{{ .Minor }}"
       - "ghcr.io/envelope-zero/backend:latest"
+
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
