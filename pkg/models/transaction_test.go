@@ -18,7 +18,7 @@ func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 
 	err := transaction.AfterFind(suite.db)
 	if err != nil {
-		assert.Fail(suite.T(), "transaction.AfterFind failed")
+		assert.Fail(suite.T(), "transaction.AfterFind failed", err)
 	}
 
 	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
@@ -30,7 +30,7 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	transaction := models.Transaction{}
 	err := transaction.BeforeSave(suite.db)
 	if err != nil {
-		assert.Fail(suite.T(), "transaction.AfterFind failed")
+		assert.Fail(suite.T(), "transaction.BeforeSave failed", err)
 	}
 
 	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
