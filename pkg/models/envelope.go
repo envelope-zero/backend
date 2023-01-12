@@ -75,8 +75,8 @@ func (e Envelope) Spent(db *gorm.DB, month types.Month) decimal.Decimal {
 type AggregatedTransaction struct {
 	Amount                     decimal.Decimal
 	Date                       time.Time
-	SourceAccountExternal      bool
-	DestinationAccountExternal bool
+	SourceAccountOnBudget      bool
+	DestinationAccountOnBudget bool
 }
 
 type EnvelopeMonthAllocation struct {
@@ -99,7 +99,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
 		Where("transactions.date < date(?)", month.AddDate(0, 1)).
 		Where("transactions.envelope_id = ?", e.ID).
-		Select("transactions.amount AS Amount, transactions.date AS Date, source_account.external AS SourceAccountExternal, destination_account.external AS DestinationAccountExternal").
+		Select("transactions.amount AS Amount, transactions.date AS Date, source_account.on_budget AS SourceAccountOnBudget, destination_account.on_budget AS DestinationAccountOnBudget").
 		Find(&rawTransactions).Error
 	if err != nil {
 		return decimal.Zero, err
@@ -210,12 +210,12 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 		monthSum := sum
 
 		for _, transaction := range currentMonthTransactions {
-			if transaction.SourceAccountExternal {
-				// Incoming money gets added to the balance
-				monthSum = monthSum.Add(transaction.Amount)
-			} else {
+			if transaction.SourceAccountOnBudget {
 				// Outgoing gets subtracted
 				monthSum = monthSum.Sub(transaction.Amount)
+			} else {
+				// Incoming money gets added to the balance
+				monthSum = monthSum.Add(transaction.Amount)
 			}
 		}
 
