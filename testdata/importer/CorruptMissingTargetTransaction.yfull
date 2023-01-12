@@ -497,21 +497,6 @@
 			"flag": "Orange"
 		},
 		{
-			"amount": 100,
-			"targetAccountId": "5DB5A191-CD7E-C22E-AF96-6297D4F8CF92",
-			"transferTransactionId": "80B463EB-B3F0-57E7-6CF6-62A529A1850C",
-			"categoryId": null,
-			"date": "2022-11-10",
-			"accepted": true,
-			"entityVersion": "A-182",
-			"entityId": "80B463EB-B3F0-57E7-6CF6-62A529A1850C_T_0",
-			"payeeId": "Payee/Transfer:5DB5A191-CD7E-C22E-AF96-6297D4F8CF92",
-			"entityType": "transaction",
-			"cleared": "Reconciled",
-			"accountId": "D560D865-0A32-B4B5-AE7D-629EDA4D0397",
-			"flag": "Yellow"
-		},
-		{
 			"amount": 0,
 			"categoryId": "Category/__ImmediateIncome__",
 			"date": "2022-12-07",
