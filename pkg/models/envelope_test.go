@@ -176,6 +176,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	internalAccount := suite.createTestAccount(models.AccountCreate{
 		Name:     "Internal Source Account",
 		BudgetID: budget.ID,
+		OnBudget: true,
 	})
 
 	externalAccount := suite.createTestAccount(models.AccountCreate{
@@ -201,18 +202,21 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 
 	january := types.NewMonth(2022, 1)
 
+	// Allocation in January
 	_ = suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: envelope.ID,
 		Month:      january,
 		Amount:     decimal.NewFromFloat(50),
 	})
 
+	// Allocation in February
 	_ = suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: envelope.ID,
 		Month:      january.AddDate(0, 1),
 		Amount:     decimal.NewFromFloat(40),
 	})
 
+	// Transaction in January
 	_ = suite.createTestTransaction(models.TransactionCreate{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
@@ -222,6 +226,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 		Date:                 time.Time(january),
 	})
 
+	// Transaction in February
 	_ = suite.createTestTransaction(models.TransactionCreate{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
