@@ -368,12 +368,16 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 
 			// The transaction is a transfer
 			if sub.TargetAccountID != "" {
-				subTransaction.DestinationAccount = accountIDNames[sub.TargetAccountID]
+				if sub.Amount.IsPositive() {
+					subTransaction.SourceAccount = accountIDNames[sub.TargetAccountID]
+				} else {
+					subTransaction.DestinationAccount = accountIDNames[sub.TargetAccountID]
+				}
 
 				// We find the corresponding transaction with the TransferTransactionID
 				idx := slices.IndexFunc(transactions, func(t Transaction) bool { return t.EntityID == sub.TransferTransactionID })
 				if idx == -1 {
-					return errors.New("could not find corresponding transaction, the Budget.yfull file seems to be corrupt")
+					return errors.New("could not find corresponding transaction for sub-transaction transfer, the Budget.yfull file seems to be corrupt")
 				}
 
 				// Depending on the transaction direction from the perspective of the current account, we need
