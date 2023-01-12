@@ -58,6 +58,7 @@ func TestParseFail(t *testing.T) {
 		{"CorruptNonParseableTransactionDate", "error parsing transactions: could not parse date"},
 		{"CorruptMonthlyBudget", "error parsing budget allocations: could not parse date"},
 		{"CorruptNoMatchingTransfer", "could not find corresponding transaction"},
+		{"CorruptMissingTargetTransaction", "could not find corresponding transaction for sub-transaction transfer"},
 	}
 
 	for _, tt := range tests {
@@ -134,11 +135,11 @@ func TestParse(t *testing.T) {
 		budgeted  float32
 		income    float32
 	}{
-		{types.NewMonth(2022, 10), 46.17, -110, -185, 75, 0},
-		{types.NewMonth(2022, 11), 906.17, -140, -170, 140, 1000},
-		{types.NewMonth(2022, 12), 866.17, -115, -110, 115, 95},
-		{types.NewMonth(2023, 1), 556.17, -5, 0, 0, 0},
-		{types.NewMonth(2023, 2), 436.17, 115, 0, 0, 0},
+		{types.NewMonth(2022, 10), 46.17, -100, -175, 75, 0},
+		{types.NewMonth(2022, 11), 906.17, -60, -100, 140, 1000},
+		{types.NewMonth(2022, 12), 886.17, -55, -110, 115, 95},
+		{types.NewMonth(2023, 1), 576.17, 55, 0, 0, 0},
+		{types.NewMonth(2023, 2), 456.17, 175, 0, 0, 0},
 	}
 
 	for _, tt := range tests {
@@ -278,10 +279,10 @@ func testEnvelopes(t *testing.T, categories []models.Category, envelopes []model
 //
 // It assumes that there is only one transaction per day with the same note.
 func testTransactions(t *testing.T, accounts []models.Account, envelopes []models.Envelope, transactions []models.Transaction) {
-	// 24 transactions total in YNAB 4 (counting each sub-transaction as 1)
+	// 27 transactions total in YNAB 4 (counting each sub-transaction as 1)
 	// subtract 5 Starting balance transactions
 	// subtract 5 transfers (since transfers in EZ are only one transaction, not 2)
-	assert.Len(t, transactions, 14, "Number of transactions is wrong")
+	assert.Len(t, transactions, 17, "Number of transactions is wrong")
 
 	tests := []struct {
 		date                  time.Time
@@ -296,12 +297,15 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 	}{
 		{date(2022, 10, 10), 120, "", "Checking", "Hospital", "Medical", false, false, types.Month{}},
 		{date(2022, 10, 20), 15, "", "Checking", "Some Restaurant", "Restaurants", true, false, types.Month{}},
-		{date(2022, 10, 21), 50, "", "Checking", "Savings", "Vacation", true, false, types.Month{}},
+		{date(2022, 10, 21), 50, "", "Checking", "Savings", "Vacation", true, true, types.Month{}},
+		{date(2022, 10, 21), 10, "Put in too much", "Savings", "Checking", "Vacation", true, false, types.Month{}},
 		{date(2022, 10, 25), 1000, "", "Employer", "Checking", "", false, true, types.NewMonth(2022, 11)},
 		{date(2022, 11, 1), 30, "Sweatpants", "Checking", "Online Shop", "Clothing", true, false, types.Month{}},
 		{date(2022, 11, 1), 120, "Kitchen Appliance", "Checking", "Online Shop", "Household Goods", true, false, types.Month{}},
 		{date(2022, 11, 10), 100, "Needed some cash", "Checking", "Cash", "", false, true, types.Month{}},
 		{date(2022, 11, 10), 5, "Needed some cash: Withdrawal Fee", "Checking", "YNAB 4 Import - No Payee", "Spending Money", false, false, types.Month{}},
+		{date(2022, 11, 11), 20, "Taking some back out", "Savings", "Checking", "Vacation", true, false, types.Month{}},
+		{date(2022, 11, 11), 50, "Grandma gave me 50 bucks for a new mixer", "YNAB 4 Import - No Payee", "Checking", "Household Goods", false, false, types.Month{}},
 		{date(2022, 11, 15), 95, "Compensation for returned goods", "Online Platform", "Checking", "", false, false, types.NewMonth(2022, 12)},
 		{date(2022, 11, 15), 15, "", "Checking", "Online Platform", "Clothing", false, false, types.Month{}},
 		{date(2022, 11, 28), 10, "", "Checking", "Accidental Account", "", false, false, types.Month{}},
