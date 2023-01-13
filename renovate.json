@@ -28,6 +28,12 @@
   ],
   "packageRules": [
     {
+      "description": "Pin GitHub action digests",
+      "matchDepTypes": ["action"],
+      "rangeStrategy": "pin",
+      "pinDigests": true
+    },
+    {
       "description": "Parse go version for golangci-lint from GitHub tags",
       "extractVersion": "^go(?<version>\\d+\\.\\d+)",
       "matchPackageNames": ["golang/go"],
