@@ -1,4 +1,4 @@
-name: test & release
+name: release
 
 on:
   push:
@@ -10,17 +10,7 @@ permissions:
   packages: write
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3.3.0
-
-      - name: go test
-        uses: ./.github/actions/go-test
-
   release:
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
