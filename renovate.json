@@ -1,5 +1,4 @@
 {
-  "extends": ["group:monorepos", "group:recommended"],
   "dependencyDashboard": true,
   "pre-commit": {
     "enabled": true
