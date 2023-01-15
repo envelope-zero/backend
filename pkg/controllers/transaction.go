@@ -35,6 +35,8 @@ type TransactionLinks struct {
 type TransactionQueryFilter struct {
 	Date                  time.Time       `form:"date"`
 	Amount                decimal.Decimal `form:"amount"`
+	AmountLessOrEqual     decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
+	AmountMoreOrEqual     decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
 	Note                  string          `form:"note" filterField:"false"`
 	BudgetID              string          `form:"budget"`
 	SourceAccountID       string          `form:"source"`
@@ -199,17 +201,19 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 //	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/transactions [get]
-//	@Param			date					query	time.Time		false	"Filter by date"
-//	@Param			amount					query	decimal.Decimal	false	"Filter by amount"
-//	@Param			note					query	string			false	"Filter by note"
-//	@Param			budget					query	string			false	"Filter by budget ID"
-//	@Param			account					query	string			false	"Filter by ID of associated account, regardeless of source or destination"
-//	@Param			source					query	string			false	"Filter by source account ID"
-//	@Param			destination				query	string			false	"Filter by destination account ID"
-//	@Param			envelope				query	string			false	"Filter by envelope ID"
-//	@Param			reconciled				query	bool			false	"DEPRECATED. Filter by reconcilication state"
-//	@Param			reconciledSource		query	bool			false	"Reconcilication state in source account"
-//	@Param			reconciledDestination	query	bool			false	"Reconcilication state in destination account"
+//	@Param			date					query	time.Time	false	"Filter by date"
+//	@Param			amount					query	string		false	"Filter by amount"
+//	@Param			amountLessOrEqual		query	string		false	"Amount less than or equal to this"
+//	@Param			amountMoreOrEqual		query	string		false	"Amount more than or equal to this"
+//	@Param			note					query	string		false	"Filter by note"
+//	@Param			budget					query	string		false	"Filter by budget ID"
+//	@Param			account					query	string		false	"Filter by ID of associated account, regardeless of source or destination"
+//	@Param			source					query	string		false	"Filter by source account ID"
+//	@Param			destination				query	string		false	"Filter by destination account ID"
+//	@Param			envelope				query	string		false	"Filter by envelope ID"
+//	@Param			reconciled				query	bool		false	"DEPRECATED. Filter by reconcilication state"
+//	@Param			reconciledSource		query	bool		false	"Reconcilication state in source account"
+//	@Param			reconciledDestination	query	bool		false	"Reconcilication state in destination account"
 func (co Controller) GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -246,6 +250,14 @@ func (co Controller) GetTransactions(c *gin.Context) {
 				DestinationAccountID: accountID,
 			},
 		})
+	}
+
+	if !filter.AmountLessOrEqual.IsZero() {
+		query = query.Where("transactions.amount <= ?", filter.AmountLessOrEqual)
+	}
+
+	if !filter.AmountMoreOrEqual.IsZero() {
+		query = query.Where("transactions.amount >= ?", filter.AmountMoreOrEqual)
 	}
 
 	if filter.Note != "" {

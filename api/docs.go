@@ -2402,6 +2402,24 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Filter by amount",
+                        "name": "amount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Amount less than or equal to this",
+                        "name": "amountLessOrEqual",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Amount more than or equal to this",
+                        "name": "amountMoreOrEqual",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Filter by note",
                         "name": "note",
                         "in": "query"

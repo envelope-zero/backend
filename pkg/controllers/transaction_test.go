@@ -174,6 +174,15 @@ func (suite *TestSuiteStandard) TestGetTransactionsFilter() {
 		{"Non-existing Account", "account=534a3562-c5e8-46d1-a2e2-e96c00e7efec", 0},
 		{"Existing Account 2", fmt.Sprintf("account=%s", a2.Data.ID), 3},
 		{"Existing Account 1", fmt.Sprintf("account=%s", a1.Data.ID), 2},
+		{"Amount less or equal to 2.71", "amountLessOrEqual=2.71", 0},
+		{"Amount less or equal to 2.718", "amountLessOrEqual=2.718", 2},
+		{"Amount less or equal to 1000", "amountLessOrEqual=1000", 2},
+		{"Amount more or equal to 2.718", "amountMoreOrEqual=2.718", 3},
+		{"Amount more or equal to 11235.813", "amountMoreOrEqual=11235.813", 1},
+		{"Amount more or equal to 99999", "amountMoreOrEqual=99999", 0},
+		{"Amount more or equal to 100", "amountMoreOrEqual=100", 1},
+		{"Amount more or equal to 100 and less than 10", "amountMoreOrEqual=100&amountLessOrEqual=10", 0},
+		{"Amount more or equal to 1 and less than 3", "amountMoreOrEqual=1&amountLessOrEqual=3", 2},
 	}
 
 	for _, tt := range tests {
