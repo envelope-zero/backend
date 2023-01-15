@@ -2486,6 +2486,18 @@ paths:
     get:
       description: Returns a list of transactions
       parameters:
+      - description: Filter by amount
+        in: query
+        name: amount
+        type: string
+      - description: Amount less than or equal to this
+        in: query
+        name: amountLessOrEqual
+        type: string
+      - description: Amount more than or equal to this
+        in: query
+        name: amountMoreOrEqual
+        type: string
       - description: Filter by note
         in: query
         name: note
