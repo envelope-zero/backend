@@ -2408,6 +2408,18 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided.",
+                        "name": "fromDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transactions before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided.",
+                        "name": "untilDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Filter by amount",
                         "name": "amount",
                         "in": "query"
