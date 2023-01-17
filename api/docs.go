@@ -2402,6 +2402,12 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided.",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Filter by amount",
                         "name": "amount",
                         "in": "query"
