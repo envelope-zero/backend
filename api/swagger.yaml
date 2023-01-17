@@ -2491,6 +2491,16 @@ paths:
         in: query
         name: date
         type: string
+      - description: Transactions at and after this date. Ignores exact time, matches
+          on the day of the RFC3339 timestamp provided.
+        in: query
+        name: fromDate
+        type: string
+      - description: Transactions before and at this date. Ignores exact time, matches
+          on the day of the RFC3339 timestamp provided.
+        in: query
+        name: untilDate
+        type: string
       - description: Filter by amount
         in: query
         name: amount

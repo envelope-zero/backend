@@ -34,6 +34,8 @@ type TransactionLinks struct {
 
 type TransactionQueryFilter struct {
 	Date                  time.Time       `form:"date" filterField:"false"`
+	FromDate              time.Time       `form:"fromDate" filterField:"false"`
+	UntilDate             time.Time       `form:"untilDate" filterField:"false"`
 	Amount                decimal.Decimal `form:"amount"`
 	AmountLessOrEqual     decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
 	AmountMoreOrEqual     decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
@@ -201,6 +203,8 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/transactions [get]
 //	@Param			date					query	string	false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+//	@Param			fromDate				query	string	false	"Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+//	@Param			untilDate				query	string	false	"Transactions before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
 //	@Param			amount					query	string	false	"Filter by amount"
 //	@Param			amountLessOrEqual		query	string	false	"Amount less than or equal to this"
 //	@Param			amountMoreOrEqual		query	string	false	"Amount more than or equal to this"
@@ -238,6 +242,14 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	if !filter.Date.IsZero() {
 		date := time.Date(filter.Date.Year(), filter.Date.Month(), filter.Date.Day(), 0, 0, 0, 0, time.UTC)
 		query = query.Where("transactions.date >= date(?)", date).Where("transactions.date < date(?)", date.AddDate(0, 0, 1))
+	}
+
+	if !filter.FromDate.IsZero() {
+		query = query.Where("transactions.date >= date(?)", time.Date(filter.FromDate.Year(), filter.FromDate.Month(), filter.FromDate.Day(), 0, 0, 0, 0, time.UTC))
+	}
+
+	if !filter.UntilDate.IsZero() {
+		query = query.Where("transactions.date <= date(?)", time.Date(filter.UntilDate.Year(), filter.UntilDate.Month(), filter.UntilDate.Day(), 0, 0, 0, 0, time.UTC))
 	}
 
 	if filter.AccountID != "" {
