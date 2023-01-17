@@ -285,7 +285,11 @@ func (suite *TestSuiteStandard) TestBudgetMonth() {
 					Income: decimal.NewFromFloat(0),
 					Envelopes: []models.EnvelopeMonth{
 						{
-							Name:       "Utilities",
+							Envelope: models.Envelope{
+								EnvelopeCreate: models.EnvelopeCreate{
+									Name: "Utilities",
+								},
+							},
 							Month:      types.NewMonth(2022, 1),
 							Spent:      decimal.NewFromFloat(-10),
 							Balance:    decimal.NewFromFloat(10.99),
@@ -303,7 +307,11 @@ func (suite *TestSuiteStandard) TestBudgetMonth() {
 					Income: decimal.NewFromFloat(0),
 					Envelopes: []models.EnvelopeMonth{
 						{
-							Name:       "Utilities",
+							Envelope: models.Envelope{
+								EnvelopeCreate: models.EnvelopeCreate{
+									Name: "Utilities",
+								},
+							},
 							Month:      types.NewMonth(2022, 2),
 							Balance:    decimal.NewFromFloat(53.11),
 							Spent:      decimal.NewFromFloat(-5),
@@ -321,7 +329,11 @@ func (suite *TestSuiteStandard) TestBudgetMonth() {
 					Income: decimal.NewFromFloat(1500),
 					Envelopes: []models.EnvelopeMonth{
 						{
-							Name:       "Utilities",
+							Envelope: models.Envelope{
+								EnvelopeCreate: models.EnvelopeCreate{
+									Name: "Utilities",
+								},
+							},
 							Month:      types.NewMonth(2022, 3),
 							Balance:    decimal.NewFromFloat(69.28),
 							Spent:      decimal.NewFromFloat(-15),

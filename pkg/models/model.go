@@ -11,16 +11,16 @@ import (
 // As EnvelopeMonth uses the Envelope ID and the Month as primary key,
 // we the timestamps are managed in the Timestamps struct.
 type DefaultModel struct {
-	ID uuid.UUID `json:"id" example:"65392deb-5e92-4268-b114-297faad6cdce"`
+	ID uuid.UUID `json:"id" example:"65392deb-5e92-4268-b114-297faad6cdce"` // UUID for the resource
 	Timestamps
 }
 
 // Timestamps only contains the timestamps that gorm sets automatically to enable other
 // primary keys than ID.
 type Timestamps struct {
-	CreatedAt time.Time       `json:"createdAt" example:"2022-04-02T19:28:44.491514Z"`
-	UpdatedAt time.Time       `json:"updatedAt" example:"2022-04-17T20:14:01.048145Z"`
-	DeletedAt *gorm.DeletedAt `json:"deletedAt" gorm:"index" example:"2022-04-22T21:01:05.058161Z" swaggertype:"primitive,string"`
+	CreatedAt time.Time       `json:"createdAt" example:"2022-04-02T19:28:44.491514Z"`                                             // Time the resource was created
+	UpdatedAt time.Time       `json:"updatedAt" example:"2022-04-17T20:14:01.048145Z"`                                             // Last time the resource was updated
+	DeletedAt *gorm.DeletedAt `json:"deletedAt" gorm:"index" example:"2022-04-22T21:01:05.058161Z" swaggertype:"primitive,string"` // Time the resource was marked as deleted
 }
 
 // AfterFind updates the timestamps to use UTC as

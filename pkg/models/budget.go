@@ -114,12 +114,11 @@ func (b Budget) Allocated(db *gorm.DB, month types.Month) (allocated decimal.Dec
 }
 
 type CategoryEnvelopes struct {
-	ID         uuid.UUID       `json:"id" example:"dafd9a74-6aeb-46b9-9f5a-cfca624fea85"` // ID of the category
-	Name       string          `json:"name" example:"Rainy Day Funds" default:""`         // Name of the category
-	Envelopes  []EnvelopeMonth `json:"envelopes"`                                         // Slice of all envelopes
-	Balance    decimal.Decimal `json:"balance" example:"-10.13"`                          // Sum of the balances of the envelopes
-	Allocation decimal.Decimal `json:"allocation" example:"90"`                           // Sum of allocations for the envelopes
-	Spent      decimal.Decimal `json:"spent" example:"100.13"`                            // Sum spent for all envelopes
+	Category
+	Envelopes  []EnvelopeMonth `json:"envelopes"`                // Slice of all envelopes
+	Balance    decimal.Decimal `json:"balance" example:"-10.13"` // Sum of the balances of the envelopes
+	Allocation decimal.Decimal `json:"allocation" example:"90"`  // Sum of allocations for the envelopes
+	Spent      decimal.Decimal `json:"spent" example:"100.13"`   // Sum spent for all envelopes
 }
 
 type Month struct {
@@ -175,8 +174,7 @@ func (b Budget) Month(db *gorm.DB, month types.Month, baseURL string) (Month, er
 		var categoryEnvelopes CategoryEnvelopes
 
 		// Set the basic category values
-		categoryEnvelopes.ID = category.ID
-		categoryEnvelopes.Name = category.Name
+		categoryEnvelopes.Category = category
 		categoryEnvelopes.Envelopes = make([]EnvelopeMonth, 0)
 
 		var envelopes []Envelope
