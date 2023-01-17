@@ -2486,6 +2486,11 @@ paths:
     get:
       description: Returns a list of transactions
       parameters:
+      - description: Date of the transaction. Ignores exact time, matches on the day
+          of the RFC3339 timestamp provided.
+        in: query
+        name: date
+        type: string
       - description: Filter by amount
         in: query
         name: amount
