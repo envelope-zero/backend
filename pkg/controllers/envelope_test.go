@@ -291,7 +291,11 @@ func (suite *TestSuiteStandard) TestEnvelopeMonth() {
 		{
 			fmt.Sprintf("%s/2022-01", envelope.Data.Links.Self),
 			models.EnvelopeMonth{
-				Name:       "Utilities",
+				Envelope: models.Envelope{
+					EnvelopeCreate: models.EnvelopeCreate{
+						Name: "Utilities",
+					},
+				},
 				Month:      types.NewMonth(2022, 1),
 				Spent:      decimal.NewFromFloat(-10),
 				Balance:    decimal.NewFromFloat(10.99),
@@ -301,7 +305,11 @@ func (suite *TestSuiteStandard) TestEnvelopeMonth() {
 		{
 			fmt.Sprintf("%s/2022-02", envelope.Data.Links.Self),
 			models.EnvelopeMonth{
-				Name:       "Utilities",
+				Envelope: models.Envelope{
+					EnvelopeCreate: models.EnvelopeCreate{
+						Name: "Utilities",
+					},
+				},
 				Month:      types.NewMonth(2022, 2),
 				Balance:    decimal.NewFromFloat(53.11),
 				Spent:      decimal.NewFromFloat(-5),
@@ -311,7 +319,11 @@ func (suite *TestSuiteStandard) TestEnvelopeMonth() {
 		{
 			fmt.Sprintf("%s/2022-03", envelope.Data.Links.Self),
 			models.EnvelopeMonth{
-				Name:       "Utilities",
+				Envelope: models.Envelope{
+					EnvelopeCreate: models.EnvelopeCreate{
+						Name: "Utilities",
+					},
+				},
 				Month:      types.NewMonth(2022, 3),
 				Balance:    decimal.NewFromFloat(69.28),
 				Spent:      decimal.NewFromFloat(-15),
@@ -322,7 +334,11 @@ func (suite *TestSuiteStandard) TestEnvelopeMonth() {
 		{
 			fmt.Sprintf("%s/1998-10", envelope.Data.Links.Self),
 			models.EnvelopeMonth{
-				Name:       "Utilities",
+				Envelope: models.Envelope{
+					EnvelopeCreate: models.EnvelopeCreate{
+						Name: "Utilities",
+					},
+				},
 				Month:      types.NewMonth(1998, 10),
 				Spent:      decimal.NewFromFloat(-0),
 				Balance:    decimal.NewFromFloat(0),

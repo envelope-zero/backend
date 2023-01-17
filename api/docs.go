@@ -2770,10 +2770,12 @@ const docTemplate = `{
                     "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
@@ -2788,6 +2790,7 @@ const docTemplate = `{
                     "example": true
                 },
                 "id": {
+                    "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
@@ -2828,6 +2831,7 @@ const docTemplate = `{
                     "example": 2539.57
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -2877,10 +2881,12 @@ const docTemplate = `{
                     "example": 22.01
                 },
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
@@ -2889,6 +2895,7 @@ const docTemplate = `{
                     "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
                 },
                 "id": {
+                    "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
@@ -2901,6 +2908,7 @@ const docTemplate = `{
                     "example": "2021-12-01T00:00:00.000000Z"
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -2954,6 +2962,7 @@ const docTemplate = `{
                     "example": 3423.42
                 },
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
@@ -2962,10 +2971,12 @@ const docTemplate = `{
                     "example": "€"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "id": {
+                    "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
@@ -2981,6 +2992,7 @@ const docTemplate = `{
                     "example": "My personal expenses"
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -3070,14 +3082,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
+                    "description": "ID of the budget the category belongs to",
                     "type": "string",
                     "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
                 },
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
@@ -3088,11 +3103,13 @@ const docTemplate = `{
                     }
                 },
                 "hidden": {
+                    "description": "Is the category hidden?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "id": {
+                    "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
@@ -3100,14 +3117,17 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.CategoryLinks"
                 },
                 "name": {
+                    "description": "Name of the category",
                     "type": "string",
                     "example": "Saving"
                 },
                 "note": {
+                    "description": "Notes about the category",
                     "type": "string",
                     "example": "All envelopes for long-term saving"
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -3149,23 +3169,28 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
                     "type": "string",
                     "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
                 },
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "hidden": {
+                    "description": "Is the envelope hidden?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "id": {
+                    "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
@@ -3173,14 +3198,17 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.EnvelopeLinks"
                 },
                 "name": {
+                    "description": "Name of the envelope",
                     "type": "string",
                     "example": "Groceries"
                 },
                 "note": {
+                    "description": "Notes about the envelope",
                     "type": "string",
                     "example": "For stuff bought at supermarkets and drugstores"
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -3239,10 +3267,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
@@ -3268,6 +3298,7 @@ const docTemplate = `{
                     "example": "AFFECT_ENVELOPE"
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -3334,6 +3365,7 @@ const docTemplate = `{
                     "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
                 },
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
@@ -3342,6 +3374,7 @@ const docTemplate = `{
                     "example": "1815-12-10T18:43:00.271152Z"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
@@ -3354,6 +3387,7 @@ const docTemplate = `{
                     "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
                 },
                 "id": {
+                    "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
@@ -3385,6 +3419,7 @@ const docTemplate = `{
                     "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -3549,19 +3584,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "budgetId": {
+                    "description": "ID of the budget the category belongs to",
                     "type": "string",
                     "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
                 },
                 "hidden": {
+                    "description": "Is the category hidden?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "name": {
+                    "description": "Name of the category",
                     "type": "string",
                     "example": "Saving"
                 },
                 "note": {
+                    "description": "Notes about the category",
                     "type": "string",
                     "example": "All envelopes for long-term saving"
                 }
@@ -3580,6 +3619,21 @@ const docTemplate = `{
                     "type": "number",
                     "example": -10.13
                 },
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
                 "envelopes": {
                     "description": "Slice of all envelopes",
                     "type": "array",
@@ -3587,20 +3641,36 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.EnvelopeMonth"
                     }
                 },
+                "hidden": {
+                    "description": "Is the category hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "id": {
-                    "description": "ID of the category",
+                    "description": "UUID for the resource",
                     "type": "string",
-                    "example": "dafd9a74-6aeb-46b9-9f5a-cfca624fea85"
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "name": {
                     "description": "Name of the category",
                     "type": "string",
-                    "example": "Rainy Day Funds"
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
                 },
                 "spent": {
                     "description": "Sum spent for all envelopes",
                     "type": "number",
                     "example": 100.13
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -3608,35 +3678,43 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
                     "type": "string",
                     "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
                 },
                 "createdAt": {
+                    "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "hidden": {
+                    "description": "Is the envelope hidden?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "id": {
+                    "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "name": {
+                    "description": "Name of the envelope",
                     "type": "string",
                     "example": "Groceries"
                 },
                 "note": {
+                    "description": "Notes about the envelope",
                     "type": "string",
                     "example": "For stuff bought at supermarkets and drugstores"
                 },
                 "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
                 }
@@ -3646,19 +3724,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
                     "type": "string",
                     "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
                 },
                 "hidden": {
+                    "description": "Is the envelope hidden?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "name": {
+                    "description": "Name of the envelope",
                     "type": "string",
                     "example": "Groceries"
                 },
                 "note": {
+                    "description": "Notes about the envelope",
                     "type": "string",
                     "example": "For stuff bought at supermarkets and drugstores"
                 }
@@ -3668,20 +3750,48 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "allocation": {
+                    "description": "The amount of money allocated",
                     "type": "number",
                     "example": 85.44
                 },
                 "balance": {
+                    "description": "The balance at the end of the monht",
                     "type": "number",
                     "example": 12.32
                 },
-                "id": {
-                    "description": "The ID of the Envelope",
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
                     "type": "string",
-                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "hidden": {
+                    "description": "Is the envelope hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "$ref": "#/definitions/models.EnvelopeMonthLinks"
+                    "description": "Linked resources",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EnvelopeMonthLinks"
+                        }
+                    ]
                 },
                 "month": {
                     "description": "This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**",
@@ -3689,13 +3799,24 @@ const docTemplate = `{
                     "example": "1969-06-01T00:00:00.000000Z"
                 },
                 "name": {
-                    "description": "The name of the Envelope",
+                    "description": "Name of the envelope",
                     "type": "string",
                     "example": "Groceries"
                 },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
                 "spent": {
+                    "description": "The amount spent over the whole month",
                     "type": "number",
                     "example": 73.12
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

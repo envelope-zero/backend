@@ -8,9 +8,11 @@ definitions:
         example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       external:
@@ -22,6 +24,7 @@ definitions:
         example: true
         type: boolean
       id:
+        description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       initialBalance:
@@ -52,6 +55,7 @@ definitions:
         example: 2539.57
         type: number
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
@@ -87,15 +91,18 @@ definitions:
         multipleOf: 1e-08
         type: number
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopeId:
         example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
         type: string
       id:
+        description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
@@ -107,6 +114,7 @@ definitions:
         example: "2021-12-01T00:00:00.000000Z"
         type: string
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
@@ -143,15 +151,18 @@ definitions:
         example: 3423.42
         type: number
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       currency:
         example: €
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       id:
+        description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
@@ -163,6 +174,7 @@ definitions:
         example: My personal expenses
         type: string
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
@@ -226,12 +238,15 @@ definitions:
   controllers.Category:
     properties:
       budgetId:
+        description: ID of the budget the category belongs to
         example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
         type: string
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopes:
@@ -240,20 +255,25 @@ definitions:
         type: array
       hidden:
         default: false
+        description: Is the category hidden?
         example: true
         type: boolean
       id:
+        description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
         $ref: '#/definitions/controllers.CategoryLinks'
       name:
+        description: Name of the category
         example: Saving
         type: string
       note:
+        description: Notes about the category
         example: All envelopes for long-term saving
         type: string
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
@@ -281,30 +301,38 @@ definitions:
   controllers.Envelope:
     properties:
       categoryId:
+        description: ID of the category the envelope belongs to
         example: 878c831f-af99-4a71-b3ca-80deb7d793c1
         type: string
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       hidden:
         default: false
+        description: Is the envelope hidden?
         example: true
         type: boolean
       id:
+        description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
         $ref: '#/definitions/controllers.EnvelopeLinks'
       name:
+        description: Name of the envelope
         example: Groceries
         type: string
       note:
+        description: Notes about the envelope
         example: For stuff bought at supermarkets and drugstores
         type: string
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
@@ -345,9 +373,11 @@ definitions:
   controllers.MonthConfig:
     properties:
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopeId:
@@ -365,6 +395,7 @@ definitions:
         default: AFFECT_AVAILABLE
         example: AFFECT_ENVELOPE
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
@@ -414,12 +445,14 @@ definitions:
         example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
         type: string
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       date:
         example: "1815-12-10T18:43:00.271152Z"
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       destinationAccountId:
@@ -429,6 +462,7 @@ definitions:
         example: 2649c965-7999-4873-ae16-89d5d5fa972e
         type: string
       id:
+        description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
@@ -455,6 +489,7 @@ definitions:
         example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
         type: string
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
@@ -576,16 +611,20 @@ definitions:
   models.CategoryCreate:
     properties:
       budgetId:
+        description: ID of the budget the category belongs to
         example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
         type: string
       hidden:
         default: false
+        description: Is the category hidden?
         example: true
         type: boolean
       name:
+        description: Name of the category
         example: Saving
         type: string
       note:
+        description: Notes about the category
         example: All envelopes for long-term saving
         type: string
     type: object
@@ -599,94 +638,161 @@ definitions:
         description: Sum of the balances of the envelopes
         example: -10.13
         type: number
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
       envelopes:
         description: Slice of all envelopes
         items:
           $ref: '#/definitions/models.EnvelopeMonth'
         type: array
+      hidden:
+        default: false
+        description: Is the category hidden?
+        example: true
+        type: boolean
       id:
-        description: ID of the category
-        example: dafd9a74-6aeb-46b9-9f5a-cfca624fea85
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       name:
         description: Name of the category
-        example: Rainy Day Funds
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
         type: string
       spent:
         description: Sum spent for all envelopes
         example: 100.13
         type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   models.Envelope:
     properties:
       categoryId:
+        description: ID of the category the envelope belongs to
         example: 878c831f-af99-4a71-b3ca-80deb7d793c1
         type: string
       createdAt:
+        description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       deletedAt:
+        description: Time the resource was marked as deleted
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       hidden:
         default: false
+        description: Is the envelope hidden?
         example: true
         type: boolean
       id:
+        description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       name:
+        description: Name of the envelope
         example: Groceries
         type: string
       note:
+        description: Notes about the envelope
         example: For stuff bought at supermarkets and drugstores
         type: string
       updatedAt:
+        description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   models.EnvelopeCreate:
     properties:
       categoryId:
+        description: ID of the category the envelope belongs to
         example: 878c831f-af99-4a71-b3ca-80deb7d793c1
         type: string
       hidden:
         default: false
+        description: Is the envelope hidden?
         example: true
         type: boolean
       name:
+        description: Name of the envelope
         example: Groceries
         type: string
       note:
+        description: Notes about the envelope
         example: For stuff bought at supermarkets and drugstores
         type: string
     type: object
   models.EnvelopeMonth:
     properties:
       allocation:
+        description: The amount of money allocated
         example: 85.44
         type: number
       balance:
+        description: The balance at the end of the monht
         example: 12.32
         type: number
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      hidden:
+        default: false
+        description: Is the envelope hidden?
+        example: true
+        type: boolean
       id:
-        description: The ID of the Envelope
-        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        $ref: '#/definitions/models.EnvelopeMonthLinks'
+        allOf:
+        - $ref: '#/definitions/models.EnvelopeMonthLinks'
+        description: Linked resources
       month:
         description: This is always set to 00:00 UTC on the first of the month. **This
           field is deprecated and will be removed in v2**
         example: "1969-06-01T00:00:00.000000Z"
         type: string
       name:
-        description: The name of the Envelope
+        description: Name of the envelope
         example: Groceries
         type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
       spent:
+        description: The amount spent over the whole month
         example: 73.12
         type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   models.EnvelopeMonthLinks:
     properties:
