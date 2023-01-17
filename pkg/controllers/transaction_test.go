@@ -190,6 +190,7 @@ func (suite *TestSuiteStandard) TestGetTransactionsFilter() {
 		{"Amount more or equal to 100", "amountMoreOrEqual=100", 1},
 		{"Amount more or equal to 100 and less than 10", "amountMoreOrEqual=100&amountLessOrEqual=10", 0},
 		{"Amount more or equal to 1 and less than 3", "amountMoreOrEqual=1&amountLessOrEqual=3", 2},
+		{"Regression - For 'account', query needs to be ORed between the accounts and ANDed with all other conditions", fmt.Sprintf("note=&account=%s", a2.Data.ID), 1},
 	}
 
 	for _, tt := range tests {

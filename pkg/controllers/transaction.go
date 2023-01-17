@@ -258,7 +258,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 			return
 		}
 
-		query = query.Where(&models.Transaction{
+		query = query.Where(co.DB.Where(&models.Transaction{
 			TransactionCreate: models.TransactionCreate{
 				SourceAccountID: accountID,
 			},
@@ -266,7 +266,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 			TransactionCreate: models.TransactionCreate{
 				DestinationAccountID: accountID,
 			},
-		})
+		}))
 	}
 
 	if !filter.AmountLessOrEqual.IsZero() {
