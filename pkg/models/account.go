@@ -1,9 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/envelope-zero/backend/v2/internal/types"
+	"github.com/envelope-zero/backend/v2/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -16,6 +18,10 @@ type Account struct {
 	Budget            Budget          `json:"-"`
 	Balance           decimal.Decimal `json:"balance" gorm:"-" example:"2735.17"`
 	ReconciledBalance decimal.Decimal `json:"reconciledBalance" gorm:"-" example:"2539.57"`
+	Links             struct {
+		Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+	} `json:"links" gorm:"-"`
 }
 
 type AccountCreate struct {
@@ -42,6 +48,24 @@ func (a Account) WithCalculations(db *gorm.DB) (Account, error) {
 	}
 
 	return a, nil
+}
+
+func (a *Account) AfterFind(tx *gorm.DB) (err error) {
+	a.links(tx)
+	return
+}
+
+// AfterSave also sets the links so that we do not need to
+// query the resource directly after creating or updating it.
+func (a *Account) AfterSave(tx *gorm.DB) (err error) {
+	a.links(tx)
+	return
+}
+
+func (a *Account) links(tx *gorm.DB) {
+	url := tx.Statement.Context.Value(database.ContextURL)
+	a.Links.Self = fmt.Sprintf("%s/v1/accounts/%s", url, a.ID)
+	a.Links.Transactions = fmt.Sprintf("%s/v1/transactions?account=%s", url, a.ID)
 }
 
 // BeforeSave sets OnBudget to false when External is true.

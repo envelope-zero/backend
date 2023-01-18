@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -15,20 +14,11 @@ import (
 )
 
 type AllocationResponse struct {
-	Data Allocation `json:"data"`
+	Data models.Allocation `json:"data"`
 }
 
 type AllocationListResponse struct {
-	Data []Allocation `json:"data"`
-}
-
-type Allocation struct {
-	models.Allocation
-	Links AllocationLinks `json:"links"`
-}
-
-type AllocationLinks struct {
-	Self string `json:"self" example:"https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"`
+	Data []models.Allocation `json:"data"`
 }
 
 type AllocationQueryFilter struct {
@@ -95,13 +85,13 @@ func (co Controller) OptionsAllocationList(c *gin.Context) {
 //	@Param			allocationId	path	string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{allocationId} [options]
 func (co Controller) OptionsAllocationDetail(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := co.getAllocationObject(c, p)
+	_, ok := co.getAllocationResource(c, id)
 	if !ok {
 		return
 	}
@@ -137,8 +127,7 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	allocationObject, _ := co.getAllocationObject(c, allocation.ID)
-	c.JSON(http.StatusCreated, AllocationResponse{Data: allocationObject})
+	c.JSON(http.StatusCreated, AllocationResponse{Data: allocation})
 }
 
 // GetAllocations returns a list of allocations matching the search parameters
@@ -181,14 +170,11 @@ func (co Controller) GetAllocations(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	allocationObjects := make([]Allocation, 0)
-
-	for _, allocation := range allocations {
-		o, _ := co.getAllocationObject(c, allocation.ID)
-		allocationObjects = append(allocationObjects, o)
+	if len(allocations) == 0 {
+		allocations = make([]models.Allocation, 0)
 	}
 
-	c.JSON(http.StatusOK, AllocationListResponse{Data: allocationObjects})
+	c.JSON(http.StatusOK, AllocationListResponse{Data: allocations})
 }
 
 // GetAllocation returns data about a specific allocation
@@ -204,13 +190,13 @@ func (co Controller) GetAllocations(c *gin.Context) {
 //	@Param			allocationId	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{allocationId} [get]
 func (co Controller) GetAllocation(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	allocationObject, ok := co.getAllocationObject(c, p)
+	allocationObject, ok := co.getAllocationResource(c, id)
 	if !ok {
 		return
 	}
@@ -233,13 +219,13 @@ func (co Controller) GetAllocation(c *gin.Context) {
 //	@Param			allocation		body		models.AllocationCreate	true	"Allocation"
 //	@Router			/v1/allocations/{allocationId} [patch]
 func (co Controller) UpdateAllocation(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	allocation, ok := co.getAllocationResource(c, p)
+	allocation, ok := co.getAllocationResource(c, id)
 	if !ok {
 		return
 	}
@@ -258,8 +244,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	allocationObject, _ := co.getAllocationObject(c, allocation.ID)
-	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
+	c.JSON(http.StatusOK, AllocationResponse{Data: allocation})
 }
 
 // DeleteAllocation deletes an allocation
@@ -274,13 +259,13 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 //	@Param			allocationId	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{allocationId} [delete]
 func (co Controller) DeleteAllocation(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("allocationId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	allocation, ok := co.getAllocationResource(c, p)
+	allocation, ok := co.getAllocationResource(c, id)
 	if !ok {
 		return
 	}
@@ -311,18 +296,4 @@ func (co Controller) getAllocationResource(c *gin.Context, id uuid.UUID) (models
 	}
 
 	return allocation, true
-}
-
-func (co Controller) getAllocationObject(c *gin.Context, id uuid.UUID) (Allocation, bool) {
-	resource, ok := co.getAllocationResource(c, id)
-	if !ok {
-		return Allocation{}, false
-	}
-
-	return Allocation{
-		resource,
-		AllocationLinks{
-			Self: fmt.Sprintf("%s/v1/allocations/%s", c.GetString("baseURL"), id),
-		},
-	}, true
 }

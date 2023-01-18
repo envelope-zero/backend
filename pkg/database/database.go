@@ -11,6 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type EZContext string
+
+const (
+	ContextURL EZContext = "ez-backend-url"
+)
+
 // Connect opens the SQLite database and configures the connection pool.
 func Connect(dsn string) (*gorm.DB, error) {
 	config := &gorm.Config{
@@ -48,7 +54,7 @@ func CreateDir(path string) error {
 
 	err := os.MkdirAll(dataDir, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("Failed to create directory: %w", err)
+		return fmt.Errorf("failed to create directory: %w", err)
 	}
 	return nil
 }

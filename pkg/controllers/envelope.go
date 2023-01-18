@@ -14,27 +14,15 @@ import (
 )
 
 type EnvelopeListResponse struct {
-	Data []Envelope `json:"data"`
+	Data []models.Envelope `json:"data"`
 }
 
 type EnvelopeResponse struct {
-	Data Envelope `json:"data"`
-}
-
-type Envelope struct {
-	models.Envelope
-	Links EnvelopeLinks `json:"links"`
+	Data models.Envelope `json:"data"`
 }
 
 type EnvelopeMonthResponse struct {
 	Data models.EnvelopeMonth `json:"data"`
-}
-
-type EnvelopeLinks struct {
-	Self         string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
-	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
-	Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"` // This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`
 }
 
 type EnvelopeQueryFilter struct {
@@ -96,13 +84,13 @@ func (co Controller) OptionsEnvelopeList(c *gin.Context) {
 //	@Param			envelopeId	path	string	true	"ID formatted as string"
 //	@Router			/v1/envelopes/{envelopeId} [options]
 func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := co.getEnvelopeObject(c, p)
+	_, ok := co.getEnvelopeResource(c, id)
 	if !ok {
 		return
 	}
@@ -139,8 +127,9 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelopeObject, _ := co.getEnvelopeObject(c, envelope.ID)
-	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelopeObject})
+	// TODO: Remove
+	// envelopeObject, _ := co.getEnvelopeResource(c, envelope.ID)
+	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelope})
 }
 
 // GetEnvelopes returns a list of envelopes filtered by the query parameters
@@ -196,14 +185,11 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	envelopeObjects := make([]Envelope, 0)
-
-	for _, envelope := range envelopes {
-		o, _ := co.getEnvelopeObject(c, envelope.ID)
-		envelopeObjects = append(envelopeObjects, o)
+	if len(envelopes) == 0 {
+		envelopes = make([]models.Envelope, 0)
 	}
 
-	c.JSON(http.StatusOK, EnvelopeListResponse{Data: envelopeObjects})
+	c.JSON(http.StatusOK, EnvelopeListResponse{Data: envelopes})
 }
 
 // GetEnvelope returns data about a specific envelope
@@ -219,13 +205,13 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 //	@Param			envelopeId	path		string	true	"ID formatted as string"
 //	@Router			/v1/envelopes/{envelopeId} [get]
 func (co Controller) GetEnvelope(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	envelopeObject, ok := co.getEnvelopeObject(c, p)
+	envelopeObject, ok := co.getEnvelopeResource(c, id)
 	if !ok {
 		return
 	}
@@ -248,7 +234,7 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 //	@Router			/v1/envelopes/{envelopeId}/{month} [get]
 //	@Deprecated		true
 func (co Controller) GetEnvelopeMonth(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -260,7 +246,7 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := co.getEnvelopeResource(c, p)
+	envelope, ok := co.getEnvelopeResource(c, id)
 	if !ok {
 		httperrors.Handler(c, err)
 		return
@@ -295,13 +281,13 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 //	@Param			envelope	body		models.EnvelopeCreate	true	"Envelope"
 //	@Router			/v1/envelopes/{envelopeId} [patch]
 func (co Controller) UpdateEnvelope(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	envelope, ok := co.getEnvelopeResource(c, p)
+	envelope, ok := co.getEnvelopeResource(c, id)
 	if !ok {
 		return
 	}
@@ -320,8 +306,9 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelopeObject, _ := co.getEnvelopeObject(c, envelope.ID)
-	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
+	// TODO: Remove
+	// envelopeObject, _ := co.getEnvelopeResource(c, envelope.ID)
+	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelope})
 }
 
 // DeleteEnvelope deletes an envelope
@@ -336,13 +323,13 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 //	@Param			envelopeId	path		string	true	"ID formatted as string"
 //	@Router			/v1/envelopes/{envelopeId} [delete]
 func (co Controller) DeleteEnvelope(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("envelopeId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	envelope, ok := co.getEnvelopeResource(c, p)
+	envelope, ok := co.getEnvelopeResource(c, id)
 	if !ok {
 		return
 	}
@@ -372,43 +359,4 @@ func (co Controller) getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.E
 	}
 
 	return envelope, true
-}
-
-func (co Controller) getEnvelopeObject(c *gin.Context, id uuid.UUID) (Envelope, bool) {
-	resource, ok := co.getEnvelopeResource(c, id)
-	if !ok {
-		return Envelope{}, false
-	}
-
-	url := fmt.Sprintf("%s/v1/envelopes/%s", c.GetString("baseURL"), id)
-
-	return Envelope{
-		resource,
-		EnvelopeLinks{
-			Self:         url,
-			Allocations:  url + "/allocations",
-			Month:        url + "/YYYY-MM",
-			Transactions: fmt.Sprintf("%s/v1/transactions?envelope=%s", c.GetString("baseURL"), id),
-		},
-	}, true
-}
-
-func (co Controller) getEnvelopeObjects(c *gin.Context, categoryID uuid.UUID) ([]Envelope, bool) {
-	var envelopes []models.Envelope
-
-	if !queryWithRetry(c, co.DB.Where(&models.Envelope{
-		EnvelopeCreate: models.EnvelopeCreate{
-			CategoryID: categoryID,
-		},
-	}).Find(&envelopes)) {
-		return []Envelope{}, false
-	}
-
-	envelopeObjects := make([]Envelope, 0)
-	for _, envelope := range envelopes {
-		o, _ := co.getEnvelopeObject(c, envelope.ID)
-		envelopeObjects = append(envelopeObjects, o)
-	}
-
-	return envelopeObjects, true
 }

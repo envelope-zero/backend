@@ -1,10 +1,12 @@
 package models
 
 import (
+	"fmt"
 	"sort"
 	"time"
 
 	"github.com/envelope-zero/backend/v2/internal/types"
+	"github.com/envelope-zero/backend/v2/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -15,6 +17,12 @@ type Envelope struct {
 	DefaultModel
 	EnvelopeCreate
 	Category Category `json:"-"`
+	Links    struct {
+		Self         string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                     // URL of the envelope
+		Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`   // URL for the envelope's allocations
+		Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // URL to query for month information. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
+		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // URL for the envelope's transactions
+	} `json:"links" gorm:"-"` // Links to related resources
 }
 
 type EnvelopeCreate struct {
@@ -24,18 +32,26 @@ type EnvelopeCreate struct {
 	Hidden     bool      `json:"hidden" example:"true" default:"false"`                                                               // Is the envelope hidden?
 }
 
-type EnvelopeMonthLinks struct {
-	Allocation string `json:"allocation" example:"https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"` // This is an empty string when no allocation exists
+func (e *Envelope) AfterFind(tx *gorm.DB) (err error) {
+	e.links(tx)
+	return
 }
 
-// EnvelopeMonth contains data about an Envelope for a specific month.
-type EnvelopeMonth struct {
-	Envelope
-	Month      types.Month        `json:"month" example:"1969-06-01T00:00:00.000000Z" hidden:"deprecated"` // This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**
-	Spent      decimal.Decimal    `json:"spent" example:"73.12"`                                           // The amount spent over the whole month
-	Balance    decimal.Decimal    `json:"balance" example:"12.32"`                                         // The balance at the end of the monht
-	Allocation decimal.Decimal    `json:"allocation" example:"85.44"`                                      // The amount of money allocated
-	Links      EnvelopeMonthLinks `json:"links"`                                                           // Linked resources
+// AfterSave also sets the links so that we do not need to
+// query the resource directly after creating or updating it.
+func (e *Envelope) AfterSave(tx *gorm.DB) (err error) {
+	e.links(tx)
+	return
+}
+
+func (e *Envelope) links(tx *gorm.DB) {
+	url := tx.Statement.Context.Value(database.ContextURL)
+	self := fmt.Sprintf("%s/v1/envelopes/%s", url, e.ID)
+
+	e.Links.Self = self
+	e.Links.Allocations = self + "/allocations"
+	e.Links.Month = self + "/YYYY-MM"
+	e.Links.Transactions = fmt.Sprintf("%s/v1/transactions?envelope=%s", url, e.ID)
 }
 
 // Spent returns the amount spent for the month the time.Time instance is in.
@@ -259,6 +275,20 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 	}
 
 	return sum, nil
+}
+
+type EnvelopeMonthLinks struct {
+	Allocation string `json:"allocation" example:"https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"` // This is an empty string when no allocation exists
+}
+
+// EnvelopeMonth contains data about an Envelope for a specific month.
+type EnvelopeMonth struct {
+	Envelope
+	Month      types.Month        `json:"month" example:"1969-06-01T00:00:00.000000Z" hidden:"deprecated"` // This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**
+	Spent      decimal.Decimal    `json:"spent" example:"73.12"`                                           // The amount spent over the whole month
+	Balance    decimal.Decimal    `json:"balance" example:"12.32"`                                         // The balance at the end of the monht
+	Allocation decimal.Decimal    `json:"allocation" example:"85.44"`                                      // The amount of money allocated
+	Links      EnvelopeMonthLinks `json:"links"`                                                           // Linked resources
 }
 
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth and allocation ID for them.

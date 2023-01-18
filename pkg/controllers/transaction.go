@@ -16,20 +16,11 @@ import (
 )
 
 type TransactionListResponse struct {
-	Data []Transaction `json:"data"`
+	Data []models.Transaction `json:"data"`
 }
 
 type TransactionResponse struct {
-	Data Transaction `json:"data"`
-}
-
-type Transaction struct {
-	models.Transaction
-	Links TransactionLinks `json:"links"`
-}
-
-type TransactionLinks struct {
-	Self string `json:"self" example:"https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"`
+	Data models.Transaction `json:"data"`
 }
 
 type TransactionQueryFilter struct {
@@ -128,16 +119,19 @@ func (co Controller) OptionsTransactionList(c *gin.Context) {
 //	@Param			transactionId	path	string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [options]
 func (co Controller) OptionsTransactionDetail(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("transactionId"))
+	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := co.getTransactionObject(c, p)
-	if !ok {
+	var t models.Transaction
+	err = co.DB.First(&t, id).Error
+	if err != nil {
+		httperrors.Handler(c, err)
 		return
 	}
+
 	httputil.OptionsGetPatchDelete(c)
 }
 
@@ -187,8 +181,13 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	transactionObject, _ := co.getTransactionObject(c, transaction.ID)
-	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
+	// TODO: Delete
+	// err := co.DB.First(&transaction, transaction.ID).Error
+	// if err != nil {
+	// 	httperrors.Handler(c, err)
+	// 	return
+	// }
+	c.JSON(http.StatusCreated, TransactionResponse{Data: transaction})
 }
 
 // GetTransactions returns transactions filtered by the query parameters
@@ -291,13 +290,11 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	transactionObjects := make([]Transaction, 0)
-	for _, transaction := range transactions {
-		o, _ := co.getTransactionObject(c, transaction.ID)
-		transactionObjects = append(transactionObjects, o)
+	if len(transactions) == 0 {
+		transactions = make([]models.Transaction, 0)
 	}
 
-	c.JSON(http.StatusOK, TransactionListResponse{Data: transactionObjects})
+	c.JSON(http.StatusOK, TransactionListResponse{Data: transactions})
 }
 
 // GetTransaction returns a specific transaction
@@ -313,18 +310,20 @@ func (co Controller) GetTransactions(c *gin.Context) {
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [get]
 func (co Controller) GetTransaction(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("transactionId"))
+	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	transactionObject, ok := co.getTransactionObject(c, p)
-	if !ok {
+	var t models.Transaction
+	err = co.DB.First(&t, id).Error
+	if err != nil {
+		httperrors.Handler(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
+	c.JSON(http.StatusOK, TransactionResponse{Data: t})
 }
 
 // UpdateTransaction updates a specific transaction
@@ -342,13 +341,13 @@ func (co Controller) GetTransaction(c *gin.Context) {
 //	@Param			transaction		body		models.TransactionCreate	true	"Transaction"
 //	@Router			/v1/transactions/{transactionId} [patch]
 func (co Controller) UpdateTransaction(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("transactionId"))
+	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	transaction, ok := co.getTransactionResource(c, p)
+	transaction, ok := co.getTransactionResource(c, id)
 	if !ok {
 		return
 	}
@@ -398,8 +397,13 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	transactionObject, _ := co.getTransactionObject(c, p)
-	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
+	// TODO: Remove
+	// err = co.DB.First(&transaction, id).Error
+	// if err != nil {
+	// 	httperrors.Handler(c, err)
+	// 	return
+	// }
+	c.JSON(http.StatusOK, TransactionResponse{Data: transaction})
 }
 
 // DeleteTransaction deletes a specific transaction
@@ -414,13 +418,13 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [delete]
 func (co Controller) DeleteTransaction(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("transactionId"))
+	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	transaction, ok := co.getTransactionResource(c, p)
+	transaction, ok := co.getTransactionResource(c, id)
 	if !ok {
 		return
 	}
@@ -450,20 +454,6 @@ func (co Controller) getTransactionResource(c *gin.Context, id uuid.UUID) (model
 	}
 
 	return transaction, true
-}
-
-func (co Controller) getTransactionObject(c *gin.Context, id uuid.UUID) (Transaction, bool) {
-	resource, ok := co.getTransactionResource(c, id)
-	if !ok {
-		return Transaction{}, false
-	}
-
-	return Transaction{
-		resource,
-		TransactionLinks{
-			Self: fmt.Sprintf("%s/v1/transactions/%s", c.GetString("baseURL"), id),
-		},
-	}, true
 }
 
 // checkTransaction verifies that the transaction is correct

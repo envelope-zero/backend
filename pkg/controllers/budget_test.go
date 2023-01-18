@@ -55,6 +55,10 @@ func (suite *TestSuiteStandard) TestOptionsBudget() {
 	path = suite.createTestBudget(models.BudgetCreate{}).Data.Links.Self
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+
+	path = suite.createTestBudget(models.BudgetCreate{}).Data.Links.MonthAllocations
+	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
+	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteStandard) TestOptionsBudgetMonth() {

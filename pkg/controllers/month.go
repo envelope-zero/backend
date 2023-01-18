@@ -91,7 +91,7 @@ func (co Controller) GetMonth(c *gin.Context) {
 		return
 	}
 
-	month, err := budget.Month(co.DB, qMonth, c.GetString("baseURL"))
+	month, err := budget.Month(co.DB, qMonth)
 	if err != nil {
 		httperrors.Handler(c, err)
 	}

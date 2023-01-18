@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"reflect"
 	"testing"
@@ -26,9 +27,9 @@ func decodeResponse(t *testing.T, r *httptest.ResponseRecorder, target interface
 
 func TestGinMode(t *testing.T) {
 	os.Setenv("GIN_MODE", "debug")
-	os.Setenv("API_URL", "http://example.com")
+	url, _ := url.Parse("http://example.com")
 
-	r, err := router.Config()
+	r, err := router.Config(url)
 	assert.Nil(t, err, "Error on router initialization")
 
 	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
@@ -40,14 +41,13 @@ func TestGinMode(t *testing.T) {
 	assert.True(t, gin.IsDebugging())
 
 	os.Unsetenv("GIN_MODE")
-	os.Unsetenv("API_URL")
 }
 
 func TetsPprofOff(t *testing.T) {
 	os.Setenv("ENABLE_PPROF", "false")
-	os.Setenv("API_URL", "http://example.com")
+	url, _ := url.Parse("http://example.com")
 
-	r, err := router.Config()
+	r, err := router.Config(url)
 	assert.Nil(t, err, "Error on router initialization")
 
 	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
@@ -62,30 +62,16 @@ func TetsPprofOff(t *testing.T) {
 	os.Unsetenv("ENABLE_PPROF")
 }
 
-func TestEnvUnset(t *testing.T) {
-	_, err := router.Config()
-
-	assert.NotNil(t, err, "API_URL is unset, this must lead to an error")
-}
-
-func TestEnvNoURL(t *testing.T) {
-	os.Setenv("API_URL", "\\:veryMuchNotAURL")
-	_, err := router.Config()
-
-	assert.NotNil(t, err, "API_URL is not an URL, this must lead to an error")
-}
-
 // TestCorsSetting checks that setting of CORS works.
 // It does not check the actual headers as this is already done in testing of the module.
 func TestCorsSetting(t *testing.T) {
 	os.Setenv("CORS_ALLOW_ORIGINS", "http://localhost:3000 https://example.com")
-	os.Setenv("API_URL", "http://example.com")
+	url, _ := url.Parse("http://example.com")
 
-	_, err := router.Config()
+	_, err := router.Config(url)
 
 	assert.Nil(t, err)
 	os.Unsetenv("CORS_ALLOW_ORIGINS")
-	os.Unsetenv("API_URL")
 }
 
 func TestGetRoot(t *testing.T) {

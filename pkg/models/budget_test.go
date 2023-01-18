@@ -11,6 +11,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func (suite *TestSuiteStandard) TestBudgetAfterFind() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	err := budget.AfterFind(suite.db)
+	assert.Nil(suite.T(), err)
+}
+
 func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Sum of salary transactions: 7400
 	// Sum of income available in March: 4600
@@ -406,7 +412,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 								Balance:    decimal.NewFromFloat(10.99),
 								Allocation: decimal.NewFromFloat(20.99),
 								Links: models.EnvelopeMonthLinks{
-									Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationJanuary.ID),
+									Allocation: fmt.Sprintf("https://example.com/v1/allocations/%s", allocationJanuary.ID),
 								},
 							},
 						},
@@ -437,7 +443,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 								Spent:      decimal.NewFromFloat(-5),
 								Allocation: decimal.NewFromFloat(47.12),
 								Links: models.EnvelopeMonthLinks{
-									Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationFebruary.ID),
+									Allocation: fmt.Sprintf("https://example.com/v1/allocations/%s", allocationFebruary.ID),
 								},
 							},
 						},
@@ -468,7 +474,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 								Spent:      decimal.NewFromFloat(-15),
 								Allocation: decimal.NewFromFloat(31.17),
 								Links: models.EnvelopeMonthLinks{
-									Allocation: fmt.Sprintf("http://example.com/v1/allocations/%s", allocationMarch.ID),
+									Allocation: fmt.Sprintf("https://example.com/v1/allocations/%s", allocationMarch.ID),
 								},
 							},
 						},
@@ -480,7 +486,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.month.String(), func(t *testing.T) {
-			month, err := budget.Month(suite.db, tt.month, "http://example.com")
+			month, err := budget.Month(suite.db, tt.month)
 			assert.Nil(t, err)
 
 			// Verify income calculation

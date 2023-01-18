@@ -22,13 +22,7 @@ type CategoryResponse struct {
 
 type Category struct {
 	models.Category
-	Links     CategoryLinks `json:"links"`
-	Envelopes []Envelope    `json:"envelopes"`
-}
-
-type CategoryLinks struct {
-	Self      string `json:"self" example:"https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`
-	Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"`
+	Envelopes []models.Envelope `json:"envelopes"`
 }
 
 type CategoryQueryFilter struct {
@@ -93,13 +87,13 @@ func (co Controller) OptionsCategoryList(c *gin.Context) {
 //	@Param			categoryId	path	string	true	"ID formatted as string"
 //	@Router			/v1/categories/{categoryId} [options]
 func (co Controller) OptionsCategoryDetail(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := co.getCategoryObject(c, p)
+	_, ok := co.getCategoryObject(c, id)
 	if !ok {
 		return
 	}
@@ -216,13 +210,13 @@ func (co Controller) GetCategories(c *gin.Context) {
 //	@Param			categoryId	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{categoryId} [get]
 func (co Controller) GetCategory(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	categoryObject, ok := co.getCategoryObject(c, p)
+	categoryObject, ok := co.getCategoryObject(c, id)
 	if !ok {
 		return
 	}
@@ -245,13 +239,13 @@ func (co Controller) GetCategory(c *gin.Context) {
 //	@Param			category	body		models.CategoryCreate	true	"Category"
 //	@Router			/v1/categories/{categoryId} [patch]
 func (co Controller) UpdateCategory(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	category, ok := co.getCategoryResource(c, p)
+	category, ok := co.getCategoryResource(c, id)
 	if !ok {
 		return
 	}
@@ -286,13 +280,13 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 //	@Param			categoryId	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{categoryId} [delete]
 func (co Controller) DeleteCategory(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("categoryId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	category, ok := co.getCategoryResource(c, p)
+	category, ok := co.getCategoryResource(c, id)
 	if !ok {
 		return
 	}
@@ -344,17 +338,15 @@ func (co Controller) getCategoryObject(c *gin.Context, id uuid.UUID) (Category, 
 		return Category{}, false
 	}
 
-	envelopes, ok := co.getEnvelopeObjects(c, id)
-	if !ok {
+	var envelopes []models.Envelope
+	err := co.DB.Where(&models.Envelope{EnvelopeCreate: models.EnvelopeCreate{CategoryID: id}}).Find(&envelopes).Error
+	if err != nil {
+		httperrors.Handler(c, err)
 		return Category{}, false
 	}
 
 	return Category{
 		resource,
-		CategoryLinks{
-			Self:      fmt.Sprintf("%s/v1/categories/%s", c.GetString("baseURL"), id),
-			Envelopes: fmt.Sprintf("%s/v1/envelopes?category=%s", c.GetString("baseURL"), id),
-		},
 		envelopes,
 	}, true
 }

@@ -15,27 +15,11 @@ import (
 )
 
 type BudgetListResponse struct {
-	Data []Budget `json:"data"`
+	Data []models.Budget `json:"data"`
 }
 
 type BudgetResponse struct {
-	Data Budget `json:"data"`
-}
-
-type Budget struct {
-	models.Budget
-	Links BudgetLinks `json:"links"`
-}
-
-type BudgetLinks struct {
-	Self             string `json:"self" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Accounts         string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Categories       string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Envelopes        string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Transactions     string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
-	Month            string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"`                        // This uses 'YYYY-MM' for clients to replace with the actual year and month.
-	GroupedMonth     string `json:"groupedMonth" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"`     // This uses 'YYYY-MM' for clients to replace with the actual year and month.
-	MonthAllocations string `json:"monthAllocations" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+	Data models.Budget `json:"data"`
 }
 
 type BudgetMonthResponse struct {
@@ -108,13 +92,13 @@ func (co Controller) OptionsBudgetList(c *gin.Context) {
 //	@Param			budgetId	path		string	true	"ID formatted as string"
 //	@Router			/v1/budgets/{budgetId} [options]
 func (co Controller) OptionsBudgetDetail(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := co.getBudgetObject(c, p)
+	_, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return
 	}
@@ -135,7 +119,7 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 //	@Router			/v1/budgets/{budgetId}/{month} [options]
 //	@Deprecated		true
 func (co Controller) OptionsBudgetMonth(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -147,7 +131,7 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getBudgetObject(c, p)
+	_, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return
 	}
@@ -169,7 +153,7 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 //	@Router			/v1/budgets/{budgetId}/{month}/allocations [options]
 //	@Deprecated		true
 func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -181,7 +165,7 @@ func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getBudgetObject(c, p)
+	_, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return
 	}
@@ -211,12 +195,12 @@ func (co Controller) CreateBudget(c *gin.Context) {
 		return
 	}
 
-	budgetObject, ok := co.getBudgetObject(c, budget.ID)
-	if !ok {
-		return
-	}
-
-	c.JSON(http.StatusCreated, BudgetResponse{Data: budgetObject})
+	// TODO: Delete
+	// budgetObject, ok := co.getBudgetResource(c, budget.ID)
+	// if !ok {
+	// 	return
+	// }
+	c.JSON(http.StatusCreated, BudgetResponse{Data: budget})
 }
 
 // GetBudgets returns data for all budgets filtered by the query parameters
@@ -269,14 +253,11 @@ func (co Controller) GetBudgets(c *gin.Context) {
 	// When there are no budgets, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	budgetObjects := make([]Budget, 0)
-
-	for _, budget := range budgets {
-		o, _ := co.getBudgetObject(c, budget.ID)
-		budgetObjects = append(budgetObjects, o)
+	if len(budgets) == 0 {
+		budgets = make([]models.Budget, 0)
 	}
 
-	c.JSON(http.StatusOK, BudgetListResponse{Data: budgetObjects})
+	c.JSON(http.StatusOK, BudgetListResponse{Data: budgets})
 }
 
 // GetBudget returns data for a single budget
@@ -292,13 +273,13 @@ func (co Controller) GetBudgets(c *gin.Context) {
 //	@Param			budgetId	path		string	true	"ID formatted as string"
 //	@Router			/v1/budgets/{budgetId} [get]
 func (co Controller) GetBudget(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budgetObject, ok := co.getBudgetObject(c, p)
+	budgetObject, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return
 	}
@@ -321,13 +302,13 @@ func (co Controller) GetBudget(c *gin.Context) {
 //	@Router			/v1/budgets/{budgetId}/{month} [get]
 //	@Deprecated		true
 func (co Controller) GetBudgetMonth(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budget, ok := co.getBudgetResource(c, p)
+	budget, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return
 	}
@@ -403,7 +384,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 	}
 
 	// Get the available sum for budgeting
-	bMonth, err := budget.Month(co.DB, types.MonthOf(month.Month), c.GetString("baseURL"))
+	bMonth, err := budget.Month(co.DB, types.MonthOf(month.Month))
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
@@ -435,13 +416,13 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 //	@Param			budget		body		models.BudgetCreate	true	"Budget"
 //	@Router			/v1/budgets/{budgetId} [patch]
 func (co Controller) UpdateBudget(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budget, ok := co.getBudgetResource(c, p)
+	budget, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return
 	}
@@ -460,12 +441,13 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	budgetObject, ok := co.getBudgetObject(c, budget.ID)
-	if !ok {
-		httperrors.Handler(c, err)
-		return
-	}
-	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
+	// TODO: delete
+	// budgetObject, ok := co.getBudgetObject(c, budget.ID)
+	// if !ok {
+	// 	httperrors.Handler(c, err)
+	// 	return
+	// }
+	c.JSON(http.StatusOK, BudgetResponse{Data: budget})
 }
 
 // Do stuff
@@ -480,13 +462,13 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 //	@Param			budgetId	path		string	true	"ID formatted as string"
 //	@Router			/v1/budgets/{budgetId} [delete]
 func (co Controller) DeleteBudget(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	budget, ok := co.getBudgetResource(c, p)
+	budget, ok := co.getBudgetResource(c, id)
 	if !ok {
 		return
 	}
@@ -664,27 +646,4 @@ func (co Controller) getBudgetResource(c *gin.Context, id uuid.UUID) (models.Bud
 	}
 
 	return budget, true
-}
-
-func (co Controller) getBudgetObject(c *gin.Context, id uuid.UUID) (Budget, bool) {
-	resource, ok := co.getBudgetResource(c, id)
-	if !ok {
-		return Budget{}, false
-	}
-
-	url := fmt.Sprintf("%s/v1/budgets/%s", c.GetString("baseURL"), id)
-
-	return Budget{
-		resource,
-		BudgetLinks{
-			Self:             url,
-			Accounts:         fmt.Sprintf("%s/v1/accounts?budget=%s", c.GetString("baseURL"), resource.ID),
-			Categories:       fmt.Sprintf("%s/v1/categories?budget=%s", c.GetString("baseURL"), resource.ID),
-			Envelopes:        fmt.Sprintf("%s/v1/envelopes?budget=%s", c.GetString("baseURL"), resource.ID),
-			Transactions:     fmt.Sprintf("%s/v1/transactions?budget=%s", c.GetString("baseURL"), resource.ID),
-			Month:            url + "/YYYY-MM",
-			GroupedMonth:     fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", c.GetString("baseURL"), resource.ID),
-			MonthAllocations: fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", c.GetString("baseURL"), resource.ID),
-		},
-	}, true
 }

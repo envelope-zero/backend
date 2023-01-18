@@ -2804,7 +2804,17 @@ const docTemplate = `{
                     "example": "2017-05-12T00:00:00Z"
                 },
                 "links": {
-                    "$ref": "#/definitions/controllers.AccountLinks"
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        },
+                        "transactions": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        }
+                    }
                 },
                 "name": {
                     "type": "string",
@@ -2837,19 +2847,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.AccountLinks": {
-            "type": "object",
-            "properties": {
-                "self": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                },
-                "transactions": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                }
-            }
-        },
         "controllers.AccountListResponse": {
             "type": "object",
             "properties": {
@@ -2869,67 +2866,13 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.Allocation": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 22.01
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopeId": {
-                    "type": "string",
-                    "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.AllocationLinks"
-                },
-                "month": {
-                    "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
-                    "type": "string",
-                    "example": "2021-12-01T00:00:00.000000Z"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.AllocationLinks": {
-            "type": "object",
-            "properties": {
-                "self": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"
-                }
-            }
-        },
         "controllers.AllocationListResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.Allocation"
+                        "$ref": "#/definitions/models.Allocation"
                     }
                 }
             }
@@ -2949,52 +2892,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.Allocation"
-                }
-            }
-        },
-        "controllers.Budget": {
-            "type": "object",
-            "properties": {
-                "balance": {
-                    "description": "DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.",
-                    "type": "number",
-                    "example": 3423.42
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "€"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.BudgetLinks"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Morre's Budget"
-                },
-                "note": {
-                    "type": "string",
-                    "example": "My personal expenses"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
+                    "$ref": "#/definitions/models.Allocation"
                 }
             }
         },
@@ -3011,53 +2909,13 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.BudgetLinks": {
-            "type": "object",
-            "properties": {
-                "accounts": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "categories": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "envelopes": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "groupedMonth": {
-                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                    "type": "string",
-                    "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
-                },
-                "month": {
-                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                    "type": "string",
-                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
-                },
-                "monthAllocations": {
-                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                    "type": "string",
-                    "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
-                },
-                "self": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "transactions": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                }
-            }
-        },
         "controllers.BudgetListResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.Budget"
+                        "$ref": "#/definitions/models.Budget"
                     }
                 }
             }
@@ -3074,7 +2932,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.Budget"
+                    "$ref": "#/definitions/models.Budget"
                 }
             }
         },
@@ -3099,7 +2957,7 @@ const docTemplate = `{
                 "envelopes": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.Envelope"
+                        "$ref": "#/definitions/models.Envelope"
                     }
                 },
                 "hidden": {
@@ -3114,7 +2972,17 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "$ref": "#/definitions/controllers.CategoryLinks"
+                    "type": "object",
+                    "properties": {
+                        "envelopes": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                        },
+                        "self": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
+                        }
+                    }
                 },
                 "name": {
                     "description": "Name of the category",
@@ -3130,19 +2998,6 @@ const docTemplate = `{
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.CategoryLinks": {
-            "type": "object",
-            "properties": {
-                "envelopes": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
-                },
-                "self": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
                 }
             }
         },
@@ -3165,84 +3020,13 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.Envelope": {
-            "type": "object",
-            "properties": {
-                "categoryId": {
-                    "description": "ID of the category the envelope belongs to",
-                    "type": "string",
-                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "hidden": {
-                    "description": "Is the envelope hidden?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.EnvelopeLinks"
-                },
-                "name": {
-                    "description": "Name of the envelope",
-                    "type": "string",
-                    "example": "Groceries"
-                },
-                "note": {
-                    "description": "Notes about the envelope",
-                    "type": "string",
-                    "example": "For stuff bought at supermarkets and drugstores"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.EnvelopeLinks": {
-            "type": "object",
-            "properties": {
-                "allocations": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                },
-                "month": {
-                    "description": "This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
-                    "type": "string",
-                    "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
-                },
-                "self": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                },
-                "transactions": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                }
-            }
-        },
         "controllers.EnvelopeListResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.Envelope"
+                        "$ref": "#/definitions/models.Envelope"
                     }
                 }
             }
@@ -3259,61 +3043,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.Envelope"
-                }
-            }
-        },
-        "controllers.MonthConfig": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopeId": {
-                    "type": "string",
-                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.MonthConfigLinks"
-                },
-                "month": {
-                    "description": "This is always set to 00:00 UTC on the first of the month.",
-                    "type": "string",
-                    "example": "1969-06-01T00:00:00.000000Z"
-                },
-                "overspendMode": {
-                    "default": "AFFECT_AVAILABLE",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.OverspendMode"
-                        }
-                    ],
-                    "example": "AFFECT_ENVELOPE"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.MonthConfigLinks": {
-            "type": "object",
-            "properties": {
-                "envelope": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
-                },
-                "self": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
+                    "$ref": "#/definitions/models.Envelope"
                 }
             }
         },
@@ -3323,7 +3053,7 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.MonthConfig"
+                        "$ref": "#/definitions/models.MonthConfig"
                     }
                 }
             }
@@ -3332,7 +3062,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.MonthConfig"
+                    "$ref": "#/definitions/models.MonthConfig"
                 }
             }
         },
@@ -3344,103 +3074,13 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.Transaction": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 14.03
-                },
-                "availableFrom": {
-                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
-                    "type": "string",
-                    "example": "2021-11-17:00:00:00Z"
-                },
-                "budgetId": {
-                    "type": "string",
-                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "date": {
-                    "type": "string",
-                    "example": "1815-12-10T18:43:00.271152Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "destinationAccountId": {
-                    "type": "string",
-                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
-                },
-                "envelopeId": {
-                    "type": "string",
-                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.TransactionLinks"
-                },
-                "note": {
-                    "type": "string",
-                    "example": "Lunch"
-                },
-                "reconciled": {
-                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "reconciledDestination": {
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "reconciledSource": {
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "sourceAccountId": {
-                    "type": "string",
-                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.TransactionLinks": {
-            "type": "object",
-            "properties": {
-                "self": {
-                    "type": "string",
-                    "example": "https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
-                }
-            }
-        },
         "controllers.TransactionListResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.Transaction"
+                        "$ref": "#/definitions/models.Transaction"
                     }
                 }
             }
@@ -3449,7 +3089,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.Transaction"
+                    "$ref": "#/definitions/models.Transaction"
                 }
             }
         },
@@ -3504,6 +3144,57 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Allocation": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "type": "string",
+                    "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"
+                        }
+                    }
+                },
+                "month": {
+                    "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
+                    "type": "string",
+                    "example": "2021-12-01T00:00:00.000000Z"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "models.AllocationCreate": {
             "type": "object",
             "properties": {
@@ -3523,6 +3214,88 @@ const docTemplate = `{
                     "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
                     "type": "string",
                     "example": "2021-12-01T00:00:00.000000Z"
+                }
+            }
+        },
+        "models.Budget": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.",
+                    "type": "number",
+                    "example": 3423.42
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "€"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "accounts": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "categories": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "envelopes": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "groupedMonth": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                        },
+                        "month": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
+                        },
+                        "monthAllocations": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                        },
+                        "self": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "transactions": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        }
+                    }
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "type": "string",
+                    "example": "My personal expenses"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -3652,6 +3425,19 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelopes": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                        },
+                        "self": {
+                            "type": "string",
+                            "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
+                        }
+                    }
+                },
                 "name": {
                     "description": "Name of the category",
                     "type": "string",
@@ -3702,6 +3488,32 @@ const docTemplate = `{
                     "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "description": "Links to related resources",
+                    "type": "object",
+                    "properties": {
+                        "allocations": {
+                            "description": "URL for the envelope's allocations",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        },
+                        "month": {
+                            "description": "URL to query for month information. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
+                        },
+                        "self": {
+                            "description": "URL of the envelope",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        },
+                        "transactions": {
+                            "description": "URL for the envelope's transactions",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        }
+                    }
                 },
                 "name": {
                     "description": "Name of the envelope",
@@ -3887,6 +3699,59 @@ const docTemplate = `{
                 }
             }
         },
+        "models.MonthConfig": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelope": {
+                            "description": "URL of the envelope this config belongs to",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
+                        },
+                        "self": {
+                            "description": "URL for the month config",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
+                        }
+                    }
+                },
+                "month": {
+                    "description": "This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
+                },
+                "overspendMode": {
+                    "default": "AFFECT_AVAILABLE",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OverspendMode"
+                        }
+                    ],
+                    "example": "AFFECT_ENVELOPE"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "models.MonthConfigCreate": {
             "type": "object",
             "properties": {
@@ -3911,6 +3776,95 @@ const docTemplate = `{
                 "AffectAvailable",
                 "AffectEnvelope"
             ]
+        },
+        "models.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 14.03
+                },
+                "availableFrom": {
+                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string",
+                    "example": "2021-11-17:00:00:00Z"
+                },
+                "budgetId": {
+                    "type": "string",
+                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "date": {
+                    "type": "string",
+                    "example": "1815-12-10T18:43:00.271152Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "destinationAccountId": {
+                    "type": "string",
+                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
+                },
+                "envelopeId": {
+                    "type": "string",
+                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "description": "Links for the transaction",
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "URL of the transaction resource",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
+                        }
+                    }
+                },
+                "note": {
+                    "type": "string",
+                    "example": "Lunch"
+                },
+                "reconciled": {
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledDestination": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledSource": {
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "sourceAccountId": {
+                    "type": "string",
+                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
         },
         "models.TransactionCreate": {
             "type": "object",
@@ -3974,14 +3928,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "docs": {
+                    "description": "Swagger API documentation",
                     "type": "string",
                     "example": "https://example.com/api/docs/index.html"
                 },
                 "v1": {
+                    "description": "List endpoint for all v1 endpoints",
                     "type": "string",
                     "example": "https://example.com/api/v1"
                 },
                 "version": {
+                    "description": "Endpoint returning the version of the backend",
                     "type": "string",
                     "example": "https://example.com/api/version"
                 }
@@ -3999,34 +3956,42 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accounts": {
+                    "description": "URL of account list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/accounts"
                 },
                 "allocations": {
+                    "description": "URL of allocation list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/allocations"
                 },
                 "budgets": {
+                    "description": "URL of budget list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets"
                 },
                 "categories": {
+                    "description": "URL of category list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/categories"
                 },
                 "envelopes": {
+                    "description": "URL of envelope list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/envelopes"
                 },
                 "import": {
+                    "description": "URL of import list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/import"
                 },
                 "months": {
+                    "description": "URL of month list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/months"
                 },
                 "transactions": {
+                    "description": "URL of transaction list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/transactions"
                 }
@@ -4036,7 +4001,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "links": {
-                    "$ref": "#/definitions/router.V1Links"
+                    "description": "Links for the v1 API",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/router.V1Links"
+                        }
+                    ]
                 }
             }
         },
@@ -4044,6 +4014,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "version": {
+                    "description": "the running version of the Envelope Zero backend",
                     "type": "string",
                     "example": "1.1.0"
                 }
@@ -4053,7 +4024,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/router.VersionObject"
+                    "description": "Data object for the version endpoint",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/router.VersionObject"
+                        }
+                    ]
                 }
             }
         }

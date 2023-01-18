@@ -1,7 +1,6 @@
 package router
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 	"os"
@@ -9,6 +8,7 @@ import (
 
 	docs "github.com/envelope-zero/backend/v2/api"
 	"github.com/envelope-zero/backend/v2/pkg/controllers"
+	"github.com/envelope-zero/backend/v2/pkg/database"
 	"github.com/envelope-zero/backend/v2/pkg/httperrors"
 	"github.com/envelope-zero/backend/v2/pkg/httputil"
 	"github.com/gin-contrib/cors"
@@ -26,7 +26,7 @@ import (
 // This is set at build time, see Makefile.
 var version = "0.0.0"
 
-func Config() (*gin.Engine, error) {
+func Config(url *url.URL) (*gin.Engine, error) {
 	// Set up the router and middlewares
 	r := gin.New()
 
@@ -40,7 +40,7 @@ func Config() (*gin.Engine, error) {
 
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
-	r.Use(URLMiddleware())
+	r.Use(URLMiddleware(url))
 	r.NoMethod(func(c *gin.Context) {
 		httperrors.New(c, http.StatusMethodNotAllowed, "This HTTP method is not allowed for the endpoint you called")
 	})
@@ -78,16 +78,6 @@ func Config() (*gin.Engine, error) {
 	// Don’t trust any proxy. We do not process any client IPs,
 	// therefore we don’t need to trust anyone here.
 	_ = r.SetTrustedProxies([]string{})
-
-	apiURL, ok := os.LookupEnv("API_URL")
-	if !ok {
-		return nil, errors.New("environment variable API_URL must be set")
-	}
-
-	url, err := url.Parse(apiURL)
-	if err != nil {
-		return nil, errors.New("environment variable API_URL must be a valid URL")
-	}
 
 	log.Debug().Str("API Base URL", url.String()).Str("Host", url.Host).Str("Path", url.Path).Msg("Router")
 	log.Info().Str("version", version).Msg("Router")
@@ -142,9 +132,9 @@ type RootResponse struct {
 }
 
 type RootLinks struct {
-	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"`
-	Version string `json:"version" example:"https://example.com/api/version"`
-	V1      string `json:"v1" example:"https://example.com/api/v1"`
+	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"` // Swagger API documentation
+	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
+	V1      string `json:"v1" example:"https://example.com/api/v1"`                // List endpoint for all v1 endpoints
 }
 
 // GetRoot returns the link list for the API root
@@ -157,18 +147,18 @@ type RootLinks struct {
 func GetRoot(c *gin.Context) {
 	c.JSON(http.StatusOK, RootResponse{
 		Links: RootLinks{
-			Docs:    c.GetString("baseURL") + "/docs/index.html",
-			Version: c.GetString("baseURL") + "/version",
-			V1:      c.GetString("baseURL") + "/v1",
+			Docs:    c.GetString(string(database.ContextURL)) + "/docs/index.html",
+			Version: c.GetString(string(database.ContextURL)) + "/version",
+			V1:      c.GetString(string(database.ContextURL)) + "/v1",
 		},
 	})
 }
 
 type VersionResponse struct {
-	Data VersionObject `json:"data"`
+	Data VersionObject `json:"data"` // Data object for the version endpoint
 }
 type VersionObject struct {
-	Version string `json:"version" example:"1.1.0"`
+	Version string `json:"version" example:"1.1.0"` // the running version of the Envelope Zero backend
 }
 
 // GetVersion returns the API version object
@@ -209,18 +199,18 @@ func OptionsVersion(c *gin.Context) {
 }
 
 type V1Response struct {
-	Links V1Links `json:"links"`
+	Links V1Links `json:"links"` // Links for the v1 API
 }
 
 type V1Links struct {
-	Budgets      string `json:"budgets" example:"https://example.com/api/v1/budgets"`
-	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts"`
-	Categories   string `json:"categories" example:"https://example.com/api/v1/categories"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"`
-	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`
-	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`
-	Months       string `json:"months" example:"https://example.com/api/v1/months"`
-	Import       string `json:"import" example:"https://example.com/api/v1/import"`
+	Budgets      string `json:"budgets" example:"https://example.com/api/v1/budgets"`           // URL of budget list endpoint
+	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts"`         // URL of account list endpoint
+	Categories   string `json:"categories" example:"https://example.com/api/v1/categories"`     // URL of category list endpoint
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"` // URL of transaction list endpoint
+	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`       // URL of envelope list endpoint
+	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`   // URL of allocation list endpoint
+	Months       string `json:"months" example:"https://example.com/api/v1/months"`             // URL of month list endpoint
+	Import       string `json:"import" example:"https://example.com/api/v1/import"`             // URL of import list endpoint
 }
 
 // GetV1 returns the link list for v1
@@ -233,14 +223,14 @@ type V1Links struct {
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
-			Budgets:      c.GetString("baseURL") + "/v1/budgets",
-			Accounts:     c.GetString("baseURL") + "/v1/accounts",
-			Categories:   c.GetString("baseURL") + "/v1/categories",
-			Transactions: c.GetString("baseURL") + "/v1/transactions",
-			Envelopes:    c.GetString("baseURL") + "/v1/envelopes",
-			Allocations:  c.GetString("baseURL") + "/v1/allocations",
-			Months:       c.GetString("baseURL") + "/v1/months",
-			Import:       c.GetString("baseURL") + "/v1/import",
+			Budgets:      c.GetString(string(database.ContextURL)) + "/v1/budgets",
+			Accounts:     c.GetString(string(database.ContextURL)) + "/v1/accounts",
+			Categories:   c.GetString(string(database.ContextURL)) + "/v1/categories",
+			Transactions: c.GetString(string(database.ContextURL)) + "/v1/transactions",
+			Envelopes:    c.GetString(string(database.ContextURL)) + "/v1/envelopes",
+			Allocations:  c.GetString(string(database.ContextURL)) + "/v1/allocations",
+			Months:       c.GetString(string(database.ContextURL)) + "/v1/months",
+			Import:       c.GetString(string(database.ContextURL)) + "/v1/import",
 		},
 	})
 }

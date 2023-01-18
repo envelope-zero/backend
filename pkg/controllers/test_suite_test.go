@@ -1,7 +1,9 @@
 package controllers_test
 
 import (
+	"context"
 	"log"
+	"net/url"
 	"os"
 	"testing"
 
@@ -48,7 +50,12 @@ func (suite *TestSuiteStandard) SetupTest() {
 		log.Fatalf("Database migration failed with: %#v", err)
 	}
 
-	suite.controller = controllers.Controller{db}
+	// Create the context and store the API URL
+	ctx := context.Background()
+	url, _ := url.Parse("https://example.com")
+	ctx = context.WithValue(ctx, database.ContextURL, url)
+
+	suite.controller = controllers.Controller{db.WithContext(ctx)}
 }
 
 // CloseDB closes the database connection. This enables testing the handling

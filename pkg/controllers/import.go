@@ -150,9 +150,10 @@ func (co Controller) ImportYnab4(c *gin.Context) {
 		return
 	}
 
-	b, ok := co.getBudgetObject(c, budget.ID)
-	if !ok {
-		return
-	}
-	c.JSON(http.StatusCreated, BudgetResponse{Data: b})
+	// TODO: Delete
+	// b, ok := co.getBudgetResource(c, budget.ID)
+	// if !ok {
+	// 	return
+	// }
+	c.JSON(http.StatusCreated, BudgetResponse{Data: budget})
 }
