@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v2/internal/types"
@@ -10,7 +9,6 @@ import (
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"golang.org/x/exp/slices"
 )
 
 type EnvelopeListResponse struct {
@@ -30,6 +28,7 @@ type EnvelopeQueryFilter struct {
 	CategoryID string `form:"category"`
 	Note       string `form:"note" filterField:"false"`
 	Hidden     bool   `form:"hidden"`
+	Search     string `form:"search" filterField:"false"`
 }
 
 func (f EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bool) {
@@ -147,6 +146,7 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 //	@Param			note		query	string	false	"Filter by note"
 //	@Param			category	query	string	false	"Filter by category ID"
 //	@Param			hidden		query	bool	false	"Is the envelope hidden?"
+//	@Param			search		query	string	false	"Search for this text in name and note"
 func (co Controller) GetEnvelopes(c *gin.Context) {
 	var filter EnvelopeQueryFilter
 
@@ -165,17 +165,7 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 		EnvelopeCreate: create,
 	}, queryFields...)
 
-	if filter.Name != "" {
-		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", filter.Name))
-	} else if slices.Contains(setFields, "Name") {
-		query = query.Where("name = ''")
-	}
-
-	if filter.Note != "" {
-		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
-	} else if slices.Contains(setFields, "Note") {
-		query = query.Where("note = ''")
-	}
+	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
 	var envelopes []models.Envelope
 	if !queryWithRetry(c, query.Find(&envelopes)) {

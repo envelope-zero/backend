@@ -1039,6 +1039,10 @@ paths:
         in: query
         name: hidden
         type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -1408,6 +1412,10 @@ paths:
         in: query
         name: currency
         type: string
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -1765,6 +1773,10 @@ paths:
         in: query
         name: hidden
         type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -1960,6 +1972,10 @@ paths:
         in: query
         name: hidden
         type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:

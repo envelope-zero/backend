@@ -131,6 +131,8 @@ func (suite *TestSuiteStandard) TestGetBudgetsFilter() {
 		{"Empty Name with Note", "name=&note=This is a specific note", 1},
 		{"No currency", "currency=", 1},
 		{"No name", "name=", 1},
+		{"Search for 'stRing'", "search=stRing", 2},
+		{"Search for 'Note'", "search=Note", 3},
 	}
 
 	var re controllers.BudgetListResponse

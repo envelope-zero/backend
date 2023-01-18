@@ -138,6 +138,12 @@ const docTemplate = `{
                         "description": "Is the account hidden?",
                         "name": "hidden",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -688,6 +694,12 @@ const docTemplate = `{
                         "description": "Filter by currency",
                         "name": "currency",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1205,6 +1217,12 @@ const docTemplate = `{
                         "description": "Is the category hidden?",
                         "name": "hidden",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1494,6 +1512,12 @@ const docTemplate = `{
                         "type": "boolean",
                         "description": "Is the envelope hidden?",
                         "name": "hidden",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
                         "in": "query"
                     }
                 ],

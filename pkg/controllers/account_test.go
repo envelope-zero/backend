@@ -134,6 +134,8 @@ func (suite *TestSuiteStandard) TestGetAccountsFilter() {
 		{"Internal", "external=false", 3},
 		{"Not Hidden", "hidden=false", 3},
 		{"Hidden", "hidden=true", 2},
+		{"Search for 'na", "search=na", 3},
+		{"Search for 'fi", "search=fi", 4},
 	}
 
 	for _, tt := range tests {

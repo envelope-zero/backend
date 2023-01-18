@@ -156,6 +156,8 @@ func (suite *TestSuiteStandard) TestGetCategoriesFilter() {
 		{"Fuzzy note", "note=Groceries", 2},
 		{"Not hidden", "hidden=false", 2},
 		{"Hidden", "hidden=true", 1},
+		{"Search for 'groceries'", "search=groceries", 2},
+		{"Search for 'FOR'", "search=FOR", 2},
 	}
 
 	for _, tt := range tests {
