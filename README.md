@@ -97,6 +97,9 @@ This project is versioned using [Semantic Versioning 2.0.0](https://semver.org/s
 
 The public API is defined as:
 
-- The API endpoints, meaning the routes, parameters, HTTP respone codes and response body format (for a function, we'd just say “the function signature“)
+- The API endpoints, meaning the routes, parameters, HTTP respone codes and response body format (for a function, we'd just say “the function signature“) that the HTTP server built from the code in this repository provides
 - The behavior of the API endpoints no matter the signature of the endpoint is
-- Planned: ~~Public functions and methods of the code - this enables anybody wrapping the backend (e.g. the standalone version) to rely on the version numbers.~~ This will be added to the definition once all methods and functions intended to be private are private. Track [#423](https://github.com/envelope-zero/backend/issues/423) if you're interested in this.
+
+Not part of the public API is:
+
+- The go module itself, meaning that exported function signatures or behaviors can change at any point in time
