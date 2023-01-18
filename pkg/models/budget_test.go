@@ -11,6 +11,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func (suite *TestSuiteStandard) TestBudgetAfterFind() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	err := budget.AfterFind(suite.db)
+	assert.Nil(suite.T(), err)
+}
+
 func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Sum of salary transactions: 7400
 	// Sum of income available in March: 4600

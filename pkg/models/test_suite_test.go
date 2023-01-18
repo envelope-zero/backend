@@ -100,6 +100,15 @@ func (suite *TestSuiteStandard) createTestEnvelope(c models.EnvelopeCreate) mode
 	return envelope
 }
 
+func (suite *TestSuiteStandard) createTestMonthConfig(m models.MonthConfig) models.MonthConfig {
+	err := suite.db.Save(&m).Error
+	if err != nil {
+		suite.Assert().FailNow("MonthConfig could not be saved", "Error: %s, MonthConfig: %#v", err, m)
+	}
+
+	return m
+}
+
 func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models.Account {
 	account := models.Account{
 		AccountCreate: c,
