@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -45,8 +46,22 @@ func main() {
 	}
 	log.Logger = log.Output(output).With().Logger()
 
+	// Get the base URL set in the environment
+	apiURL, ok := os.LookupEnv("API_URL")
+	if !ok {
+		log.Fatal().Msg("environment variable API_URL must be set")
+	}
+	url, err := url.Parse(apiURL)
+	if err != nil {
+		log.Fatal().Msg("environment variable API_URL must be a valid URL")
+	}
+
+	// Create the context to store the API URL
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, database.ContextURL, url)
+
 	// Create data directory
-	err := database.CreateDir("data")
+	err = database.CreateDir("data")
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
@@ -61,9 +76,10 @@ func main() {
 		log.Fatal().Msg(err.Error())
 	}
 
-	controller := controllers.Controller{DB: db}
+	// Set the DB context and add it to the controller
+	controller := controllers.Controller{DB: db.WithContext(ctx)}
 
-	r, err := router.Config()
+	r, err := router.Config(url)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/envelope-zero/backend/v2/internal/types"
+	"github.com/envelope-zero/backend/v2/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -17,6 +18,16 @@ type Budget struct {
 	DefaultModel
 	BudgetCreate
 	Balance decimal.Decimal `json:"balance" gorm:"-" example:"3423.42"` // DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
+	Links   struct {
+		Self             string `json:"self" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+		Accounts         string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+		Categories       string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+		Envelopes        string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+		Transactions     string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+		Month            string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"`                        // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+		GroupedMonth     string `json:"groupedMonth" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"`     // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+		MonthAllocations string `json:"monthAllocations" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+	} `json:"links" gorm:"-"`
 }
 
 type BudgetCreate struct {
@@ -33,6 +44,31 @@ type BudgetMonth struct {
 	Income    decimal.Decimal `json:"income" example:"2317.34"`
 	Available decimal.Decimal `json:"available" example:"217.34"`
 	Envelopes []EnvelopeMonth `json:"envelopes"`
+}
+
+func (b *Budget) AfterFind(tx *gorm.DB) (err error) {
+	b.links(tx)
+	return
+}
+
+// AfterSave also sets the links so that we do not need to
+// query the resource directly after creating or updating it.
+func (b *Budget) AfterSave(tx *gorm.DB) (err error) {
+	b.links(tx)
+	return
+}
+
+func (b *Budget) links(tx *gorm.DB) {
+	url := tx.Statement.Context.Value(database.ContextURL)
+
+	b.Links.Self = fmt.Sprintf("%s/v1/budgets/%s", url, b.ID)
+	b.Links.Month = b.Links.Self + "/YYYY-MM"
+	b.Links.Accounts = fmt.Sprintf("%s/v1/accounts?budget=%s", url, b.ID)
+	b.Links.Categories = fmt.Sprintf("%s/v1/categories?budget=%s", url, b.ID)
+	b.Links.Envelopes = fmt.Sprintf("%s/v1/envelopes?budget=%s", url, b.ID)
+	b.Links.Transactions = fmt.Sprintf("%s/v1/transactions?budget=%s", url, b.ID)
+	b.Links.GroupedMonth = fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", url, b.ID)
+	b.Links.MonthAllocations = fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", url, b.ID)
 }
 
 // WithCalculations computes all the calculated values.
@@ -134,10 +170,8 @@ type Month struct {
 	Categories []CategoryEnvelopes `json:"categories"`                                        // A list of envelope month calculations grouped by category
 }
 
-// Month calculates the month overview for this month
-//
-// FIXME: The baseURL parameterwill get removed with the integration of allocations into MonthConfigs.
-func (b Budget) Month(db *gorm.DB, month types.Month, baseURL string) (Month, error) {
+// Month calculates the month overview for this month.
+func (b Budget) Month(db *gorm.DB, month types.Month) (Month, error) {
 	result := Month{
 		ID:    b.ID,
 		Name:  b.Name,
@@ -203,10 +237,13 @@ func (b Budget) Month(db *gorm.DB, month types.Month, baseURL string) (Month, er
 			categoryEnvelopes.Spent = categoryEnvelopes.Spent.Add(envelopeMonth.Spent)
 			categoryEnvelopes.Allocation = categoryEnvelopes.Allocation.Add(envelopeMonth.Allocation)
 
+			// FIXME: The remove this with the integration of allocations into MonthConfigs.
+			url := db.Statement.Context.Value(database.ContextURL)
+
 			// Set the allocation link. If there is no allocation, we send the collection endpoint.
 			// With this, any client will be able to see that the "Budgeted" amount is 0 and therefore
 			// send a HTTP POST for creation instead of a patch.
-			envelopeMonth.Links.Allocation = fmt.Sprintf("%s/v1/allocations", baseURL)
+			envelopeMonth.Links.Allocation = fmt.Sprintf("%s/v1/allocations", url)
 			if allocationID != uuid.Nil {
 				envelopeMonth.Links.Allocation = fmt.Sprintf("%s/%s", envelopeMonth.Links.Allocation, allocationID)
 			}

@@ -23,12 +23,6 @@ type AccountResponse struct {
 type Account struct {
 	models.Account
 	RecentEnvelopes []models.Envelope `json:"recentEnvelopes"`
-	Links           AccountLinks      `json:"links"`
-}
-
-type AccountLinks struct {
-	Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
 }
 
 type AccountQueryFilter struct {
@@ -97,13 +91,13 @@ func (co Controller) OptionsAccountList(c *gin.Context) {
 //	@Param			accountId	path	string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{accountId} [options]
 func (co Controller) OptionsAccountDetail(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	_, ok := co.getAccountObject(c, p)
+	_, ok := co.getAccountObject(c, id)
 	if !ok {
 		return
 	}
@@ -223,13 +217,13 @@ func (co Controller) GetAccounts(c *gin.Context) {
 //	@Param			accountId	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{accountId} [get]
 func (co Controller) GetAccount(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	accountObject, ok := co.getAccountObject(c, p)
+	accountObject, ok := co.getAccountObject(c, id)
 	if !ok {
 		return
 	}
@@ -251,13 +245,13 @@ func (co Controller) GetAccount(c *gin.Context) {
 //	@Param			account		body		models.AccountCreate	true	"Account"
 //	@Router			/v1/accounts/{accountId} [patch]
 func (co Controller) UpdateAccount(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	account, ok := co.getAccountResource(c, p)
+	account, ok := co.getAccountResource(c, id)
 	if !ok {
 		return
 	}
@@ -293,13 +287,13 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 //	@Param			accountId	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{accountId} [delete]
 func (co Controller) DeleteAccount(c *gin.Context) {
-	p, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("accountId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
-	account, ok := co.getAccountResource(c, p)
+	account, ok := co.getAccountResource(c, id)
 	if !ok {
 		return
 	}
@@ -352,9 +346,5 @@ func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (Account, bo
 	return Account{
 		account,
 		recentEnvelopes,
-		AccountLinks{
-			Self:         fmt.Sprintf("%s/v1/accounts/%s", c.GetString("baseURL"), account.ID),
-			Transactions: fmt.Sprintf("%s/v1/transactions?account=%s", c.GetString("baseURL"), account.ID),
-		},
 	}, true
 }

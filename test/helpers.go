@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"os"
 	"reflect"
 	"testing"
 
@@ -20,7 +22,7 @@ type APIResponse struct {
 }
 
 // Request is a helper method to simplify making a HTTP request for tests.
-func Request(co controllers.Controller, t *testing.T, method, url string, body any, headers ...map[string]string) httptest.ResponseRecorder {
+func Request(co controllers.Controller, t *testing.T, method, reqURL string, body any, headers ...map[string]string) httptest.ResponseRecorder {
 	var byteBuffer *bytes.Buffer
 	var err error
 
@@ -38,14 +40,24 @@ func Request(co controllers.Controller, t *testing.T, method, url string, body a
 		byteBuffer = body.(*bytes.Buffer)
 	}
 
-	r, err := router.Config()
+	apiURL, ok := os.LookupEnv("API_URL")
+	if !ok {
+		assert.FailNow(t, "environment variable API_URL must be set")
+	}
+
+	baseURL, err := url.Parse(apiURL)
+	if err != nil {
+		assert.FailNow(t, "environment variable API_URL must be a valid URL")
+	}
+
+	r, err := router.Config(baseURL)
 	if err != nil {
 		assert.FailNow(t, "Router could not be initialized")
 	}
 	router.AttachRoutes(co, r.Group("/"))
 
 	recorder := httptest.NewRecorder()
-	req, _ := http.NewRequest(method, url, byteBuffer)
+	req, _ := http.NewRequest(method, reqURL, byteBuffer)
 
 	for _, headerMap := range headers {
 		for header, value := range headerMap {

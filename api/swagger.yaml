@@ -35,7 +35,14 @@ definitions:
         example: "2017-05-12T00:00:00Z"
         type: string
       links:
-        $ref: '#/definitions/controllers.AccountLinks'
+        properties:
+          self:
+            example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+          transactions:
+            example: https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+        type: object
       name:
         example: Cash
         type: string
@@ -59,15 +66,6 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  controllers.AccountLinks:
-    properties:
-      self:
-        example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-        type: string
-      transactions:
-        example: https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-        type: string
-    type: object
   controllers.AccountListResponse:
     properties:
       data:
@@ -80,55 +78,11 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Account'
     type: object
-  controllers.Allocation:
-    properties:
-      amount:
-        description: The maximum value is "999999999999.99999999", swagger unfortunately
-          rounds this.
-        example: 22.01
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopeId:
-        example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        $ref: '#/definitions/controllers.AllocationLinks'
-      month:
-        description: Only year and month of this timestamp are used, everything else
-          is ignored. This will always be set to 00:00 UTC on the first of the specified
-          month
-        example: "2021-12-01T00:00:00.000000Z"
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.AllocationLinks:
-    properties:
-      self:
-        example: https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc
-        type: string
-    type: object
   controllers.AllocationListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/controllers.Allocation'
+          $ref: '#/definitions/models.Allocation'
         type: array
     type: object
   controllers.AllocationMode:
@@ -142,41 +96,7 @@ definitions:
   controllers.AllocationResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.Allocation'
-    type: object
-  controllers.Budget:
-    properties:
-      balance:
-        description: DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
-        example: 3423.42
-        type: number
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      currency:
-        example: €
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        $ref: '#/definitions/controllers.BudgetLinks'
-      name:
-        example: Morre's Budget
-        type: string
-      note:
-        example: My personal expenses
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
+        $ref: '#/definitions/models.Allocation'
     type: object
   controllers.BudgetAllocationMode:
     properties:
@@ -185,44 +105,11 @@ definitions:
         - $ref: '#/definitions/controllers.AllocationMode'
         example: ALLOCATE_LAST_MONTH_SPEND
     type: object
-  controllers.BudgetLinks:
-    properties:
-      accounts:
-        example: https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      categories:
-        example: https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      envelopes:
-        example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      groupedMonth:
-        description: This uses 'YYYY-MM' for clients to replace with the actual year
-          and month.
-        example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
-        type: string
-      month:
-        description: This uses 'YYYY-MM' for clients to replace with the actual year
-          and month.
-        example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
-        type: string
-      monthAllocations:
-        description: This uses 'YYYY-MM' for clients to replace with the actual year
-          and month.
-        example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
-        type: string
-      self:
-        example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      transactions:
-        example: https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-    type: object
   controllers.BudgetListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/controllers.Budget'
+          $ref: '#/definitions/models.Budget'
         type: array
     type: object
   controllers.BudgetMonthResponse:
@@ -233,7 +120,7 @@ definitions:
   controllers.BudgetResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.Budget'
+        $ref: '#/definitions/models.Budget'
     type: object
   controllers.Category:
     properties:
@@ -251,7 +138,7 @@ definitions:
         type: string
       envelopes:
         items:
-          $ref: '#/definitions/controllers.Envelope'
+          $ref: '#/definitions/models.Envelope'
         type: array
       hidden:
         default: false
@@ -263,7 +150,14 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        $ref: '#/definitions/controllers.CategoryLinks'
+        properties:
+          envelopes:
+            example: https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+          self:
+            example: https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+        type: object
       name:
         description: Name of the category
         example: Saving
@@ -275,15 +169,6 @@ definitions:
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.CategoryLinks:
-    properties:
-      envelopes:
-        example: https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
-        type: string
-      self:
-        example: https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f
         type: string
     type: object
   controllers.CategoryListResponse:
@@ -298,66 +183,11 @@ definitions:
       data:
         $ref: '#/definitions/controllers.Category'
     type: object
-  controllers.Envelope:
-    properties:
-      categoryId:
-        description: ID of the category the envelope belongs to
-        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      hidden:
-        default: false
-        description: Is the envelope hidden?
-        example: true
-        type: boolean
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        $ref: '#/definitions/controllers.EnvelopeLinks'
-      name:
-        description: Name of the envelope
-        example: Groceries
-        type: string
-      note:
-        description: Notes about the envelope
-        example: For stuff bought at supermarkets and drugstores
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.EnvelopeLinks:
-    properties:
-      allocations:
-        example: https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
-        type: string
-      month:
-        description: This will always end in 'YYYY-MM' for clients to use replace
-          with actual numbers.
-        example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
-        type: string
-      self:
-        example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
-        type: string
-      transactions:
-        example: https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
-        type: string
-    type: object
   controllers.EnvelopeListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/controllers.Envelope'
+          $ref: '#/definitions/models.Envelope'
         type: array
     type: object
   controllers.EnvelopeMonthResponse:
@@ -368,148 +198,36 @@ definitions:
   controllers.EnvelopeResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.Envelope'
-    type: object
-  controllers.MonthConfig:
-    properties:
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopeId:
-        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
-        type: string
-      links:
-        $ref: '#/definitions/controllers.MonthConfigLinks'
-      month:
-        description: This is always set to 00:00 UTC on the first of the month.
-        example: "1969-06-01T00:00:00.000000Z"
-        type: string
-      overspendMode:
-        allOf:
-        - $ref: '#/definitions/models.OverspendMode'
-        default: AFFECT_AVAILABLE
-        example: AFFECT_ENVELOPE
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.MonthConfigLinks:
-    properties:
-      envelope:
-        example: https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
-        type: string
-      self:
-        example: https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
-        type: string
+        $ref: '#/definitions/models.Envelope'
     type: object
   controllers.MonthConfigListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/controllers.MonthConfig'
+          $ref: '#/definitions/models.MonthConfig'
         type: array
     type: object
   controllers.MonthConfigResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.MonthConfig'
+        $ref: '#/definitions/models.MonthConfig'
     type: object
   controllers.MonthResponse:
     properties:
       data:
         $ref: '#/definitions/models.Month'
     type: object
-  controllers.Transaction:
-    properties:
-      amount:
-        description: The maximum value is "999999999999.99999999", swagger unfortunately
-          rounds this.
-        example: 14.03
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      availableFrom:
-        description: The date from which on the transaction amount is available for
-          budgeting. Only used for income transactions. Defaults to the transaction
-          date.
-        example: 2021-11-17:00:00:00Z
-        type: string
-      budgetId:
-        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      date:
-        example: "1815-12-10T18:43:00.271152Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      destinationAccountId:
-        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
-        type: string
-      envelopeId:
-        example: 2649c965-7999-4873-ae16-89d5d5fa972e
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        $ref: '#/definitions/controllers.TransactionLinks'
-      note:
-        example: Lunch
-        type: string
-      reconciled:
-        default: false
-        description: DEPRECATED. Do not use, this field does not work as intended.
-          See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
-          and reconciledDestination instead.
-        example: true
-        type: boolean
-      reconciledDestination:
-        default: false
-        example: true
-        type: boolean
-      reconciledSource:
-        default: false
-        example: true
-        type: boolean
-      sourceAccountId:
-        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.TransactionLinks:
-    properties:
-      self:
-        example: https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
-        type: string
-    type: object
   controllers.TransactionListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/controllers.Transaction'
+          $ref: '#/definitions/models.Transaction'
         type: array
     type: object
   controllers.TransactionResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.Transaction'
+        $ref: '#/definitions/models.Transaction'
     type: object
   httperrors.HTTPError:
     properties:
@@ -549,6 +267,48 @@ definitions:
         example: true
         type: boolean
     type: object
+  models.Allocation:
+    properties:
+      amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          self:
+            example: https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc
+            type: string
+        type: object
+      month:
+        description: Only year and month of this timestamp are used, everything else
+          is ignored. This will always be set to 00:00 UTC on the first of the specified
+          month
+        example: "2021-12-01T00:00:00.000000Z"
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   models.AllocationCreate:
     properties:
       amount:
@@ -567,6 +327,71 @@ definitions:
           is ignored. This will always be set to 00:00 UTC on the first of the specified
           month
         example: "2021-12-01T00:00:00.000000Z"
+        type: string
+    type: object
+  models.Budget:
+    properties:
+      balance:
+        description: DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
+        example: 3423.42
+        type: number
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        example: €
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          accounts:
+            example: https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          categories:
+            example: https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          envelopes:
+            example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          groupedMonth:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+            type: string
+          month:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
+            type: string
+          monthAllocations:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+            type: string
+          self:
+            example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          transactions:
+            example: https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+        type: object
+      name:
+        example: Morre's Budget
+        type: string
+      note:
+        example: My personal expenses
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   models.BudgetCreate:
@@ -664,6 +489,15 @@ definitions:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
+      links:
+        properties:
+          envelopes:
+            example: https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+          self:
+            example: https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+        type: object
       name:
         description: Name of the category
         example: Saving
@@ -704,6 +538,27 @@ definitions:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
+      links:
+        description: Links to related resources
+        properties:
+          allocations:
+            description: URL for the envelope's allocations
+            example: https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
+            type: string
+          month:
+            description: URL to query for month information. This will always end
+              in 'YYYY-MM' for clients to use replace with actual numbers.
+            example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
+            type: string
+          self:
+            description: URL of the envelope
+            example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
+            type: string
+          transactions:
+            description: URL for the envelope's transactions
+            example: https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
+            type: string
+        type: object
       name:
         description: Name of the envelope
         example: Groceries
@@ -847,6 +702,44 @@ definitions:
         example: 133.7
         type: number
     type: object
+  models.MonthConfig:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      links:
+        properties:
+          envelope:
+            description: URL of the envelope this config belongs to
+            example: https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
+            type: string
+          self:
+            description: URL for the month config
+            example: https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
+            type: string
+        type: object
+      month:
+        description: This is always set to 00:00 UTC on the first of the month.
+        example: "1969-06-01T00:00:00.000000Z"
+        type: string
+      overspendMode:
+        allOf:
+        - $ref: '#/definitions/models.OverspendMode'
+        default: AFFECT_AVAILABLE
+        example: AFFECT_ENVELOPE
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   models.MonthConfigCreate:
     properties:
       overspendMode:
@@ -863,6 +756,80 @@ definitions:
     x-enum-varnames:
     - AffectAvailable
     - AffectEnvelope
+  models.Transaction:
+    properties:
+      amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 14.03
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      availableFrom:
+        description: The date from which on the transaction amount is available for
+          budgeting. Only used for income transactions. Defaults to the transaction
+          date.
+        example: 2021-11-17:00:00:00Z
+        type: string
+      budgetId:
+        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      date:
+        example: "1815-12-10T18:43:00.271152Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      destinationAccountId:
+        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
+        type: string
+      envelopeId:
+        example: 2649c965-7999-4873-ae16-89d5d5fa972e
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        description: Links for the transaction
+        properties:
+          self:
+            description: URL of the transaction resource
+            example: https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
+            type: string
+        type: object
+      note:
+        example: Lunch
+        type: string
+      reconciled:
+        default: false
+        description: DEPRECATED. Do not use, this field does not work as intended.
+          See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
+          and reconciledDestination instead.
+        example: true
+        type: boolean
+      reconciledDestination:
+        default: false
+        example: true
+        type: boolean
+      reconciledSource:
+        default: false
+        example: true
+        type: boolean
+      sourceAccountId:
+        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   models.TransactionCreate:
     properties:
       amount:

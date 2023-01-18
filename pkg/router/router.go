@@ -1,7 +1,6 @@
 package router
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 	"os"
@@ -26,7 +25,7 @@ import (
 // This is set at build time, see Makefile.
 var version = "0.0.0"
 
-func Config() (*gin.Engine, error) {
+func Config(url *url.URL) (*gin.Engine, error) {
 	// Set up the router and middlewares
 	r := gin.New()
 
@@ -40,7 +39,6 @@ func Config() (*gin.Engine, error) {
 
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
-	r.Use(URLMiddleware())
 	r.NoMethod(func(c *gin.Context) {
 		httperrors.New(c, http.StatusMethodNotAllowed, "This HTTP method is not allowed for the endpoint you called")
 	})
@@ -78,16 +76,6 @@ func Config() (*gin.Engine, error) {
 	// Don’t trust any proxy. We do not process any client IPs,
 	// therefore we don’t need to trust anyone here.
 	_ = r.SetTrustedProxies([]string{})
-
-	apiURL, ok := os.LookupEnv("API_URL")
-	if !ok {
-		return nil, errors.New("environment variable API_URL must be set")
-	}
-
-	url, err := url.Parse(apiURL)
-	if err != nil {
-		return nil, errors.New("environment variable API_URL must be a valid URL")
-	}
 
 	log.Debug().Str("API Base URL", url.String()).Str("Host", url.Host).Str("Path", url.Path).Msg("Router")
 	log.Info().Str("version", version).Msg("Router")

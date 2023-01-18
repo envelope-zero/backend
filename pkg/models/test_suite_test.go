@@ -1,7 +1,9 @@
 package models_test
 
 import (
+	"context"
 	"log"
+	"net/url"
 	"os"
 	"testing"
 
@@ -24,7 +26,6 @@ func TestSuite(t *testing.T) {
 func (suite *TestSuiteStandard) SetupSuite() {
 	os.Setenv("LOG_FORMAT", "human")
 	os.Setenv("GIN_MODE", "debug")
-	os.Setenv("API_URL", "http://example.com")
 }
 
 // TearDownTest is called after each test in the suite.
@@ -45,7 +46,12 @@ func (suite *TestSuiteStandard) SetupTest() {
 		log.Fatalf("Database migration failed with: %s", err)
 	}
 
-	suite.db = db
+	// Create the context and store the API URL
+	ctx := context.Background()
+	url, _ := url.Parse("https://example.com")
+	ctx = context.WithValue(ctx, database.ContextURL, url)
+
+	suite.db = db.WithContext(ctx)
 }
 
 // CloseDB closes the database connection. This enables testing the handling

@@ -1,9 +1,11 @@
 package ynab4_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"testing"
 	"testing/iotest"
@@ -38,8 +40,13 @@ func testDB() (*gorm.DB, func() error) {
 		log.Fatalf("Database migration failed with: %#v", err)
 	}
 
+	// Create the context and store the API URL
+	ctx := context.Background()
+	url, _ := url.Parse("https://example.com")
+	ctx = context.WithValue(ctx, database.ContextURL, url)
+
 	sqlDB, _ := db.DB()
-	return db, sqlDB.Close
+	return db.WithContext(ctx), sqlDB.Close
 }
 
 func TestParseNoFile(t *testing.T) {
@@ -143,7 +150,7 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		m, err := b.Month(db, tt.month, "https://example.com")
+		m, err := b.Month(db, tt.month)
 		assert.Nil(t, err)
 
 		assert.True(t, decimal.NewFromFloat32(tt.available).Equal(m.Available), "Available for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.available), m.Available)

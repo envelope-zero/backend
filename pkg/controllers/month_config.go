@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -13,22 +12,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type MonthConfigLinks struct {
-	Self     string `json:"self" example:"https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"`
-	Envelope string `json:"envelope" example:"https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"`
-}
-
-type MonthConfig struct {
-	models.MonthConfig
-	Links MonthConfigLinks `json:"links"`
-}
-
 type MonthConfigResponse struct {
-	Data MonthConfig `json:"data"`
+	Data models.MonthConfig `json:"data"`
 }
 
 type MonthConfigListResponse struct {
-	Data []MonthConfig `json:"data"`
+	Data []models.MonthConfig `json:"data"`
 }
 
 type MonthConfigQueryFilter struct {
@@ -135,7 +124,7 @@ func (co Controller) GetMonthConfig(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getEnvelopeObject(c, envelopeID)
+	_, ok := co.getEnvelopeResource(c, envelopeID)
 	if !ok {
 		return
 	}
@@ -145,7 +134,7 @@ func (co Controller) GetMonthConfig(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, MonthConfigResponse{Data: co.getMonthConfigObject(c, mConfig)})
+	c.JSON(http.StatusOK, MonthConfigResponse{Data: mConfig})
 }
 
 // GetMonthConfigs returns all month configs filtered by the query parameters
@@ -188,14 +177,11 @@ func (co Controller) GetMonthConfigs(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	mConfigObjects := make([]MonthConfig, 0)
-
-	for _, mConfig := range mConfigs {
-		o := co.getMonthConfigObject(c, mConfig)
-		mConfigObjects = append(mConfigObjects, o)
+	if len(mConfigs) == 0 {
+		mConfigs = make([]models.MonthConfig, 0)
 	}
 
-	c.JSON(http.StatusOK, MonthConfigListResponse{Data: mConfigObjects})
+	c.JSON(http.StatusOK, MonthConfigListResponse{Data: mConfigs})
 }
 
 // CreateMonthConfig creates a new month config
@@ -250,8 +236,7 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	mConfigObject := co.getMonthConfigObject(c, mConfig)
-	c.JSON(http.StatusCreated, MonthConfigResponse{Data: mConfigObject})
+	c.JSON(http.StatusCreated, MonthConfigResponse{Data: mConfig})
 }
 
 // UpdateMonthConfig updates configuration data for a specific envelope and month
@@ -304,7 +289,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, MonthConfigResponse{Data: co.getMonthConfigObject(c, mConfig)})
+	c.JSON(http.StatusOK, MonthConfigResponse{Data: mConfig})
 }
 
 // DeleteMonthConfig deletes configuration data for a specific envelope and month
@@ -332,7 +317,7 @@ func (co Controller) DeleteMonthConfig(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getEnvelopeObject(c, envelopeID)
+	_, ok := co.getEnvelopeResource(c, envelopeID)
 	if !ok {
 		return
 	}
@@ -347,16 +332,6 @@ func (co Controller) DeleteMonthConfig(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-func (co Controller) getMonthConfigObject(c *gin.Context, mConfig models.MonthConfig) MonthConfig {
-	return MonthConfig{
-		mConfig,
-		MonthConfigLinks{
-			Self:     fmt.Sprintf("%s/v1/month-configs/%s/%s", c.GetString("baseURL"), mConfig.EnvelopeID, mConfig.Month),
-			Envelope: fmt.Sprintf("%s/v1/envelopes/%s", c.GetString("baseURL"), mConfig.EnvelopeID),
-		},
-	}
 }
 
 // getMonthConfigResource verifies that the request URI is valid for the transaction and returns it.
