@@ -3956,34 +3956,42 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accounts": {
+                    "description": "URL of account list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/accounts"
                 },
                 "allocations": {
+                    "description": "URL of allocation list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/allocations"
                 },
                 "budgets": {
+                    "description": "URL of budget list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/budgets"
                 },
                 "categories": {
+                    "description": "URL of category list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/categories"
                 },
                 "envelopes": {
+                    "description": "URL of envelope list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/envelopes"
                 },
                 "import": {
+                    "description": "URL of import list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/import"
                 },
                 "months": {
+                    "description": "URL of month list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/months"
                 },
                 "transactions": {
+                    "description": "URL of transaction list endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v1/transactions"
                 }
@@ -3993,7 +4001,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "links": {
-                    "$ref": "#/definitions/router.V1Links"
+                    "description": "Links for the v1 API",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/router.V1Links"
+                        }
+                    ]
                 }
             }
         },
@@ -4001,6 +4014,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "version": {
+                    "description": "the running version of the Envelope Zero backend",
                     "type": "string",
                     "example": "1.1.0"
                 }
@@ -4010,7 +4024,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/router.VersionObject"
+                    "description": "Data object for the version endpoint",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/router.VersionObject"
+                        }
+                    ]
                 }
             }
         }

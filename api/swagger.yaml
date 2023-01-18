@@ -903,45 +903,58 @@ definitions:
   router.V1Links:
     properties:
       accounts:
+        description: URL of account list endpoint
         example: https://example.com/api/v1/accounts
         type: string
       allocations:
+        description: URL of allocation list endpoint
         example: https://example.com/api/v1/allocations
         type: string
       budgets:
+        description: URL of budget list endpoint
         example: https://example.com/api/v1/budgets
         type: string
       categories:
+        description: URL of category list endpoint
         example: https://example.com/api/v1/categories
         type: string
       envelopes:
+        description: URL of envelope list endpoint
         example: https://example.com/api/v1/envelopes
         type: string
       import:
+        description: URL of import list endpoint
         example: https://example.com/api/v1/import
         type: string
       months:
+        description: URL of month list endpoint
         example: https://example.com/api/v1/months
         type: string
       transactions:
+        description: URL of transaction list endpoint
         example: https://example.com/api/v1/transactions
         type: string
     type: object
   router.V1Response:
     properties:
       links:
-        $ref: '#/definitions/router.V1Links'
+        allOf:
+        - $ref: '#/definitions/router.V1Links'
+        description: Links for the v1 API
     type: object
   router.VersionObject:
     properties:
       version:
+        description: the running version of the Envelope Zero backend
         example: 1.1.0
         type: string
     type: object
   router.VersionResponse:
     properties:
       data:
-        $ref: '#/definitions/router.VersionObject'
+        allOf:
+        - $ref: '#/definitions/router.VersionObject'
+        description: Data object for the version endpoint
     type: object
 info:
   contact: {}

@@ -155,10 +155,10 @@ func GetRoot(c *gin.Context) {
 }
 
 type VersionResponse struct {
-	Data VersionObject `json:"data"`
+	Data VersionObject `json:"data"` // Data object for the version endpoint
 }
 type VersionObject struct {
-	Version string `json:"version" example:"1.1.0"`
+	Version string `json:"version" example:"1.1.0"` // the running version of the Envelope Zero backend
 }
 
 // GetVersion returns the API version object
@@ -199,18 +199,18 @@ func OptionsVersion(c *gin.Context) {
 }
 
 type V1Response struct {
-	Links V1Links `json:"links"`
+	Links V1Links `json:"links"` // Links for the v1 API
 }
 
 type V1Links struct {
-	Budgets      string `json:"budgets" example:"https://example.com/api/v1/budgets"`
-	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts"`
-	Categories   string `json:"categories" example:"https://example.com/api/v1/categories"`
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"`
-	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`
-	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`
-	Months       string `json:"months" example:"https://example.com/api/v1/months"`
-	Import       string `json:"import" example:"https://example.com/api/v1/import"`
+	Budgets      string `json:"budgets" example:"https://example.com/api/v1/budgets"`           // URL of budget list endpoint
+	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts"`         // URL of account list endpoint
+	Categories   string `json:"categories" example:"https://example.com/api/v1/categories"`     // URL of category list endpoint
+	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"` // URL of transaction list endpoint
+	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`       // URL of envelope list endpoint
+	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`   // URL of allocation list endpoint
+	Months       string `json:"months" example:"https://example.com/api/v1/months"`             // URL of month list endpoint
+	Import       string `json:"import" example:"https://example.com/api/v1/import"`             // URL of import list endpoint
 }
 
 // GetV1 returns the link list for v1
