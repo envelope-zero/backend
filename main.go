@@ -56,10 +56,6 @@ func main() {
 		log.Fatal().Msg("environment variable API_URL must be a valid URL")
 	}
 
-	// Create the context to store the API URL
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, database.ContextURL, url)
-
 	// Create data directory
 	err = database.CreateDir("data")
 	if err != nil {
@@ -77,6 +73,8 @@ func main() {
 	}
 
 	// Set the DB context and add it to the controller
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, database.ContextURL, url)
 	controller := controllers.Controller{DB: db.WithContext(ctx)}
 
 	r, err := router.Config(url)

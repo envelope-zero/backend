@@ -3928,14 +3928,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "docs": {
+                    "description": "Swagger API documentation",
                     "type": "string",
                     "example": "https://example.com/api/docs/index.html"
                 },
                 "v1": {
+                    "description": "List endpoint for all v1 endpoints",
                     "type": "string",
                     "example": "https://example.com/api/v1"
                 },
                 "version": {
+                    "description": "Endpoint returning the version of the backend",
                     "type": "string",
                     "example": "https://example.com/api/version"
                 }

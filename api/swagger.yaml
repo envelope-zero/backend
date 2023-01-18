@@ -883,12 +883,15 @@ definitions:
   router.RootLinks:
     properties:
       docs:
+        description: Swagger API documentation
         example: https://example.com/api/docs/index.html
         type: string
       v1:
+        description: List endpoint for all v1 endpoints
         example: https://example.com/api/v1
         type: string
       version:
+        description: Endpoint returning the version of the backend
         example: https://example.com/api/version
         type: string
     type: object

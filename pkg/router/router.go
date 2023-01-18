@@ -8,6 +8,7 @@ import (
 
 	docs "github.com/envelope-zero/backend/v2/api"
 	"github.com/envelope-zero/backend/v2/pkg/controllers"
+	"github.com/envelope-zero/backend/v2/pkg/database"
 	"github.com/envelope-zero/backend/v2/pkg/httperrors"
 	"github.com/envelope-zero/backend/v2/pkg/httputil"
 	"github.com/gin-contrib/cors"
@@ -39,6 +40,7 @@ func Config(url *url.URL) (*gin.Engine, error) {
 
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
+	r.Use(URLMiddleware(url))
 	r.NoMethod(func(c *gin.Context) {
 		httperrors.New(c, http.StatusMethodNotAllowed, "This HTTP method is not allowed for the endpoint you called")
 	})
@@ -130,9 +132,9 @@ type RootResponse struct {
 }
 
 type RootLinks struct {
-	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"`
-	Version string `json:"version" example:"https://example.com/api/version"`
-	V1      string `json:"v1" example:"https://example.com/api/v1"`
+	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"` // Swagger API documentation
+	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
+	V1      string `json:"v1" example:"https://example.com/api/v1"`                // List endpoint for all v1 endpoints
 }
 
 // GetRoot returns the link list for the API root
@@ -145,9 +147,9 @@ type RootLinks struct {
 func GetRoot(c *gin.Context) {
 	c.JSON(http.StatusOK, RootResponse{
 		Links: RootLinks{
-			Docs:    c.GetString("baseURL") + "/docs/index.html",
-			Version: c.GetString("baseURL") + "/version",
-			V1:      c.GetString("baseURL") + "/v1",
+			Docs:    c.GetString(string(database.ContextURL)) + "/docs/index.html",
+			Version: c.GetString(string(database.ContextURL)) + "/version",
+			V1:      c.GetString(string(database.ContextURL)) + "/v1",
 		},
 	})
 }
@@ -221,14 +223,14 @@ type V1Links struct {
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
-			Budgets:      c.GetString("baseURL") + "/v1/budgets",
-			Accounts:     c.GetString("baseURL") + "/v1/accounts",
-			Categories:   c.GetString("baseURL") + "/v1/categories",
-			Transactions: c.GetString("baseURL") + "/v1/transactions",
-			Envelopes:    c.GetString("baseURL") + "/v1/envelopes",
-			Allocations:  c.GetString("baseURL") + "/v1/allocations",
-			Months:       c.GetString("baseURL") + "/v1/months",
-			Import:       c.GetString("baseURL") + "/v1/import",
+			Budgets:      c.GetString(string(database.ContextURL)) + "/v1/budgets",
+			Accounts:     c.GetString(string(database.ContextURL)) + "/v1/accounts",
+			Categories:   c.GetString(string(database.ContextURL)) + "/v1/categories",
+			Transactions: c.GetString(string(database.ContextURL)) + "/v1/transactions",
+			Envelopes:    c.GetString(string(database.ContextURL)) + "/v1/envelopes",
+			Allocations:  c.GetString(string(database.ContextURL)) + "/v1/allocations",
+			Months:       c.GetString(string(database.ContextURL)) + "/v1/months",
+			Import:       c.GetString(string(database.ContextURL)) + "/v1/import",
 		},
 	})
 }
