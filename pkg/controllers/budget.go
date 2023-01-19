@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v2/internal/types"
@@ -11,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"golang.org/x/exp/slices"
 )
 
 type BudgetListResponse struct {
@@ -30,6 +28,7 @@ type BudgetQueryFilter struct {
 	Name     string `form:"name" filterField:"false"`
 	Note     string `form:"note" filterField:"false"`
 	Currency string `form:"currency"`
+	Search   string `form:"search" filterField:"false"`
 }
 
 // swagger:enum AllocationMode
@@ -215,6 +214,7 @@ func (co Controller) CreateBudget(c *gin.Context) {
 //	@Param			name		query	string	false	"Filter by name"
 //	@Param			note		query	string	false	"Filter by note"
 //	@Param			currency	query	string	false	"Filter by currency"
+//	@Param			search		query	string	false	"Search for this text in name and note"
 func (co Controller) GetBudgets(c *gin.Context) {
 	var filter BudgetQueryFilter
 
@@ -234,17 +234,7 @@ func (co Controller) GetBudgets(c *gin.Context) {
 		},
 	}, queryFields...)
 
-	if filter.Name != "" {
-		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", filter.Name))
-	} else if slices.Contains(setFields, "Name") {
-		query = query.Where("name = ''")
-	}
-
-	if filter.Note != "" {
-		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
-	} else if slices.Contains(setFields, "Note") {
-		query = query.Where("note = ''")
-	}
+	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
 	if !queryWithRetry(c, query.Find(&budgets)) {
 		return

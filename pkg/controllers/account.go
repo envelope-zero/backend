@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v2/pkg/httperrors"
@@ -9,7 +8,6 @@ import (
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"golang.org/x/exp/slices"
 )
 
 type AccountListResponse struct {
@@ -32,6 +30,7 @@ type AccountQueryFilter struct {
 	OnBudget bool   `form:"onBudget"`                 // Is the account on-budget?
 	External bool   `form:"external"`                 // Is the account external?
 	Hidden   bool   `form:"hidden"`                   // Is the account hidden?
+	Search   string `form:"search" filterField:"false"`
 }
 
 func (f AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool) {
@@ -154,6 +153,7 @@ func (co Controller) CreateAccount(c *gin.Context) {
 //	@Param			onBudget	query	bool	false	"Is the account on-budget?"
 //	@Param			external	query	bool	false	"Is the account external?"
 //	@Param			hidden		query	bool	false	"Is the account hidden?"
+//	@Param			search		query	string	false	"Search for this text in name and note"
 func (co Controller) GetAccounts(c *gin.Context) {
 	var filter AccountQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -174,17 +174,7 @@ func (co Controller) GetAccounts(c *gin.Context) {
 		AccountCreate: create,
 	}, queryFields...)
 
-	if filter.Name != "" {
-		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", filter.Name))
-	} else if slices.Contains(setFields, "Name") {
-		query = query.Where("name = ''")
-	}
-
-	if filter.Note != "" {
-		query = query.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
-	} else if slices.Contains(setFields, "Note") {
-		query = query.Where("note = ''")
-	}
+	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
 	var accounts []models.Account
 	if !queryWithRetry(c, query.Find(&accounts)) {
