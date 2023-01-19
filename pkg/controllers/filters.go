@@ -26,8 +26,6 @@ func stringFilters(db, query *gorm.DB, setFields []string, name, note, search st
 				db.Where("name LIKE ?", fmt.Sprintf("%%%s%%", search)),
 			),
 		)
-	} else if slices.Contains(setFields, "Search") {
-		query = query.Where("note = ''").Where("name = ''")
 	}
 
 	return query
