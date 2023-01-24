@@ -50,7 +50,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/exp v0.0.0-20230118134722-a68e582fa157
+	golang.org/x/exp v0.0.0-20230124142953-7f5a42a36c7e
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
