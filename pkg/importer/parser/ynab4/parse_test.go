@@ -18,6 +18,7 @@ import (
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
@@ -86,13 +87,11 @@ func TestParseFail(t *testing.T) {
 // for easier verification of future features and bugs.
 func TestParse(t *testing.T) {
 	f, err := os.OpenFile("../../../../testdata/importer/Budget.yfull", os.O_RDONLY, 0o400)
-	if err != nil {
-		assert.FailNow(t, "Failed to open the test file", err)
-	}
+	require.Nil(t, err, "Failed to open the test file: %w", err)
 
 	// Call the parser
 	r, err := ynab4.Parse(f)
-	assert.Nil(t, err, "Parsing failed", err)
+	require.Nil(t, err, "Parsing failed", err)
 
 	// Create test database and import
 	db, close := testDB()
@@ -101,7 +100,7 @@ func TestParse(t *testing.T) {
 	b, err := importer.Create(db, r)
 
 	// Check correctness of import
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	assert.Equal(t, "€", b.Currency, "Currency is wrong")
 
 	// Check accounts
@@ -166,7 +165,7 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 	// - 5 internal accounts
 	// - 14 external accounts imported from YNAB payees
 	// - 1 external account "YNAB 4 Import - No Payee" for transactions without payee
-	assert.Len(t, accounts, 20, "Number of accounts is wrong")
+	assert.Len(t, accounts, 22, "Number of accounts is wrong")
 
 	// Check number of internal accounts. This implicitly checks the number of external
 	// accounts, too as we already check the total number above.
@@ -176,7 +175,7 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 			count++
 		}
 	}
-	assert.Equal(t, 5, count, "Count of internal and external accounts does not match")
+	assert.Equal(t, 6, count, "Count of internal and external accounts does not match")
 
 	// Check account details
 	tests := []struct {
@@ -292,33 +291,35 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 	assert.Len(t, transactions, 17, "Number of transactions is wrong")
 
 	tests := []struct {
-		date                  time.Time
-		amount                float32
-		note                  string
-		sourceAccount         string
-		destinationAccount    string
-		envelope              string
-		reconciledSource      bool
-		reconciledDestination bool
-		availableFrom         types.Month
+		date                       time.Time
+		amount                     float32
+		note                       string
+		sourceAccount              string
+		sourceAccountExternal      bool
+		destinationAccount         string
+		destinationAccountExternal bool
+		envelope                   string
+		reconciledSource           bool
+		reconciledDestination      bool
+		availableFrom              types.Month
 	}{
-		{date(2022, 10, 10), 120, "", "Checking", "Hospital", "Medical", false, false, types.Month{}},
-		{date(2022, 10, 20), 15, "", "Checking", "Some Restaurant", "Restaurants", true, false, types.Month{}},
-		{date(2022, 10, 21), 50, "", "Checking", "Savings", "Vacation", true, true, types.Month{}},
-		{date(2022, 10, 21), 10, "Put in too much", "Savings", "Checking", "Vacation", true, false, types.Month{}},
-		{date(2022, 10, 25), 1000, "", "Employer", "Checking", "", false, true, types.NewMonth(2022, 11)},
-		{date(2022, 11, 1), 30, "Sweatpants", "Checking", "Online Shop", "Clothing", true, false, types.Month{}},
-		{date(2022, 11, 1), 120, "Kitchen Appliance", "Checking", "Online Shop", "Household Goods", true, false, types.Month{}},
-		{date(2022, 11, 10), 100, "Needed some cash", "Checking", "Cash", "", false, true, types.Month{}},
-		{date(2022, 11, 10), 5, "Needed some cash: Withdrawal Fee", "Checking", "YNAB 4 Import - No Payee", "Spending Money", false, false, types.Month{}},
-		{date(2022, 11, 11), 20, "Taking some back out", "Savings", "Checking", "Vacation", true, false, types.Month{}},
-		{date(2022, 11, 11), 50, "Grandma gave me 50 bucks for a new mixer", "YNAB 4 Import - No Payee", "Checking", "Household Goods", false, false, types.Month{}},
-		{date(2022, 11, 15), 95, "Compensation for returned goods", "Online Platform", "Checking", "", false, false, types.NewMonth(2022, 12)},
-		{date(2022, 11, 15), 15, "", "Checking", "Online Platform", "Clothing", false, false, types.Month{}},
-		{date(2022, 11, 28), 10, "", "Checking", "Accidental Account", "", false, false, types.Month{}},
-		{date(2022, 12, 15), 10, "", "Cash", "Takeout", "Restaurants", false, false, types.Month{}},
-		{date(2022, 12, 30), 20, "", "Checking", "Cash", "", false, false, types.Month{}},
-		{date(2022, 12, 31), 100, "Car is slowly breaking down", "Checking", "Savings", "", false, false, types.Month{}},
+		{date(2022, 10, 10), 120, "", "Checking", false, "Hospital", true, "Medical", false, false, types.Month{}},
+		{date(2022, 10, 20), 15, "", "Checking", false, "Checking", true, "Restaurants", true, false, types.Month{}},
+		{date(2022, 10, 21), 50, "", "Checking", false, "Savings", false, "Vacation", true, true, types.Month{}},
+		{date(2022, 10, 21), 10, "Put in too much", "Savings", false, "Checking", false, "Vacation", true, false, types.Month{}},
+		{date(2022, 10, 25), 1000, "", "Employer", true, "Checking", false, "", false, true, types.NewMonth(2022, 11)},
+		{date(2022, 11, 1), 30, "Sweatpants", "Checking", false, "Online Shop", true, "Clothing", true, false, types.Month{}},
+		{date(2022, 11, 1), 120, "Kitchen Appliance", "Checking", false, "Online Shop", true, "Household Goods", true, false, types.Month{}},
+		{date(2022, 11, 10), 100, "Needed some cash", "Checking", false, "Cash", false, "", false, true, types.Month{}},
+		{date(2022, 11, 10), 5, "Needed some cash: Withdrawal Fee", "Checking", false, "YNAB 4 Import - No Payee", true, "Spending Money", false, false, types.Month{}},
+		{date(2022, 11, 11), 20, "Taking some back out", "Savings", false, "Checking", false, "Vacation", true, false, types.Month{}},
+		{date(2022, 11, 11), 50, "Grandma gave me 50 bucks for a new mixer", "YNAB 4 Import - No Payee", true, "Checking", false, "Household Goods", false, false, types.Month{}},
+		{date(2022, 11, 15), 95, "Compensation for returned goods", "Online Platform", true, "Checking", false, "", false, false, types.NewMonth(2022, 12)},
+		{date(2022, 11, 15), 15, "", "Checking", false, "Online Platform", true, "Clothing", false, false, types.Month{}},
+		{date(2022, 11, 28), 10, "", "Checking", false, "Accidental Account", false, "", false, false, types.Month{}},
+		{date(2022, 12, 15), 10, "", "Cash", false, "Takeout", true, "Restaurants", false, false, types.Month{}},
+		{date(2022, 12, 30), 20, "", "Checking", false, "Cash", false, "", false, false, types.Month{}},
+		{date(2022, 12, 31), 100, "Car is slowly breaking down", "Checking", false, "Savings", false, "", false, false, types.Month{}},
 	}
 
 	for _, tt := range tests {
@@ -331,14 +332,18 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 			tr := transactions[idx]
 
 			// Get source account
-			idx = slices.IndexFunc(accounts, func(a models.Account) bool { return a.Name == tt.sourceAccount })
+			idx = slices.IndexFunc(accounts, func(a models.Account) bool {
+				return a.Name == tt.sourceAccount && a.External == tt.sourceAccountExternal
+			})
 			if !assert.NotEqual(t, -1, idx, "Source account not found in account list") {
 				return
 			}
 			source := accounts[idx]
 
 			// Get destination account
-			idx = slices.IndexFunc(accounts, func(a models.Account) bool { return a.Name == tt.destinationAccount })
+			idx = slices.IndexFunc(accounts, func(a models.Account) bool {
+				return a.Name == tt.destinationAccount && a.External == tt.destinationAccountExternal
+			})
 			if !assert.NotEqual(t, -1, idx, "Destination account not found in account list") {
 				return
 			}

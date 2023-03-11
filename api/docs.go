@@ -2817,6 +2817,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
                 "initialBalance": {
                     "type": "number",
                     "default": 0,
@@ -3141,6 +3146,11 @@ const docTemplate = `{
                     "type": "boolean",
                     "default": false,
                     "example": true
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
                 },
                 "initialBalance": {
                     "type": "number",
@@ -3847,6 +3857,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
                 "links": {
                     "description": "Links for the transaction",
                     "type": "object",
@@ -3920,6 +3935,11 @@ const docTemplate = `{
                 "envelopeId": {
                     "type": "string",
                     "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
                 },
                 "note": {
                     "type": "string",
