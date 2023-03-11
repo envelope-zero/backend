@@ -7,15 +7,11 @@ import "github.com/envelope-zero/backend/v2/pkg/models"
 // and iteration through them.
 type ParsedResources struct {
 	Budget       models.Budget
-	Accounts     map[string]Account
+	Accounts     []models.Account
 	Categories   map[string]Category
 	Allocations  []Allocation
 	Transactions []Transaction
 	MonthConfigs []MonthConfig
-}
-
-type Account struct {
-	Model models.Account
 }
 
 type Category struct {
@@ -40,9 +36,9 @@ type MonthConfig struct {
 }
 
 type Transaction struct {
-	Model              models.Transaction
-	SourceAccount      string
-	DestinationAccount string
-	Category           string // There is a category here since an envelope with the same name can exist for multiple categories
-	Envelope           string
+	Model                  models.Transaction
+	SourceAccountHash      string // Import hash of the source account
+	DestinationAccountHash string // Import hash of the destination account
+	Category               string // There is a category here since an envelope with the same name can exist for multiple categories
+	Envelope               string
 }

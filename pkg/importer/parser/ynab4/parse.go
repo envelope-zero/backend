@@ -1,6 +1,7 @@
 package ynab4
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	internal_types "github.com/envelope-zero/backend/v2/internal/types"
+	"github.com/google/uuid"
 
 	"github.com/envelope-zero/backend/v2/pkg/importer/types"
 	"github.com/envelope-zero/backend/v2/pkg/models"
@@ -88,19 +90,18 @@ func parseHiddenCategoryName(f string) (category, envelope string, err error) {
 func parseAccounts(resources *types.ParsedResources, accounts []Account) IDToName {
 	idToNames := make(IDToName)
 
-	resources.Accounts = make(map[string]types.Account)
 	for _, account := range accounts {
 		idToNames[account.EntityID] = account.Name
-		resources.Accounts[account.Name] = types.Account{
-			Model: models.Account{
-				AccountCreate: models.AccountCreate{
-					Name:     account.Name,
-					Note:     account.Note,
-					OnBudget: account.OnBudget,
-					Hidden:   account.Hidden,
-				},
+
+		resources.Accounts = append(resources.Accounts, models.Account{
+			AccountCreate: models.AccountCreate{
+				Name:       account.Name,
+				Note:       account.Note,
+				OnBudget:   account.OnBudget,
+				Hidden:     account.Hidden,
+				ImportHash: fmt.Sprint(sha256.Sum256([]byte(account.EntityID))),
 			},
-		}
+		})
 	}
 
 	return idToNames
@@ -122,15 +123,14 @@ func parsePayees(resources *types.ParsedResources, payees []Payee) IDToName {
 		}
 
 		// Create the account
-		resources.Accounts[payee.Name] = types.Account{
-			Model: models.Account{
-				AccountCreate: models.AccountCreate{
-					Name:     payee.Name,
-					OnBudget: false,
-					External: true,
-				},
+		resources.Accounts = append(resources.Accounts, models.Account{
+			AccountCreate: models.AccountCreate{
+				Name:       payee.Name,
+				OnBudget:   false,
+				External:   true,
+				ImportHash: fmt.Sprint(sha256.Sum256([]byte(payee.EntityID))),
 			},
-		}
+		})
 	}
 
 	return idToNames
@@ -234,6 +234,10 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 	// If an account "No payee" for transactions without a payee needs to be added
 	addNoPayee := false
 
+	// We generate an import hash for the "YNAB 4 - No payee" account that might be added since
+	// we create it and it therefore does not have a UUID
+	noPayeeImportHash := fmt.Sprint(sha256.Sum256([]byte(uuid.New().String())))
+
 	// Add all transactions
 	for _, transaction := range transactions {
 		// Don't import deleted transactions or transactions that have an amount of 0
@@ -253,12 +257,16 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			transaction.PayeeID = transaction.TargetAccountID
 		}
 
-		// If we do not have a Payee for a transaction, we use the special import payee/account
-		// that will be created only if it is needed
-		payee := accountIDNames[transaction.PayeeID]
-		if payee == "" {
-			payee = "YNAB 4 Import - No Payee"
+		// Initialize to the import hash of the "No payee"
+		// account since we already have that one
+		payeeImportHash := noPayeeImportHash
+
+		// If the PayeeID is actually empty, create the account later
+		if transaction.PayeeID == "" {
 			addNoPayee = true
+		} else {
+			// Use the payee ID from the transaction in all other cases
+			payeeImportHash = fmt.Sprint(sha256.Sum256([]byte(transaction.PayeeID)))
 		}
 
 		// Parse the date of the transaction
@@ -267,14 +275,17 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
 		}
 
+		accountImportHash := fmt.Sprint(sha256.Sum256([]byte(transaction.AccountID)))
+
 		// Envelope Zero does not use a magic “Starting Balance” account, instead
 		// every account has a field for the starting balance
-		if payee == "Starting Balance" {
-			account := resources.Accounts[accountIDNames[transaction.AccountID]]
-			account.Model.InitialBalance = transaction.Amount
-			account.Model.InitialBalanceDate = &date
+		if accountIDNames[transaction.PayeeID] == "Starting Balance" {
+			idx := slices.IndexFunc(resources.Accounts, func(a models.Account) bool {
+				return a.ImportHash == accountImportHash
+			})
 
-			resources.Accounts[accountIDNames[transaction.AccountID]] = account
+			resources.Accounts[idx].InitialBalance = transaction.Amount
+			resources.Accounts[idx].InitialBalanceDate = &date
 
 			// Initial balance is set, no more processing needed
 			continue
@@ -283,19 +294,20 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 		newTransaction := types.Transaction{
 			Model: models.Transaction{
 				TransactionCreate: models.TransactionCreate{
-					Date: date,
-					Note: strings.TrimSpace(transaction.Memo),
+					Date:       date,
+					Note:       strings.TrimSpace(transaction.Memo),
+					ImportHash: fmt.Sprint(sha256.Sum256([]byte(transaction.EntityID))),
 				},
 			},
 		}
 
 		if transaction.Amount.IsPositive() {
-			newTransaction.DestinationAccount = accountIDNames[transaction.AccountID]
-			newTransaction.SourceAccount = payee
+			newTransaction.DestinationAccountHash = accountImportHash
+			newTransaction.SourceAccountHash = payeeImportHash
 			newTransaction.Model.Amount = transaction.Amount
 		} else {
-			newTransaction.SourceAccount = accountIDNames[transaction.AccountID]
-			newTransaction.DestinationAccount = payee
+			newTransaction.SourceAccountHash = accountImportHash
+			newTransaction.DestinationAccountHash = payeeImportHash
 			newTransaction.Model.Amount = transaction.Amount.Neg()
 		}
 
@@ -358,20 +370,26 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 				subTransaction.Model.AvailableFrom = internal_types.MonthOf(date)
 			}
 
+			// We need to set all of these again since the sub transaction can
+			// have a positive or negative amount no matter what the amount of
+			// the main transaction is
 			if sub.Amount.IsPositive() {
+				newTransaction.DestinationAccountHash = accountImportHash
+				newTransaction.SourceAccountHash = payeeImportHash
 				subTransaction.Model.Amount = sub.Amount
 			} else {
 				subTransaction.Model.Amount = sub.Amount.Neg()
-				subTransaction.DestinationAccount = payee
-				subTransaction.SourceAccount = accountIDNames[transaction.AccountID]
+				subTransaction.DestinationAccountHash = payeeImportHash
+				subTransaction.SourceAccountHash = accountImportHash
 			}
 
 			// The transaction is a transfer
 			if sub.TargetAccountID != "" {
+				targetAccountImportHash := fmt.Sprint(sha256.Sum256([]byte(sub.TargetAccountID)))
 				if sub.Amount.IsPositive() {
-					subTransaction.SourceAccount = accountIDNames[sub.TargetAccountID]
+					subTransaction.SourceAccountHash = targetAccountImportHash
 				} else {
-					subTransaction.DestinationAccount = accountIDNames[sub.TargetAccountID]
+					subTransaction.DestinationAccountHash = targetAccountImportHash
 				}
 
 				// We find the corresponding transaction with the TransferTransactionID
@@ -401,19 +419,17 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 		}
 	}
 
+	// Create the "no payee" payee if needed
 	if addNoPayee {
-		if _, ok := resources.Accounts["YNAB 4 Import - No Payee"]; !ok {
-			resources.Accounts["YNAB 4 Import - No Payee"] = types.Account{
-				Model: models.Account{
-					AccountCreate: models.AccountCreate{
-						Name:     "YNAB 4 Import - No Payee",
-						Note:     "This is the opposing account for all transactions that were imported from YNAB 4, but did not have a Payee. In Envelope Zero, all transactions must have a Source and Destination account",
-						OnBudget: false,
-						External: true,
-					},
-				},
-			}
-		}
+		resources.Accounts = append(resources.Accounts, models.Account{
+			AccountCreate: models.AccountCreate{
+				Name:       "YNAB 4 Import - No Payee",
+				Note:       "This is the opposing account for all transactions that were imported from YNAB 4, but did not have a Payee. In Envelope Zero, all transactions must have a Source and Destination account",
+				OnBudget:   false,
+				External:   true,
+				ImportHash: noPayeeImportHash,
+			},
+		})
 	}
 
 	return nil

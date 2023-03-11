@@ -38,6 +38,8 @@ type TransactionCreate struct {
 	ReconciledDestination bool            `json:"reconciledDestination" example:"true" default:"false"`
 
 	AvailableFrom types.Month `json:"availableFrom" example:"2021-11-17:00:00:00Z"` // The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.
+
+	ImportHash string `json:"importHash" example:"867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70" default:""` // The SHA256 hash of a unique combination of values to use in duplicate detection
 }
 
 // AfterFind updates the timestamps to use UTC as

@@ -6,6 +6,7 @@ import (
 	"github.com/envelope-zero/backend/v2/pkg/importer/types"
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/google/uuid"
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -22,11 +23,8 @@ func Create(db *gorm.DB, resources types.ParsedResources) (models.Budget, error)
 	}
 
 	// Create accounts
-	for name, r := range resources.Accounts {
-		// Set the Account ID & name and create the account
-		account := r.Model
+	for idx, account := range resources.Accounts {
 		account.AccountCreate.BudgetID = budget.ID
-		account.AccountCreate.Name = name
 		err := tx.Create(&account).Error
 		if err != nil {
 			tx.Rollback()
@@ -34,8 +32,7 @@ func Create(db *gorm.DB, resources types.ParsedResources) (models.Budget, error)
 		}
 
 		// Update the account in the resources struct so that it also contains the ID
-		r.Model = account
-		resources.Accounts[name] = r
+		resources.Accounts[idx] = account
 	}
 
 	for cName, category := range resources.Categories {
@@ -69,8 +66,18 @@ func Create(db *gorm.DB, resources types.ParsedResources) (models.Budget, error)
 
 		transaction := r.Model
 		transaction.BudgetID = budget.ID
-		transaction.SourceAccountID = resources.Accounts[r.SourceAccount].Model.ID
-		transaction.DestinationAccountID = resources.Accounts[r.DestinationAccount].Model.ID
+
+		// Find the source account and set it
+		idx := slices.IndexFunc(resources.Accounts, func(a models.Account) bool {
+			return a.ImportHash == r.SourceAccountHash
+		})
+		transaction.SourceAccountID = resources.Accounts[idx].ID
+
+		// Find the destination account and set it
+		idx = slices.IndexFunc(resources.Accounts, func(a models.Account) bool {
+			return a.ImportHash == r.DestinationAccountHash
+		})
+		transaction.DestinationAccountID = resources.Accounts[idx].ID
 
 		envelopeID := resources.Categories[r.Category].Envelopes[r.Envelope].Model.ID
 		if envelopeID != uuid.Nil {
