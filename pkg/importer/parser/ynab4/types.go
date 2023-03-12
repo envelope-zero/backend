@@ -98,6 +98,7 @@ type MonthlySubCategoryBudget struct {
 	Budgeted             decimal.Decimal `json:"budgeted"`
 	OverspendingHandling string          `json:"overspendingHandling"`
 	CategoryID           string          `json:"categoryId"`
+	Deleted              bool            `json:"isTombstone"`
 }
 
 type MonthlyBudget struct {

@@ -2130,6 +2130,21 @@
 			"entityVersion": "A-525",
 			"dateEnteredFromSchedule": "2023-03-11",
 			"entityId": "6E6695B8-4AC5-73FA-C094-870BBA7828DA_2023-03-06_0"
+		},
+		{
+			"payeeId": "BD59AD03-68AE-0BFE-A8D9-68DAA80C5C70",
+			"entityType": "transaction",
+			"accountId": "D560D865-0A32-B4B5-AE7D-629EDA4D0397",
+			"cleared": "Uncleared",
+			"amount": -4,
+			"date": "2023-03-12",
+			"accepted": false,
+			"categoryId": "A18",
+			"memo": "I need coffee.",
+			"isTombstone": true,
+			"entityVersion": "A-578",
+			"dateEnteredFromSchedule": "2023-03-12",
+			"entityId": "1F815046-486C-8ACA-1677-68DA0F456BCC_2023-03-12_0"
 		}
 	],
 	"monthlyBudgets": [
@@ -2369,7 +2384,18 @@
 		},
 		{
 			"month": "2023-03-01",
-			"monthlySubCategoryBudgets": [],
+			"monthlySubCategoryBudgets": [
+				{
+					"parentMonthlyBudgetId": "MB/2023-03",
+					"categoryId": "9E40A0E7-C4D9-C6C5-5662-D5DE5A30F222",
+					"isTombstone": true,
+					"entityVersion": "A-583",
+					"budgeted": 200,
+					"entityId": "MCB/2023-03/9E40A0E7-C4D9-C6C5-5662-D5DE5A30F222",
+					"entityType": "monthlyCategoryBudget",
+					"overspendingHandling": null
+				}
+			],
 			"entityVersion": "A-53",
 			"entityId": "MB/2023-03",
 			"entityType": "monthlyBudget"
@@ -2467,7 +2493,7 @@
 		}
 	],
 	"fileMetaData": {
-		"currentKnowledge": "A-575",
+		"currentKnowledge": "A-583",
 		"budgetDataVersion": "4.2",
 		"entityType": "fileMetaData"
 	},
@@ -2824,6 +2850,17 @@
 					"entityId": "A34",
 					"name": "Vacation",
 					"entityType": "category"
+				},
+				{
+					"cachedBalance": null,
+					"masterCategoryId": "A32",
+					"sortableIndex": 2130706431,
+					"type": "OUTFLOW",
+					"isTombstone": true,
+					"entityVersion": "A-582",
+					"entityId": "9E40A0E7-C4D9-C6C5-5662-D5DE5A30F222",
+					"name": "Deleted Category with Budget",
+					"entityType": "category"
 				}
 			],
 			"sortableIndex": 2130706431,
@@ -2959,11 +2996,11 @@
 			"cleared": "Uncleared",
 			"twiceAMonthStartDay": 0,
 			"amount": -4,
-			"date": "2023-03-12",
+			"date": "2023-03-13",
 			"accepted": true,
 			"categoryId": "A18",
 			"memo": "I need coffee.",
-			"entityVersion": "A-424",
+			"entityVersion": "A-577",
 			"entityId": "1F815046-486C-8ACA-1677-68DA0F456BCC"
 		},
 		{
