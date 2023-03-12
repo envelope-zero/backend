@@ -23,6 +23,13 @@
       "matchStrings": [
         "# renovate:\\sdatasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s.*@(?<currentValue>.*)"
       ]
+    },
+    {
+      "description": "Upgrade arbitrary dependencies in GitHub action workflows declared with 'export *_ENV'",
+      "fileMatch": ["(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s+export .*?_VERSION=\"(?<currentValue>.*)\""
+      ]
     }
   ],
   "packageRules": [
