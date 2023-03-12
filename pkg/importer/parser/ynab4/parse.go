@@ -443,6 +443,12 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 		}
 
 		for _, subCategoryBudget := range monthBudget.MonthlySubCategoryBudgets {
+			// If the budget allocation is deleted, we don't need to do anything.
+			// This is the case when a category that has budgeted amounts gets deleted.
+			if subCategoryBudget.Deleted {
+				continue
+			}
+
 			// If something is budgeted, create an allocation for it
 			if !subCategoryBudget.Budgeted.IsZero() {
 				resources.Allocations = append(resources.Allocations, types.Allocation{
