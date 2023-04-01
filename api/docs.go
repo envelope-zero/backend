@@ -3824,7 +3824,7 @@ const docTemplate = `{
                 "availableFrom": {
                     "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
                     "type": "string",
-                    "example": "2021-11-17:00:00:00Z"
+                    "example": "2021-11-17T00:00:00Z"
                 },
                 "budgetId": {
                     "type": "string",
@@ -3918,7 +3918,7 @@ const docTemplate = `{
                 "availableFrom": {
                     "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
                     "type": "string",
-                    "example": "2021-11-17:00:00:00Z"
+                    "example": "2021-11-17T00:00:00Z"
                 },
                 "budgetId": {
                     "type": "string",
