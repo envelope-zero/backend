@@ -25,7 +25,7 @@
       ]
     },
     {
-      "description": "Upgrade arbitrary dependencies in GitHub action workflows declared with 'export *_ENV'",
+      "description": "Upgrade arbitrary dependencies in GitHub action workflows declared with 'export *_VERSION'",
       "fileMatch": ["(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s+export .*?_VERSION=\"(?<currentValue>.*)\""
