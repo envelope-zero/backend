@@ -94,8 +94,8 @@ func TestParse(t *testing.T) {
 	require.Nil(t, err, "Parsing failed", err)
 
 	// Create test database and import
-	db, close := testDB()
-	defer close()
+	db, closeDb := testDB()
+	defer closeDb()
 
 	b, err := importer.Create(db, r)
 

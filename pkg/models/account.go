@@ -70,7 +70,7 @@ func (a *Account) links(tx *gorm.DB) {
 }
 
 // BeforeSave sets OnBudget to false when External is true.
-func (a *Account) BeforeSave(tx *gorm.DB) (err error) {
+func (a *Account) BeforeSave(_ *gorm.DB) (err error) {
 	if a.External {
 		a.OnBudget = false
 	}

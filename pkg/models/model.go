@@ -28,7 +28,7 @@ type Timestamps struct {
 //
 // We already store them in UTC, but somehow reading
 // them from the database returns them as +0000.
-func (m *DefaultModel) AfterFind(tx *gorm.DB) (err error) {
+func (m *DefaultModel) AfterFind(_ *gorm.DB) (err error) {
 	m.CreatedAt = m.CreatedAt.In(time.UTC)
 	m.UpdatedAt = m.UpdatedAt.In(time.UTC)
 
@@ -40,7 +40,7 @@ func (m *DefaultModel) AfterFind(tx *gorm.DB) (err error) {
 }
 
 // BeforeCreate is set to generate a UUID for the resource.
-func (m *DefaultModel) BeforeCreate(tx *gorm.DB) (err error) {
+func (m *DefaultModel) BeforeCreate(_ *gorm.DB) (err error) {
 	m.ID = uuid.New()
 	return nil
 }
