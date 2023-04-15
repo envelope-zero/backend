@@ -50,19 +50,27 @@ func (suite *TestSuiteStandard) TestMonthConfigsCreate() {
 	someMonth := types.NewMonth(2020, 3)
 
 	tests := []struct {
-		name       string
-		envelopeID uuid.UUID
-		month      types.Month
-		status     int
+		name          string
+		envelopeID    uuid.UUID
+		month         types.Month
+		note          string
+		overspendMode models.OverspendMode
+		status        int
 	}{
-		{"Standard create", envelope.Data.ID, someMonth, http.StatusCreated},
-		{"duplicate config for same envelope and month", envelope.Data.ID, someMonth, http.StatusBadRequest},
-		{"No envelope", uuid.New(), someMonth, http.StatusNotFound},
+		{"Standard create", envelope.Data.ID, someMonth, "test note", models.AffectAvailable, http.StatusCreated},
+		{"duplicate config for same envelope and month", envelope.Data.ID, someMonth, "", models.AffectAvailable, http.StatusBadRequest},
+		{"No envelope", uuid.New(), someMonth, "", models.AffectAvailable, http.StatusNotFound},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			_ = suite.createTestMonthConfig(tt.envelopeID, tt.month, models.MonthConfigCreate{}, tt.status)
+			response := suite.createTestMonthConfig(tt.envelopeID, tt.month, models.MonthConfigCreate{Note: tt.note, OverspendMode: tt.overspendMode}, tt.status)
+
+			// Verify that fields are set correctly
+			if tt.status == http.StatusCreated {
+				assert.Equal(t, tt.overspendMode, response.Data.OverspendMode)
+				assert.Equal(t, tt.note, response.Data.Note)
+			}
 		})
 	}
 }

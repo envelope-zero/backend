@@ -30,6 +30,7 @@ type MonthConfig struct {
 
 type MonthConfigCreate struct {
 	OverspendMode OverspendMode `json:"overspendMode" example:"AFFECT_ENVELOPE" default:"AFFECT_AVAILABLE"`
+	Note          string        `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""` // A note for the month config
 }
 
 // AfterSave also sets the links so that we do not need to
