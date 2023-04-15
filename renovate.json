@@ -34,6 +34,11 @@
   ],
   "packageRules": [
     {
+      "description": "gin-swagger 1.x is not compatible with swaggo/files 2.x, see https://github.com/swaggo/gin-swagger/issues/264",
+      "matchPackageNames": ["github.com/swaggo/files"],
+      "allowedVersions": "1.0.1"
+    },
+    {
       "description": "Pin GitHub action digests",
       "matchDepTypes": ["action"],
       "rangeStrategy": "pin",
