@@ -3770,6 +3770,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "1969-06-01T00:00:00.000000Z"
                 },
+                "note": {
+                    "description": "A note for the month config",
+                    "type": "string",
+                    "example": "Added 200€ here because we replaced Tim's expensive vase"
+                },
                 "overspendMode": {
                     "default": "AFFECT_AVAILABLE",
                     "allOf": [
@@ -3789,6 +3794,11 @@ const docTemplate = `{
         "models.MonthConfigCreate": {
             "type": "object",
             "properties": {
+                "note": {
+                    "description": "A note for the month config",
+                    "type": "string",
+                    "example": "Added 200€ here because we replaced Tim's expensive vase"
+                },
                 "overspendMode": {
                     "default": "AFFECT_AVAILABLE",
                     "allOf": [

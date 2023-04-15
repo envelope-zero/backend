@@ -740,6 +740,10 @@ definitions:
         description: This is always set to 00:00 UTC on the first of the month.
         example: "1969-06-01T00:00:00.000000Z"
         type: string
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
       overspendMode:
         allOf:
         - $ref: '#/definitions/models.OverspendMode'
@@ -752,6 +756,10 @@ definitions:
     type: object
   models.MonthConfigCreate:
     properties:
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
       overspendMode:
         allOf:
         - $ref: '#/definitions/models.OverspendMode'
