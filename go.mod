@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.29.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.2
-	github.com/swaggo/files v1.0.1
+	github.com/swaggo/files/v2 v2.0.0
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.8.12
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
@@ -21,7 +21,10 @@ require (
 	gorm.io/gorm v1.25.0
 )
 
-require github.com/gin-contrib/pprof v1.4.0
+require (
+	github.com/gin-contrib/pprof v1.4.0
+	github.com/swaggo/files v1.0.1
+)
 
 require (
 	github.com/bytedance/sonic v1.8.0 // indirect
