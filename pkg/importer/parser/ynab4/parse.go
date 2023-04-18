@@ -1,7 +1,6 @@
 package ynab4
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +13,7 @@ import (
 	internal_types "github.com/envelope-zero/backend/v2/internal/types"
 	"github.com/google/uuid"
 
+	"github.com/envelope-zero/backend/v2/pkg/importer/helpers"
 	"github.com/envelope-zero/backend/v2/pkg/importer/types"
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"golang.org/x/exp/maps"
@@ -99,7 +99,7 @@ func parseAccounts(resources *types.ParsedResources, accounts []Account) IDToNam
 				Note:       account.Note,
 				OnBudget:   account.OnBudget,
 				Hidden:     account.Hidden,
-				ImportHash: fmt.Sprint(sha256.Sum256([]byte(account.EntityID))),
+				ImportHash: helpers.Sha256String(account.EntityID),
 			},
 		})
 	}
@@ -128,7 +128,7 @@ func parsePayees(resources *types.ParsedResources, payees []Payee) IDToName {
 				Name:       payee.Name,
 				OnBudget:   false,
 				External:   true,
-				ImportHash: fmt.Sprint(sha256.Sum256([]byte(payee.EntityID))),
+				ImportHash: helpers.Sha256String(payee.EntityID),
 			},
 		})
 	}
@@ -236,7 +236,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 
 	// We generate an import hash for the "YNAB 4 - No payee" account that might be added since
 	// we create it and it therefore does not have a UUID
-	noPayeeImportHash := fmt.Sprint(sha256.Sum256([]byte(uuid.New().String())))
+	noPayeeImportHash := helpers.Sha256String(uuid.New().String())
 
 	// Add all transactions
 	for _, transaction := range transactions {
@@ -266,7 +266,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			addNoPayee = true
 		} else {
 			// Use the payee ID from the transaction in all other cases
-			payeeImportHash = fmt.Sprint(sha256.Sum256([]byte(transaction.PayeeID)))
+			payeeImportHash = helpers.Sha256String(transaction.PayeeID)
 		}
 
 		// Parse the date of the transaction
@@ -275,7 +275,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
 		}
 
-		accountImportHash := fmt.Sprint(sha256.Sum256([]byte(transaction.AccountID)))
+		accountImportHash := helpers.Sha256String(transaction.AccountID)
 
 		// Envelope Zero does not use a magic “Starting Balance” account, instead
 		// every account has a field for the starting balance
@@ -296,7 +296,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 				TransactionCreate: models.TransactionCreate{
 					Date:       date,
 					Note:       strings.TrimSpace(transaction.Memo),
-					ImportHash: fmt.Sprint(sha256.Sum256([]byte(transaction.EntityID))),
+					ImportHash: helpers.Sha256String(transaction.EntityID),
 				},
 			},
 		}
@@ -385,7 +385,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 
 			// The transaction is a transfer
 			if sub.TargetAccountID != "" {
-				targetAccountImportHash := fmt.Sprint(sha256.Sum256([]byte(sub.TargetAccountID)))
+				targetAccountImportHash := helpers.Sha256String(sub.TargetAccountID)
 				if sub.Amount.IsPositive() {
 					subTransaction.SourceAccountHash = targetAccountImportHash
 				} else {
