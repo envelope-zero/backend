@@ -236,6 +236,17 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 		Date:                 time.Time(january.AddDate(0, 1)),
 	})
 
+	// Deleted transaction to verify that deleted transactions are not used in the calculation
+	deletedTransaction := suite.createTestTransaction(models.TransactionCreate{
+		BudgetID:             budget.ID,
+		EnvelopeID:           &envelope.ID,
+		Amount:               decimal.NewFromFloat(30),
+		SourceAccountID:      internalAccount.ID,
+		DestinationAccountID: externalAccount.ID,
+		Date:                 time.Time(january.AddDate(0, 1)),
+	})
+	suite.db.Delete(&deletedTransaction)
+
 	tests := []struct {
 		month    types.Month
 		envelope models.Envelope
