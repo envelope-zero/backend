@@ -114,6 +114,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
 		Where("transactions.date < date(?)", month.AddDate(0, 1)).
 		Where("transactions.envelope_id = ?", e.ID).
+		Where("transactions.deleted_at IS NULL").
 		Select("transactions.amount AS Amount, transactions.date AS Date, source_account.on_budget AS SourceAccountOnBudget, destination_account.on_budget AS DestinationAccountOnBudget").
 		Find(&rawTransactions).Error
 	if err != nil {
@@ -133,6 +134,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 		Table("allocations").
 		Where("allocations.month < date(?)", month.AddDate(0, 1)).
 		Where("allocations.envelope_id = ?", e.ID).
+		Where("allocations.deleted_at IS NULL").
 		Find(&rawAllocations).Error
 	if err != nil {
 		return decimal.Zero, nil
@@ -150,6 +152,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 		Table("month_configs").
 		Where("month_configs.month < date(?)", month.AddDate(0, 1)).
 		Where("month_configs.envelope_id = ?", e.ID).
+		Where("month_configs.deleted_at IS NULL").
 		Find(&rawConfigs).Error
 	if err != nil {
 		return decimal.Zero, nil
