@@ -91,7 +91,7 @@ func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getAllocationResource(c, id)
+	_, ok := getResourceByID[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
@@ -196,7 +196,7 @@ func (co Controller) GetAllocation(c *gin.Context) {
 		return
 	}
 
-	allocationObject, ok := co.getAllocationResource(c, id)
+	allocationObject, ok := getResourceByID[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
@@ -225,7 +225,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	allocation, ok := co.getAllocationResource(c, id)
+	allocation, ok := getResourceByID[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
@@ -265,7 +265,7 @@ func (co Controller) DeleteAllocation(c *gin.Context) {
 		return
 	}
 
-	allocation, ok := co.getAllocationResource(c, id)
+	allocation, ok := getResourceByID[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
@@ -276,24 +276,4 @@ func (co Controller) DeleteAllocation(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// getAllocationResource verifies that the request URI is valid for the transaction and returns it.
-func (co Controller) getAllocationResource(c *gin.Context, id uuid.UUID) (models.Allocation, bool) {
-	if id == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "no allocation ID specified")
-		return models.Allocation{}, false
-	}
-
-	var allocation models.Allocation
-
-	if !queryWithRetry(c, co.DB.First(&allocation, &models.Allocation{
-		DefaultModel: models.DefaultModel{
-			ID: id,
-		},
-	}), "No allocation found for the specified ID") {
-		return models.Allocation{}, false
-	}
-
-	return allocation, true
 }
