@@ -347,7 +347,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, ok := co.getTransactionResource(c, id)
+	transaction, ok := getResourceByID[models.Transaction](c, co, id)
 	if !ok {
 		return
 	}
@@ -426,7 +426,7 @@ func (co Controller) DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, ok := co.getTransactionResource(c, id)
+	transaction, ok := getResourceByID[models.Transaction](c, co, id)
 	if !ok {
 		return
 	}
@@ -436,26 +436,6 @@ func (co Controller) DeleteTransaction(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// getTransactionResource verifies that the request URI is valid for the transaction and returns it.
-func (co Controller) getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, bool) {
-	if id == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "no transaction ID specified")
-		return models.Transaction{}, false
-	}
-
-	var transaction models.Transaction
-
-	if !queryWithRetry(c, co.DB.First(&transaction, &models.Transaction{
-		DefaultModel: models.DefaultModel{
-			ID: id,
-		},
-	}), "No transaction found for the specified ID") {
-		return models.Transaction{}, false
-	}
-
-	return transaction, true
 }
 
 // checkTransaction verifies that the transaction is correct
