@@ -37,7 +37,7 @@ type AccountCreate struct {
 }
 
 func (a Account) WithCalculations(db *gorm.DB) (Account, error) {
-	balance, _, err := a.GetBalanceMonth(db, types.NewMonth(1, 1))
+	balance, _, err := a.GetBalanceMonth(db, types.Month{})
 	if err != nil {
 		return Account{}, err
 	}

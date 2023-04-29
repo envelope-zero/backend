@@ -268,56 +268,71 @@ func (suite *TestSuiteStandard) TestTransactionSorting() {
 	assert.Equal(suite.T(), tJanuary.Data.Date, transactions.Data[2].Date, "The third transaction is not the January transaction")
 }
 
-func (suite *TestSuiteStandard) TestCreateTransactionMissingReference() {
+func (suite *TestSuiteStandard) TestCreateTransactionMissingData() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
 	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID})
 
-	// Missing Budget
-	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			SourceAccountID:      account.Data.ID,
-			DestinationAccountID: account.Data.ID,
-			EnvelopeID:           &envelope.Data.ID,
+	tests := []struct {
+		name   string
+		status int
+		create models.TransactionCreate
+	}{
+		{
+			"Missing Budget",
+			http.StatusBadRequest,
+			models.TransactionCreate{
+				SourceAccountID:      account.Data.ID,
+				DestinationAccountID: account.Data.ID,
+				EnvelopeID:           &envelope.Data.ID,
+			},
 		},
-	})
-	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
-
-	// Missing Envelope
-	r = test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			BudgetID:             budget.Data.ID,
-			SourceAccountID:      account.Data.ID,
-			DestinationAccountID: account.Data.ID,
+		{
+			"Missing Envelope",
+			http.StatusBadRequest,
+			models.TransactionCreate{
+				BudgetID:             budget.Data.ID,
+				SourceAccountID:      account.Data.ID,
+				DestinationAccountID: account.Data.ID,
+			},
 		},
-	})
-	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
-
-	// Missing Source Account
-	r = test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			BudgetID:             budget.Data.ID,
-			DestinationAccountID: account.Data.ID,
-			EnvelopeID:           &envelope.Data.ID,
+		{
+			"Missing Source Account",
+			http.StatusBadRequest,
+			models.TransactionCreate{
+				BudgetID:             budget.Data.ID,
+				DestinationAccountID: account.Data.ID,
+				EnvelopeID:           &envelope.Data.ID,
+			},
 		},
-	})
-	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
-
-	// Missing Destination Account
-	r = test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			BudgetID:        budget.Data.ID,
-			SourceAccountID: account.Data.ID,
-			EnvelopeID:      &envelope.Data.ID,
+		{
+			"Missing Destination Account",
+			http.StatusBadRequest,
+			models.TransactionCreate{
+				BudgetID:        budget.Data.ID,
+				SourceAccountID: account.Data.ID,
+				EnvelopeID:      &envelope.Data.ID,
+			},
 		},
-	})
-	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
-}
+		{
+			"Missing Amount",
+			http.StatusBadRequest,
+			models.TransactionCreate{
+				BudgetID:             budget.Data.ID,
+				SourceAccountID:      account.Data.ID,
+				DestinationAccountID: account.Data.ID,
+				EnvelopeID:           &envelope.Data.ID,
+			},
+		},
+	}
 
-func (suite *TestSuiteStandard) TestCreateTransactionNoAmount() {
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", `{ "note": "More tests something something" }`)
-	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/transactions", models.Transaction{TransactionCreate: tt.create})
+			assertHTTPStatus(t, &r, tt.status)
+		})
+	}
 }
 
 func (suite *TestSuiteStandard) TestCreateBrokenTransaction() {

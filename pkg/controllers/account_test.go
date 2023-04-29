@@ -204,23 +204,34 @@ func (suite *TestSuiteStandard) TestCreateAccount() {
 }
 
 func (suite *TestSuiteStandard) TestCreateAccountNoBudget() {
-	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/accounts", models.Account{})
-	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
-}
+	tests := []struct {
+		name   string
+		status int
+		create models.AccountCreate
+	}{
+		{
+			"No Budget",
+			http.StatusBadRequest,
+			models.AccountCreate{},
+		},
+		{
+			"Non-existing Budget",
+			http.StatusNotFound,
+			models.AccountCreate{BudgetID: uuid.New()},
+		},
+	}
 
-func (suite *TestSuiteStandard) TestCreateBrokenAccount() {
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/accounts", `{ "createdAt": "New Account", "note": "More tests for accounts to ensure less brokenness something" }`)
-	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/accounts", models.Account{AccountCreate: tt.create})
+			assertHTTPStatus(t, &r, tt.status)
+		})
+	}
 }
 
 func (suite *TestSuiteStandard) TestCreateAccountNoBody() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/accounts", "")
 	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
-}
-
-func (suite *TestSuiteStandard) TestCreateAccountNonExistingBudget() {
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/accounts", models.AccountCreate{BudgetID: uuid.New()})
-	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestGetAccount() {

@@ -81,6 +81,30 @@ func (suite *TestSuiteStandard) TestOptionsBudgetMonth() {
 	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
+func (suite *TestSuiteStandard) TestGetBudget() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+
+	tests := []struct {
+		name     string
+		id       uuid.UUID
+		response int
+	}{
+		{"Existing budget", budget.Data.ID, http.StatusOK},
+		{"ID nil", uuid.Nil, http.StatusBadRequest},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			recorder := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("http://example.com/v1/budgets/%s", tt.id), "")
+
+			var response controllers.BudgetResponse
+			suite.decodeResponse(&recorder, &response)
+
+			assert.Equal(t, tt.response, recorder.Code, "Wrong response code, Request ID: %s, Object: %v", recorder.Result().Header.Get("x-request-id"), response)
+		})
+	}
+}
+
 func (suite *TestSuiteStandard) TestGetBudgets() {
 	_ = suite.createTestBudget(models.BudgetCreate{})
 
