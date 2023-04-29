@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"testing"
 	"time"
@@ -18,6 +19,11 @@ import (
 func (suite *TestSuiteStandard) createTestAllocation(c models.AllocationCreate, expectedStatus ...int) controllers.AllocationResponse {
 	if c.EnvelopeID == uuid.Nil {
 		c.EnvelopeID = suite.createTestEnvelope(models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
+	}
+
+	// If no amount is set, set a random one
+	if c.Amount.IsZero() {
+		c.Amount = decimal.NewFromFloat(float64(rand.Intn(100000)) / 100.0)
 	}
 
 	// Default to 200 OK as expected status
