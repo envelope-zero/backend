@@ -26,7 +26,7 @@ func (suite *TestSuiteStandard) createTestMonthConfig(envelopeID uuid.UUID, mont
 
 	path := fmt.Sprintf("http://example.com/v1/month-configs/%s/%s", envelopeID, month.String())
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, path, c)
-	suite.assertHTTPStatus(&r, expectedStatus...)
+	assertHTTPStatus(suite.T(), &r, expectedStatus...)
 
 	var mc controllers.MonthConfigResponse
 	suite.decodeResponse(&r, &mc)
@@ -266,7 +266,7 @@ func (suite *TestSuiteStandard) TestUpdateMonthConfig() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, mConfig.Data.Links.Self, models.MonthConfigCreate{
 		OverspendMode: "AFFECT_ENVELOPE",
 	})
-	suite.assertHTTPStatus(&recorder, http.StatusOK)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 
 	var updatedMonthConfig controllers.MonthConfigResponse
 	suite.decodeResponse(&recorder, &updatedMonthConfig)
@@ -308,5 +308,5 @@ func (suite *TestSuiteStandard) TestUpdateMonthConfigBrokenJSON() {
 	mConfig := suite.createTestMonthConfig(uuid.Nil, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, mConfig.Data.Links.Self, `{ test`)
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }

@@ -30,7 +30,7 @@ func (suite *TestSuiteStandard) createTestEnvelope(c models.EnvelopeCreate, expe
 	}
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/envelopes", c)
-	suite.assertHTTPStatus(&r, expectedStatus...)
+	assertHTTPStatus(suite.T(), &r, expectedStatus...)
 
 	var e controllers.EnvelopeResponse
 	suite.decodeResponse(&r, &e)
@@ -42,7 +42,7 @@ func (suite *TestSuiteStandard) TestEnvelopes() {
 	suite.CloseDB()
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/envelopes", "")
-	suite.assertHTTPStatus(&recorder, http.StatusInternalServerError)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusInternalServerError)
 	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
 }
 
@@ -85,7 +85,7 @@ func (suite *TestSuiteStandard) TestGetEnvelopesInvalidQuery() {
 	for _, tt := range tests {
 		suite.T().Run(tt, func(t *testing.T) {
 			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/envelopes?%s", tt), "")
-			suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+			assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 		})
 	}
 }
@@ -136,7 +136,7 @@ func (suite *TestSuiteStandard) TestGetEnvelopesFilter() {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			var re controllers.EnvelopeListResponse
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v1/envelopes?%s", tt.query), "")
-			suite.assertHTTPStatus(&r, http.StatusOK)
+			assertHTTPStatus(suite.T(), &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)
 
 			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
@@ -148,13 +148,13 @@ func (suite *TestSuiteStandard) TestGetEnvelope() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, envelope.Data.Links.Self, "")
 
-	suite.assertHTTPStatus(&recorder, http.StatusOK)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 }
 
 func (suite *TestSuiteStandard) TestNoEnvelopeNotFound() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/envelopes/828f2483-dabd-4267-a223-e34b5f171978", "")
 
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeInvalidIDs() {
@@ -162,34 +162,34 @@ func (suite *TestSuiteStandard) TestEnvelopeInvalidIDs() {
 	 *  GET
 	 */
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/envelopes/-56", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/envelopes/notANumber", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/envelopes/23", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/envelopes/d19a622f-broken-uuid/2017-09", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * PATCH
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/envelopes/-274", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/envelopes/stringRandom", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * DELETE
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/envelopes/-274", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/envelopes/stringRandom", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateEnvelope() {
@@ -198,22 +198,22 @@ func (suite *TestSuiteStandard) TestCreateEnvelope() {
 
 func (suite *TestSuiteStandard) TestCreateEnvelopeNoCategory() {
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/envelopes", models.Envelope{})
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateBrokenEnvelope() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/envelopes", `{ "createdAt": "New Envelope", "note": "More tests for envelopes to ensure less brokenness something" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateEnvelopeNonExistingCategory() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/envelopes", `{ "categoryId": "5f0cd7b9-9788-4871-96f8-c816c9ae338a" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestCreateEnvelopeNoBody() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/envelopes", "")
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateEnvelopeDuplicateName() {
@@ -225,7 +225,7 @@ func (suite *TestSuiteStandard) TestCreateEnvelopeDuplicateName() {
 		CategoryID: e.Data.CategoryID,
 		Name:       e.Data.Name,
 	})
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 // TestEnvelopeMonth verifies that the monthly calculations are correct.
@@ -355,7 +355,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonth() {
 	var envelopeMonth controllers.EnvelopeMonthResponse
 	for _, tt := range tests {
 		r := test.Request(suite.controller, suite.T(), http.MethodGet, tt.path, "")
-		suite.assertHTTPStatus(&r, http.StatusOK)
+		assertHTTPStatus(suite.T(), &r, http.StatusOK)
 
 		suite.decodeResponse(&r, &envelopeMonth)
 		assert.Equal(suite.T(), tt.envelopeMonth.Name, envelopeMonth.Data.Name)
@@ -371,19 +371,19 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthInvalid() {
 
 	// Test that non-parseable requests produce an error
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("%s/Stonks!", envelope.Data.Links.Self), "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeMonthNoEnvelope() {
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, "https://example.com/v1/envelopes/510ffa95-e445-43cc-8abc-da8e2c20ea5c/2022-04", "")
-	suite.assertHTTPStatus(&r, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &r, http.StatusNotFound)
 }
 
 // TestEnvelopeMonthZero tests that we return a HTTP Bad Request when requesting data for the zero timestamp.
 func (suite *TestSuiteStandard) TestEnvelopeMonthZero() {
 	e := suite.createTestEnvelope(models.EnvelopeCreate{})
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("%s/0001-01", e.Data.Links.Self), "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateEnvelope() {
@@ -393,7 +393,7 @@ func (suite *TestSuiteStandard) TestUpdateEnvelope() {
 		"name": "Updated new envelope for testing",
 		"note": "",
 	})
-	suite.assertHTTPStatus(&recorder, http.StatusOK)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 
 	var updatedEnvelope controllers.EnvelopeResponse
 	suite.decodeResponse(&recorder, &updatedEnvelope)
@@ -405,7 +405,7 @@ func (suite *TestSuiteStandard) TestUpdateEnvelope() {
 func (suite *TestSuiteStandard) TestUpdateEnvelopeBrokenJSON() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, `{ "name": 2" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateEnvelopeInvalidType() {
@@ -413,7 +413,7 @@ func (suite *TestSuiteStandard) TestUpdateEnvelopeInvalidType() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, map[string]any{
 		"name": 2,
 	})
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateEnvelopeInvalidCategoryID() {
@@ -421,27 +421,27 @@ func (suite *TestSuiteStandard) TestUpdateEnvelopeInvalidCategoryID() {
 
 	// Sets the CategoryID to uuid.Nil
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, models.EnvelopeCreate{})
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateNonExistingEnvelope() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/envelopes/dcf472ba-a64e-4f0f-900e-a789319e432c", `{ "name": "2" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteEnvelope() {
 	e := suite.createTestEnvelope(models.EnvelopeCreate{Name: "Delete me!"})
 	r := test.Request(suite.controller, suite.T(), http.MethodDelete, e.Data.Links.Self, "")
-	suite.assertHTTPStatus(&r, http.StatusNoContent)
+	assertHTTPStatus(suite.T(), &r, http.StatusNoContent)
 }
 
 func (suite *TestSuiteStandard) TestDeleteNonExistingEnvelope() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/envelopes/21a300da-d8b4-478d-8e85-95cb7982cbca", "")
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteEnvelopeWithBody() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{Name: "Delete this envelope"})
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, envelope.Data.Links.Self, `{ "name": "test name 23" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusNoContent)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 }

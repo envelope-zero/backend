@@ -28,7 +28,7 @@ func (suite *TestSuiteStandard) createTestCategory(c models.CategoryCreate, expe
 	}
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/categories", c)
-	suite.assertHTTPStatus(&r, expectedStatus...)
+	assertHTTPStatus(suite.T(), &r, expectedStatus...)
 
 	var category controllers.CategoryResponse
 	suite.decodeResponse(&r, &category)
@@ -40,7 +40,7 @@ func (suite *TestSuiteStandard) TestCategories() {
 	suite.CloseDB()
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/categories", "")
-	suite.assertHTTPStatus(&recorder, http.StatusInternalServerError)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusInternalServerError)
 	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "There is a problem with the database connection")
 }
 
@@ -112,7 +112,7 @@ func (suite *TestSuiteStandard) TestGetCategoriesInvalidQuery() {
 	for _, tt := range tests {
 		suite.T().Run(tt, func(t *testing.T) {
 			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v1/categories?%s", tt), "")
-			suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+			assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 		})
 	}
 }
@@ -164,7 +164,7 @@ func (suite *TestSuiteStandard) TestGetCategoriesFilter() {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			var re controllers.CategoryListResponse
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v1/categories?%s", tt.query), "")
-			suite.assertHTTPStatus(&r, http.StatusOK)
+			assertHTTPStatus(suite.T(), &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)
 
 			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
@@ -176,13 +176,13 @@ func (suite *TestSuiteStandard) TestGetCategory() {
 	category := suite.createTestCategory(models.CategoryCreate{Name: "Catch me if you can!"})
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, category.Data.Links.Self, "")
 
-	suite.assertHTTPStatus(&recorder, http.StatusOK)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 }
 
 func (suite *TestSuiteStandard) TestNoCategoryNotFound() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/categories/4e743e94-6a4b-44d6-aba5-d77c87103ff7", "")
 
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestCategoryInvalidIDs() {
@@ -190,31 +190,31 @@ func (suite *TestSuiteStandard) TestCategoryInvalidIDs() {
 	 *  GET
 	 */
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/categories/-56", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/categories/notANumber", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/categories/23", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * PATCH
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/categories/-274", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/categories/stringRandom", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	/*
 	 * DELETE
 	 */
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/categories/-274", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
 	r = test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/categories/stringRandom", "")
-	suite.assertHTTPStatus(&r, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateCategory() {
@@ -223,17 +223,17 @@ func (suite *TestSuiteStandard) TestCreateCategory() {
 
 func (suite *TestSuiteStandard) TestCreateBrokenCategory() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/categories", `{ "createdAt": "New Category", "note": "More tests for categories to ensure less brokenness something" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateBudgetDoesNotExist() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/categories", `{ "budgetId": "f8c74664-9b79-4e15-8d3d-4618f3e3c230" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestCreateCategoryNoBody() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/categories", "")
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestCreateCategoryDuplicateName() {
@@ -245,7 +245,7 @@ func (suite *TestSuiteStandard) TestCreateCategoryDuplicateName() {
 		BudgetID: c.Data.BudgetID,
 		Name:     c.Data.Name,
 	})
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateCategory() {
@@ -255,7 +255,7 @@ func (suite *TestSuiteStandard) TestUpdateCategory() {
 		"name": "Updated new category for testing",
 		"note": "",
 	})
-	suite.assertHTTPStatus(&recorder, http.StatusOK)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 
 	var updatedCategory controllers.CategoryResponse
 	suite.decodeResponse(&recorder, &updatedCategory)
@@ -268,7 +268,7 @@ func (suite *TestSuiteStandard) TestUpdateCategoryBrokenJSON() {
 	category := suite.createTestCategory(models.CategoryCreate{Name: "New category", Note: "Mor(r)e tests"})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, category.Data.Links.Self, `{ "name": 2" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateCategoryInvalidType() {
@@ -277,7 +277,7 @@ func (suite *TestSuiteStandard) TestUpdateCategoryInvalidType() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, category.Data.Links.Self, map[string]any{
 		"name": 2,
 	})
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateCategoryInvalidBudgetID() {
@@ -285,29 +285,29 @@ func (suite *TestSuiteStandard) TestUpdateCategoryInvalidBudgetID() {
 
 	// Sets the BudgetID to uuid.Nil
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, category.Data.Links.Self, models.CategoryCreate{})
-	suite.assertHTTPStatus(&recorder, http.StatusBadRequest)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 
 func (suite *TestSuiteStandard) TestUpdateNonExistingCategory() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v1/categories/f9288848-517e-4b8c-9f14-b3d849ca275b", `{ "name": "2" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteCategory() {
 	category := suite.createTestCategory(models.CategoryCreate{Name: "Delete me now!"})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, category.Data.Links.Self, "")
-	suite.assertHTTPStatus(&recorder, http.StatusNoContent)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 }
 
 func (suite *TestSuiteStandard) TestDeleteNonExistingCategory() {
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, "http://example.com/v1/categories/a2aa0569-5ac5-42e1-8563-7c61194cc7d9", "")
-	suite.assertHTTPStatus(&recorder, http.StatusNotFound)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
 func (suite *TestSuiteStandard) TestDeleteCategoryWithBody() {
 	category := suite.createTestCategory(models.CategoryCreate{Name: "Delete me now!"})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, category.Data.Links.Self, `{ "name": "test name 23" }`)
-	suite.assertHTTPStatus(&recorder, http.StatusNoContent)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 }
