@@ -27,6 +27,10 @@ type AllocationCreate struct {
 	EnvelopeID uuid.UUID       `json:"envelopeId" gorm:"uniqueIndex:allocation_month_envelope" example:"a0909e84-e8f9-4cb6-82a5-025dff105ff2"`
 }
 
+func (a Allocation) Self() string {
+	return "Allocation"
+}
+
 // BeforeSave verifies that the amount is non-zero.
 // To remove an allocation, it has to be deleted instead of
 // set to 0.

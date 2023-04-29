@@ -32,6 +32,10 @@ type EnvelopeCreate struct {
 	Hidden     bool      `json:"hidden" example:"true" default:"false"`                                                               // Is the envelope hidden?
 }
 
+func (e Envelope) Self() string {
+	return "Envelope"
+}
+
 func (e *Envelope) AfterFind(tx *gorm.DB) (err error) {
 	e.links(tx)
 	return

@@ -42,7 +42,7 @@ func (co Controller) parseMonthQuery(c *gin.Context) (types.Month, models.Budget
 		return types.Month{}, models.Budget{}, false
 	}
 
-	budget, ok := co.getBudgetResource(c, budgetID)
+	budget, ok := getResourceByID[models.Budget](c, co, budgetID)
 	if !ok {
 		return types.Month{}, models.Budget{}, false
 	}

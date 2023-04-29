@@ -42,6 +42,10 @@ type TransactionCreate struct {
 	ImportHash string `json:"importHash" example:"867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70" default:""` // The SHA256 hash of a unique combination of values to use in duplicate detection
 }
 
+func (t Transaction) Self() string {
+	return "Transaction"
+}
+
 // AfterFind updates the timestamps to use UTC as
 // timezone, not +0000. Yes, this is different.
 //

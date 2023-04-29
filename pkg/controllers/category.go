@@ -119,7 +119,7 @@ func (co Controller) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getBudgetResource(c, category.BudgetID)
+	_, ok := getResourceByID[models.Budget](c, co, category.BudgetID)
 	if !ok {
 		return
 	}

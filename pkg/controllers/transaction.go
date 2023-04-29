@@ -155,7 +155,7 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 	}
 
 	// Check if the budget that the transaction shoud belong to exists
-	_, ok := co.getBudgetResource(c, transaction.BudgetID)
+	_, ok := getResourceByID[models.Budget](c, co, transaction.BudgetID)
 	if !ok {
 		return
 	}

@@ -97,7 +97,7 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getBudgetResource(c, id)
+	_, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -130,7 +130,7 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getBudgetResource(c, id)
+	_, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -164,7 +164,7 @@ func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getBudgetResource(c, id)
+	_, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -269,7 +269,7 @@ func (co Controller) GetBudget(c *gin.Context) {
 		return
 	}
 
-	budgetObject, ok := co.getBudgetResource(c, id)
+	budgetObject, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -298,7 +298,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	budget, ok := co.getBudgetResource(c, id)
+	budget, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -412,7 +412,7 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	budget, ok := co.getBudgetResource(c, id)
+	budget, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -458,7 +458,7 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	budget, ok := co.getBudgetResource(c, id)
+	budget, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -483,14 +483,14 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 //	@Router			/v1/budgets/{budgetId}/{month}/allocations [delete]
 //	@Deprecated		true.
 func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
-	budgetID, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
 	// If the budget does not exist, abort the request
-	_, ok := co.getBudgetResource(c, budgetID)
+	_, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -509,7 +509,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 		Joins("JOIN categories ON categories.id = envelopes.category_id").
 		Joins("JOIN budgets on budgets.id = categories.budget_id").
 		Where(models.Allocation{AllocationCreate: models.AllocationCreate{Month: types.MonthOf(month.Month)}}).
-		Where("budgets.id = ?", budgetID).
+		Where("budgets.id = ?", id).
 		Find(&allocations)) {
 		return
 	}
@@ -537,14 +537,14 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 //	@Router			/v1/budgets/{budgetId}/{month}/allocations [post]
 //	@Deprecated		true.
 func (co Controller) SetAllocationsMonth(c *gin.Context) {
-	budgetID, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
 	}
 
 	// If the budget does not exist, abort the request
-	_, ok := co.getBudgetResource(c, budgetID)
+	_, ok := getResourceByID[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -608,26 +608,4 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// getBudgetResource is the internal helper to verify permissions and return a budget.
-//
-// It returns a Budget and a boolean indicating success.
-func (co Controller) getBudgetResource(c *gin.Context, id uuid.UUID) (models.Budget, bool) {
-	if id == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "No budget ID specified")
-		return models.Budget{}, false
-	}
-
-	var budget models.Budget
-
-	if !queryWithRetry(c, co.DB.Where(&models.Budget{
-		DefaultModel: models.DefaultModel{
-			ID: id,
-		},
-	}).First(&budget), "No budget found for the specified ID") {
-		return models.Budget{}, false
-	}
-
-	return budget, true
 }

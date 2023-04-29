@@ -123,7 +123,7 @@ func (co Controller) CreateAccount(c *gin.Context) {
 	}
 
 	// Check if the budget that the account shoud belong to exists
-	_, ok := co.getBudgetResource(c, account.BudgetID)
+	_, ok := getResourceByID[models.Budget](c, co, account.BudgetID)
 	if !ok {
 		return
 	}

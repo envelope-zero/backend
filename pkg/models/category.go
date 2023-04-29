@@ -26,6 +26,10 @@ type CategoryCreate struct {
 	Hidden   bool      `json:"hidden" example:"true" default:"false"`                                                           // Is the category hidden?
 }
 
+func (c Category) Self() string {
+	return "Category"
+}
+
 func (c *Category) AfterFind(tx *gorm.DB) (err error) {
 	c.links(tx)
 	return
