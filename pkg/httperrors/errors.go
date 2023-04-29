@@ -103,6 +103,8 @@ func Handler(c *gin.Context, err error, notFoundMsg ...string) {
 	} else if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
 		code, msg := DBErrorMessage(err)
 		New(c, code, msg)
+	} else if strings.Contains(err.Error(), "Allocation amounts must be non-zero") {
+		New(c, http.StatusBadRequest, err.Error())
 
 		// Database connection has not been opened or has been closed already
 	} else if strings.Contains(err.Error(), "sql: database is closed") {

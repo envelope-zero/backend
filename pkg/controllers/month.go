@@ -197,6 +197,11 @@ func (co Controller) SetAllocations(c *gin.Context) {
 			amount = models.Envelope{DefaultModel: models.DefaultModel{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth).Neg()
 		}
 
+		// Do not create allocations for an amount of 0
+		if amount.IsZero() {
+			continue
+		}
+
 		if !queryWithRetry(c, co.DB.Create(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: allocation.EnvelopeID,
