@@ -21,6 +21,6 @@ func (suite *TestSuiteStandard) TestMethodNotAllowed() {
 	for _, tt := range methodNotAllowedTests {
 		recorder := test.Request(suite.controller, suite.T(), tt.method, tt.path, "")
 
-		suite.assertHTTPStatus(&recorder, http.StatusMethodNotAllowed)
+		assertHTTPStatus(suite.T(), &recorder, http.StatusMethodNotAllowed)
 	}
 }

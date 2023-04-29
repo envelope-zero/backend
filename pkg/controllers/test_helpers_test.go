@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http/httptest"
 	"reflect"
+	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -16,8 +17,8 @@ import (
 // This is in nanoseconds, so we multiply by 1000000000 for seconds.
 const tolerance time.Duration = 1000000000 * 60
 
-func (suite *TestSuiteStandard) assertHTTPStatus(r *httptest.ResponseRecorder, expectedStatus ...int) {
-	assert.Contains(suite.T(), expectedStatus, r.Code, "HTTP status is wrong. Request ID: '%s' Response body: %s", r.Result().Header.Get("x-request-id"), r.Body.String())
+func assertHTTPStatus(t *testing.T, r *httptest.ResponseRecorder, expectedStatus ...int) {
+	assert.Contains(t, expectedStatus, r.Code, "HTTP status is wrong. Request ID: '%s' Response body: %s", r.Result().Header.Get("x-request-id"), r.Body.String())
 }
 
 // decodeResponse decodes an HTTP response into a target struct.
