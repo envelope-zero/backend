@@ -117,7 +117,7 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getCategoryResource(c, envelope.CategoryID)
+	_, ok := getResourceByID[models.Category](c, co, envelope.CategoryID)
 	if !ok {
 		return
 	}
