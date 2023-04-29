@@ -89,7 +89,7 @@ func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getEnvelopeResource(c, id)
+	_, ok := getResourceByID[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
@@ -201,7 +201,7 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelopeObject, ok := co.getEnvelopeResource(c, id)
+	envelopeObject, ok := getResourceByID[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
@@ -236,7 +236,7 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := co.getEnvelopeResource(c, id)
+	envelope, ok := getResourceByID[models.Envelope](c, co, id)
 	if !ok {
 		httperrors.Handler(c, err)
 		return
@@ -277,7 +277,7 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := co.getEnvelopeResource(c, id)
+	envelope, ok := getResourceByID[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
@@ -319,7 +319,7 @@ func (co Controller) DeleteEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := co.getEnvelopeResource(c, id)
+	envelope, ok := getResourceByID[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
@@ -329,24 +329,4 @@ func (co Controller) DeleteEnvelope(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// getEnvelopeResource verifies that the envelope from the URL parameters exists and returns it.
-func (co Controller) getEnvelopeResource(c *gin.Context, id uuid.UUID) (models.Envelope, bool) {
-	if id == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "no envelope ID specified")
-		return models.Envelope{}, false
-	}
-
-	var envelope models.Envelope
-
-	if !queryWithRetry(c, co.DB.Where(&models.Envelope{
-		DefaultModel: models.DefaultModel{
-			ID: id,
-		},
-	}).First(&envelope), "No envelope found for the specified ID") {
-		return models.Envelope{}, false
-	}
-
-	return envelope, true
 }

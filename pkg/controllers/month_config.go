@@ -124,7 +124,7 @@ func (co Controller) GetMonthConfig(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getEnvelopeResource(c, envelopeID)
+	_, ok := getResourceByID[models.Envelope](c, co, envelopeID)
 	if !ok {
 		return
 	}
@@ -220,7 +220,7 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 	mConfig.EnvelopeID = envelopeID
 	mConfig.Month = types.MonthOf(month.Month)
 
-	_, ok := co.getEnvelopeResource(c, mConfig.EnvelopeID)
+	_, ok := getResourceByID[models.Envelope](c, co, mConfig.EnvelopeID)
 	if !ok {
 		return
 	}
@@ -265,7 +265,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getEnvelopeResource(c, envelopeID)
+	_, ok := getResourceByID[models.Envelope](c, co, envelopeID)
 	if !ok {
 		return
 	}
@@ -317,7 +317,7 @@ func (co Controller) DeleteMonthConfig(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getEnvelopeResource(c, envelopeID)
+	_, ok := getResourceByID[models.Envelope](c, co, envelopeID)
 	if !ok {
 		return
 	}

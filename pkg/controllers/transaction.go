@@ -487,8 +487,7 @@ func (co Controller) checkTransaction(c *gin.Context, transaction models.Transac
 			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
 			return false
 		}
-
-		_, ok = co.getEnvelopeResource(c, *transaction.EnvelopeID)
+		_, ok = getResourceByID[models.Envelope](c, co, *transaction.EnvelopeID)
 	}
 
 	return

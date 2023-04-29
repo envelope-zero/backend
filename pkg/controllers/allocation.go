@@ -118,7 +118,7 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getEnvelopeResource(c, allocation.EnvelopeID)
+	_, ok := getResourceByID[models.Envelope](c, co, allocation.EnvelopeID)
 	if !ok {
 		return
 	}
