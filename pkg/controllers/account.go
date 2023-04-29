@@ -241,7 +241,7 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	account, ok := co.getAccountResource(c, id)
+	account, ok := getResourceByID[models.Account](c, co, id)
 	if !ok {
 		return
 	}
@@ -283,7 +283,8 @@ func (co Controller) DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	account, ok := co.getAccountResource(c, id)
+	account, ok := getResourceByID[models.Account](c, co, id)
+
 	if !ok {
 		return
 	}
@@ -295,28 +296,9 @@ func (co Controller) DeleteAccount(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-// getAccountResource is the internal helper to verify permissions and return an account.
-func (co Controller) getAccountResource(c *gin.Context, id uuid.UUID) (models.Account, bool) {
-	if id == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "no account ID specified")
-		return models.Account{}, false
-	}
-
-	var account models.Account
-
-	if !queryWithRetry(c, co.DB.Where(&models.Account{
-		DefaultModel: models.DefaultModel{
-			ID: id,
-		},
-	}).First(&account), "No account found for the specified ID") {
-		return models.Account{}, false
-	}
-
-	return account, true
-}
-
 func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
-	account, ok := co.getAccountResource(c, id)
+	account, ok := getResourceByID[models.Account](c, co, id)
+
 	if !ok {
 		return Account{}, false
 	}

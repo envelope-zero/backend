@@ -161,13 +161,13 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 	}
 
 	// Check the source account
-	sourceAccount, ok := co.getAccountResource(c, transaction.SourceAccountID)
+	sourceAccount, ok := getResourceByID[models.Account](c, co, transaction.SourceAccountID)
 	if !ok {
 		return
 	}
 
 	// Check the destination account
-	destinationAccount, ok := co.getAccountResource(c, transaction.DestinationAccountID)
+	destinationAccount, ok := getResourceByID[models.Account](c, co, transaction.DestinationAccountID)
 	if !ok {
 		return
 	}
@@ -373,7 +373,8 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	if data.SourceAccountID != uuid.Nil {
 		sourceAccountID = data.SourceAccountID
 	}
-	sourceAccount, ok := co.getAccountResource(c, sourceAccountID)
+	sourceAccount, ok := getResourceByID[models.Account](c, co, sourceAccountID)
+
 	if !ok {
 		return
 	}
@@ -383,7 +384,8 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	if data.DestinationAccountID != uuid.Nil {
 		destinationAccountID = data.DestinationAccountID
 	}
-	destinationAccount, ok := co.getAccountResource(c, destinationAccountID)
+	destinationAccount, ok := getResourceByID[models.Account](c, co, destinationAccountID)
+
 	if !ok {
 		return
 	}
