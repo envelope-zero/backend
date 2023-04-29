@@ -48,14 +48,33 @@ type BudgetMonth struct {
 
 func (b *Budget) AfterFind(tx *gorm.DB) (err error) {
 	b.links(tx)
+
+	b.Balance = decimal.Zero
+
+	// Get all OnBudget accounts for the budget
+	var accounts []Account
+	_ = tx.Where(&Account{
+		AccountCreate: AccountCreate{
+			BudgetID: b.ID,
+			OnBudget: true,
+		},
+	}).Find(&accounts)
+
+	// Add all their balances to the budget's balance
+	for _, account := range accounts {
+		if account, err = account.WithCalculations(tx); err != nil {
+			return err
+		}
+
+		b.Balance = b.Balance.Add(account.Balance)
+	}
+
 	return
 }
 
-// AfterSave also sets the links so that we do not need to
-// query the resource directly after creating or updating it.
+// AfterSave does the same as AfterFind, so we just call it.
 func (b *Budget) AfterSave(tx *gorm.DB) (err error) {
-	b.links(tx)
-	return
+	return b.AfterFind(tx)
 }
 
 func (b *Budget) links(tx *gorm.DB) {
@@ -69,32 +88,6 @@ func (b *Budget) links(tx *gorm.DB) {
 	b.Links.Transactions = fmt.Sprintf("%s/v1/transactions?budget=%s", url, b.ID)
 	b.Links.GroupedMonth = fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", url, b.ID)
 	b.Links.MonthAllocations = fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", url, b.ID)
-}
-
-// WithCalculations computes all the calculated values.
-func (b Budget) WithCalculations(db *gorm.DB) (Budget, error) {
-	b.Balance = decimal.Zero
-
-	// Get all OnBudget accounts for the budget
-	var accounts []Account
-	_ = db.Where(&Account{
-		AccountCreate: AccountCreate{
-			BudgetID: b.ID,
-			OnBudget: true,
-		},
-	}).Find(&accounts)
-
-	// Add all their balances to the budget's balance
-	for _, account := range accounts {
-		account, err := account.WithCalculations(db)
-		if err != nil {
-			return Budget{}, err
-		}
-
-		b.Balance = b.Balance.Add(account.Balance)
-	}
-
-	return b, nil
 }
 
 // Income returns the income for a budget in a given month.

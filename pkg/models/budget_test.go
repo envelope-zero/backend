@@ -246,7 +246,8 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		suite.Assert().Fail("Resource could not be saved", err)
 	}
 
-	budget, err = budget.WithCalculations(suite.db)
+	// Explicitly call AfterFind since we want the calculations to be done
+	err = budget.AfterFind(suite.db)
 	assert.Nil(suite.T(), err)
 
 	shouldBalance := decimal.NewFromFloat(7269.38)
