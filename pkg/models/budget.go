@@ -30,6 +30,10 @@ type Budget struct {
 	} `json:"links" gorm:"-"`
 }
 
+func (b Budget) Self() string {
+	return "Budget"
+}
+
 type BudgetCreate struct {
 	Name     string `json:"name" example:"Morre's Budget" default:""`
 	Note     string `json:"note" example:"My personal expenses" default:""`
@@ -44,6 +48,10 @@ type BudgetMonth struct {
 	Income    decimal.Decimal `json:"income" example:"2317.34"`
 	Available decimal.Decimal `json:"available" example:"217.34"`
 	Envelopes []EnvelopeMonth `json:"envelopes"`
+}
+
+func (b BudgetMonth) Self() string {
+	return "BudgetMonth"
 }
 
 func (b *Budget) AfterFind(tx *gorm.DB) (err error) {

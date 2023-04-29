@@ -155,19 +155,19 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 	}
 
 	// Check if the budget that the transaction shoud belong to exists
-	_, ok := co.getBudgetResource(c, transaction.BudgetID)
+	_, ok := getResourceByID[models.Budget](c, co, transaction.BudgetID)
 	if !ok {
 		return
 	}
 
 	// Check the source account
-	sourceAccount, ok := co.getAccountResource(c, transaction.SourceAccountID)
+	sourceAccount, ok := getResourceByID[models.Account](c, co, transaction.SourceAccountID)
 	if !ok {
 		return
 	}
 
 	// Check the destination account
-	destinationAccount, ok := co.getAccountResource(c, transaction.DestinationAccountID)
+	destinationAccount, ok := getResourceByID[models.Account](c, co, transaction.DestinationAccountID)
 	if !ok {
 		return
 	}
@@ -347,7 +347,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, ok := co.getTransactionResource(c, id)
+	transaction, ok := getResourceByID[models.Transaction](c, co, id)
 	if !ok {
 		return
 	}
@@ -373,7 +373,8 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	if data.SourceAccountID != uuid.Nil {
 		sourceAccountID = data.SourceAccountID
 	}
-	sourceAccount, ok := co.getAccountResource(c, sourceAccountID)
+	sourceAccount, ok := getResourceByID[models.Account](c, co, sourceAccountID)
+
 	if !ok {
 		return
 	}
@@ -383,7 +384,8 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	if data.DestinationAccountID != uuid.Nil {
 		destinationAccountID = data.DestinationAccountID
 	}
-	destinationAccount, ok := co.getAccountResource(c, destinationAccountID)
+	destinationAccount, ok := getResourceByID[models.Account](c, co, destinationAccountID)
+
 	if !ok {
 		return
 	}
@@ -424,7 +426,7 @@ func (co Controller) DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, ok := co.getTransactionResource(c, id)
+	transaction, ok := getResourceByID[models.Transaction](c, co, id)
 	if !ok {
 		return
 	}
@@ -434,26 +436,6 @@ func (co Controller) DeleteTransaction(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// getTransactionResource verifies that the request URI is valid for the transaction and returns it.
-func (co Controller) getTransactionResource(c *gin.Context, id uuid.UUID) (models.Transaction, bool) {
-	if id == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "no transaction ID specified")
-		return models.Transaction{}, false
-	}
-
-	var transaction models.Transaction
-
-	if !queryWithRetry(c, co.DB.First(&transaction, &models.Transaction{
-		DefaultModel: models.DefaultModel{
-			ID: id,
-		},
-	}), "No transaction found for the specified ID") {
-		return models.Transaction{}, false
-	}
-
-	return transaction, true
 }
 
 // checkTransaction verifies that the transaction is correct
@@ -485,8 +467,7 @@ func (co Controller) checkTransaction(c *gin.Context, transaction models.Transac
 			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
 			return false
 		}
-
-		_, ok = co.getEnvelopeResource(c, *transaction.EnvelopeID)
+		_, ok = getResourceByID[models.Envelope](c, co, *transaction.EnvelopeID)
 	}
 
 	return

@@ -119,7 +119,7 @@ func (co Controller) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getBudgetResource(c, category.BudgetID)
+	_, ok := getResourceByID[models.Budget](c, co, category.BudgetID)
 	if !ok {
 		return
 	}
@@ -235,7 +235,7 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	category, ok := co.getCategoryResource(c, id)
+	category, ok := getResourceByID[models.Category](c, co, id)
 	if !ok {
 		return
 	}
@@ -276,7 +276,7 @@ func (co Controller) DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	category, ok := co.getCategoryResource(c, id)
+	category, ok := getResourceByID[models.Category](c, co, id)
 	if !ok {
 		return
 	}
@@ -286,25 +286,6 @@ func (co Controller) DeleteCategory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-func (co Controller) getCategoryResource(c *gin.Context, id uuid.UUID) (models.Category, bool) {
-	if id == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "No category ID specified")
-		return models.Category{}, false
-	}
-
-	var category models.Category
-
-	if !queryWithRetry(c, co.DB.Where(&models.Category{
-		DefaultModel: models.DefaultModel{
-			ID: id,
-		},
-	}).First(&category), "No category found for the specified ID") {
-		return models.Category{}, false
-	}
-
-	return category, true
 }
 
 // getCategoryResources returns all categories for the requested budget.
@@ -323,7 +304,7 @@ func (co Controller) getCategoryResources(c *gin.Context, id uuid.UUID) ([]model
 }
 
 func (co Controller) getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
-	resource, ok := co.getCategoryResource(c, id)
+	resource, ok := getResourceByID[models.Category](c, co, id)
 	if !ok {
 		return Category{}, false
 	}

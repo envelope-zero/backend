@@ -36,6 +36,10 @@ type AccountCreate struct {
 	ImportHash         string          `json:"importHash" example:"867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70" default:""` // The SHA256 hash of a unique combination of values to use in duplicate detection
 }
 
+func (a Account) Self() string {
+	return "Account"
+}
+
 func (a Account) WithCalculations(db *gorm.DB) (Account, error) {
 	balance, _, err := a.GetBalanceMonth(db, types.Month{})
 	if err != nil {
