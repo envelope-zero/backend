@@ -158,6 +158,7 @@ func (suite *TestSuiteStandard) TestSetMonthBudgeted() {
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
+	archivedEnvelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID, Hidden: true})
 
 	allocation1 := suite.createTestAllocation(models.AllocationCreate{
 		Month:      types.NewMonth(2022, 1),
@@ -169,6 +170,12 @@ func (suite *TestSuiteStandard) TestSetMonthBudgeted() {
 		Month:      types.NewMonth(2022, 1),
 		Amount:     decimal.NewFromFloat(40),
 		EnvelopeID: envelope2.Data.ID,
+	})
+
+	_ = suite.createTestAllocation(models.AllocationCreate{
+		Month:      types.NewMonth(2022, 1),
+		Amount:     decimal.NewFromFloat(50),
+		EnvelopeID: archivedEnvelope.Data.ID,
 	})
 
 	// Update in budgeted mode allocations
@@ -189,6 +196,13 @@ func (suite *TestSuiteStandard) TestSetMonthBudgeted() {
 	var envelope2Month controllers.EnvelopeMonthResponse
 	suite.decodeResponse(&recorder, &envelope2Month)
 	suite.Assert().True(allocation2.Data.Amount.Equal(envelope2Month.Data.Allocation), "Expected: %s, got %s, Request ID: %s", allocation2.Data.Amount, envelope2Month.Data.Allocation, recorder.Header().Get("x-request-id"))
+
+	// Verify the allocation for the archived envelope
+	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(archivedEnvelope.Data.Links.Month, "YYYY-MM", "2022-02", 1), "")
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+	var archivedEnvelopeMonth controllers.EnvelopeMonthResponse
+	suite.decodeResponse(&recorder, &archivedEnvelopeMonth)
+	suite.Assert().True(archivedEnvelopeMonth.Data.Allocation.IsZero(), "Expected: 0, got %s, Request ID: %s", archivedEnvelopeMonth.Data.Allocation, recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteStandard) TestSetMonthSpend() {
