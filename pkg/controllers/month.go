@@ -26,7 +26,7 @@ func (co Controller) parseMonthQuery(c *gin.Context) (types.Month, models.Budget
 		BudgetID string `form:"budget" example:"81b0c9ce-6fd3-4e1e-becc-106055898a2a"`
 	}
 
-	if err := c.Bind(&query); err != nil {
+	if err := c.BindQuery(&query); err != nil {
 		httperrors.Handler(c, err)
 		return types.Month{}, models.Budget{}, false
 	}
