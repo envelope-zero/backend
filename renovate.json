@@ -1,4 +1,10 @@
 {
+  "extends": [
+    "group:recommended",
+    "replacements:all",
+    "workarounds:all",
+    ":ignoreModulesAndTests"
+  ],
   "dependencyDashboard": true,
   "pre-commit": {
     "enabled": true
