@@ -205,6 +205,13 @@ definitions:
       data:
         $ref: '#/definitions/models.Envelope'
     type: object
+  controllers.ImportPreviewList:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/importer.TransactionPreview'
+        type: array
+    type: object
   controllers.MonthConfigListResponse:
     properties:
       data:
@@ -238,6 +245,24 @@ definitions:
     properties:
       error:
         example: An ID specified in the query string was not a valid uint64
+        type: string
+    type: object
+  importer.TransactionPreview:
+    properties:
+      destinationAccountName:
+        description: Name of the destination account if the ID is not known
+        example: Deutsche Bahn
+        type: string
+      duplicateTransactionIds:
+        description: IDs of transactions that this transaction duplicates
+        items:
+          type: string
+        type: array
+      model:
+        $ref: '#/definitions/models.Transaction'
+      sourceAccountName:
+        description: Name of the source account if the ID is not known
+        example: Employer
         type: string
     type: object
   models.AccountCreate:
@@ -2251,6 +2276,53 @@ paths:
       summary: Import
       tags:
       - Import
+  /v1/import/ynab-import-preview:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+    post:
+      consumes:
+      - multipart/form-data
+      description: Returns a preview of transactions to be imported after parsing
+        a YNAB Import format csv file
+      parameters:
+      - description: File to import
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: ID of the account to import transactions for
+        in: query
+        name: accountId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ImportPreviewList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Transaction Import Preview
+      tags:
+      - Import
   /v1/import/ynab4:
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the
@@ -2294,7 +2366,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-      summary: Import
+      summary: Import YNAB 4 budget
       tags:
       - Import
   /v1/month-configs:

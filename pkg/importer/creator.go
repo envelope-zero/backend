@@ -3,14 +3,13 @@ package importer
 import (
 	"errors"
 
-	"github.com/envelope-zero/backend/v2/pkg/importer/types"
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
-func Create(db *gorm.DB, resources types.ParsedResources) (models.Budget, error) {
+func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 	// Start a transaction so we can roll back all created resources if an error occurs
 	tx := db.Begin()
 

@@ -20,14 +20,17 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 		{"http://example.com/v1/allocations", "OPTIONS, GET, POST"},
 		{"http://example.com/v1/transactions", "OPTIONS, GET, POST"},
 		{"http://example.com/v1/month-configs", "OPTIONS, GET"},
+		{"http://example.com/v1/import", "OPTIONS, POST"},
+		{"http://example.com/v1/import/ynab4", "OPTIONS, POST"},
+		{"http://example.com/v1/import/ynab-import-preview", "OPTIONS, POST"},
 	}
 
 	for _, tt := range optionsHeaderTests {
 		suite.T().Run(tt.path, func(t *testing.T) {
 			recorder := test.Request(suite.controller, suite.T(), http.MethodOptions, tt.path, "")
 
-			assert.Equal(suite.T(), http.StatusNoContent, recorder.Code)
-			assert.Equal(suite.T(), recorder.Header().Get("allow"), tt.response)
+			assert.Equal(t, http.StatusNoContent, recorder.Code)
+			assert.Equal(t, recorder.Header().Get("allow"), tt.response)
 		})
 	}
 }

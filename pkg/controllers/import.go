@@ -2,20 +2,32 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
+	"mime/multipart"
 	"net/http"
 	"strings"
 
 	"github.com/envelope-zero/backend/v2/pkg/httperrors"
 	"github.com/envelope-zero/backend/v2/pkg/httputil"
 	"github.com/envelope-zero/backend/v2/pkg/importer"
+	ynabimport "github.com/envelope-zero/backend/v2/pkg/importer/parser/ynab-import"
 	"github.com/envelope-zero/backend/v2/pkg/importer/parser/ynab4"
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type ImportQuery struct {
 	BudgetName string `form:"budgetName" binding:"required"`
+}
+
+type ImportPreviewQuery struct {
+	AccountID string `form:"accountId" binding:"required"`
+}
+
+type ImportPreviewList struct {
+	Data []importer.TransactionPreview `json:"data"`
 }
 
 // RegisterImportRoutes registers the routes for imports.
@@ -27,6 +39,9 @@ func (co Controller) RegisterImportRoutes(r *gin.RouterGroup) {
 
 		r.OPTIONS("/ynab4", co.OptionsImportYnab4)
 		r.POST("/ynab4", co.ImportYnab4)
+
+		r.OPTIONS("/ynab-import-preview", co.OptionsImportYnabImportPreview)
+		r.POST("/ynab-import-preview", co.ImportYnabImportPreview)
 	}
 }
 
@@ -55,6 +70,18 @@ func (co Controller) OptionsImportYnab4(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
 
+// OptionsImportYnab4 returns the allowed HTTP methods
+//
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			Import
+//	@Success		204
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Router			/v1/import/ynab-import-preview [options]
+func (co Controller) OptionsImportYnabImportPreview(c *gin.Context) {
+	httputil.OptionsPost(c)
+}
+
 // Import imports a YNAB 4 budget
 //
 //	@Summary		Import
@@ -73,9 +100,59 @@ func (co Controller) Import(c *gin.Context) {
 	co.ImportYnab4(c)
 }
 
+// ImportYnabImportPreview parses a YNAB import format CSV and returns a preview of transactions
+// to be imported into Envelope Zero.
+//
+//	@Summary		Transaction Import Preview
+//	@Description	Returns a preview of transactions to be imported after parsing a YNAB Import format csv file
+//	@Tags			Import
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Success		200			{object}	ImportPreviewList
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			file		formData	file	true	"File to import"
+//	@Param			accountId	query		string	false	"ID of the account to import transactions for"
+//	@Router			/v1/import/ynab-import-preview [post]
+func (co Controller) ImportYnabImportPreview(c *gin.Context) {
+	var query ImportPreviewQuery
+	if err := c.BindQuery(&query); err != nil {
+		httperrors.New(c, http.StatusBadRequest, "The accountId parameter must be set")
+		return
+	}
+
+	f, ok := getUploadedFile(c, ".csv")
+	if !ok {
+		return
+	}
+
+	accountID, ok := httputil.UUIDFromString(c, query.AccountID)
+	if !ok {
+		return
+	}
+
+	// Verify that the account exists
+	account, ok := getResourceByID[models.Account](c, co, accountID)
+	if !ok {
+		return
+	}
+
+	transactions, err := ynabimport.Parse(f, account)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if transactions, ok = duplicateTransactions(co, transactions); !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, ImportPreviewList{Data: transactions})
+}
+
 // ImportYnab4 imports a YNAB 4 budget
 //
-//	@Summary		Import
+//	@Summary		Import YNAB 4 budget
 //	@Description	Imports budgets from YNAB 4
 //	@Tags			Import
 //	@Accept			multipart/form-data
@@ -110,26 +187,8 @@ func (co Controller) ImportYnab4(c *gin.Context) {
 		return
 	}
 
-	formFile, err := c.FormFile("file")
-	if formFile == nil {
-		httperrors.New(c, http.StatusBadRequest, "You must send a file to this endpoint")
-		return
-	} else if err != nil && err.Error() == "unexpected EOF" {
-		httperrors.New(c, http.StatusBadRequest, "The file you uploaded is empty. Did the file get deleted before you uploaded it?")
-		return
-	} else if err != nil {
-		httperrors.Handler(c, err)
-		return
-	}
-
-	if !strings.HasSuffix(formFile.Filename, ".yfull") {
-		httperrors.New(c, http.StatusBadRequest, "Import currently only supports YNAB 4 budgets. If you tried to upload a YNAB 4 budget, make sure its file name ends with .yfull")
-		return
-	}
-
-	f, err := formFile.Open()
-	if err != nil {
-		httperrors.Handler(c, err)
+	f, ok := getUploadedFile(c, ".yfull")
+	if !ok {
 		return
 	}
 
@@ -150,10 +209,59 @@ func (co Controller) ImportYnab4(c *gin.Context) {
 		return
 	}
 
-	// TODO: Delete
-	// b, ok := co.getBudgetResource(c, budget.ID)
-	// if !ok {
-	// 	return
-	// }
 	c.JSON(http.StatusCreated, BudgetResponse{Data: budget})
+}
+
+// getUploadedFile returns the form file and handles potential errors.
+func getUploadedFile(c *gin.Context, suffix string) (multipart.File, bool) {
+	formFile, err := c.FormFile("file")
+	if formFile == nil {
+		httperrors.New(c, http.StatusBadRequest, "You must send a file to this endpoint")
+		return nil, false
+	} else if err != nil && err.Error() == "unexpected EOF" {
+		httperrors.New(c, http.StatusBadRequest, "The file you uploaded is empty. Did the file get deleted before you uploaded it?")
+		return nil, false
+	} else if err != nil {
+		httperrors.Handler(c, err)
+		return nil, false
+	}
+
+	if !strings.HasSuffix(formFile.Filename, suffix) {
+		httperrors.New(c, http.StatusBadRequest, fmt.Sprintf("This endpoint only supports %s files", suffix))
+		return nil, false
+	}
+
+	f, err := formFile.Open()
+	if err != nil {
+		httperrors.Handler(c, err)
+		return nil, false
+	}
+
+	return f, true
+}
+
+// duplicateTransactions finds duplicate transactions by their import hash. For all input resources,
+// existing resources with the same import hash are searched. If any exist, their IDs are set in the
+// DuplicateTransactionIDs field.
+func duplicateTransactions(co Controller, transactions []importer.TransactionPreview) ([]importer.TransactionPreview, bool) {
+	for k, transaction := range transactions {
+		var duplicates []models.Transaction
+		co.DB.Find(&duplicates, models.Transaction{
+			TransactionCreate: models.TransactionCreate{
+				ImportHash: transaction.Model.ImportHash,
+			},
+		})
+
+		// When there are no resources, we want an empty list, not null
+		// Therefore, we use make to create a slice with zero elements
+		// which will be marshalled to an empty JSON array
+		duplicateIDs := make([]uuid.UUID, 0)
+		for _, duplicate := range duplicates {
+			duplicateIDs = append(duplicateIDs, duplicate.ID)
+		}
+		transaction.DuplicateTransactionIDs = duplicateIDs
+		transactions[k] = transaction
+	}
+
+	return transactions, true
 }
