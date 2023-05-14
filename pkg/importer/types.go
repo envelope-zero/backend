@@ -1,6 +1,9 @@
-package types
+package importer
 
-import "github.com/envelope-zero/backend/v2/pkg/models"
+import (
+	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/google/uuid"
+)
 
 // ParsedResources is the struct containing all resources that are to be created
 // Named resources are in maps with their names as keys to enable easy deduplication
@@ -41,4 +44,12 @@ type Transaction struct {
 	DestinationAccountHash string // Import hash of the destination account
 	Category               string // There is a category here since an envelope with the same name can exist for multiple categories
 	Envelope               string
+}
+
+// TransactionPreview is used to preview transactions that will be imported to allow for editing.
+type TransactionPreview struct {
+	Model                   models.Transaction
+	SourceAccountName       string      `json:"sourceAccountName" example:"Employer"`           // Name of the source account if the ID is not known
+	DestinationAccountName  string      `json:"destinationAccountName" example:"Deutsche Bahn"` // Name of the destination account if the ID is not known
+	DuplicateTransactionIDs []uuid.UUID `json:"duplicateTransactionIds"`                        // IDs of transactions that this transaction duplicates
 }

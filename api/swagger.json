@@ -1864,6 +1864,74 @@
                 }
             }
         },
+        "/v1/import/ynab-import-preview": {
+            "post": {
+                "description": "Returns a preview of transactions to be imported after parsing a YNAB Import format csv file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Transaction Import Preview",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to import",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of the account to import transactions for",
+                        "name": "accountId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ImportPreviewList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/import/ynab4": {
             "post": {
                 "description": "Imports budgets from YNAB 4",
@@ -1876,7 +1944,7 @@
                 "tags": [
                     "Import"
                 ],
-                "summary": "Import",
+                "summary": "Import YNAB 4 budget",
                 "parameters": [
                     {
                         "type": "file",
@@ -3064,6 +3132,17 @@
                 }
             }
         },
+        "controllers.ImportPreviewList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/importer.TransactionPreview"
+                    }
+                }
+            }
+        },
         "controllers.MonthConfigListResponse": {
             "type": "object",
             "properties": {
@@ -3116,6 +3195,31 @@
                 "error": {
                     "type": "string",
                     "example": "An ID specified in the query string was not a valid uint64"
+                }
+            }
+        },
+        "importer.TransactionPreview": {
+            "type": "object",
+            "properties": {
+                "destinationAccountName": {
+                    "description": "Name of the destination account if the ID is not known",
+                    "type": "string",
+                    "example": "Deutsche Bahn"
+                },
+                "duplicateTransactionIds": {
+                    "description": "IDs of transactions that this transaction duplicates",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "model": {
+                    "$ref": "#/definitions/models.Transaction"
+                },
+                "sourceAccountName": {
+                    "description": "Name of the source account if the ID is not known",
+                    "type": "string",
+                    "example": "Employer"
                 }
             }
         },

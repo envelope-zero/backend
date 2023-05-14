@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	internal_types "github.com/envelope-zero/backend/v2/internal/types"
+	"github.com/envelope-zero/backend/v2/internal/types"
 	"github.com/google/uuid"
 
+	"github.com/envelope-zero/backend/v2/pkg/importer"
 	"github.com/envelope-zero/backend/v2/pkg/importer/helpers"
-	"github.com/envelope-zero/backend/v2/pkg/importer/types"
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -22,19 +22,19 @@ import (
 )
 
 // This function parses the comdirect CSV files.
-func Parse(f io.Reader) (types.ParsedResources, error) {
+func Parse(f io.Reader) (importer.ParsedResources, error) {
 	content, err := io.ReadAll(f)
 	if err != nil {
-		return types.ParsedResources{}, fmt.Errorf("could not read data from file: %w", err)
+		return importer.ParsedResources{}, fmt.Errorf("could not read data from file: %w", err)
 	}
 
 	var budget Budget
 	err = json.Unmarshal(content, &budget)
 	if err != nil {
-		return types.ParsedResources{}, fmt.Errorf("not a valid YNAB4 Budget.yfull file: %w", err)
+		return importer.ParsedResources{}, fmt.Errorf("not a valid YNAB4 Budget.yfull file: %w", err)
 	}
 
-	var resources types.ParsedResources
+	var resources importer.ParsedResources
 
 	// Set options for the budget
 	cur, _ := currency.FromTag(budget.BudgetMetaData.CurrencyLocale)
@@ -53,17 +53,17 @@ func Parse(f io.Reader) (types.ParsedResources, error) {
 
 	envelopeIDNames, err := parseCategories(&resources, budget.Categories)
 	if err != nil {
-		return types.ParsedResources{}, fmt.Errorf("error parsing categories and subcategories: %w", err)
+		return importer.ParsedResources{}, fmt.Errorf("error parsing categories and subcategories: %w", err)
 	}
 
 	err = parseTransactions(&resources, budget.Transactions, accountIDNames, envelopeIDNames)
 	if err != nil {
-		return types.ParsedResources{}, fmt.Errorf("error parsing transactions: %w", err)
+		return importer.ParsedResources{}, fmt.Errorf("error parsing transactions: %w", err)
 	}
 
 	err = parseMonthlyBudgets(&resources, budget.MonthlyBudgets, envelopeIDNames)
 	if err != nil {
-		return types.ParsedResources{}, fmt.Errorf("error parsing budget allocations: %w", err)
+		return importer.ParsedResources{}, fmt.Errorf("error parsing budget allocations: %w", err)
 	}
 
 	// Translate YNAB overspend handling behaviour to EZ overspending handling behaviour
@@ -87,7 +87,7 @@ func parseHiddenCategoryName(f string) (category, envelope string, err error) {
 	return
 }
 
-func parseAccounts(resources *types.ParsedResources, accounts []Account) IDToName {
+func parseAccounts(resources *importer.ParsedResources, accounts []Account) IDToName {
 	idToNames := make(IDToName)
 
 	for _, account := range accounts {
@@ -107,7 +107,7 @@ func parseAccounts(resources *types.ParsedResources, accounts []Account) IDToNam
 	return idToNames
 }
 
-func parsePayees(resources *types.ParsedResources, payees []Payee) IDToName {
+func parsePayees(resources *importer.ParsedResources, payees []Payee) IDToName {
 	idToNames := make(IDToName)
 
 	// Payees in YNAB 4 map to External Accounts in Envelope Zero
@@ -136,15 +136,15 @@ func parsePayees(resources *types.ParsedResources, payees []Payee) IDToName {
 	return idToNames
 }
 
-func parseCategories(resources *types.ParsedResources, categories []Category) (IDToEnvelopes, error) {
+func parseCategories(resources *importer.ParsedResources, categories []Category) (IDToEnvelopes, error) {
 	idToEnvelope := make(IDToEnvelopes)
 
 	// Create temporary variables to hold all the parsed
 	// data. They will be added to the ParsedResources
 	// when parsing is complete.
-	tCategories := make(map[string]types.Category)
+	tCategories := make(map[string]importer.Category)
 	type tEnvelope struct {
-		Envelope types.Envelope
+		Envelope importer.Envelope
 		Category string
 	}
 	var tEnvelopes []tEnvelope
@@ -159,7 +159,7 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 		}
 
 		// Add the category
-		tCategories[category.Name] = types.Category{
+		tCategories[category.Name] = importer.Category{
 			Model: models.Category{
 				CategoryCreate: models.CategoryCreate{
 					Name: category.Name,
@@ -169,7 +169,7 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 					Hidden: category.Deleted,
 				},
 			},
-			Envelopes: make(map[string]types.Envelope),
+			Envelopes: make(map[string]importer.Envelope),
 		}
 
 		// Add the envelopes
@@ -199,7 +199,7 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 			idToEnvelope[envelope.EntityID] = mapping
 
 			tEnvelopes = append(tEnvelopes, tEnvelope{
-				types.Envelope{
+				importer.Envelope{
 					Model: models.Envelope{
 						EnvelopeCreate: models.EnvelopeCreate{
 							Name:   mapping.Envelope,
@@ -214,7 +214,7 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 	}
 
 	// Initialize the categories
-	resources.Categories = make(map[string]types.Category)
+	resources.Categories = make(map[string]importer.Category)
 
 	// Add all envelopes, adding categories as needed
 	for _, envelope := range tEnvelopes {
@@ -230,7 +230,7 @@ func parseCategories(resources *types.ParsedResources, categories []Category) (I
 	return idToEnvelope, nil
 }
 
-func parseTransactions(resources *types.ParsedResources, transactions []Transaction, accountIDNames IDToName, envelopeIDNames IDToEnvelopes) error {
+func parseTransactions(resources *importer.ParsedResources, transactions []Transaction, accountIDNames IDToName, envelopeIDNames IDToEnvelopes) error {
 	// If an account "No payee" for transactions without a payee needs to be added
 	addNoPayee := false
 
@@ -291,7 +291,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			continue
 		}
 
-		newTransaction := types.Transaction{
+		newTransaction := importer.Transaction{
 			Model: models.Transaction{
 				TransactionCreate: models.TransactionCreate{
 					Date:       date,
@@ -340,7 +340,7 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 		}
 
 		if transaction.CategoryID == "Category/__DeferredIncome__" {
-			newTransaction.Model.AvailableFrom = internal_types.MonthOf(date).AddDate(0, 1)
+			newTransaction.Model.AvailableFrom = types.MonthOf(date).AddDate(0, 1)
 		}
 
 		// No subtransactions, add transaction directly
@@ -365,9 +365,9 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 			}
 
 			if sub.CategoryID == "Category/__DeferredIncome__" {
-				subTransaction.Model.AvailableFrom = internal_types.MonthOf(date).AddDate(0, 1)
+				subTransaction.Model.AvailableFrom = types.MonthOf(date).AddDate(0, 1)
 			} else {
-				subTransaction.Model.AvailableFrom = internal_types.MonthOf(date)
+				subTransaction.Model.AvailableFrom = types.MonthOf(date)
 			}
 
 			// We need to set all of these again since the sub transaction can
@@ -435,9 +435,9 @@ func parseTransactions(resources *types.ParsedResources, transactions []Transact
 	return nil
 }
 
-func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
+func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
 	for _, monthBudget := range monthlyBudgets {
-		month, err := internal_types.ParseMonth(monthBudget.Month)
+		month, err := types.ParseMonth(monthBudget.Month)
 		if err != nil {
 			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
 		}
@@ -451,7 +451,7 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 
 			// If something is budgeted, create an allocation for it
 			if !subCategoryBudget.Budgeted.IsZero() {
-				resources.Allocations = append(resources.Allocations, types.Allocation{
+				resources.Allocations = append(resources.Allocations, importer.Allocation{
 					Model: models.Allocation{
 						AllocationCreate: models.AllocationCreate{
 							Month:  month,
@@ -479,7 +479,7 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 					mode = "AFFECT_ENVELOPE"
 				}
 
-				resources.MonthConfigs = append(resources.MonthConfigs, types.MonthConfig{
+				resources.MonthConfigs = append(resources.MonthConfigs, importer.MonthConfig{
 					Model: models.MonthConfig{
 						MonthConfigCreate: models.MonthConfigCreate{
 							OverspendMode: mode,
@@ -503,27 +503,27 @@ func parseMonthlyBudgets(resources *types.ParsedResources, monthlyBudgets []Mont
 // EZ on the other hand uses AFFECT_AVAILABLE as default (as does YNAB 4 with "AffectsBuffer")
 // but only changes to AFFECT_ENVELOPE (= "Confined" on YNAB 4) when explicitly configured for
 // that month.
-func fixOverspendHandling(resources *types.ParsedResources) {
+func fixOverspendHandling(resources *importer.ParsedResources) {
 	// sorter is a map of category names to a map of envelope names to the month configs
-	sorter := make(map[string]map[string][]types.MonthConfig, 0)
+	sorter := make(map[string]map[string][]importer.MonthConfig, 0)
 
 	// Sort by envelope
 	for _, monthConfig := range resources.MonthConfigs {
 		_, ok := sorter[monthConfig.Category]
 		if !ok {
-			sorter[monthConfig.Category] = make(map[string][]types.MonthConfig, 0)
+			sorter[monthConfig.Category] = make(map[string][]importer.MonthConfig, 0)
 		}
 
 		_, ok = sorter[monthConfig.Category][monthConfig.Envelope]
 		if !ok {
-			sorter[monthConfig.Category][monthConfig.Envelope] = make([]types.MonthConfig, 0)
+			sorter[monthConfig.Category][monthConfig.Envelope] = make([]importer.MonthConfig, 0)
 		}
 
 		sorter[monthConfig.Category][monthConfig.Envelope] = append(sorter[monthConfig.Category][monthConfig.Envelope], monthConfig)
 	}
 
 	// New slice for final MonthConfigs
-	var monthConfigs []types.MonthConfig
+	var monthConfigs []importer.MonthConfig
 
 	// Fix handling for all envelopes
 	for _, category := range sorter {
@@ -548,7 +548,7 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 				// to preserve the YNAB 4 behaviour up to the switch to EZ
 				if i+1 == len(monthConfig) {
 					for ok := true; ok; ok = !checkMonth.AfterTime(time.Now()) {
-						monthConfigs = append(monthConfigs, types.MonthConfig{
+						monthConfigs = append(monthConfigs, importer.MonthConfig{
 							Model: models.MonthConfig{
 								Month: checkMonth,
 								MonthConfigCreate: models.MonthConfigCreate{
@@ -567,7 +567,7 @@ func fixOverspendHandling(resources *types.ParsedResources) {
 
 				// Set all months up to the next one with a configuration to "AFFECT_ENVELOPE"
 				for ok := !checkMonth.Equal(monthConfig[i+1].Model.Month); ok; ok = !checkMonth.Equal(monthConfig[i+1].Model.Month) {
-					monthConfigs = append(monthConfigs, types.MonthConfig{
+					monthConfigs = append(monthConfigs, importer.MonthConfig{
 						Model: models.MonthConfig{
 							Month: checkMonth,
 							MonthConfigCreate: models.MonthConfigCreate{
