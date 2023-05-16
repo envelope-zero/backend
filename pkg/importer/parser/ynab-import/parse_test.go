@@ -32,6 +32,10 @@ func TestParse(t *testing.T) {
 			transactions, err := Parse(f, models.Account{})
 			assert.Nil(t, err, "Parsing failed")
 			assert.Len(t, transactions, tt.length, "Wrong number of transactions has been parsed")
+
+			for _, transaction := range transactions {
+				assert.True(t, transaction.Transaction.Amount.IsPositive(), "Transaction amount is not positive: %s", transaction.Transaction.Amount)
+			}
 		})
 	}
 }

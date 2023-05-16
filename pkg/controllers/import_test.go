@@ -159,7 +159,7 @@ func (suite *TestSuiteStandard) TestYnabImportPreviewDuplicateDetection() {
 
 	transaction := suite.createTestTransaction(models.TransactionCreate{
 		SourceAccountID: account.Data.ID,
-		ImportHash:      preview.Data[0].Model.ImportHash,
+		ImportHash:      preview.Data[0].Transaction.ImportHash,
 		Amount:          decimal.NewFromFloat(1.13),
 	})
 

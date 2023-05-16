@@ -248,7 +248,7 @@ func duplicateTransactions(co Controller, transactions []importer.TransactionPre
 		var duplicates []models.Transaction
 		co.DB.Find(&duplicates, models.Transaction{
 			TransactionCreate: models.TransactionCreate{
-				ImportHash: transaction.Model.ImportHash,
+				ImportHash: transaction.Transaction.ImportHash,
 			},
 		})
 
