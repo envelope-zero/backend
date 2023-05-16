@@ -44,13 +44,11 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 		}
 
 		t := importer.TransactionPreview{
-			Model: models.Transaction{
-				TransactionCreate: models.TransactionCreate{
-					Date:       date,
-					ImportHash: helpers.Sha256String(strings.Join(record, ",")),
-					Note:       record[Memo],
-					BudgetID:   account.BudgetID,
-				},
+			Transaction: models.TransactionCreate{
+				Date:       date,
+				ImportHash: helpers.Sha256String(strings.Join(record, ",")),
+				Note:       record[Memo],
+				BudgetID:   account.BudgetID,
 			},
 		}
 
@@ -60,7 +58,7 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 		} else if record[Outflow] == "" && record[Inflow] == "" {
 			return csvReadError(reader, errors.New("no amount is set for the transaction"))
 		} else if record[Outflow] != "" {
-			t.Model.TransactionCreate.SourceAccountID = account.DefaultModel.ID
+			t.Transaction.SourceAccountID = account.DefaultModel.ID
 			t.DestinationAccountName = record[Payee]
 
 			amount, err := decimal.NewFromString(record[Outflow])
@@ -68,9 +66,9 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 				return csvReadError(reader, errors.New("outflow could not be parsed to a decimal"))
 			}
 
-			t.Model.TransactionCreate.Amount = amount.Neg()
+			t.Transaction.Amount = amount
 		} else {
-			t.Model.TransactionCreate.DestinationAccountID = account.DefaultModel.ID
+			t.Transaction.DestinationAccountID = account.DefaultModel.ID
 			t.SourceAccountName = record[Payee]
 
 			amount, err := decimal.NewFromString(record[Inflow])
@@ -78,10 +76,10 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 				return csvReadError(reader, errors.New("inflow could not be parsed to a decimal"))
 			}
 
-			t.Model.TransactionCreate.Amount = amount
+			t.Transaction.Amount = amount
 		}
 
-		if t.Model.TransactionCreate.Amount.IsZero() {
+		if t.Transaction.Amount.IsZero() {
 			return csvReadError(reader, errors.New("the amount for a transaction must not be 0"))
 		}
 

@@ -3225,13 +3225,13 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "model": {
-                    "$ref": "#/definitions/models.Transaction"
-                },
                 "sourceAccountName": {
                     "description": "Name of the source account if the ID is not known",
                     "type": "string",
                     "example": "Employer"
+                },
+                "transaction": {
+                    "$ref": "#/definitions/models.TransactionCreate"
                 }
             }
         },

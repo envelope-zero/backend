@@ -48,8 +48,8 @@ type Transaction struct {
 
 // TransactionPreview is used to preview transactions that will be imported to allow for editing.
 type TransactionPreview struct {
-	Model                   models.Transaction
-	SourceAccountName       string      `json:"sourceAccountName" example:"Employer"`           // Name of the source account if the ID is not known
-	DestinationAccountName  string      `json:"destinationAccountName" example:"Deutsche Bahn"` // Name of the destination account if the ID is not known
-	DuplicateTransactionIDs []uuid.UUID `json:"duplicateTransactionIds"`                        // IDs of transactions that this transaction duplicates
+	Transaction             models.TransactionCreate `json:"transaction"`
+	SourceAccountName       string                   `json:"sourceAccountName" example:"Employer"`           // Name of the source account if the ID is not known
+	DestinationAccountName  string                   `json:"destinationAccountName" example:"Deutsche Bahn"` // Name of the destination account if the ID is not known
+	DuplicateTransactionIDs []uuid.UUID              `json:"duplicateTransactionIds"`                        // IDs of transactions that this transaction duplicates
 }
