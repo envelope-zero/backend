@@ -155,7 +155,7 @@ func (suite *TestSuiteStandard) TestYnabImportPreviewDuplicateDetection() {
 	account := suite.createTestAccount(models.AccountCreate{})
 
 	// Get the import hash of the first transaction and create one with the same import hash
-	preview := parseComdirectTestCSV(suite, account.Data.ID)
+	preview := parseCSV(suite, account.Data.ID, "comdirect-ynap.csv")
 
 	transaction := suite.createTestTransaction(models.TransactionCreate{
 		SourceAccountID: account.Data.ID,
@@ -163,17 +163,17 @@ func (suite *TestSuiteStandard) TestYnabImportPreviewDuplicateDetection() {
 		Amount:          decimal.NewFromFloat(1.13),
 	})
 
-	preview = parseComdirectTestCSV(suite, account.Data.ID)
+	preview = parseCSV(suite, account.Data.ID, "comdirect-ynap.csv")
 
 	suite.Assert().Len(preview.Data[0].DuplicateTransactionIDs, 1, "Duplicate transaction IDs field does not have the correct number of IDs")
 	suite.Assert().Equal(transaction.Data.ID, preview.Data[0].DuplicateTransactionIDs[0], "Duplicate transaction ID is not ID of the transaction that is duplicated")
 }
 
-func parseComdirectTestCSV(suite *TestSuiteStandard, accountID uuid.UUID) controllers.ImportPreviewList {
+func parseCSV(suite *TestSuiteStandard, accountID uuid.UUID, file string) controllers.ImportPreviewList {
 	path := fmt.Sprintf("ynab-import-preview?accountId=%s", accountID.String())
 
 	// Parse the test CSV
-	body, headers := suite.loadTestFile("importer/ynab-import/comdirect-ynap.csv")
+	body, headers := suite.loadTestFile(fmt.Sprintf("importer/ynab-import/%s", file))
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, fmt.Sprintf("http://example.com/v1/import/%s", path), body, headers)
 	suite.Assert().Equal(http.StatusOK, recorder.Code, "Request ID %s, response %s", recorder.Header().Get("x-request-id"), recorder.Body.String())
 
@@ -182,4 +182,56 @@ func parseComdirectTestCSV(suite *TestSuiteStandard, accountID uuid.UUID) contro
 	suite.decodeResponse(&recorder, &response)
 
 	return response
+}
+
+func (suite *TestSuiteStandard) TestYnabImportFindAccounts() {
+	// Create a budget and two existing accounts to use
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	edeka := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
+
+	// Create an archived account named "Edeka" to ensure it is not found. If it were found, the tests for the non-archived
+	// account being found would fail since we do not use an account if we find more than one with the same name
+	_ = suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka", Hidden: true})
+
+	// Create an account named "Edeka" in another budget to ensure it is not found. If it were found, the tests for the non-archived
+	// Edeka account being found would fail since we do not use an account if we find more than one with the same name
+	_ = suite.createTestAccount(models.AccountCreate{Name: "Edeka"})
+
+	// Account we import to
+	internalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
+
+	tests := []struct {
+		name                    string      // Name of the test
+		sourceAccountIDs        []uuid.UUID // The IDs of the source accounts
+		sourceAccountNames      []string    // The sourceAccountName attribute after the find has been performed
+		destinationAccountIDs   []uuid.UUID // The IDs of the destination accounts
+		destinationAccountNames []string    // The destinationAccountName attribute after the find has been performed
+		preTest                 func()      // Function to execute before running tests
+	}{
+		{"No matching (Some Company) & 1 Matching (Edeka) accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID}, []string{"", "Deutsche Bahn", ""}, func() {}},
+		{"Two matching non-archived accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{uuid.Nil, uuid.Nil, internalAccount.Data.ID}, []string{"Edeka", "Deutsche Bahn", ""}, func() {
+			_ = suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka"})
+		}},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			tt.preTest()
+			preview := parseCSV(suite, internalAccount.Data.ID, "account-find-test.csv")
+
+			for i, transaction := range preview.Data {
+				line := i + 1
+				assert.Equal(t, tt.sourceAccountNames[i], transaction.SourceAccountName, "sourceAccountName does not match in line %d", line)
+				assert.Equal(t, tt.destinationAccountNames[i], transaction.DestinationAccountName, "destinationAccountName does not match in line %d", line)
+
+				if tt.sourceAccountIDs[i] != uuid.Nil {
+					assert.Equal(t, tt.sourceAccountIDs[i], transaction.Transaction.SourceAccountID, "sourceAccountID does not match in line %d", line)
+				}
+
+				if tt.destinationAccountIDs[i] != uuid.Nil {
+					assert.Equal(t, tt.destinationAccountIDs[i], transaction.Transaction.DestinationAccountID, "destinationAccountID does not match in line %d", line)
+				}
+			}
+		})
+	}
 }

@@ -143,9 +143,8 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	if transactions, ok = duplicateTransactions(co, transactions); !ok {
-		return
-	}
+	transactions = duplicateTransactions(co, transactions)
+	transactions = findAccounts(co, transactions, account.BudgetID)
 
 	c.JSON(http.StatusOK, ImportPreviewList{Data: transactions})
 }
@@ -243,7 +242,7 @@ func getUploadedFile(c *gin.Context, suffix string) (multipart.File, bool) {
 // duplicateTransactions finds duplicate transactions by their import hash. For all input resources,
 // existing resources with the same import hash are searched. If any exist, their IDs are set in the
 // DuplicateTransactionIDs field.
-func duplicateTransactions(co Controller, transactions []importer.TransactionPreview) ([]importer.TransactionPreview, bool) {
+func duplicateTransactions(co Controller, transactions []importer.TransactionPreview) []importer.TransactionPreview {
 	for k, transaction := range transactions {
 		var duplicates []models.Transaction
 		co.DB.Find(&duplicates, models.Transaction{
@@ -263,5 +262,51 @@ func duplicateTransactions(co Controller, transactions []importer.TransactionPre
 		transactions[k] = transaction
 	}
 
-	return transactions, true
+	return transactions
+}
+
+// findAccounts sets the source or destination account ID for a TransactionPreview resource
+// if there is exactly one account with a matching name.
+func findAccounts(co Controller, transactions []importer.TransactionPreview, budgetID uuid.UUID) []importer.TransactionPreview {
+	for k, transaction := range transactions {
+		// Find the right account name
+		name := transaction.DestinationAccountName
+		if transaction.SourceAccountName != "" {
+			name = transaction.SourceAccountName
+		}
+
+		var accounts []models.Account
+		co.DB.Where(models.Account{
+			AccountCreate: models.AccountCreate{
+				Name:     name,
+				BudgetID: budgetID,
+				Hidden:   false,
+			},
+		},
+			// Explicitly specfiy search fields since we use a zero value for Hidden
+			"Name", "BudgetID", "Hidden").Find(&accounts)
+
+		// We cannot determine correctly which account should be used if there are
+		// multiple accounts, therefore we skip
+		//
+		// We also continue if no accounts are found
+		if len(accounts) != 1 {
+			continue
+		}
+
+		// Set source or destination, depending on which one we checked for
+		if accounts[0].ID != uuid.Nil {
+			if transaction.SourceAccountName != "" {
+				transaction.Transaction.SourceAccountID = accounts[0].ID
+				transaction.SourceAccountName = ""
+			} else {
+				transaction.Transaction.DestinationAccountID = accounts[0].ID
+				transaction.DestinationAccountName = ""
+			}
+		}
+
+		transactions[k] = transaction
+	}
+
+	return transactions
 }
