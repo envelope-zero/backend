@@ -163,6 +163,12 @@ func (suite *TestSuiteStandard) TestYnabImportPreviewDuplicateDetection() {
 		Amount:          decimal.NewFromFloat(1.13),
 	})
 
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		SourceAccountID: suite.createTestAccount(models.AccountCreate{Note: "This account is in a different Budget, but has the same ImportHash"}).Data.ID,
+		ImportHash:      preview.Data[0].Transaction.ImportHash,
+		Amount:          decimal.NewFromFloat(42.23),
+	})
+
 	preview = parseCSV(suite, account.Data.ID, "comdirect-ynap.csv")
 
 	suite.Assert().Len(preview.Data[0].DuplicateTransactionIDs, 1, "Duplicate transaction IDs field does not have the correct number of IDs")

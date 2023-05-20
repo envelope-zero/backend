@@ -143,7 +143,7 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	transactions = duplicateTransactions(co, transactions)
+	transactions = duplicateTransactions(co, transactions, account.BudgetID)
 	transactions = findAccounts(co, transactions, account.BudgetID)
 
 	c.JSON(http.StatusOK, ImportPreviewList{Data: transactions})
@@ -242,21 +242,29 @@ func getUploadedFile(c *gin.Context, suffix string) (multipart.File, bool) {
 // duplicateTransactions finds duplicate transactions by their import hash. For all input resources,
 // existing resources with the same import hash are searched. If any exist, their IDs are set in the
 // DuplicateTransactionIDs field.
-func duplicateTransactions(co Controller, transactions []importer.TransactionPreview) []importer.TransactionPreview {
+func duplicateTransactions(co Controller, transactions []importer.TransactionPreview, budgetID uuid.UUID) []importer.TransactionPreview {
 	for k, transaction := range transactions {
 		var duplicates []models.Transaction
-		co.DB.Find(&duplicates, models.Transaction{
-			TransactionCreate: models.TransactionCreate{
-				ImportHash: transaction.Transaction.ImportHash,
-			},
-		})
+		co.DB.
+			Preload("SourceAccount").
+			Preload("DestinationAccount").
+			Where(models.Transaction{
+				TransactionCreate: models.TransactionCreate{
+					ImportHash: transaction.Transaction.ImportHash,
+				},
+			}).
+			Where(models.Transaction{SourceAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
+			Or(models.Transaction{DestinationAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
+			Find(&duplicates)
 
 		// When there are no resources, we want an empty list, not null
 		// Therefore, we use make to create a slice with zero elements
 		// which will be marshalled to an empty JSON array
 		duplicateIDs := make([]uuid.UUID, 0)
 		for _, duplicate := range duplicates {
-			duplicateIDs = append(duplicateIDs, duplicate.ID)
+			if duplicate.SourceAccount.BudgetID == budgetID || duplicate.DestinationAccount.BudgetID == budgetID {
+				duplicateIDs = append(duplicateIDs, duplicate.ID)
+			}
 		}
 		transaction.DuplicateTransactionIDs = duplicateIDs
 		transactions[k] = transaction
