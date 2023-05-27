@@ -206,16 +206,22 @@ func (suite *TestSuiteStandard) TestYnabImportFindAccounts() {
 	// Account we import to
 	internalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
+	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
+	envelopeID := envelope.Data.ID
+	_ = suite.createTestTransaction(models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+
 	tests := []struct {
-		name                    string      // Name of the test
-		sourceAccountIDs        []uuid.UUID // The IDs of the source accounts
-		sourceAccountNames      []string    // The sourceAccountName attribute after the find has been performed
-		destinationAccountIDs   []uuid.UUID // The IDs of the destination accounts
-		destinationAccountNames []string    // The destinationAccountName attribute after the find has been performed
-		preTest                 func()      // Function to execute before running tests
+		name                    string       // Name of the test
+		sourceAccountIDs        []uuid.UUID  // The IDs of the source accounts
+		sourceAccountNames      []string     // The sourceAccountName attribute after the find has been performed
+		destinationAccountIDs   []uuid.UUID  // The IDs of the destination accounts
+		destinationAccountNames []string     // The destinationAccountName attribute after the find has been performed
+		envelopeIDs             []*uuid.UUID // expected IDs of envelopes
+		preTest                 func()       // Function to execute before running tests
 	}{
-		{"No matching (Some Company) & 1 Matching (Edeka) accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID}, []string{"", "Deutsche Bahn", ""}, func() {}},
-		{"Two matching non-archived accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{uuid.Nil, uuid.Nil, internalAccount.Data.ID}, []string{"Edeka", "Deutsche Bahn", ""}, func() {
+		{"No matching (Some Company) & 1 Matching (Edeka) accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID}, []string{"", "Deutsche Bahn", ""}, []*uuid.UUID{&envelopeID, nil, nil}, func() {}},
+		{"Two matching non-archived accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{uuid.Nil, uuid.Nil, internalAccount.Data.ID}, []string{"Edeka", "Deutsche Bahn", ""}, []*uuid.UUID{nil, nil, nil}, func() {
 			_ = suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka"})
 		}},
 	}
@@ -229,6 +235,8 @@ func (suite *TestSuiteStandard) TestYnabImportFindAccounts() {
 				line := i + 1
 				assert.Equal(t, tt.sourceAccountNames[i], transaction.SourceAccountName, "sourceAccountName does not match in line %d", line)
 				assert.Equal(t, tt.destinationAccountNames[i], transaction.DestinationAccountName, "destinationAccountName does not match in line %d", line)
+
+				assert.Equal(t, tt.envelopeIDs[i], transaction.Transaction.EnvelopeID, "proposed envelope ID does not match in line %d", line)
 
 				if tt.sourceAccountIDs[i] != uuid.Nil {
 					assert.Equal(t, tt.sourceAccountIDs[i], transaction.Transaction.SourceAccountID, "sourceAccountID does not match in line %d", line)

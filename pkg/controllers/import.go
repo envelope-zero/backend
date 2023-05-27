@@ -144,7 +144,11 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 	}
 
 	transactions = duplicateTransactions(co, transactions, account.BudgetID)
-	transactions = findAccounts(co, transactions, account.BudgetID)
+	transactions, err = findAccounts(co, transactions, account.BudgetID)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return
+	}
 
 	c.JSON(http.StatusOK, ImportPreviewList{Data: transactions})
 }
@@ -275,7 +279,7 @@ func duplicateTransactions(co Controller, transactions []importer.TransactionPre
 
 // findAccounts sets the source or destination account ID for a TransactionPreview resource
 // if there is exactly one account with a matching name.
-func findAccounts(co Controller, transactions []importer.TransactionPreview, budgetID uuid.UUID) []importer.TransactionPreview {
+func findAccounts(co Controller, transactions []importer.TransactionPreview, budgetID uuid.UUID) ([]importer.TransactionPreview, error) {
 	for k, transaction := range transactions {
 		// Find the right account name
 		name := transaction.DestinationAccountName
@@ -311,10 +315,20 @@ func findAccounts(co Controller, transactions []importer.TransactionPreview, bud
 				transaction.Transaction.DestinationAccountID = accounts[0].ID
 				transaction.DestinationAccountName = ""
 			}
+
+			// Preset the most popular recent envelope
+			recentEnvelopes, err := accounts[0].RecentEnvelopes(co.DB)
+			if err != nil {
+				return []importer.TransactionPreview{}, err
+			}
+
+			if len(recentEnvelopes) > 0 && recentEnvelopes[0].ID != uuid.Nil {
+				transaction.Transaction.EnvelopeID = &recentEnvelopes[0].ID
+			}
 		}
 
 		transactions[k] = transaction
 	}
 
-	return transactions
+	return transactions, nil
 }
