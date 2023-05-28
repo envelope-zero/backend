@@ -50,8 +50,8 @@ image:
   repository: ghcr.io/envelope-zero/backend
   tag: v0.2.1
 
-# Only set this when you want to use sqlite as database backend.
-# In this case, you need to make sure the database is regularly backed up!
+# All data is stored to a sqlite database in /data.
+# Make sure to persist and backup this directory.
 persistence:
   enabled: true
   mountPath: /data
