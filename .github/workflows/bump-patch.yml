@@ -1,0 +1,30 @@
+name: bump patch version
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    needs: test
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.EZ_BOT_TOKEN }}
+
+      - name: Install svu
+        run: |
+          # renovate: datasource=github-releases depName=caarlos0/svu
+          export SVU_VERSION="v1.10.2"
+          curl -Lo ./svu.tar.gz "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/svu_${SVU_VERSION#v}_linux_amd64.tar.gz"
+          tar -C "$HOME" -xzf svu.tar.gz
+          rm svu.tar.gz
+
+      - name: Tag new version
+        run: |
+          echo "Bumping patch version"
+          git tag "$(~/svu patch)"
+          git push --tags
