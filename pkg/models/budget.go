@@ -238,7 +238,7 @@ func (b Budget) Month(db *gorm.DB, month types.Month) (Month, error) {
 			categoryEnvelopes.Spent = categoryEnvelopes.Spent.Add(envelopeMonth.Spent)
 			categoryEnvelopes.Allocation = categoryEnvelopes.Allocation.Add(envelopeMonth.Allocation)
 
-			// FIXME: The remove this with the integration of allocations into MonthConfigs.
+			// TODO: The remove this with the integration of allocations into MonthConfigs.
 			url := db.Statement.Context.Value(database.ContextURL)
 
 			// Set the allocation link. If there is no allocation, we send the collection endpoint.

@@ -18,6 +18,11 @@ Once those are installed, run `make setup` to perform the repository setup.
 - `make coverage` runs all tests and opens the coverage report in your browser
 - `make build` builds the software with production configuration
 
+## Comments
+
+- Use `// FIXME: What to fix` or `// BUG: what is broken` to make pre-commit fail as a reminder to fix something before opening a PR
+- Use `// TODO: What needs to be done` for things that need to be changed at a later point in time
+
 ## Commit messages
 
 This project uses [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)
