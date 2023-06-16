@@ -7,6 +7,11 @@ repos:
         stages: [commit-msg]
         additional_dependencies: ["@commitlint/config-conventional"]
 
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.5
+    hooks:
+      - id: shellcheck
+
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
@@ -19,6 +24,13 @@ repos:
     rev: v2.7.1
     hooks:
       - id: prettier
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: ^api
+      - id: trailing-whitespace
 
   - repo: local
     hooks:
@@ -35,3 +47,14 @@ repos:
         pass_filenames: false
         entry: swag init --parseDependency --output ./api
         files: ^pkg/.*
+
+      # Taken from https://github.com/rstcheck/rstcheck/blob/178e8c1001aebe2dcbf006e7e6980246704d2315/.pre-commit-config.yaml#L141
+      #
+      # Find FIXME:|BUG: comments in all files
+      # Inline skip: `#i#` directly after the colon after the tag-word
+      - id: find-todos
+        name: "Find FIXME:|BUG: comments"
+        description: "Check for FIXME:|BUG: comments in all files"
+        language: pygrep
+        entry: '(^|//!?|#|<!--|;|/\*(\*|!)?|\.\.)\s*(FIXME:|BUG:)(?!#i#)'
+        exclude: CONTRIBUTING.md
