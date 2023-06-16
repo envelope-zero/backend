@@ -132,7 +132,7 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 	}
 
 	// Verify that the account exists
-	account, ok := getResourceByID[models.Account](c, co, accountID)
+	account, ok := getResourceByIDAndHandleErrors[models.Account](c, co, accountID)
 	if !ok {
 		return
 	}

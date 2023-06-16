@@ -26,3 +26,8 @@ VERSION ?= $(shell git rev-parse HEAD)
 .PHONY: build
 build:
 	go build -ldflags "-X github.com/envelope-zero/backend/v2/pkg/router.version=${VERSION}"
+
+
+.PHONY: docs
+docs:
+	swag init --parseDependency --output ./api

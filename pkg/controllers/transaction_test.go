@@ -36,13 +36,87 @@ func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
+	tSlice := []models.TransactionCreate{c}
+
+	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v2/transactions", tSlice)
 	assertHTTPStatus(suite.T(), &r, expectedStatus...)
 
-	var tr controllers.TransactionResponse
+	// TODO: This needs to be updated - the response here is []controllers.Response
+	var tr []controllers.TransactionResponse
 	suite.decodeResponse(&r, &tr)
 
-	return tr
+	return tr[0]
+}
+
+func (suite *TestSuiteStandard) TestTransactionsCreate() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.Data.ID})
+
+	tests := []struct {
+		name           string
+		transactions   []models.TransactionCreate
+		expectedStatus int
+		expectedErrors []string
+	}{
+		{
+			"One success, one fail",
+			[]models.TransactionCreate{
+				{
+					BudgetID: uuid.New(),
+					Amount:   decimal.NewFromFloat(17.23),
+					Note:     "v2 non-existing budget ID",
+				},
+				{
+					BudgetID:             budget.Data.ID,
+					SourceAccountID:      internalAccount.Data.ID,
+					DestinationAccountID: externalAccount.Data.ID,
+					Amount:               decimal.NewFromFloat(57.01),
+				},
+			},
+			http.StatusNotFound,
+			[]string{
+				"there is no Budget with this ID",
+				"",
+			},
+		},
+		{
+			"Both succeed",
+			[]models.TransactionCreate{
+				{
+					BudgetID:             budget.Data.ID,
+					SourceAccountID:      internalAccount.Data.ID,
+					DestinationAccountID: externalAccount.Data.ID,
+					Amount:               decimal.NewFromFloat(17.23),
+				},
+				{
+					BudgetID:             budget.Data.ID,
+					SourceAccountID:      internalAccount.Data.ID,
+					DestinationAccountID: externalAccount.Data.ID,
+					Amount:               decimal.NewFromFloat(57.01),
+				},
+			},
+			http.StatusCreated,
+			[]string{
+				"",
+				"",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v2/transactions", tt.transactions)
+			assertHTTPStatus(t, &r, tt.expectedStatus)
+
+			var tr []controllers.ResponseTransactionV2
+			suite.decodeResponse(&r, &tr)
+
+			for i, transaction := range tr {
+				assert.Equal(t, tt.expectedErrors[i], transaction.Error)
+			}
+		})
+	}
 }
 
 func (suite *TestSuiteStandard) TestTransactions() {
@@ -336,8 +410,17 @@ func (suite *TestSuiteStandard) TestCreateTransactionMissingData() {
 }
 
 func (suite *TestSuiteStandard) TestCreateBrokenTransaction() {
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", `{ "createdAt": "New Transaction", "note": "More tests for transactions to ensure less brokenness something" }`)
-	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
+	tests := []string{
+		"v1",
+		"v2",
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt, func(t *testing.T) {
+			recorder := test.Request(suite.controller, suite.T(), http.MethodPost, fmt.Sprintf("http://example.com/%s/transactions", tt), `{ "createdAt": "New Transaction", "note": "More tests for transactions to ensure less brokenness something" }`)
+			assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
+		})
+	}
 }
 
 func (suite *TestSuiteStandard) TestCreateNegativeAmountTransaction() {

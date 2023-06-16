@@ -119,7 +119,7 @@ func (co Controller) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Budget](c, co, category.BudgetID)
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, category.BudgetID)
 	if !ok {
 		return
 	}
@@ -235,7 +235,7 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	category, ok := getResourceByID[models.Category](c, co, id)
+	category, ok := getResourceByIDAndHandleErrors[models.Category](c, co, id)
 	if !ok {
 		return
 	}
@@ -276,7 +276,7 @@ func (co Controller) DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	category, ok := getResourceByID[models.Category](c, co, id)
+	category, ok := getResourceByIDAndHandleErrors[models.Category](c, co, id)
 	if !ok {
 		return
 	}
@@ -304,7 +304,7 @@ func (co Controller) getCategoryResources(c *gin.Context, id uuid.UUID) ([]model
 }
 
 func (co Controller) getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
-	resource, ok := getResourceByID[models.Category](c, co, id)
+	resource, ok := getResourceByIDAndHandleErrors[models.Category](c, co, id)
 	if !ok {
 		return Category{}, false
 	}

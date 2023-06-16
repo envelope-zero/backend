@@ -90,6 +90,7 @@ func TestGetRoot(t *testing.T) {
 			Docs:    "/docs/index.html",
 			Version: "/version",
 			V1:      "/v1",
+			V2:      "/v2",
 		},
 	}
 
@@ -130,6 +131,33 @@ func TestGetV1(t *testing.T) {
 	var lr router.V1Response
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/v1", nil)
+	r.ServeHTTP(w, c.Request)
+
+	decodeResponse(t, w, &lr)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, l, lr)
+}
+
+func TestGetV2(t *testing.T) {
+	t.Parallel()
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/v2", func(ctx *gin.Context) {
+		router.GetV2(c)
+	})
+
+	// Test contexts cannot be injected any middleware, therefore
+	// this only tests the path, not the host
+	l := router.V2Response{
+		Links: router.V2Links{
+			Transactions: "/v2/transactions",
+		},
+	}
+
+	var lr router.V2Response
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/v2", nil)
 	r.ServeHTTP(w, c.Request)
 
 	decodeResponse(t, w, &lr)

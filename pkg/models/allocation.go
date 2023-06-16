@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/envelope-zero/backend/v2/internal/types"
@@ -36,7 +35,7 @@ func (a Allocation) Self() string {
 // set to 0.
 func (a *Allocation) BeforeSave(_ *gorm.DB) (err error) {
 	if a.Amount.IsZero() {
-		return errors.New("Allocation amounts must be non-zero. Instead of setting to zero, delete the Allocation")
+		return ErrAllocationZero
 	}
 
 	return

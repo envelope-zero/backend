@@ -9,16 +9,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
-
-type HTTPError struct {
-	Error string `json:"error" example:"An ID specified in the query string was not a valid uint64"`
-}
 
 // Generate a struct containing the HTTP error on the fly.
 func New(c *gin.Context, status int, msgAndArgs ...any) {
@@ -53,37 +50,49 @@ func InvalidMonth(c *gin.Context) {
 	New(c, http.StatusBadRequest, "Could not parse the specified month, did you use YYYY-MM format?")
 }
 
-// DBErrorMessage returns an error message and status code appropriate to the error that has occurred.
-func DBErrorMessage(err error) (int, string) {
-	// Source and destination accounts need to be different
-	if strings.Contains(err.Error(), "CHECK constraint failed: source_destination_different") {
-		return http.StatusBadRequest, "Source and destination accounts for a transaction must be different"
+// GenericDBError wraps DBError with a more specific error message for not found errors.
+func GenericDBError[T models.Model](r T, c *gin.Context, err error) ErrorStatus {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrorStatus{Status: http.StatusNotFound, Err: fmt.Errorf("there is no %s with this ID", r.Self())}
+	}
+
+	return DBError(c, err)
+}
+
+// DBError returns an error message and status code appropriate to the error that has occurred.
+func DBError(c *gin.Context, err error) ErrorStatus {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrorStatus{Status: http.StatusNotFound, Err: errors.New("there is no resource for the ID you specified")}
+
+		// Source and destination accounts need to be different
+	} else if strings.Contains(err.Error(), "CHECK constraint failed: source_destination_different") {
+		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("source and destination accounts for a transaction must be different")}
 
 		// Category names need to be unique per budget
 	} else if strings.Contains(err.Error(), "UNIQUE constraint failed: categories.name, categories.budget_id") {
-		return http.StatusBadRequest, "The category name must be unique for the budget"
+		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("the category name must be unique for the budget")}
 
 		// Envelope names need to be unique per category
 	} else if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.name, envelopes.category_id") {
-		return http.StatusBadRequest, "The envelope name must be unique for the category"
+		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("the envelope name must be unique for the category")}
 
 		// Only one allocation per envelope per month
 	} else if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month, allocations.envelope_id") {
-		return http.StatusBadRequest, "You can not create multiple allocations for the same month"
+		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("you can not create multiple allocations for the same month")}
 
 		// General message when a field references a non-existing resource
 	} else if strings.Contains(err.Error(), "constraint failed: FOREIGN KEY constraint failed") {
-		return http.StatusBadRequest, "There is no resource for the ID you specificed in the reference to another resource."
+		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("there is no resource for the ID you specificed in the reference to another resource")}
 
 		// Database is read only or file has been deleted
 	} else if strings.Contains(err.Error(), "attempt to write a readonly database (1032)") {
 		log.Error().Msgf("Database is in read-only mode. This might be due to the file being deleted: %#v", err)
-		return http.StatusInternalServerError, "The database is currently in read-only mode, please try again later."
+		return ErrorStatus{Status: http.StatusInternalServerError, Err: errors.New("the database is currently in read-only mode, please try again later")}
 
 		// A general error we do not know more about
 	} else {
 		log.Error().Msgf("%T: %v", err, err.Error())
-		return http.StatusInternalServerError, "A database error occurred during your request"
+		return ErrorStatus{Status: http.StatusInternalServerError, Err: fmt.Errorf("an error occurred on the server during your request, please contact your server administrator. The request id is '%v', send this to your server administrator to help them finding the problem", requestid.Get(c))}
 	}
 }
 
@@ -101,9 +110,9 @@ func Handler(c *gin.Context, err error, notFoundMsg ...string) {
 
 		// Database error
 	} else if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
-		code, msg := DBErrorMessage(err)
-		New(c, code, msg)
-	} else if strings.Contains(err.Error(), "Allocation amounts must be non-zero") {
+		status := DBError(c, err)
+		New(c, status.Status, status.Error())
+	} else if errors.Is(err, models.ErrAllocationZero) {
 		New(c, http.StatusBadRequest, err.Error())
 
 		// Database connection has not been opened or has been closed already

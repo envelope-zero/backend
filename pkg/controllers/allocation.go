@@ -91,7 +91,7 @@ func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Allocation](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
@@ -118,7 +118,7 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Envelope](c, co, allocation.EnvelopeID)
+	_, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, allocation.EnvelopeID)
 	if !ok {
 		return
 	}
@@ -196,7 +196,7 @@ func (co Controller) GetAllocation(c *gin.Context) {
 		return
 	}
 
-	allocationObject, ok := getResourceByID[models.Allocation](c, co, id)
+	allocationObject, ok := getResourceByIDAndHandleErrors[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
@@ -225,7 +225,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	allocation, ok := getResourceByID[models.Allocation](c, co, id)
+	allocation, ok := getResourceByIDAndHandleErrors[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
@@ -265,7 +265,7 @@ func (co Controller) DeleteAllocation(c *gin.Context) {
 		return
 	}
 
-	allocation, ok := getResourceByID[models.Allocation](c, co, id)
+	allocation, ok := getResourceByIDAndHandleErrors[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
