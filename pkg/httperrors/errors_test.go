@@ -30,6 +30,15 @@ func TestFetchErrorHandlerErrRecordNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
+func TestDBErrorErrRecordNotFound(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	status := httperrors.DBError(c, gorm.ErrRecordNotFound)
+	assert.Equal(t, http.StatusNotFound, status.Status)
+	assert.Equal(t, "there is no resource for the ID you specified", status.Error())
+}
+
 func TestFetchErrorHandlerErrRecordNotFoundAdditionalMessage(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
@@ -69,7 +78,7 @@ func TestFetchErrorHandlerSQLiteErrorUnknown(t *testing.T) {
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "A database error")
+	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "an error occurred on the server", w.Body.String())
 }
 
 func TestFetchErrorHandlerEOF(t *testing.T) {
@@ -162,20 +171,49 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		err  string
 		msg  string
 	}{
-		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "Source and destination accounts for a transaction must be different"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "The category name must be unique for the budget"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "The envelope name must be unique for the category"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "You can not create multiple allocations for the same month"},
-		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "There is no resource for the ID you specificed in the reference to another resource."},
-		{http.StatusInternalServerError, "This is a very weird error", "A database error occurred during your request"},
-		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "The database is currently in read-only mode, please try again later."},
+		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "source and destination accounts for a transaction must be different"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "the envelope name must be unique for the category"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "you can not create multiple allocations for the same month"},
+		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "there is no resource for the ID you specificed in the reference to another resource"},
+		{http.StatusInternalServerError, "This is a very weird error", "an error occurred on the server during your request, please contact your server administrator. The request id is '', send this to your server administrator to help them finding the problem"},
+		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "the database is currently in read-only mode, please try again later"},
 	}
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
 
 	for _, tt := range tests {
 		err := errors.New(tt.err)
-		code, msg := httperrors.DBErrorMessage(err)
-		assert.Equal(t, tt.code, code)
-		assert.Equal(t, tt.msg, msg)
+		status := httperrors.DBError(c, err)
+		assert.Equal(t, tt.code, status.Status)
+		assert.Equal(t, tt.msg, status.Error())
+	}
+}
+
+func TestDatabaseNo(t *testing.T) {
+	tests := []struct {
+		code int
+		err  string
+		msg  string
+	}{
+		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "source and destination accounts for a transaction must be different"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "the envelope name must be unique for the category"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "you can not create multiple allocations for the same month"},
+		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "there is no resource for the ID you specificed in the reference to another resource"},
+		{http.StatusInternalServerError, "This is a very weird error", "an error occurred on the server during your request, please contact your server administrator. The request id is '', send this to your server administrator to help them finding the problem"},
+		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "the database is currently in read-only mode, please try again later"},
+	}
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	for _, tt := range tests {
+		err := errors.New(tt.err)
+		status := httperrors.DBError(c, err)
+		assert.Equal(t, tt.code, status.Status)
+		assert.Equal(t, tt.msg, status.Error())
 	}
 }
 

@@ -97,7 +97,7 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Budget](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -130,7 +130,7 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Budget](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -164,7 +164,7 @@ func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Budget](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -269,7 +269,7 @@ func (co Controller) GetBudget(c *gin.Context) {
 		return
 	}
 
-	budgetObject, ok := getResourceByID[models.Budget](c, co, id)
+	budgetObject, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -298,7 +298,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	budget, ok := getResourceByID[models.Budget](c, co, id)
+	budget, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -412,7 +412,7 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	budget, ok := getResourceByID[models.Budget](c, co, id)
+	budget, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -458,7 +458,7 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	budget, ok := getResourceByID[models.Budget](c, co, id)
+	budget, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -490,7 +490,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	}
 
 	// If the budget does not exist, abort the request
-	_, ok := getResourceByID[models.Budget](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
@@ -544,7 +544,7 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 	}
 
 	// If the budget does not exist, abort the request
-	_, ok := getResourceByID[models.Budget](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}

@@ -89,7 +89,7 @@ func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Envelope](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
@@ -117,7 +117,7 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByID[models.Category](c, co, envelope.CategoryID)
+	_, ok := getResourceByIDAndHandleErrors[models.Category](c, co, envelope.CategoryID)
 	if !ok {
 		return
 	}
@@ -201,7 +201,7 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelopeObject, ok := getResourceByID[models.Envelope](c, co, id)
+	envelopeObject, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
@@ -236,7 +236,7 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := getResourceByID[models.Envelope](c, co, id)
+	envelope, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
 	if !ok {
 		httperrors.Handler(c, err)
 		return
@@ -277,7 +277,7 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := getResourceByID[models.Envelope](c, co, id)
+	envelope, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
@@ -319,7 +319,7 @@ func (co Controller) DeleteEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, ok := getResourceByID[models.Envelope](c, co, id)
+	envelope, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}

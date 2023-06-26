@@ -125,6 +125,15 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	co.RegisterMonthRoutes(v1.Group("/months"))
 	co.RegisterImportRoutes(v1.Group("/import"))
 	co.RegisterMonthConfigRoutes(v1.Group("/month-configs"))
+
+	// API v2 setup
+	v2 := group.Group("/v2")
+	{
+		v2.GET("", GetV2)
+		v2.OPTIONS("", OptionsV2)
+	}
+
+	co.RegisterTransactionRoutesV2(v2.Group("/transactions"))
 }
 
 type RootResponse struct {
@@ -135,6 +144,7 @@ type RootLinks struct {
 	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"` // Swagger API documentation
 	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
 	V1      string `json:"v1" example:"https://example.com/api/v1"`                // List endpoint for all v1 endpoints
+	V2      string `json:"v2" example:"https://example.com/api/v2"`                // List endpoint for all v2 endpoints
 }
 
 // GetRoot returns the link list for the API root
@@ -150,6 +160,7 @@ func GetRoot(c *gin.Context) {
 			Docs:    c.GetString(string(database.ContextURL)) + "/docs/index.html",
 			Version: c.GetString(string(database.ContextURL)) + "/version",
 			V1:      c.GetString(string(database.ContextURL)) + "/v1",
+			V2:      c.GetString(string(database.ContextURL)) + "/v2",
 		},
 	})
 }
@@ -244,4 +255,38 @@ func GetV1(c *gin.Context) {
 //	@Router			/v1 [options]
 func OptionsV1(c *gin.Context) {
 	httputil.OptionsGetDelete(c)
+}
+
+type V2Response struct {
+	Links V2Links `json:"links"` // Links for the v2 API
+}
+
+type V2Links struct {
+	Transactions string `json:"transactions" example:"https://example.com/api/v2/transactions"` // URL of transaction list endpoint
+}
+
+// GetV2 returns the link list for v2
+//
+//	@Summary		v2 API
+//	@Description	Returns general information about the v2 API
+//	@Tags			v2
+//	@Success		200	{object}	V2Response
+//	@Router			/v2 [get]
+func GetV2(c *gin.Context) {
+	c.JSON(http.StatusOK, V2Response{
+		Links: V2Links{
+			Transactions: c.GetString(string(database.ContextURL)) + "/v2/transactions",
+		},
+	})
+}
+
+// OptionsV2 returns the allowed HTTP methods
+//
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			v2
+//	@Success		204
+//	@Router			/v2 [options]
+func OptionsV2(c *gin.Context) {
+	httputil.OptionsGet(c)
 }

@@ -229,6 +229,17 @@ definitions:
       data:
         $ref: '#/definitions/models.Month'
     type: object
+  controllers.ResponseTransactionV2:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/models.Transaction'
+        description: This field contains the transaction data
+      error:
+        description: This field contains a human readable error message
+        example: A human readable error message
+        type: string
+    type: object
   controllers.TransactionListResponse:
     properties:
       data:
@@ -943,6 +954,10 @@ definitions:
         description: List endpoint for all v1 endpoints
         example: https://example.com/api/v1
         type: string
+      v2:
+        description: List endpoint for all v2 endpoints
+        example: https://example.com/api/v2
+        type: string
       version:
         description: Endpoint returning the version of the backend
         example: https://example.com/api/version
@@ -994,6 +1009,20 @@ definitions:
         allOf:
         - $ref: '#/definitions/router.V1Links'
         description: Links for the v1 API
+    type: object
+  router.V2Links:
+    properties:
+      transactions:
+        description: URL of transaction list endpoint
+        example: https://example.com/api/v2/transactions
+        type: string
+    type: object
+  router.V2Response:
+    properties:
+      links:
+        allOf:
+        - $ref: '#/definitions/router.V2Links'
+        description: Links for the v2 API
     type: object
   router.VersionObject:
     properties:
@@ -2916,6 +2945,76 @@ paths:
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
       summary: Update transaction
+      tags:
+      - Transactions
+  /v2:
+    get:
+      description: Returns general information about the v2 API
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/router.V2Response'
+      summary: v2 API
+      tags:
+      - v2
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - v2
+  /v2/transactions:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Transactions
+    post:
+      description: Creates transactions from the list of submitted transaction data.
+        The response code is the highest response code number that a single transaction
+        creation would have caused. If it is not equal to 201, at least one transaction
+        has an error.
+      parameters:
+      - description: Transactions
+        in: body
+        name: transactions
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.TransactionCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseTransactionV2'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseTransactionV2'
+            type: array
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseTransactionV2'
+            type: array
+      summary: Create transactions
       tags:
       - Transactions
   /version:

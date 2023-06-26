@@ -29,7 +29,7 @@ func Request(co controllers.Controller, t *testing.T, method, reqURL string, bod
 	// If the body is a string, convert it to bytes
 	if reflect.TypeOf(body).Kind() == reflect.String {
 		byteBuffer = bytes.NewBufferString(body.(string))
-	} else if reflect.TypeOf(body).Kind() == reflect.Struct || reflect.TypeOf(body).Kind() == reflect.Map {
+	} else if reflect.TypeOf(body).Kind() == reflect.Struct || reflect.TypeOf(body).Kind() == reflect.Map || reflect.TypeOf(body).Kind() == reflect.Slice {
 		byteStr, err := json.Marshal(body)
 		if err != nil {
 			assert.Fail(t, "Request body could not be marshalled from struct input", err)

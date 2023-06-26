@@ -123,7 +123,7 @@ func (co Controller) CreateAccount(c *gin.Context) {
 	}
 
 	// Check if the budget that the account shoud belong to exists
-	_, ok := getResourceByID[models.Budget](c, co, account.BudgetID)
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, account.BudgetID)
 	if !ok {
 		return
 	}
@@ -241,7 +241,7 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	account, ok := getResourceByID[models.Account](c, co, id)
+	account, ok := getResourceByIDAndHandleErrors[models.Account](c, co, id)
 	if !ok {
 		return
 	}
@@ -283,7 +283,7 @@ func (co Controller) DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	account, ok := getResourceByID[models.Account](c, co, id)
+	account, ok := getResourceByIDAndHandleErrors[models.Account](c, co, id)
 
 	if !ok {
 		return
@@ -297,7 +297,7 @@ func (co Controller) DeleteAccount(c *gin.Context) {
 }
 
 func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
-	account, ok := getResourceByID[models.Account](c, co, id)
+	account, ok := getResourceByIDAndHandleErrors[models.Account](c, co, id)
 
 	if !ok {
 		return Account{}, false

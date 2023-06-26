@@ -2819,6 +2819,105 @@ const docTemplate = `{
                 }
             }
         },
+        "/v2": {
+            "get": {
+                "description": "Returns general information about the v2 API",
+                "tags": [
+                    "v2"
+                ],
+                "summary": "v2 API",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.V2Response"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "v2"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v2/transactions": {
+            "post": {
+                "description": "Creates transactions from the list of submitted transaction data. The response code is the highest response code number that a single transaction creation would have caused. If it is not equal to 201, at least one transaction has an error.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create transactions",
+                "parameters": [
+                    {
+                        "description": "Transactions",
+                        "name": "transactions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TransactionCreate"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ResponseTransactionV2"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ResponseTransactionV2"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ResponseTransactionV2"
+                            }
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/version": {
             "get": {
                 "description": "Returns the software version of the API",
@@ -3179,6 +3278,24 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/models.Month"
+                }
+            }
+        },
+        "controllers.ResponseTransactionV2": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "This field contains the transaction data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Transaction"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "This field contains a human readable error message",
+                    "type": "string",
+                    "example": "A human readable error message"
                 }
             }
         },
@@ -4095,6 +4212,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/v1"
                 },
+                "v2": {
+                    "description": "List endpoint for all v2 endpoints",
+                    "type": "string",
+                    "example": "https://example.com/api/v2"
+                },
                 "version": {
                     "description": "Endpoint returning the version of the backend",
                     "type": "string",
@@ -4163,6 +4285,29 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/router.V1Links"
+                        }
+                    ]
+                }
+            }
+        },
+        "router.V2Links": {
+            "type": "object",
+            "properties": {
+                "transactions": {
+                    "description": "URL of transaction list endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v2/transactions"
+                }
+            }
+        },
+        "router.V2Response": {
+            "type": "object",
+            "properties": {
+                "links": {
+                    "description": "Links for the v2 API",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/router.V2Links"
                         }
                     ]
                 }

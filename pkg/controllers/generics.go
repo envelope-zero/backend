@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-// getResourceByID gets a resources of a specified type by its ID.
+// getResourceByIDAndHandleErrors gets a resources of a specified type by its ID.
 //
 // When the ID is not specified (which is equal to an all-zeroes UUID), it returns an HTTP 400.
 // When no resource exists for the specified ID, an HTTP 404 is returned with an appropriate message.
-func getResourceByID[T models.Model](c *gin.Context, co Controller, id uuid.UUID) (resource T, success bool) {
+func getResourceByIDAndHandleErrors[T models.Model](c *gin.Context, co Controller, id uuid.UUID) (resource T, success bool) {
 	if id == uuid.Nil {
 		httperrors.New(c, http.StatusBadRequest, "No %s ID specified", resource.Self())
 		return
@@ -27,4 +27,20 @@ func getResourceByID[T models.Model](c *gin.Context, co Controller, id uuid.UUID
 	}
 
 	return resource, true
+}
+
+// getResourceByID gets a resources of a specified type by its ID.
+//
+// If the resources does not exist or the ID is the zero UUID, an appropriate error is returned.
+func getResourceByID[T models.Model](c *gin.Context, co Controller, id uuid.UUID) (resource T, err httperrors.ErrorStatus) {
+	if id == uuid.Nil {
+		return resource, httperrors.ErrorStatus{Err: fmt.Errorf("no %s ID specified", resource.Self()), Status: http.StatusBadRequest}
+	}
+
+	dbErr := co.DB.First(&resource, "id = ?", id).Error
+	if dbErr != nil {
+		return resource, httperrors.GenericDBError(resource, c, dbErr)
+	}
+
+	return resource, httperrors.ErrorStatus{}
 }
