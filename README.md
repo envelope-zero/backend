@@ -2,10 +2,7 @@
 
 [![Release](https://img.shields.io/github/release/envelope-zero/backend.svg?style=flat-square)](https://github.com/envelope-zero/backend/releases/latest) [![Go Reference](https://pkg.go.dev/badge/github.com/envelope-zero/backend.svg)](https://pkg.go.dev/github.com/envelope-zero/backend) [![Go Report Card](https://goreportcard.com/badge/github.com/envelope-zero/backend)](https://goreportcard.com/report/github.com/envelope-zero/backend)
 
-Envelope Zero is fundamentally rooted in two ideas:
-
-- Using the [envelope method](https://en.wikipedia.org/wiki/Envelope_system) to budget expenses into envelopes.
-- Zero Based Budeting, meaning that you assign all your money to an envelope. Saving for a vacation? Create an envelope and archive it after your vacation. Rent? Create an envelope that gets a fixed amount of money added every month.
+Check out the documentation at [envelope-zero.org](https://envelope-zero.org)!
 
 ## Features
 
