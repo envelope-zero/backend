@@ -28,7 +28,7 @@ The backend can be configured with the following environment variables.
 | `GIN_MODE`           | One of `release`, `debug` | `release`                                            | The mode that gin runs in. Only set this to `debug` on your development environment!                                                                                |
 | `PORT`               | `number`                  | `8080`                                               | The port the backend listens on                                                                                                                                     |
 | `LOG_FORMAT`         | One of `json`, `human`    | `json` if `GIN_MODE` is `release`, otherwise `human` | If log output is written human readable or as JSON.                                                                                                                 |
-| `CORS_ALLOW_ORIGINS` | `string`                  | `""`                                                 | hosts that are allowed to use cross origin requests, separated by spaces. Only set this when your frontend runs on a different host and/or port than the backend!   |
+| `CORS_ALLOW_ORIGINS` | `string`                  | `""`                                                 | :information_source: This is only needed for frontend development. Defines hosts that are allowed to use cross origin requests, separated by spaces.                |
 | `ENABLE_PPROF`       | `bool`                    | `false`                                              | If set to `true`, pprof profiles for application profiling are made available at `/debug/pprof`. :warning: If you do not know what this means, do not turn this on. |
 
 ### Deployment methods
