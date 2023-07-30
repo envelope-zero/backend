@@ -19,6 +19,8 @@ func Migrate(db *gorm.DB) error {
 		/*
 		 * Workaround for https://github.com/go-gorm/gorm/issues/5968
 		 * Remove with 3.0.0
+		 *
+		 * With this, remove the e.UUID != uuid.Nil check in the Envelope.BeforeUpdate method
 		 */
 		// Account
 		db.Unscoped().Model(&Account{}).Select("OnBudget").Where("accounts.on_budget IS NULL").Update("OnBudget", false),
@@ -36,10 +38,10 @@ func Migrate(db *gorm.DB) error {
 		// Delete allocations with an amount of 0
 		db.Unscoped().Model(&Allocation{}).Where("amount IS '0'").Delete(&Allocation{}),
 	}
-	for _, query := range queries {
+	for i, query := range queries {
 		err = query.Error
 		if err != nil {
-			return fmt.Errorf("error during DB migration: %w", err)
+			return fmt.Errorf("error during DB migration for migration %d: %w", i+1, err)
 		}
 	}
 
