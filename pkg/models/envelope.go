@@ -36,6 +36,29 @@ func (e Envelope) Self() string {
 	return "Envelope"
 }
 
+// BeforeUpdate verifies the state of the envelope before
+// committing an update to the database.
+func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
+	// If the archival state is updated from archived to unarchived and the category is
+	// archived, unarchive the category, too.
+	//
+	// This checks for the envelope's ID to not be nil since there is a call during migration
+	// where it is nil. Remove this with v3.0.0 when these migrations are removed, too.
+	if e.ID != uuid.Nil && !e.Hidden {
+		var category Category
+		err = tx.First(&category, e.CategoryID).Error
+		if err != nil {
+			return
+		}
+
+		if category.Hidden {
+			tx.Model(&category).Updates(map[string]any{"hidden": false})
+		}
+	}
+
+	return
+}
+
 func (e *Envelope) AfterFind(tx *gorm.DB) (err error) {
 	e.links(tx)
 	return
@@ -45,6 +68,7 @@ func (e *Envelope) AfterFind(tx *gorm.DB) (err error) {
 // query the resource directly after creating or updating it.
 func (e *Envelope) AfterSave(tx *gorm.DB) (err error) {
 	e.links(tx)
+
 	return
 }
 

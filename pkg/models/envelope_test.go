@@ -267,3 +267,27 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 		})
 	}
 }
+
+// TestEnvelopeUnarchiveUnarchivesCategory tests that when an envelope is unarchived, but its parent category
+// is archived, the parent category is unarchived, too.
+func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	category := suite.createTestCategory(models.CategoryCreate{
+		BudgetID: budget.ID,
+		Hidden:   true,
+	})
+
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+		CategoryID: category.ID,
+		Name:       "TestEnvelopeUnarchiveUnarchivesCategory",
+		Hidden:     true,
+	})
+
+	// Unarchive the envelope
+	envelope.Hidden = false
+	suite.db.Save(&envelope)
+
+	// Reload the category
+	suite.db.First(&category, category.ID)
+	assert.False(suite.T(), category.Hidden, "Category should be unarchived when child envelope is unarchived")
+}
