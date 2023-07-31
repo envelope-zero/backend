@@ -44,7 +44,7 @@ func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
 	//
 	// This checks for the envelope's ID to not be nil since there is a call during migration
 	// where it is nil. Remove this with v3.0.0 when these migrations are removed, too.
-	if e.ID != uuid.Nil && !e.Hidden {
+	if tx.Statement.Changed("Hidden") && e.ID != uuid.Nil && e.Hidden {
 		var category Category
 		err = tx.First(&category, e.CategoryID).Error
 		if err != nil {
