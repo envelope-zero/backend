@@ -284,8 +284,8 @@ func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
 	})
 
 	// Unarchive the envelope
-	envelope.Hidden = false
-	suite.db.Save(&envelope)
+	data := models.Envelope{EnvelopeCreate: models.EnvelopeCreate{Hidden: false}}
+	suite.db.Model(&envelope).Select("hidden").Updates(data)
 
 	// Reload the category
 	suite.db.First(&category, category.ID)
