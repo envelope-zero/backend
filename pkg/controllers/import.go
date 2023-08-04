@@ -144,14 +144,14 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 	}
 
 	for i, transaction := range transactions {
-		transaction, err = findAccounts(co, transaction, account.BudgetID)
-		transaction = duplicateTransactions(co, transaction, account.BudgetID)
-		transactions[i] = transaction
-	}
+		err = findAccounts(co, &transaction, account.BudgetID)
+		if err != nil {
+			httperrors.Handler(c, err)
+			return
+		}
 
-	if err != nil {
-		httperrors.Handler(c, err)
-		return
+		duplicateTransactions(co, &transaction, account.BudgetID)
+		transactions[i] = transaction
 	}
 
 	c.JSON(http.StatusOK, ImportPreviewList{Data: transactions})
@@ -250,7 +250,7 @@ func getUploadedFile(c *gin.Context, suffix string) (multipart.File, bool) {
 // duplicateTransactions finds duplicate transactions by their import hash. For all input resources,
 // existing resources with the same import hash are searched. If any exist, their IDs are set in the
 // DuplicateTransactionIDs field.
-func duplicateTransactions(co Controller, transaction importer.TransactionPreview, budgetID uuid.UUID) importer.TransactionPreview {
+func duplicateTransactions(co Controller, transaction *importer.TransactionPreview, budgetID uuid.UUID) {
 	var duplicates []models.Transaction
 	co.DB.
 		Preload("SourceAccount").
@@ -274,13 +274,11 @@ func duplicateTransactions(co Controller, transaction importer.TransactionPrevie
 		}
 	}
 	transaction.DuplicateTransactionIDs = duplicateIDs
-
-	return transaction
 }
 
 // findAccounts sets the source or destination account ID for a TransactionPreview resource
 // if there is exactly one account with a matching name.
-func findAccounts(co Controller, transaction importer.TransactionPreview, budgetID uuid.UUID) (importer.TransactionPreview, error) {
+func findAccounts(co Controller, transaction *importer.TransactionPreview, budgetID uuid.UUID) error {
 	// Find the right account name
 	name := transaction.DestinationAccountName
 	if transaction.SourceAccountName != "" {
@@ -303,7 +301,7 @@ func findAccounts(co Controller, transaction importer.TransactionPreview, budget
 	//
 	// We also continue if no accounts are found
 	if len(accounts) != 1 {
-		return transaction, nil
+		return nil
 	}
 
 	// Set source or destination, depending on which one we checked for
@@ -319,7 +317,7 @@ func findAccounts(co Controller, transaction importer.TransactionPreview, budget
 		// Preset the most popular recent envelope
 		recentEnvelopes, err := accounts[0].RecentEnvelopes(co.DB)
 		if err != nil {
-			return importer.TransactionPreview{}, err
+			return err
 		}
 
 		if len(recentEnvelopes) > 0 && recentEnvelopes[0].ID != uuid.Nil {
@@ -327,5 +325,5 @@ func findAccounts(co Controller, transaction importer.TransactionPreview, budget
 		}
 	}
 
-	return transaction, nil
+	return nil
 }
