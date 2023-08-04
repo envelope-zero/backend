@@ -229,6 +229,29 @@ definitions:
       data:
         $ref: '#/definitions/models.Month'
     type: object
+  controllers.RenameRuleListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.RenameRule'
+        type: array
+    type: object
+  controllers.RenameRuleResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.RenameRule'
+    type: object
+  controllers.ResponseRenameRule:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/models.RenameRule'
+        description: This field contains the model data
+      error:
+        description: This field contains a human readable error message
+        example: A human readable error message
+        type: string
+    type: object
   controllers.ResponseTransactionV2:
     properties:
       data:
@@ -810,6 +833,60 @@ definitions:
     x-enum-varnames:
     - AffectAvailable
     - AffectEnvelope
+  models.RenameRule:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          self:
+            example: https://example.com/api/v2/rename-rules/95685c82-53c6-455d-b235-f49960b73b21
+            type: string
+        type: object
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the rename rule
+        example: 3
+        type: integer
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.RenameRuleCreate:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the rename rule
+        example: 3
+        type: integer
+    type: object
   models.Transaction:
     properties:
       amount:
@@ -1012,6 +1089,10 @@ definitions:
     type: object
   router.V2Links:
     properties:
+      rename-rules:
+        description: URL of rename-rule list endpoint
+        example: https://example.com/api/v2/rename-rules
+        type: string
       transactions:
         description: URL of transaction list endpoint
         example: https://example.com/api/v2/transactions
@@ -2967,6 +3048,195 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - v2
+  /v2/rename-rules:
+    get:
+      description: Returns a list of renameRules
+      parameters:
+      - description: Filter by priority
+        in: query
+        name: priority
+        type: integer
+      - description: Filter by match
+        in: query
+        name: match
+        type: string
+      - description: Filter by account ID
+        in: query
+        name: account
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.RenameRuleListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Get renameRules
+      tags:
+      - RenameRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - RenameRules
+    post:
+      description: Creates renameRules from the list of submitted renameRule data.
+        The response code is the highest response code number that a single renameRule
+        creation would have caused. If it is not equal to 201, at least one renameRule
+        has an error.
+      parameters:
+      - description: RenameRules
+        in: body
+        name: renameRules
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.RenameRuleCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseRenameRule'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseRenameRule'
+            type: array
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseRenameRule'
+            type: array
+      summary: Create renameRules
+      tags:
+      - RenameRules
+  /v2/rename-rules/{renameRuleId}:
+    delete:
+      description: Deletes an renameRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: renameRuleId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete renameRule
+      tags:
+      - RenameRules
+    get:
+      description: Returns a specific renameRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: renameRuleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.RenameRuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Get renameRule
+      tags:
+      - RenameRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: renameRuleId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - RenameRules
+    patch:
+      consumes:
+      - application/json
+      description: Update an renameRule. Only values to be updated need to be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: renameRuleId
+        required: true
+        type: string
+      - description: RenameRule
+        in: body
+        name: renameRule
+        required: true
+        schema:
+          $ref: '#/definitions/models.RenameRuleCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.RenameRuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Update renameRule
+      tags:
+      - RenameRules
   /v2/transactions:
     options:
       description: Returns an empty response with the HTTP Header "allow" set to the

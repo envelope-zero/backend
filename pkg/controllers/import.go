@@ -15,6 +15,7 @@ import (
 	"github.com/envelope-zero/backend/v2/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/ryanuber/go-glob"
 	"gorm.io/gorm"
 )
 
@@ -143,15 +144,64 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	for i, transaction := range transactions {
-		transaction, err = findAccounts(co, transaction, account.BudgetID)
-		transaction = duplicateTransactions(co, transaction, account.BudgetID)
-		transactions[i] = transaction
-	}
+	/*
 
+			func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, err error) {
+			var transactions []Transaction
+
+			err = db.
+				Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
+				Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+				Where("source_account.external = 1").
+				Where("destination_account.external = 0").
+				Where("transactions.envelope_id IS NULL").
+				Where("transactions.available_from >= date(?) AND transactions.available_from < date(?)", month, month.AddDate(0, 1)).
+				Where(&Transaction{
+					TransactionCreate: TransactionCreate{
+						BudgetID: b.ID,
+					},
+				}).
+				Find(&transactions).
+				Error
+			if err != nil {
+				return decimal.Zero, err
+			}
+
+			for _, t := range transactions {
+				income = income.Add(t.Amount)
+			}
+
+			return
+		}
+
+	*/
+
+	// Get all rename rules for the budget that the import target account is part of
+	var renameRules []models.RenameRule
+	err = co.DB.
+		Joins("JOIN accounts ON accounts.budget_id = ?", account.BudgetID).
+		Joins("JOIN rename_rules rr ON rr.account_id = accounts.id").
+		Order("rr.priority asc").
+		Find(&renameRules).Error
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
+	}
+
+	for i, transaction := range transactions {
+		rename(&transaction, renameRules)
+
+		// Only find accounts when they are not yet both set
+		if transaction.Transaction.SourceAccountID == uuid.Nil || transaction.Transaction.DestinationAccountID == uuid.Nil {
+			err = findAccounts(co, &transaction, account.BudgetID)
+			if err != nil {
+				httperrors.Handler(c, err)
+				return
+			}
+		}
+
+		duplicateTransactions(co, &transaction, account.BudgetID)
+		transactions[i] = transaction
 	}
 
 	c.JSON(http.StatusOK, ImportPreviewList{Data: transactions})
@@ -250,7 +300,7 @@ func getUploadedFile(c *gin.Context, suffix string) (multipart.File, bool) {
 // duplicateTransactions finds duplicate transactions by their import hash. For all input resources,
 // existing resources with the same import hash are searched. If any exist, their IDs are set in the
 // DuplicateTransactionIDs field.
-func duplicateTransactions(co Controller, transaction importer.TransactionPreview, budgetID uuid.UUID) importer.TransactionPreview {
+func duplicateTransactions(co Controller, transaction *importer.TransactionPreview, budgetID uuid.UUID) {
 	var duplicates []models.Transaction
 	co.DB.
 		Preload("SourceAccount").
@@ -274,13 +324,11 @@ func duplicateTransactions(co Controller, transaction importer.TransactionPrevie
 		}
 	}
 	transaction.DuplicateTransactionIDs = duplicateIDs
-
-	return transaction
 }
 
 // findAccounts sets the source or destination account ID for a TransactionPreview resource
 // if there is exactly one account with a matching name.
-func findAccounts(co Controller, transaction importer.TransactionPreview, budgetID uuid.UUID) (importer.TransactionPreview, error) {
+func findAccounts(co Controller, transaction *importer.TransactionPreview, budgetID uuid.UUID) error {
 	// Find the right account name
 	name := transaction.DestinationAccountName
 	if transaction.SourceAccountName != "" {
@@ -303,23 +351,21 @@ func findAccounts(co Controller, transaction importer.TransactionPreview, budget
 	//
 	// We also continue if no accounts are found
 	if len(accounts) != 1 {
-		return transaction, nil
+		return nil
 	}
 
 	// Set source or destination, depending on which one we checked for
 	if accounts[0].ID != uuid.Nil {
 		if transaction.SourceAccountName != "" {
 			transaction.Transaction.SourceAccountID = accounts[0].ID
-			transaction.SourceAccountName = ""
 		} else {
 			transaction.Transaction.DestinationAccountID = accounts[0].ID
-			transaction.DestinationAccountName = ""
 		}
 
 		// Preset the most popular recent envelope
 		recentEnvelopes, err := accounts[0].RecentEnvelopes(co.DB)
 		if err != nil {
-			return importer.TransactionPreview{}, err
+			return err
 		}
 
 		if len(recentEnvelopes) > 0 && recentEnvelopes[0].ID != uuid.Nil {
@@ -327,5 +373,28 @@ func findAccounts(co Controller, transaction importer.TransactionPreview, budget
 		}
 	}
 
-	return transaction, nil
+	return nil
+}
+
+// rename applies the renaming rules to a transaction.
+func rename(transaction *importer.TransactionPreview, rules []models.RenameRule) {
+	replace := func(name string) uuid.UUID {
+		// Iterate over all rules
+		for _, rule := range rules {
+			// If the rule matches, return the account ID. Since rules are loaded from
+			// the database in priority order, we can simply return the first match
+			if glob.Glob(rule.Match, name) {
+				return rule.AccountID
+			}
+		}
+		return uuid.Nil
+	}
+
+	if transaction.SourceAccountName != "" {
+		transaction.Transaction.SourceAccountID = replace(transaction.SourceAccountName)
+	}
+
+	if transaction.DestinationAccountName != "" {
+		transaction.Transaction.DestinationAccountID = replace(transaction.DestinationAccountName)
+	}
 }
