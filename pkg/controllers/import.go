@@ -143,8 +143,12 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	transactions = duplicateTransactions(co, transactions, account.BudgetID)
-	transactions, err = findAccounts(co, transactions, account.BudgetID)
+	for i, transaction := range transactions {
+		transaction, err = findAccounts(co, transaction, account.BudgetID)
+		transaction = duplicateTransactions(co, transaction, account.BudgetID)
+		transactions[i] = transaction
+	}
+
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
@@ -246,89 +250,82 @@ func getUploadedFile(c *gin.Context, suffix string) (multipart.File, bool) {
 // duplicateTransactions finds duplicate transactions by their import hash. For all input resources,
 // existing resources with the same import hash are searched. If any exist, their IDs are set in the
 // DuplicateTransactionIDs field.
-func duplicateTransactions(co Controller, transactions []importer.TransactionPreview, budgetID uuid.UUID) []importer.TransactionPreview {
-	for k, transaction := range transactions {
-		var duplicates []models.Transaction
-		co.DB.
-			Preload("SourceAccount").
-			Preload("DestinationAccount").
-			Where(models.Transaction{
-				TransactionCreate: models.TransactionCreate{
-					ImportHash: transaction.Transaction.ImportHash,
-				},
-			}).
-			Where(models.Transaction{SourceAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
-			Or(models.Transaction{DestinationAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
-			Find(&duplicates)
+func duplicateTransactions(co Controller, transaction importer.TransactionPreview, budgetID uuid.UUID) importer.TransactionPreview {
+	var duplicates []models.Transaction
+	co.DB.
+		Preload("SourceAccount").
+		Preload("DestinationAccount").
+		Where(models.Transaction{
+			TransactionCreate: models.TransactionCreate{
+				ImportHash: transaction.Transaction.ImportHash,
+			},
+		}).
+		Where(models.Transaction{SourceAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
+		Or(models.Transaction{DestinationAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
+		Find(&duplicates)
 
-		// When there are no resources, we want an empty list, not null
-		// Therefore, we use make to create a slice with zero elements
-		// which will be marshalled to an empty JSON array
-		duplicateIDs := make([]uuid.UUID, 0)
-		for _, duplicate := range duplicates {
-			if duplicate.SourceAccount.BudgetID == budgetID || duplicate.DestinationAccount.BudgetID == budgetID {
-				duplicateIDs = append(duplicateIDs, duplicate.ID)
-			}
+	// When there are no resources, we want an empty list, not null
+	// Therefore, we use make to create a slice with zero elements
+	// which will be marshalled to an empty JSON array
+	duplicateIDs := make([]uuid.UUID, 0)
+	for _, duplicate := range duplicates {
+		if duplicate.SourceAccount.BudgetID == budgetID || duplicate.DestinationAccount.BudgetID == budgetID {
+			duplicateIDs = append(duplicateIDs, duplicate.ID)
 		}
-		transaction.DuplicateTransactionIDs = duplicateIDs
-		transactions[k] = transaction
 	}
+	transaction.DuplicateTransactionIDs = duplicateIDs
 
-	return transactions
+	return transaction
 }
 
 // findAccounts sets the source or destination account ID for a TransactionPreview resource
 // if there is exactly one account with a matching name.
-func findAccounts(co Controller, transactions []importer.TransactionPreview, budgetID uuid.UUID) ([]importer.TransactionPreview, error) {
-	for k, transaction := range transactions {
-		// Find the right account name
-		name := transaction.DestinationAccountName
-		if transaction.SourceAccountName != "" {
-			name = transaction.SourceAccountName
-		}
-
-		var accounts []models.Account
-		co.DB.Where(models.Account{
-			AccountCreate: models.AccountCreate{
-				Name:     name,
-				BudgetID: budgetID,
-				Hidden:   false,
-			},
-		},
-			// Explicitly specfiy search fields since we use a zero value for Hidden
-			"Name", "BudgetID", "Hidden").Find(&accounts)
-
-		// We cannot determine correctly which account should be used if there are
-		// multiple accounts, therefore we skip
-		//
-		// We also continue if no accounts are found
-		if len(accounts) != 1 {
-			continue
-		}
-
-		// Set source or destination, depending on which one we checked for
-		if accounts[0].ID != uuid.Nil {
-			if transaction.SourceAccountName != "" {
-				transaction.Transaction.SourceAccountID = accounts[0].ID
-				transaction.SourceAccountName = ""
-			} else {
-				transaction.Transaction.DestinationAccountID = accounts[0].ID
-				transaction.DestinationAccountName = ""
-			}
-
-			// Preset the most popular recent envelope
-			recentEnvelopes, err := accounts[0].RecentEnvelopes(co.DB)
-			if err != nil {
-				return []importer.TransactionPreview{}, err
-			}
-
-			if len(recentEnvelopes) > 0 && recentEnvelopes[0].ID != uuid.Nil {
-				transaction.Transaction.EnvelopeID = &recentEnvelopes[0].ID
-			}
-		}
-
-		transactions[k] = transaction
+func findAccounts(co Controller, transaction importer.TransactionPreview, budgetID uuid.UUID) (importer.TransactionPreview, error) {
+	// Find the right account name
+	name := transaction.DestinationAccountName
+	if transaction.SourceAccountName != "" {
+		name = transaction.SourceAccountName
 	}
 
-	return transactions, nil
+	var accounts []models.Account
+	co.DB.Where(models.Account{
+		AccountCreate: models.AccountCreate{
+			Name:     name,
+			BudgetID: budgetID,
+			Hidden:   false,
+		},
+	},
+		// Explicitly specfiy search fields since we use a zero value for Hidden
+		"Name", "BudgetID", "Hidden").Find(&accounts)
+
+	// We cannot determine correctly which account should be used if there are
+	// multiple accounts, therefore we skip
+	//
+	// We also continue if no accounts are found
+	if len(accounts) != 1 {
+		return transaction, nil
+	}
+
+	// Set source or destination, depending on which one we checked for
+	if accounts[0].ID != uuid.Nil {
+		if transaction.SourceAccountName != "" {
+			transaction.Transaction.SourceAccountID = accounts[0].ID
+			transaction.SourceAccountName = ""
+		} else {
+			transaction.Transaction.DestinationAccountID = accounts[0].ID
+			transaction.DestinationAccountName = ""
+		}
+
+		// Preset the most popular recent envelope
+		recentEnvelopes, err := accounts[0].RecentEnvelopes(co.DB)
+		if err != nil {
+			return importer.TransactionPreview{}, err
+		}
+
+		if len(recentEnvelopes) > 0 && recentEnvelopes[0].ID != uuid.Nil {
+			transaction.Transaction.EnvelopeID = &recentEnvelopes[0].ID
+		}
+	}
+
+	return transaction, nil
 }
