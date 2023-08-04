@@ -10,7 +10,7 @@ import (
 
 // Migrate migrates all models to the schema defined in the code.
 func Migrate(db *gorm.DB) error {
-	err := db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{})
+	err := db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, RenameRule{})
 	if err != nil {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}

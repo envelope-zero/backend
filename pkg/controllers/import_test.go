@@ -220,7 +220,7 @@ func (suite *TestSuiteStandard) TestYnabImportFindAccounts() {
 		envelopeIDs             []*uuid.UUID // expected IDs of envelopes
 		preTest                 func()       // Function to execute before running tests
 	}{
-		{"No matching (Some Company) & 1 Matching (Edeka) accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID}, []string{"", "Deutsche Bahn", ""}, []*uuid.UUID{&envelopeID, nil, nil}, func() {}},
+		{"No matching (Some Company) & 1 Matching (Edeka) accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID}, []string{"Edeka", "Deutsche Bahn", ""}, []*uuid.UUID{&envelopeID, nil, nil}, func() {}},
 		{"Two matching non-archived accounts", []uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil}, []string{"", "", "Some Company"}, []uuid.UUID{uuid.Nil, uuid.Nil, internalAccount.Data.ID}, []string{"Edeka", "Deutsche Bahn", ""}, []*uuid.UUID{nil, nil, nil}, func() {
 			_ = suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka"})
 		}},
@@ -238,6 +238,69 @@ func (suite *TestSuiteStandard) TestYnabImportFindAccounts() {
 
 				assert.Equal(t, tt.envelopeIDs[i], transaction.Transaction.EnvelopeID, "proposed envelope ID does not match in line %d", line)
 
+				if tt.sourceAccountIDs[i] != uuid.Nil {
+					assert.Equal(t, tt.sourceAccountIDs[i], transaction.Transaction.SourceAccountID, "sourceAccountID does not match in line %d", line)
+				}
+
+				if tt.destinationAccountIDs[i] != uuid.Nil {
+					assert.Equal(t, tt.destinationAccountIDs[i], transaction.Transaction.DestinationAccountID, "destinationAccountID does not match in line %d", line)
+				}
+			}
+		})
+	}
+}
+
+func (suite *TestSuiteStandard) TestRename() {
+	// Create a budget and two existing accounts to use
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	edeka := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
+	bahn := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Deutsche Bahn", External: true})
+
+	// Account we import to
+	internalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
+
+	tests := []struct {
+		name                  string           // Name of the test
+		sourceAccountIDs      []uuid.UUID      // The IDs of the source accounts
+		destinationAccountIDs []uuid.UUID      // The IDs of the destination accounts
+		preTest               func(*testing.T) // Function to execute before running tests
+	}{
+		{
+			"Rule for Edeka",
+			[]uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil},
+			[]uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID},
+			func(t *testing.T) {
+				_ = suite.createTestRenameRule(t, models.RenameRuleCreate{
+					Match:     "EDEKA*",
+					AccountID: edeka.Data.ID,
+				})
+			},
+		},
+		{
+			"Rule for Edeka and DB",
+			[]uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil},
+			[]uuid.UUID{edeka.Data.ID, bahn.Data.ID, internalAccount.Data.ID},
+			func(t *testing.T) {
+				_ = suite.createTestRenameRule(t, models.RenameRuleCreate{
+					Match:     "EDEKA*",
+					AccountID: edeka.Data.ID,
+				})
+
+				_ = suite.createTestRenameRule(t, models.RenameRuleCreate{
+					Match:     "DB Vertrieb GmbH",
+					AccountID: bahn.Data.ID,
+				})
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			tt.preTest(t)
+			preview := parseCSV(suite, internalAccount.Data.ID, "rename-rule-test.csv")
+
+			for i, transaction := range preview.Data {
+				line := i + 1
 				if tt.sourceAccountIDs[i] != uuid.Nil {
 					assert.Equal(t, tt.sourceAccountIDs[i], transaction.Transaction.SourceAccountID, "sourceAccountID does not match in line %d", line)
 				}
