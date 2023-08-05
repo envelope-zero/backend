@@ -144,38 +144,6 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	/*
-
-			func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, err error) {
-			var transactions []Transaction
-
-			err = db.
-				Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
-				Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
-				Where("source_account.external = 1").
-				Where("destination_account.external = 0").
-				Where("transactions.envelope_id IS NULL").
-				Where("transactions.available_from >= date(?) AND transactions.available_from < date(?)", month, month.AddDate(0, 1)).
-				Where(&Transaction{
-					TransactionCreate: TransactionCreate{
-						BudgetID: b.ID,
-					},
-				}).
-				Find(&transactions).
-				Error
-			if err != nil {
-				return decimal.Zero, err
-			}
-
-			for _, t := range transactions {
-				income = income.Add(t.Amount)
-			}
-
-			return
-		}
-
-	*/
-
 	// Get all rename rules for the budget that the import target account is part of
 	var renameRules []models.RenameRule
 	err = co.DB.
