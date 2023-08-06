@@ -260,43 +260,47 @@ func (suite *TestSuiteStandard) TestRename() {
 	internalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	tests := []struct {
-		name                  string           // Name of the test
-		sourceAccountIDs      []uuid.UUID      // The IDs of the source accounts
-		destinationAccountIDs []uuid.UUID      // The IDs of the destination accounts
-		preTest               func(*testing.T) // Function to execute before running tests
+		name                  string                        // Name of the test
+		sourceAccountIDs      []uuid.UUID                   // The IDs of the source accounts
+		destinationAccountIDs []uuid.UUID                   // The IDs of the destination accounts
+		preTest               func(*testing.T) [3]uuid.UUID // Function to execute before running tests
 	}{
 		{
 			"Rule for Edeka",
 			[]uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil},
 			[]uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID},
-			func(t *testing.T) {
-				_ = suite.createTestRenameRule(t, models.RenameRuleCreate{
+			func(t *testing.T) [3]uuid.UUID {
+				edeka := suite.createTestRenameRule(t, models.RenameRuleCreate{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
+
+				return [3]uuid.UUID{edeka.Data.ID}
 			},
 		},
 		{
 			"Rule for Edeka and DB",
 			[]uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil},
 			[]uuid.UUID{edeka.Data.ID, bahn.Data.ID, internalAccount.Data.ID},
-			func(t *testing.T) {
-				_ = suite.createTestRenameRule(t, models.RenameRuleCreate{
+			func(t *testing.T) [3]uuid.UUID {
+				edeka := suite.createTestRenameRule(t, models.RenameRuleCreate{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
 
-				_ = suite.createTestRenameRule(t, models.RenameRuleCreate{
+				db := suite.createTestRenameRule(t, models.RenameRuleCreate{
 					Match:     "DB Vertrieb GmbH",
 					AccountID: bahn.Data.ID,
 				})
+
+				return [3]uuid.UUID{edeka.Data.ID, db.Data.ID}
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			tt.preTest(t)
+			renameRuleIDs := tt.preTest(t)
 			preview := parseCSV(suite, internalAccount.Data.ID, "rename-rule-test.csv")
 
 			for i, transaction := range preview.Data {
@@ -307,6 +311,15 @@ func (suite *TestSuiteStandard) TestRename() {
 
 				if tt.destinationAccountIDs[i] != uuid.Nil {
 					assert.Equal(t, tt.destinationAccountIDs[i], transaction.Transaction.DestinationAccountID, "destinationAccountID does not match in line %d", line)
+				}
+
+				assert.Equal(t, renameRuleIDs[i], transaction.RenameRuleID, "Expected rename rule has match '%s', actual rename rule has match '%s'", renameRuleIDs[i])
+			}
+
+			// Delete rename rules
+			for _, id := range renameRuleIDs {
+				if id != uuid.Nil {
+					suite.controller.DB.Delete(&models.RenameRule{}, id)
 				}
 			}
 		})

@@ -284,7 +284,7 @@ definitions:
   importer.TransactionPreview:
     properties:
       destinationAccountName:
-        description: Name of the destination account if the ID is not known
+        description: Name of the destination account from the CSV file
         example: Deutsche Bahn
         type: string
       duplicateTransactionIds:
@@ -292,8 +292,12 @@ definitions:
         items:
           type: string
         type: array
+      renameRuleId:
+        description: ID of the rename rule that was applied to this transaction preview
+        example: 042d101d-f1de-4403-9295-59dc0ea58677
+        type: string
       sourceAccountName:
-        description: Name of the source account if the ID is not known
+        description: Name of the source account from the CSV file
         example: Employer
         type: string
       transaction:
