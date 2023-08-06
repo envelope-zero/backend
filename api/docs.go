@@ -3646,7 +3646,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "destinationAccountName": {
-                    "description": "Name of the destination account if the ID is not known",
+                    "description": "Name of the destination account from the CSV file",
                     "type": "string",
                     "example": "Deutsche Bahn"
                 },
@@ -3657,8 +3657,13 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "renameRuleId": {
+                    "description": "ID of the rename rule that was applied to this transaction preview",
+                    "type": "string",
+                    "example": "042d101d-f1de-4403-9295-59dc0ea58677"
+                },
                 "sourceAccountName": {
-                    "description": "Name of the source account if the ID is not known",
+                    "description": "Name of the source account from the CSV file",
                     "type": "string",
                     "example": "Employer"
                 },

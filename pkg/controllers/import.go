@@ -157,7 +157,9 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 	}
 
 	for i, transaction := range transactions {
-		rename(&transaction, renameRules)
+		if len(renameRules) > 0 {
+			rename(&transaction, renameRules)
+		}
 
 		// Only find accounts when they are not yet both set
 		if transaction.Transaction.SourceAccountID == uuid.Nil || transaction.Transaction.DestinationAccountID == uuid.Nil {
@@ -346,23 +348,23 @@ func findAccounts(co Controller, transaction *importer.TransactionPreview, budge
 
 // rename applies the renaming rules to a transaction.
 func rename(transaction *importer.TransactionPreview, rules []models.RenameRule) {
-	replace := func(name string) uuid.UUID {
+	replace := func(name string) (uuid.UUID, uuid.UUID) {
 		// Iterate over all rules
 		for _, rule := range rules {
 			// If the rule matches, return the account ID. Since rules are loaded from
 			// the database in priority order, we can simply return the first match
 			if glob.Glob(rule.Match, name) {
-				return rule.AccountID
+				return rule.AccountID, rule.ID
 			}
 		}
-		return uuid.Nil
+		return uuid.Nil, uuid.Nil
 	}
 
 	if transaction.SourceAccountName != "" {
-		transaction.Transaction.SourceAccountID = replace(transaction.SourceAccountName)
+		transaction.Transaction.SourceAccountID, transaction.RenameRuleID = replace(transaction.SourceAccountName)
 	}
 
 	if transaction.DestinationAccountName != "" {
-		transaction.Transaction.DestinationAccountID = replace(transaction.DestinationAccountName)
+		transaction.Transaction.DestinationAccountID, transaction.RenameRuleID = replace(transaction.DestinationAccountName)
 	}
 }
