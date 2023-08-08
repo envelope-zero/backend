@@ -259,16 +259,23 @@ func (suite *TestSuiteStandard) TestRename() {
 	// Account we import to
 	internalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
+	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
+	envelopeID := envelope.Data.ID
+	_ = suite.createTestTransaction(models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+
 	tests := []struct {
 		name                  string                        // Name of the test
 		sourceAccountIDs      []uuid.UUID                   // The IDs of the source accounts
 		destinationAccountIDs []uuid.UUID                   // The IDs of the destination accounts
+		envelopeIDs           []*uuid.UUID                  // expected IDs of envelopes
 		preTest               func(*testing.T) [3]uuid.UUID // Function to execute before running tests
 	}{
 		{
 			"Rule for Edeka",
 			[]uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil},
 			[]uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID},
+			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
 				edeka := suite.createTestRenameRule(t, models.RenameRuleCreate{
 					Match:     "EDEKA*",
@@ -282,6 +289,7 @@ func (suite *TestSuiteStandard) TestRename() {
 			"Rule for Edeka and DB",
 			[]uuid.UUID{internalAccount.Data.ID, internalAccount.Data.ID, uuid.Nil},
 			[]uuid.UUID{edeka.Data.ID, bahn.Data.ID, internalAccount.Data.ID},
+			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
 				edeka := suite.createTestRenameRule(t, models.RenameRuleCreate{
 					Match:     "EDEKA*",
@@ -314,6 +322,8 @@ func (suite *TestSuiteStandard) TestRename() {
 				}
 
 				assert.Equal(t, renameRuleIDs[i], transaction.RenameRuleID, "Expected rename rule has match '%s', actual rename rule has match '%s'", renameRuleIDs[i])
+
+				assert.Equal(t, tt.envelopeIDs[i], transaction.Transaction.EnvelopeID, "proposed envelope ID does not match in line %d", line)
 			}
 
 			// Delete rename rules
