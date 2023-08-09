@@ -61,7 +61,7 @@ require (
 	github.com/ryanuber/go-glob v1.0.0
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/exp v0.0.0-20230807204917-050eac23e9de
+	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
