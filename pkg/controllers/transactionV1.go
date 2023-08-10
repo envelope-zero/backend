@@ -221,7 +221,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	}
 
 	if !filter.UntilDate.IsZero() {
-		query = query.Where("transactions.date <= date(?)", time.Date(filter.UntilDate.Year(), filter.UntilDate.Month(), filter.UntilDate.Day(), 0, 0, 0, 0, time.UTC))
+		query = query.Where("transactions.date < date(?)", time.Date(filter.UntilDate.Year(), filter.UntilDate.Month(), filter.UntilDate.Day()+1, 0, 0, 0, 0, time.UTC))
 	}
 
 	if filter.AccountID != "" {
