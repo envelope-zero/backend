@@ -1,6 +1,7 @@
 name: Validate renovate config
 
 on:
+  merge_group:
   push:
     branches:
       - main
