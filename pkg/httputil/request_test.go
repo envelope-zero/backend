@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/envelope-zero/backend/v2/pkg/httputil"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/pkg/httputil"
+	"github.com/envelope-zero/backend/v3/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

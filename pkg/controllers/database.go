@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/envelope-zero/backend/v2/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"

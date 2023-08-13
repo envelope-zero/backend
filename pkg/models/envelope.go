@@ -5,8 +5,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/database"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -41,10 +41,7 @@ func (e Envelope) Self() string {
 func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
 	// If the archival state is updated from archived to unarchived and the category is
 	// archived, unarchive the category, too.
-	//
-	// This checks for the envelope's ID to not be nil since there is a call during migration
-	// where it is nil. Remove this with v3.0.0 when these migrations are removed, too.
-	if tx.Statement.Changed("Hidden") && e.ID != uuid.Nil && e.Hidden {
+	if tx.Statement.Changed("Hidden") && e.Hidden {
 		var category Category
 		err = tx.First(&category, e.CategoryID).Error
 		if err != nil {

@@ -10,18 +10,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
+	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/google/uuid"
 
-	"github.com/envelope-zero/backend/v2/pkg/importer"
-	"github.com/envelope-zero/backend/v2/pkg/importer/helpers"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/importer"
+	"github.com/envelope-zero/backend/v3/pkg/importer/helpers"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"golang.org/x/text/currency"
 )
 
-// This function parses the comdirect CSV files.
+// This function parses a YNAB 4 Budget.yfull file.
 func Parse(f io.Reader) (importer.ParsedResources, error) {
 	content, err := io.ReadAll(f)
 	if err != nil {
@@ -68,6 +68,9 @@ func Parse(f io.Reader) (importer.ParsedResources, error) {
 
 	// Translate YNAB overspend handling behaviour to EZ overspending handling behaviour
 	fixOverspendHandling(&resources)
+
+	// Fix duplicate account names
+	fixDuplicateAccountNames(&resources)
 
 	return resources, nil
 }
@@ -586,4 +589,27 @@ func fixOverspendHandling(resources *importer.ParsedResources) {
 
 	// Overwrite the original MonthConfigs with the fixed ones
 	resources.MonthConfigs = monthConfigs
+}
+
+// fixDuplicateAccountNames detects if an account name is the same for an internal and
+// external account (which is allowed in YNAB for accounts and Payees) and adds
+// " (External)" to the external (payee) account.
+func fixDuplicateAccountNames(r *importer.ParsedResources) {
+	for i := 0; i < len(r.Accounts); i++ {
+		// Loop over all accounts later in the list
+		for j := i + 1; j < len(r.Accounts); j++ {
+			// If the accounts names match, rename the external account
+			if r.Accounts[j].Name == r.Accounts[i].Name {
+				var a *models.Account
+
+				if r.Accounts[i].External {
+					a = &r.Accounts[i]
+				} else {
+					a = &r.Accounts[j]
+				}
+
+				a.Name = fmt.Sprintf("%s (External)", a.Name)
+			}
+		}
+	}
 }

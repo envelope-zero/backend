@@ -3,7 +3,7 @@ package importer
 import (
 	"errors"
 
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 	"gorm.io/gorm"

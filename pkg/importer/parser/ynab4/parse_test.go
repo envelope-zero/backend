@@ -11,11 +11,11 @@ import (
 	"testing/iotest"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/database"
-	"github.com/envelope-zero/backend/v2/pkg/importer"
-	"github.com/envelope-zero/backend/v2/pkg/importer/parser/ynab4"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
+	"github.com/envelope-zero/backend/v3/pkg/importer"
+	"github.com/envelope-zero/backend/v3/pkg/importer/parser/ynab4"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -304,7 +304,7 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 		availableFrom              types.Month
 	}{
 		{date(2022, 10, 10), 120, "", "Checking", false, "Hospital", true, "Medical", false, false, types.Month{}},
-		{date(2022, 10, 20), 15, "", "Checking", false, "Checking", true, "Restaurants", true, false, types.Month{}},
+		{date(2022, 10, 20), 15, "", "Checking", false, "Checking (External)", true, "Restaurants", true, false, types.Month{}},
 		{date(2022, 10, 21), 50, "", "Checking", false, "Savings", false, "Vacation", true, true, types.Month{}},
 		{date(2022, 10, 21), 10, "Put in too much", "Savings", false, "Checking", false, "Vacation", true, false, types.Month{}},
 		{date(2022, 10, 25), 1000, "", "Employer", true, "Checking", false, "", false, true, types.NewMonth(2022, 11)},

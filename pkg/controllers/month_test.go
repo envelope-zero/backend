@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/controllers"
-	"github.com/envelope-zero/backend/v2/pkg/models"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v3/test"
 	"github.com/shopspring/decimal"
 )
 
@@ -207,8 +207,8 @@ func (suite *TestSuiteStandard) TestSetMonthBudgeted() {
 
 func (suite *TestSuiteStandard) TestSetMonthSpend() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	cashAccount := suite.createTestAccount(models.AccountCreate{External: false, OnBudget: true})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true})
+	cashAccount := suite.createTestAccount(models.AccountCreate{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, Name: "TestSetMonthSpend External"})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})

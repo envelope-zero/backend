@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/pkg/httperrors"
-	"github.com/envelope-zero/backend/v2/pkg/httputil"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/pkg/httputil"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -372,12 +372,6 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	// TODO: Remove
-	// err = co.DB.First(&transaction, id).Error
-	// if err != nil {
-	// 	httperrors.Handler(c, err)
-	// 	return
-	// }
 	c.JSON(http.StatusOK, TransactionResponse{Data: transaction})
 }
 

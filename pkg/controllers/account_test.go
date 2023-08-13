@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/envelope-zero/backend/v2/pkg/controllers"
-	"github.com/envelope-zero/backend/v2/pkg/models"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v3/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -48,13 +48,13 @@ func (suite *TestSuiteStandard) TestOptionsAccount() {
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, "http://example.com/v1/accounts/NotParseableAsUUID", "")
 	assert.Equal(suite.T(), http.StatusBadRequest, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 
-	path = suite.createTestAccount(models.AccountCreate{}).Data.Links.Self
+	path = suite.createTestAccount(models.AccountCreate{Name: "TestOptionsAccount"}).Data.Links.Self
 	recorder = test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteStandard) TestGetAccounts() {
-	_ = suite.createTestAccount(models.AccountCreate{})
+	_ = suite.createTestAccount(models.AccountCreate{Name: "TestGetAccounts"})
 
 	var response controllers.AccountListResponse
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/accounts", "")
@@ -200,7 +200,7 @@ func (suite *TestSuiteStandard) TestAccountInvalidIDs() {
 }
 
 func (suite *TestSuiteStandard) TestCreateAccount() {
-	_ = suite.createTestAccount(models.AccountCreate{Name: "Test account for creation"})
+	_ = suite.createTestAccount(models.AccountCreate{Name: "TestCreateAccount"})
 }
 
 func (suite *TestSuiteStandard) TestCreateAccountNoBudget() {
@@ -235,7 +235,7 @@ func (suite *TestSuiteStandard) TestCreateAccountNoBody() {
 }
 
 func (suite *TestSuiteStandard) TestGetAccount() {
-	a := suite.createTestAccount(models.AccountCreate{})
+	a := suite.createTestAccount(models.AccountCreate{Name: "TestGetAccount"})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, a.Data.Links.Self, "")
 	assert.Equal(suite.T(), http.StatusOK, r.Code)
@@ -266,7 +266,7 @@ func (suite *TestSuiteStandard) TestUpdateAccount() {
 
 func (suite *TestSuiteStandard) TestUpdateAccountBrokenJSON() {
 	a := suite.createTestAccount(models.AccountCreate{
-		Name: "New Account",
+		Name: "TestUpdateAccountBrokenJSON",
 		Note: "More tests something something",
 	})
 
@@ -276,7 +276,7 @@ func (suite *TestSuiteStandard) TestUpdateAccountBrokenJSON() {
 
 func (suite *TestSuiteStandard) TestUpdateAccountInvalidType() {
 	a := suite.createTestAccount(models.AccountCreate{
-		Name: "New Account",
+		Name: "TestUpdateAccountInvalidType",
 		Note: "More tests something something",
 	})
 
@@ -288,7 +288,7 @@ func (suite *TestSuiteStandard) TestUpdateAccountInvalidType() {
 
 func (suite *TestSuiteStandard) TestUpdateAccountInvalidBudgetID() {
 	a := suite.createTestAccount(models.AccountCreate{
-		Name: "New Account",
+		Name: "TestUpdateAccountInvalidBudgetID",
 		Note: "More tests something something",
 	})
 
@@ -327,7 +327,7 @@ func (suite *TestSuiteStandard) TestDeleteNonExistingAccount() {
 }
 
 func (suite *TestSuiteStandard) TestDeleteAccountWithBody() {
-	a := suite.createTestAccount(models.AccountCreate{Name: "Delete me now!"})
+	a := suite.createTestAccount(models.AccountCreate{Name: "TestDeleteAccountWithBody"})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodDelete, a.Data.Links.Self, models.AccountCreate{Name: "Some other account"})
 	assertHTTPStatus(suite.T(), &r, http.StatusNoContent)

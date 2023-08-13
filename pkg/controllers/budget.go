@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/httperrors"
-	"github.com/envelope-zero/backend/v2/pkg/httputil"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/pkg/httputil"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -194,11 +194,6 @@ func (co Controller) CreateBudget(c *gin.Context) {
 		return
 	}
 
-	// TODO: Delete
-	// budgetObject, ok := co.getBudgetResource(c, budget.ID)
-	// if !ok {
-	// 	return
-	// }
 	c.JSON(http.StatusCreated, BudgetResponse{Data: budget})
 }
 
@@ -431,12 +426,6 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	// TODO: delete
-	// budgetObject, ok := co.getBudgetObject(c, budget.ID)
-	// if !ok {
-	// 	httperrors.Handler(c, err)
-	// 	return
-	// }
 	c.JSON(http.StatusOK, BudgetResponse{Data: budget})
 }
 

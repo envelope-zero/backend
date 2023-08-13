@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -185,39 +185,23 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		suite.Assert().Fail("Budget could not be saved", err)
 	}
 
-	account := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID:       budget.ID,
-			OnBudget:       true,
-			External:       false,
-			InitialBalance: decimal.NewFromFloat(170),
-		},
-	}
-	err = suite.db.Save(&account).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	account := suite.createTestAccount(models.AccountCreate{
+		BudgetID:       budget.ID,
+		Name:           "Internal Account",
+		OnBudget:       true,
+		External:       false,
+		InitialBalance: decimal.NewFromFloat(170),
+	})
 
-	externalAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			External: true,
-		},
-	}
-	err = suite.db.Save(&externalAccount).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	externalAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		Name:     "External Account",
+		External: true,
+	})
 
-	category := models.Category{
-		CategoryCreate: models.CategoryCreate{
-			BudgetID: budget.ID,
-		},
-	}
-	err = suite.db.Save(&category).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	category := suite.createTestCategory(models.CategoryCreate{
+		BudgetID: budget.ID,
+	})
 
 	envelopeIDs := []*uuid.UUID{}
 	for i := 1; i <= 3; i++ {
@@ -254,13 +238,13 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		}
 		err = suite.db.Save(&transaction).Error
 		if err != nil {
-			suite.Assert().Fail("Resource could not be saved", err)
+			suite.Assert().FailNow("Resource could not be saved", err)
 		}
 	}
 
 	recent, err := externalAccount.RecentEnvelopes(suite.db)
 	if err != nil {
-		suite.Assert().Fail("Could not compute recent envelopes", err)
+		suite.Assert().FailNow("Could not compute recent envelopes", err)
 	}
 
 	// The last envelope needs to be the first in the sort since it
@@ -284,4 +268,39 @@ func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
 	_, _, err := account.GetBalanceMonth(suite.db, types.NewMonth(2017, 7))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
+}
+
+// TestAccountDuplicateNames ensures that two accounts cannot have the same name.
+func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
+	budget := models.Budget{}
+	err := suite.db.Save(&budget).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	account := models.Account{
+		AccountCreate: models.AccountCreate{
+			BudgetID: budget.ID,
+			Name:     "TestAccountDuplicateNames",
+		},
+	}
+	err = suite.db.Save(&account).Error
+	if err != nil {
+		suite.Assert().Fail("Resource could not be saved", err)
+	}
+
+	externalAccount := models.Account{
+		AccountCreate: models.AccountCreate{
+			BudgetID: budget.ID,
+			Name:     "TestAccountDuplicateNames",
+			External: true,
+		},
+	}
+	err = suite.db.Save(&externalAccount).Error
+	if err == nil {
+		suite.Assert().Fail("Account with the same name than another account could be saved. This must not be possible", err)
+		return
+	}
+
+	suite.Assert().Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id", "Error message for account creation fail does not match expected message")
 }
