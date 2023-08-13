@@ -3,8 +3,8 @@ package models
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/database"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

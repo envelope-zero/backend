@@ -7,8 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/v2/pkg/database"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/database"
+	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -110,6 +111,10 @@ func (suite *TestSuiteStandard) createTestMonthConfig(m models.MonthConfig) mode
 }
 
 func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models.Account {
+	if c.Name == "" {
+		c.Name = uuid.New().String()
+	}
+
 	account := models.Account{
 		AccountCreate: c,
 	}

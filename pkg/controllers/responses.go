@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 )
 
 type ResponseTransactionV2 struct {

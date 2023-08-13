@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/database"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -25,9 +25,9 @@ type Account struct {
 }
 
 type AccountCreate struct {
-	Name               string          `json:"name" example:"Cash" default:""`
+	Name               string          `json:"name" example:"Cash" default:"" gorm:"uniqueIndex:account_name_budget_id"`
 	Note               string          `json:"note" example:"Money in my wallet" default:""`
-	BudgetID           uuid.UUID       `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
+	BudgetID           uuid.UUID       `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf" gorm:"uniqueIndex:account_name_budget_id"`
 	OnBudget           bool            `json:"onBudget" example:"true" default:"false"` // Always false when external: true
 	External           bool            `json:"external" example:"false" default:"false"`
 	InitialBalance     decimal.Decimal `json:"initialBalance" example:"173.12" default:"0"`

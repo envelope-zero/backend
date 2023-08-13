@@ -1,8 +1,18 @@
 # Upgrading
 
+:warning: You cannot skip major versions on upgrades. You have to upgrade to at least one release of each major version.
+
 If upgrades between versions require manual actions, those are described here.
 
-## to any version > v1.0.0
+# to v3.0.0
+
+v3.0.0 does not require manual steps. With v3.0.0, account names must be unique per budget.
+
+# to v2.0.0
+
+v2.0.0 does not require manual steps. With v2.0.0, spent amounts are now negative values instead of positive values.
+
+## < v1.0.0 to v1.0.0
 
 If you are running a version below `v0.35.0`, you _must_ upgrade to `v1.0.0` before you upgrade any further.
 

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,226 +28,124 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Allocations for Grocery Envelope - Outgoing transactions = -43.62
 	marchTwentyTwentyTwo := types.NewMonth(2022, 3)
 
-	budget := models.Budget{}
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	emptyBudget := suite.createTestBudget(models.BudgetCreate{})
 
-	emptyBudget := models.Budget{}
-	err = suite.db.Save(&emptyBudget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	bankAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		OnBudget: true,
+		External: false,
+		Name:     "TestBudgetCalculations Bank Account",
+	})
 
-	bankAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			OnBudget: true,
-			External: false,
-		},
-	}
-	err = suite.db.Save(&bankAccount).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	cashAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		OnBudget: true,
+		External: false,
+		Name:     "TestBudgetCalculations Cash Account",
+	})
 
-	cashAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			OnBudget: true,
-			External: false,
-		},
-	}
-	err = suite.db.Save(&cashAccount).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	employerAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		External: true,
+		Name:     "TestBudgetCalculations Employer Account",
+	})
 
-	employerAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			External: true,
-		},
-	}
-	err = suite.db.Save(&employerAccount).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	groceryAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		External: true,
+	})
 
-	groceryAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			External: true,
-		},
-	}
-	err = suite.db.Save(&groceryAccount).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	category := suite.createTestCategory(models.CategoryCreate{
+		BudgetID: budget.ID,
+	})
 
-	category := models.Category{
-		CategoryCreate: models.CategoryCreate{
-			BudgetID: budget.ID,
-		},
-	}
-	err = suite.db.Save(&category).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+		CategoryID: category.ID,
+	})
 
-	envelope := models.Envelope{
-		EnvelopeCreate: models.EnvelopeCreate{
-			CategoryID: category.ID,
-		},
-	}
-	err = suite.db.Save(&envelope).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestAllocation(models.AllocationCreate{
+		EnvelopeID: envelope.ID,
+		Amount:     decimal.NewFromFloat(17.42),
+		Month:      marchTwentyTwentyTwo.AddDate(0, -2),
+	})
 
-	allocation1 := models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-			Amount:     decimal.NewFromFloat(17.42),
-			Month:      marchTwentyTwentyTwo.AddDate(0, -2),
-		},
-	}
-	err = suite.db.Save(&allocation1).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestAllocation(models.AllocationCreate{
+		EnvelopeID: envelope.ID,
+		Amount:     decimal.NewFromFloat(24.58),
+		Month:      marchTwentyTwentyTwo.AddDate(0, -1),
+	})
 
-	allocation2 := models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-			Amount:     decimal.NewFromFloat(24.58),
-			Month:      marchTwentyTwentyTwo.AddDate(0, -1),
-		},
-	}
-	err = suite.db.Save(&allocation2).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestAllocation(models.AllocationCreate{
+		EnvelopeID: envelope.ID,
+		Amount:     decimal.NewFromFloat(25),
+		Month:      marchTwentyTwentyTwo,
+	})
 
-	allocationCurrentMonth := models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-			Amount:     decimal.NewFromFloat(25),
-			Month:      marchTwentyTwentyTwo,
-		},
-	}
-	err = suite.db.Save(&allocationCurrentMonth).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestAllocation(models.AllocationCreate{
+		EnvelopeID: envelope.ID,
+		Amount:     decimal.NewFromFloat(24.58),
+		Month:      types.NewMonth(2170, 2),
+	})
 
-	allocationFuture := models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: envelope.ID,
-			Amount:     decimal.NewFromFloat(24.58),
-			Month:      types.NewMonth(2170, 2),
-		},
-	}
-	err = suite.db.Save(&allocationFuture).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Date:                 time.Time(marchTwentyTwentyTwo),
+		BudgetID:             budget.ID,
+		EnvelopeID:           nil,
+		SourceAccountID:      employerAccount.ID,
+		DestinationAccountID: bankAccount.ID,
+		Reconciled:           true,
+		Amount:               decimal.NewFromFloat(1800),
+	})
 
-	salaryTransactionFebruary := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Time(marchTwentyTwentyTwo),
-			BudgetID:             budget.ID,
-			EnvelopeID:           nil,
-			SourceAccountID:      employerAccount.ID,
-			DestinationAccountID: bankAccount.ID,
-			Reconciled:           true,
-			Amount:               decimal.NewFromFloat(1800),
-		},
-	}
-	err = suite.db.Save(&salaryTransactionFebruary).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Date:                 time.Time(marchTwentyTwentyTwo),
+		BudgetID:             budget.ID,
+		EnvelopeID:           nil,
+		SourceAccountID:      employerAccount.ID,
+		DestinationAccountID: bankAccount.ID,
+		Reconciled:           true,
+		Amount:               decimal.NewFromFloat(2800),
+	})
 
-	salaryTransactionMarch := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Time(marchTwentyTwentyTwo),
-			BudgetID:             budget.ID,
-			EnvelopeID:           nil,
-			SourceAccountID:      employerAccount.ID,
-			DestinationAccountID: bankAccount.ID,
-			Reconciled:           true,
-			Amount:               decimal.NewFromFloat(2800),
-		},
-	}
-	err = suite.db.Save(&salaryTransactionMarch).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Date:                 time.Time(marchTwentyTwentyTwo.AddDate(0, 1)),
+		BudgetID:             budget.ID,
+		EnvelopeID:           nil,
+		SourceAccountID:      employerAccount.ID,
+		DestinationAccountID: bankAccount.ID,
+		Reconciled:           true,
+		Amount:               decimal.NewFromFloat(2800),
+	})
 
-	salaryTransactionApril := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Time(marchTwentyTwentyTwo.AddDate(0, 1)),
-			BudgetID:             budget.ID,
-			EnvelopeID:           nil,
-			SourceAccountID:      employerAccount.ID,
-			DestinationAccountID: bankAccount.ID,
-			Reconciled:           true,
-			Amount:               decimal.NewFromFloat(2800),
-		},
-	}
-	err = suite.db.Save(&salaryTransactionApril).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Date:                 time.Time(marchTwentyTwentyTwo),
+		BudgetID:             budget.ID,
+		EnvelopeID:           &envelope.ID,
+		SourceAccountID:      bankAccount.ID,
+		DestinationAccountID: groceryAccount.ID,
+		Amount:               decimal.NewFromFloat(87.45),
+	})
 
-	outgoingTransactionBank := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Time(marchTwentyTwentyTwo),
-			BudgetID:             budget.ID,
-			EnvelopeID:           &envelope.ID,
-			SourceAccountID:      bankAccount.ID,
-			DestinationAccountID: groceryAccount.ID,
-			Amount:               decimal.NewFromFloat(87.45),
-		},
-	}
-	err = suite.db.Save(&outgoingTransactionBank).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Date:                 time.Time(marchTwentyTwentyTwo),
+		BudgetID:             budget.ID,
+		EnvelopeID:           &envelope.ID,
+		SourceAccountID:      cashAccount.ID,
+		DestinationAccountID: groceryAccount.ID,
+		Amount:               decimal.NewFromFloat(23.17),
+	})
 
-	outgoingTransactionCash := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Time(marchTwentyTwentyTwo),
-			BudgetID:             budget.ID,
-			EnvelopeID:           &envelope.ID,
-			SourceAccountID:      cashAccount.ID,
-			DestinationAccountID: groceryAccount.ID,
-			Amount:               decimal.NewFromFloat(23.17),
-		},
-	}
-	err = suite.db.Save(&outgoingTransactionCash).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
-
-	overspendTransaction := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date:                 time.Time(marchTwentyTwentyTwo),
-			BudgetID:             budget.ID,
-			SourceAccountID:      cashAccount.ID,
-			DestinationAccountID: groceryAccount.ID,
-			Amount:               decimal.NewFromFloat(20),
-		},
-	}
-	err = suite.db.Save(&overspendTransaction).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Date:                 time.Time(marchTwentyTwentyTwo),
+		BudgetID:             budget.ID,
+		SourceAccountID:      cashAccount.ID,
+		DestinationAccountID: groceryAccount.ID,
+		Amount:               decimal.NewFromFloat(20),
+	})
 
 	// Explicitly call AfterFind since we want the calculations to be done
-	err = budget.AfterFind(suite.db)
+	err := budget.AfterFind(suite.db)
 	assert.Nil(suite.T(), err)
 
 	shouldBalance := decimal.NewFromFloat(7269.38)

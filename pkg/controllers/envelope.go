@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/httperrors"
-	"github.com/envelope-zero/backend/v2/pkg/httputil"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/pkg/httputil"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -126,8 +126,6 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	// TODO: Remove
-	// envelopeObject, _ := co.getEnvelopeResource(c, envelope.ID)
 	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelope})
 }
 
@@ -238,7 +236,6 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 
 	envelope, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
 	if !ok {
-		httperrors.Handler(c, err)
 		return
 	}
 
@@ -296,8 +293,6 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	// TODO: Remove
-	// envelopeObject, _ := co.getEnvelopeResource(c, envelope.ID)
 	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelope})
 }
 

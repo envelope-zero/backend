@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/pkg/controllers"
-	"github.com/envelope-zero/backend/v2/pkg/models"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v3/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -41,7 +41,6 @@ func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v2/transactions", tSlice)
 	assertHTTPStatus(suite.T(), &r, expectedStatus...)
 
-	// TODO: This needs to be updated - the response here is []controllers.Response
 	var tr []controllers.TransactionResponse
 	suite.decodeResponse(&r, &tr)
 
@@ -50,8 +49,8 @@ func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate
 
 func (suite *TestSuiteStandard) TestTransactionsCreate() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.Data.ID})
+	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate Internal"})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate External"})
 
 	tests := []struct {
 		name           string
@@ -176,9 +175,9 @@ func (suite *TestSuiteStandard) TestGetTransactionsInvalidQuery() {
 func (suite *TestSuiteStandard) TestGetTransactionsFilter() {
 	b := suite.createTestBudget(models.BudgetCreate{})
 
-	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID})
-	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID})
-	a3 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID})
+	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestGetTransactionsFilter 1"})
+	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestGetTransactionsFilter 2"})
+	a3 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestGetTransactionsFilter 3"})
 
 	c := suite.createTestCategory(models.CategoryCreate{BudgetID: b.Data.ID})
 
@@ -347,7 +346,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionMissingData() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
-	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID})
+	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "TestCreateTransactionMissingData"})
 
 	tests := []struct {
 		name   string
@@ -428,7 +427,7 @@ func (suite *TestSuiteStandard) TestCreateNegativeAmountTransaction() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
-	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID})
+	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "TestCreateNegativeAmountTransaction"})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", models.TransactionCreate{
 		BudgetID:             budget.Data.ID,
@@ -679,7 +678,7 @@ func (suite *TestSuiteStandard) TestTransactionSourceDestinationExternal() {
 		TransactionCreate: models.TransactionCreate{
 			BudgetID:             suite.createTestBudget(models.BudgetCreate{}).Data.ID,
 			SourceAccountID:      suite.createTestAccount(models.AccountCreate{External: true, Name: "SourceDestinationExternal Source"}).Data.ID,
-			DestinationAccountID: suite.createTestAccount(models.AccountCreate{External: true}).Data.ID,
+			DestinationAccountID: suite.createTestAccount(models.AccountCreate{External: true, Name: "TestTransactionSourceDestinationExternal Destination"}).Data.ID,
 			Amount:               decimal.NewFromFloat(12),
 		},
 	})
@@ -694,8 +693,8 @@ func (suite *TestSuiteStandard) TestTransactionSourceDestinationExternal() {
 		Amount: decimal.NewFromFloat(11),
 	})
 	r = test.Request(suite.controller, suite.T(), http.MethodPatch, transaction.Data.Links.Self, map[string]any{
-		"sourceAccountId":      suite.createTestAccount(models.AccountCreate{External: true}).Data.ID,
-		"destinationAccountId": suite.createTestAccount(models.AccountCreate{External: true}).Data.ID,
+		"sourceAccountId":      suite.createTestAccount(models.AccountCreate{External: true, Name: "TestTransactionSourceDestinationExternal Inline Source"}).Data.ID,
+		"destinationAccountId": suite.createTestAccount(models.AccountCreate{External: true, Name: "TestTransactionSourceDestinationExternal Inline Destination"}).Data.ID,
 	})
 	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 

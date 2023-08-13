@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/envelope-zero/backend/v2/pkg/controllers"
-	"github.com/envelope-zero/backend/v2/pkg/models"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v3/test"
 )
 
 // TODO: migrate all createTest* methods to functions with *testing.T as first argument.

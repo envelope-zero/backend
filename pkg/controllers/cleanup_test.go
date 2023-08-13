@@ -5,16 +5,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/models"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v3/test"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *TestSuiteStandard) TestCleanup() {
 	_ = suite.createTestBudget(models.BudgetCreate{})
-	_ = suite.createTestAccount(models.AccountCreate{})
+	_ = suite.createTestAccount(models.AccountCreate{Name: "TestCleanup"})
 	_ = suite.createTestCategory(models.CategoryCreate{})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
 	_ = suite.createTestAllocation(models.AllocationCreate{})

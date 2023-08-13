@@ -10,9 +10,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/envelope-zero/backend/v2/pkg/controllers"
-	"github.com/envelope-zero/backend/v2/pkg/database"
-	"github.com/envelope-zero/backend/v2/pkg/router"
+	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/database"
+	"github.com/envelope-zero/backend/v3/pkg/router"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

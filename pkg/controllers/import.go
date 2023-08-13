@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/envelope-zero/backend/v2/pkg/httperrors"
-	"github.com/envelope-zero/backend/v2/pkg/httputil"
-	"github.com/envelope-zero/backend/v2/pkg/importer"
-	ynabimport "github.com/envelope-zero/backend/v2/pkg/importer/parser/ynab-import"
-	"github.com/envelope-zero/backend/v2/pkg/importer/parser/ynab4"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/pkg/httputil"
+	"github.com/envelope-zero/backend/v3/pkg/importer"
+	ynabimport "github.com/envelope-zero/backend/v3/pkg/importer/parser/ynab-import"
+	"github.com/envelope-zero/backend/v3/pkg/importer/parser/ynab4"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ryanuber/go-glob"
@@ -319,31 +319,30 @@ func findAccounts(co Controller, transaction *importer.TransactionPreview, budge
 		name = transaction.SourceAccountName
 	}
 
-	var accounts []models.Account
-	co.DB.Where(models.Account{
+	var account models.Account
+	err := co.DB.Where(models.Account{
 		AccountCreate: models.AccountCreate{
 			Name:     name,
 			BudgetID: budgetID,
 			Hidden:   false,
 		},
 	},
-		// Explicitly specfiy search fields since we use a zero value for Hidden
-		"Name", "BudgetID", "Hidden").Find(&accounts)
+		// Account Names are unique, therefore only one can match
+		"Name", "BudgetID", "Hidden").First(&account).Error
 
-	// We cannot determine correctly which account should be used if there are
-	// multiple accounts, therefore we skip
-	//
-	// We also continue if no accounts are found
-	if len(accounts) != 1 {
+	// Abort if no accounts are found, but with no error
+	// since this is an expected case - there might just
+	// not be a matching account
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
 
 	// Set source or destination, depending on which one we checked for
-	if accounts[0].ID != uuid.Nil {
+	if account.ID != uuid.Nil {
 		if transaction.SourceAccountName != "" {
-			transaction.Transaction.SourceAccountID = accounts[0].ID
+			transaction.Transaction.SourceAccountID = account.ID
 		} else {
-			transaction.Transaction.DestinationAccountID = accounts[0].ID
+			transaction.Transaction.DestinationAccountID = account.ID
 		}
 	}
 

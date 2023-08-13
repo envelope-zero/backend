@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
@@ -63,37 +63,47 @@ func GenericDBError[T models.Model](r T, c *gin.Context, err error) ErrorStatus 
 func DBError(c *gin.Context, err error) ErrorStatus {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrorStatus{Status: http.StatusNotFound, Err: errors.New("there is no resource for the ID you specified")}
+	}
 
-		// Source and destination accounts need to be different
-	} else if strings.Contains(err.Error(), "CHECK constraint failed: source_destination_different") {
-		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("source and destination accounts for a transaction must be different")}
+	// Account name must be unique per Budget
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id") {
+		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("the account name must be unique for the budget")}
+	}
 
-		// Category names need to be unique per budget
-	} else if strings.Contains(err.Error(), "UNIQUE constraint failed: categories.name, categories.budget_id") {
+	// Category names need to be unique per budget
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: categories.name, categories.budget_id") {
 		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("the category name must be unique for the budget")}
+	}
 
-		// Envelope names need to be unique per category
-	} else if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.name, envelopes.category_id") {
+	// Unique envelope names per category
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.name, envelopes.category_id") {
 		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("the envelope name must be unique for the category")}
+	}
 
-		// Only one allocation per envelope per month
-	} else if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month, allocations.envelope_id") {
+	// Only one allocation per envelope per month
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month, allocations.envelope_id") {
 		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("you can not create multiple allocations for the same month")}
+	}
 
-		// General message when a field references a non-existing resource
-	} else if strings.Contains(err.Error(), "constraint failed: FOREIGN KEY constraint failed") {
+	// Source and destination accounts need to be different
+	if strings.Contains(err.Error(), "CHECK constraint failed: source_destination_different") {
+		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("source and destination accounts for a transaction must be different")}
+	}
+
+	// General message when a field references a non-existing resource
+	if strings.Contains(err.Error(), "constraint failed: FOREIGN KEY constraint failed") {
 		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("there is no resource for the ID you specificed in the reference to another resource")}
+	}
 
-		// Database is read only or file has been deleted
-	} else if strings.Contains(err.Error(), "attempt to write a readonly database (1032)") {
+	// Database is read only or file has been deleted
+	if strings.Contains(err.Error(), "attempt to write a readonly database (1032)") {
 		log.Error().Msgf("Database is in read-only mode. This might be due to the file being deleted: %#v", err)
 		return ErrorStatus{Status: http.StatusInternalServerError, Err: errors.New("the database is currently in read-only mode, please try again later")}
-
-		// A general error we do not know more about
-	} else {
-		log.Error().Msgf("%T: %v", err, err.Error())
-		return ErrorStatus{Status: http.StatusInternalServerError, Err: fmt.Errorf("an error occurred on the server during your request, please contact your server administrator. The request id is '%v', send this to your server administrator to help them finding the problem", requestid.Get(c))}
 	}
+
+	// A general error we do not know more about
+	log.Error().Msgf("%T: %v", err, err.Error())
+	return ErrorStatus{Status: http.StatusInternalServerError, Err: fmt.Errorf("an error occurred on the server during your request, please contact your server administrator. The request id is '%v', send this to your server administrator to help them finding the problem", requestid.Get(c))}
 }
 
 // Handler handles errors for fetching data from the database.

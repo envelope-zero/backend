@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v2/pkg/httperrors"
-	"github.com/envelope-zero/backend/v2/pkg/models"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
 )

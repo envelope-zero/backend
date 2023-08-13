@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/internal/types"
-	"github.com/envelope-zero/backend/v2/pkg/controllers"
-	"github.com/envelope-zero/backend/v2/pkg/models"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v3/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -239,8 +239,8 @@ func (suite *TestSuiteStandard) TestBudgetMonth() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
-	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, OnBudget: true})
-	externalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, External: true})
+	account := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestBudgetMonth Internal"})
+	externalAccount := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, External: true, Name: "TestBudgetMonth External"})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
 		EnvelopeID: envelope.Data.ID,
@@ -607,8 +607,8 @@ func (suite *TestSuiteStandard) TestSetAllocationsMonthBudgeted() {
 
 func (suite *TestSuiteStandard) TestSetAllocationsMonthSpend() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	cashAccount := suite.createTestAccount(models.AccountCreate{External: false, OnBudget: true})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true})
+	cashAccount := suite.createTestAccount(models.AccountCreate{External: false, OnBudget: true, Name: "TestSetAllocationsMonthSpend Internal"})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, Name: "TestSetAllocationsMonthSpend External"})
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.Data.ID})
@@ -689,12 +689,14 @@ func (suite *TestSuiteStandard) TestBudgetBalanceDoubleRegression() {
 		BudgetID: budget.Data.ID,
 		OnBudget: true,
 		External: false,
+		Name:     "TestBudgetBalanceDoubleRegression Internal",
 	})
 
 	externalAccount := suite.createTestAccount(models.AccountCreate{
 		BudgetID: budget.Data.ID,
 		OnBudget: true,
 		External: true,
+		Name:     "TestBudgetBalanceDoubleRegression External",
 	})
 
 	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID})

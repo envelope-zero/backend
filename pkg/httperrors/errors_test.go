@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v2/pkg/httperrors"
-	"github.com/envelope-zero/backend/v2/test"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/test"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
 	"github.com/shopspring/decimal"
@@ -172,6 +172,7 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		msg  string
 	}{
 		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "source and destination accounts for a transaction must be different"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: accounts.name, accounts.budget_id", "the account name must be unique for the budget"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "the envelope name must be unique for the category"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "you can not create multiple allocations for the same month"},

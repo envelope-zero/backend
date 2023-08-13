@@ -2,114 +2,67 @@ package models
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Migrate migrates all models to the schema defined in the code.
-func Migrate(db *gorm.DB) error {
-	err := db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, RenameRule{})
-	if err != nil {
-		return fmt.Errorf("error during DB migration: %w", err)
-	}
-
-	queries := []*gorm.DB{
-		/*
-		 * Workaround for https://github.com/go-gorm/gorm/issues/5968
-		 * Remove with 3.0.0
-		 *
-		 * With this, remove the e.UUID != uuid.Nil check in the Envelope.BeforeUpdate method
-		 */
-		// Account
-		db.Unscoped().Model(&Account{}).Select("OnBudget").Where("accounts.on_budget IS NULL").Update("OnBudget", false),
-		db.Unscoped().Model(&Account{}).Select("External").Where("accounts.external IS NULL").Update("External", false),
-		db.Unscoped().Model(&Account{}).Select("Hidden").Where("accounts.hidden IS NULL").Update("Hidden", false),
-		// Category
-		db.Unscoped().Model(&Category{}).Select("Hidden").Where("categories.hidden IS NULL").Update("Hidden", false),
-		// Envelope
-		db.Unscoped().Model(&Envelope{}).Select("Hidden").Where("envelopes.hidden IS NULL").Update("Hidden", false),
-		// Transaction
-		db.Unscoped().Model(&Transaction{}).Select("Reconciled").Where("transactions.reconciled IS NULL").Update("Reconciled", false),
-		db.Unscoped().Model(&Transaction{}).Select("ReconciledSource").Where("transactions.reconciled_source IS NULL").Update("ReconciledSource", false),
-		db.Unscoped().Model(&Transaction{}).Select("ReconciledDestination").Where("transactions.reconciled_destination IS NULL").Update("ReconciledDestination", false),
-
-		// Delete allocations with an amount of 0
-		db.Unscoped().Model(&Allocation{}).Where("amount IS '0'").Delete(&Allocation{}),
-	}
-	for i, query := range queries {
-		err = query.Error
+func Migrate(db *gorm.DB) (err error) {
+	// Migration for https://github.com/envelope-zero/backend/issues/684
+	// Remove with 4.0.0
+	// This migration is done before the AutoMigrate since AutoMigrate will introduce
+	// new unique constraints that this migration ensures are fulfilled for existing
+	// transactions
+	if db.Migrator().HasTable(&Account{}) {
+		err = migrateDuplicateAccountNames(db)
 		if err != nil {
-			return fmt.Errorf("error during DB migration for migration %d: %w", i+1, err)
+			return fmt.Errorf("error during migrateDuplicateAccountNames: %w", err)
 		}
 	}
 
-	/*
-	 * Complex migrations
-	 */
-
-	// Migration for https://github.com/envelope-zero/backend/issues/628.
-	// Remove with 3.0.0
-	err = migrateImportHashString(db)
+	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, RenameRule{})
 	if err != nil {
-		return fmt.Errorf("error during migrateImportHashString: %w", err)
+		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
 	return nil
 }
 
-// migrateImportHashString migrates the string representation of the SHA256 hash as byte array
-// to a hex string representation of the hash to use the common way of representing SHA256 hashes.
-// See https://github.com/envelope-zero/backend/issues/628.
-func migrateImportHashString(db *gorm.DB) (err error) {
-	var accounts []Account
-	err = db.Unscoped().Where("import_hash LIKE '[%'").Find(&accounts).Error
-	if err != nil {
-		return err
+// migrateDuplicateAccountNames migrates duplicate account names to be unique.
+func migrateDuplicateAccountNames(db *gorm.DB) (err error) {
+	type Duplicate struct {
+		BudgetID uuid.UUID
+		Name     string
 	}
 
-	for _, account := range accounts {
-		// The string looks like this: "[40 52 207 7 118 61 80 107 178 242 5 47 211 161 180 135 104 222 118 28 56 12 33 63 179 78 39 173 206 11 77 3]"
-		// With trimming and splitting it, we get a slice containing every individual number
-		bytes := strings.Split(strings.TrimRight(strings.TrimLeft(account.ImportHash, "["), "]"), " ")
+	// Get a list of budget ID and account name for all budgets that have duplicate account names
+	var duplicates []Duplicate
+	err = db.Raw("select budget_id, name, COUNT(*) from accounts GROUP BY budget_id, name having count(*) > 1").Scan(&duplicates).Error
+	if err != nil {
+		return
+	}
 
-		// Assemble the slice back to a string. We pad with zeroes so that every byte takes two characters
-		var b strings.Builder
-		for _, part := range bytes {
-			// Need to convert to int first so that it's interpreted correctly
-			charAsInt, _ := strconv.Atoi(part)
-			b.WriteString(fmt.Sprintf("%02x", byte(charAsInt)))
+	for _, d := range duplicates {
+		var accounts []Account
+
+		// Find all accounts that have a duplicate name
+		err = db.Unscoped().Where(Account{AccountCreate: AccountCreate{
+			BudgetID: d.BudgetID,
+			Name:     d.Name,
+		}}).Find(&accounts).Error
+		if err != nil {
+			return
 		}
 
-		// Save the record back to the DB
-		account.ImportHash = b.String()
-		db.Unscoped().Save(&account)
-	}
-
-	var transactions []Transaction
-	err = db.Unscoped().Where("import_hash LIKE '[%'").Find(&transactions).Error
-	if err != nil {
-		return err
-	}
-
-	for _, transaction := range transactions {
-		// The string looks like this: "[40 52 207 7 118 61 80 107 178 242 5 47 211 161 180 135 104 222 118 28 56 12 33 63 179 78 39 173 206 11 77 3]"
-		// With trimming and splitting it, we get a slice containing every individual number
-		bytes := strings.Split(strings.TrimRight(strings.TrimLeft(transaction.ImportHash, "["), "]"), " ")
-
-		// Assemble the slice back to a string. We pad with zeroes so that every byte takes two characters
-		var b strings.Builder
-		for _, part := range bytes {
-			// Need to convert to int first so that it's interpreted correctly
-			charAsInt, _ := strconv.Atoi(part)
-			b.WriteString(fmt.Sprintf("%02x", byte(charAsInt)))
+		for i, a := range accounts {
+			a.Name = fmt.Sprintf("%s (%d)", a.Name, i+1)
+			err = db.Save(&a).Error
+			if err != nil {
+				return
+			}
 		}
-
-		// Save the record back to the DB
-		transaction.ImportHash = b.String()
-		db.Unscoped().Save(&transaction)
 	}
 
-	return
+	return nil
 }

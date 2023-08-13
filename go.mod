@@ -1,4 +1,4 @@
-module github.com/envelope-zero/backend/v2
+module github.com/envelope-zero/backend/v3
 
 go 1.19
 
