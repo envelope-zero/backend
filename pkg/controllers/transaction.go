@@ -97,6 +97,7 @@ func (co Controller) checkTransaction(c *gin.Context, transaction models.Transac
 	// Check envelope being set for transfer between on-budget accounts
 	if transaction.EnvelopeID != nil {
 		if source.OnBudget && destination.OnBudget {
+			// TODO: Verify this state in the model hooks
 			return httperrors.ErrorStatus{Err: errors.New("transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible"), Status: http.StatusBadRequest}
 		}
 		_, err := getResourceByID[models.Envelope](c, co, *transaction.EnvelopeID)
