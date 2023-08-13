@@ -26,6 +26,13 @@ func Migrate(db *gorm.DB) (err error) {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
+	// Migration for https://github.com/envelope-zero/backend/issues/613
+	// Remove with 4.0.0
+	err = unsetEnvelopes(db)
+	if err != nil {
+		return fmt.Errorf("error during unsetEnvelopes: %w", err)
+	}
+
 	return nil
 }
 
@@ -65,4 +72,36 @@ func migrateDuplicateAccountNames(db *gorm.DB) (err error) {
 	}
 
 	return nil
+}
+
+// unsetEnvelopes removes the envelopes from transfers between
+// accounts that are on budget.
+func unsetEnvelopes(db *gorm.DB) (err error) {
+	var accounts []Account
+	err = db.Where(&Account{AccountCreate: AccountCreate{
+		OnBudget: true,
+	}}).Find(&accounts).Error
+	if err != nil {
+		return
+	}
+
+	for _, a := range accounts {
+		var transactions []Transaction
+		err = db.Model(&Transaction{}).
+			Joins("JOIN accounts ON transactions.source_account_id = accounts.id").
+			Where("destination_account_id = ? AND accounts.on_budget AND envelope_id not null", a.ID).
+			Find(&transactions).Error
+		if err != nil {
+			return
+		}
+
+		for _, t := range transactions {
+			err = db.Model(&t).Select("EnvelopeID").Updates(map[string]interface{}{"EnvelopeID": nil}).Error
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	return
 }

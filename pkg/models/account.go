@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
@@ -71,6 +72,35 @@ func (a *Account) links(tx *gorm.DB) {
 	url := tx.Statement.Context.Value(database.ContextURL)
 	a.Links.Self = fmt.Sprintf("%s/v1/accounts/%s", url, a.ID)
 	a.Links.Transactions = fmt.Sprintf("%s/v1/transactions?account=%s", url, a.ID)
+}
+
+// BeforeUpdate verifies the state of the account before
+// committing an update to the database.
+func (a *Account) BeforeUpdate(tx *gorm.DB) (err error) {
+	// Account is being set to be on budget, verify that no transactions
+	// with this account as destination has an envelope set
+	if tx.Statement.Changed("OnBudget") && !a.OnBudget {
+		var transactions []Transaction
+		err = tx.Model(&Transaction{}).
+			Joins("JOIN accounts ON transactions.source_account_id = accounts.id").
+			Where("destination_account_id = ? AND accounts.on_budget AND envelope_id not null", a.ID).
+			Find(&transactions).Error
+		if err != nil {
+			return
+		}
+
+		if len(transactions) > 0 {
+			strs := make([]string, len(transactions))
+			for i, t := range transactions {
+				strs[i] = t.ID.String()
+			}
+
+			ids := strings.Join(strs, ",")
+			return fmt.Errorf("the account cannot be set to on budget because the following transactions have an envelope set: %s", ids)
+		}
+	}
+
+	return nil
 }
 
 // BeforeSave sets OnBudget to false when External is true.

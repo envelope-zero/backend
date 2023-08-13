@@ -304,3 +304,99 @@ func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
 
 	suite.Assert().Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id", "Error message for account creation fail does not match expected message")
 }
+
+func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes() {
+	budget := suite.createTestBudget(models.BudgetCreate{
+		Name: "TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes",
+	})
+
+	account := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		OnBudget: true,
+		External: false,
+		Name:     "TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes",
+	})
+
+	transferTargetAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		OnBudget: false,
+		External: false,
+		Name:     "TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes:Target",
+	})
+
+	category := suite.createTestCategory(models.CategoryCreate{
+		BudgetID: budget.ID,
+	})
+
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+		CategoryID: category.ID,
+	})
+
+	t := suite.createTestTransaction(models.TransactionCreate{
+		Amount:               decimal.NewFromFloat(17.23),
+		BudgetID:             budget.ID,
+		SourceAccountID:      account.ID,
+		DestinationAccountID: transferTargetAccount.ID,
+		EnvelopeID:           &envelope.ID,
+	})
+
+	// Try saving the account, which must fail
+	data := models.Account{AccountCreate: models.AccountCreate{OnBudget: true}}
+	err := suite.db.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
+
+	if !assert.NotNil(suite.T(), err, "Target account could be updated to be on budget while having transactions with envelopes being set") {
+		assert.FailNow(suite.T(), "Exiting because assertion was not met")
+	}
+	assert.Contains(suite.T(), err.Error(), "the account cannot be set to on budget because the following transactions have an envelope set: ")
+
+	// Update the envelope for the transaction
+	t.EnvelopeID = nil
+	err = suite.db.Save(&t).Error
+	assert.Nil(suite.T(), err, "Transaction could not be updated")
+
+	// Save again
+	err = suite.db.Save(&transferTargetAccount).Error
+	assert.Nil(suite.T(), err, "Target account could not be updated despite transaction having its envelope removed")
+}
+
+func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes() {
+	budget := suite.createTestBudget(models.BudgetCreate{
+		Name: "TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes",
+	})
+
+	account := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		OnBudget: false,
+		External: false,
+		Name:     "TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes",
+	})
+
+	transferTargetAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		OnBudget: false,
+		External: false,
+		Name:     "TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes:Target",
+	})
+
+	category := suite.createTestCategory(models.CategoryCreate{
+		BudgetID: budget.ID,
+	})
+
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+		CategoryID: category.ID,
+	})
+
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Amount:               decimal.NewFromFloat(17.23),
+		BudgetID:             budget.ID,
+		SourceAccountID:      account.ID,
+		DestinationAccountID: transferTargetAccount.ID,
+		EnvelopeID:           &envelope.ID,
+	})
+
+	// Try saving the account, which must work
+	data := models.Account{AccountCreate: models.AccountCreate{OnBudget: true}}
+	err := suite.db.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
+
+	assert.Nil(suite.T(), err, "Target account could not be updated to be on budget, but it does not have transactions with envelopes being set")
+}
