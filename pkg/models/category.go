@@ -48,3 +48,27 @@ func (c *Category) links(tx *gorm.DB) {
 	c.Links.Self = fmt.Sprintf("%s/v1/categories/%s", url, c.ID)
 	c.Links.Envelopes = fmt.Sprintf("%s/v1/envelopes?category=%s", url, c.ID)
 }
+
+// BeforeUpdate archives all envelopes when the category is archived.
+func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
+	if tx.Statement.Changed("Hidden") && !c.Hidden {
+		var envelopes []Envelope
+		err = tx.Model(&Envelope{EnvelopeCreate: EnvelopeCreate{
+			CategoryID: c.ID,
+		}}).
+			Find(&envelopes).Error
+		if err != nil {
+			return
+		}
+
+		for _, e := range envelopes {
+			e.Hidden = true
+			err = tx.Model(&e).Updates(&e).Error
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	return nil
+}
