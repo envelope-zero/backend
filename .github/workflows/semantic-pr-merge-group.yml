@@ -1,0 +1,11 @@
+name: "[Skip] Lint PR"
+
+on:
+  merge_group:
+
+jobs:
+  semantic-pull-request:
+    name: Semantic Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Looking good!"
