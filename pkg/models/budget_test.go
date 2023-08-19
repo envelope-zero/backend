@@ -174,11 +174,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 }
 
 func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
-	budget := models.Budget{}
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	budget := suite.createTestBudget(models.BudgetCreate{})
 
 	income, err := budget.Income(suite.db, types.NewMonth(2022, 3))
 	assert.Nil(suite.T(), err)
@@ -186,31 +182,21 @@ func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
-	budget := models.Budget{}
-
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	budget := suite.createTestBudget(models.BudgetCreate{})
 
 	suite.CloseDB()
 
-	_, err = budget.Income(suite.db, types.NewMonth(1995, 2))
+	_, err := budget.Income(suite.db, types.NewMonth(1995, 2))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
 
 func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
-	budget := models.Budget{}
-
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	budget := suite.createTestBudget(models.BudgetCreate{})
 
 	suite.CloseDB()
 
-	_, err = budget.Allocated(suite.db, types.NewMonth(200, 2))
+	_, err := budget.Allocated(suite.db, types.NewMonth(200, 2))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }

@@ -12,90 +12,49 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestAccountCalculations() {
-	budget := models.Budget{}
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
-
+	budget := suite.createTestBudget(models.BudgetCreate{})
 	initialBalanceDate := time.Now()
 
-	account := models.Account{
-		AccountCreate: models.AccountCreate{
-			Name:               "TestAccountCalculations",
-			BudgetID:           budget.ID,
-			OnBudget:           true,
-			External:           false,
-			InitialBalance:     decimal.NewFromFloat(170),
-			InitialBalanceDate: &initialBalanceDate,
-		},
-	}
-	err = suite.db.Save(&account).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	account := suite.createTestAccount(models.AccountCreate{
+		Name:               "TestAccountCalculations",
+		BudgetID:           budget.ID,
+		OnBudget:           true,
+		External:           false,
+		InitialBalance:     decimal.NewFromFloat(170),
+		InitialBalanceDate: &initialBalanceDate,
+	})
 
-	externalAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			External: true,
-		},
-	}
-	err = suite.db.Save(&externalAccount).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	externalAccount := suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		External: true,
+	})
 
-	category := models.Category{
-		CategoryCreate: models.CategoryCreate{
-			BudgetID: budget.ID,
-		},
-	}
-	err = suite.db.Save(&category).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	category := suite.createTestCategory(models.CategoryCreate{
+		BudgetID: budget.ID,
+	})
 
-	envelope := models.Envelope{
-		EnvelopeCreate: models.EnvelopeCreate{
-			CategoryID: category.ID,
-		},
-	}
-	err = suite.db.Save(&envelope).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+		CategoryID: category.ID,
+	})
 
-	incomingTransaction := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			BudgetID:             budget.ID,
-			EnvelopeID:           &envelope.ID,
-			SourceAccountID:      externalAccount.ID,
-			DestinationAccountID: account.ID,
-			Reconciled:           true,
-			Amount:               decimal.NewFromFloat(32.17),
-		},
-	}
-	err = suite.db.Save(&incomingTransaction).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	incomingTransaction := suite.createTestTransaction(models.TransactionCreate{
+		BudgetID:             budget.ID,
+		EnvelopeID:           &envelope.ID,
+		SourceAccountID:      externalAccount.ID,
+		DestinationAccountID: account.ID,
+		Reconciled:           true,
+		Amount:               decimal.NewFromFloat(32.17),
+	})
 
-	outgoingTransaction := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			BudgetID:             budget.ID,
-			EnvelopeID:           &envelope.ID,
-			SourceAccountID:      account.ID,
-			DestinationAccountID: externalAccount.ID,
-			Amount:               decimal.NewFromFloat(17.45),
-		},
-	}
-	err = suite.db.Save(&outgoingTransaction).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	outgoingTransaction := suite.createTestTransaction(models.TransactionCreate{
+		BudgetID:             budget.ID,
+		EnvelopeID:           &envelope.ID,
+		SourceAccountID:      account.ID,
+		DestinationAccountID: externalAccount.ID,
+		Amount:               decimal.NewFromFloat(17.45),
+	})
 
-	futureIncomeTransaction := suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.TransactionCreate{
 		BudgetID:             budget.ID,
 		SourceAccountID:      externalAccount.ID,
 		DestinationAccountID: account.ID,
@@ -103,10 +62,6 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		AvailableFrom:        types.MonthOf(time.Now()).AddDate(0, 1),
 		Note:                 "Future Income Transaction",
 	})
-	err = suite.db.Save(&futureIncomeTransaction).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
 
 	a, err := account.WithCalculations(suite.db)
 	assert.Nil(suite.T(), err)
@@ -179,11 +134,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudget() {
 }
 
 func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
-	budget := models.Budget{}
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Budget could not be saved", err)
-	}
+	budget := suite.createTestBudget(models.BudgetCreate{})
 
 	account := suite.createTestAccount(models.AccountCreate{
 		BudgetID:       budget.ID,
@@ -205,15 +156,10 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 
 	envelopeIDs := []*uuid.UUID{}
 	for i := 1; i <= 3; i++ {
-		envelope := &models.Envelope{
-			EnvelopeCreate: models.EnvelopeCreate{
-				CategoryID: category.ID,
-				Name:       strconv.Itoa(i),
-			},
-		}
-		if err = suite.db.Save(&envelope).Error; err != nil {
-			suite.Assert().Fail("Resource could not be saved", err)
-		}
+		envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+			CategoryID: category.ID,
+			Name:       strconv.Itoa(i),
+		})
 
 		envelopeIDs = append(envelopeIDs, &envelope.ID)
 	}
@@ -227,19 +173,13 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		if i > 5 {
 			eIndex = 2
 		}
-		transaction := models.Transaction{
-			TransactionCreate: models.TransactionCreate{
-				BudgetID:             budget.ID,
-				EnvelopeID:           envelopeIDs[eIndex%3],
-				SourceAccountID:      account.ID,
-				DestinationAccountID: externalAccount.ID,
-				Amount:               decimal.NewFromFloat(17.45),
-			},
-		}
-		err = suite.db.Save(&transaction).Error
-		if err != nil {
-			suite.Assert().FailNow("Resource could not be saved", err)
-		}
+		_ = suite.createTestTransaction(models.TransactionCreate{
+			BudgetID:             budget.ID,
+			EnvelopeID:           envelopeIDs[eIndex%3],
+			SourceAccountID:      account.ID,
+			DestinationAccountID: externalAccount.ID,
+			Amount:               decimal.NewFromFloat(17.45),
+		})
 	}
 
 	recent, err := externalAccount.RecentEnvelopes(suite.db)
@@ -272,22 +212,12 @@ func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
 
 // TestAccountDuplicateNames ensures that two accounts cannot have the same name.
 func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
-	budget := models.Budget{}
-	err := suite.db.Save(&budget).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	budget := suite.createTestBudget(models.BudgetCreate{})
 
-	account := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			Name:     "TestAccountDuplicateNames",
-		},
-	}
-	err = suite.db.Save(&account).Error
-	if err != nil {
-		suite.Assert().Fail("Resource could not be saved", err)
-	}
+	_ = suite.createTestAccount(models.AccountCreate{
+		BudgetID: budget.ID,
+		Name:     "TestAccountDuplicateNames",
+	})
 
 	externalAccount := models.Account{
 		AccountCreate: models.AccountCreate{
@@ -296,7 +226,7 @@ func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
 			External: true,
 		},
 	}
-	err = suite.db.Save(&externalAccount).Error
+	err := suite.db.Save(&externalAccount).Error
 	if err == nil {
 		suite.Assert().Fail("Account with the same name than another account could be saved. This must not be possible", err)
 		return
@@ -351,11 +281,11 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 
 	// Update the envelope for the transaction
 	t.EnvelopeID = nil
-	err = suite.db.Save(&t).Error
+	err = suite.db.Model(&t).Updates(&t).Error
 	assert.Nil(suite.T(), err, "Transaction could not be updated")
 
 	// Save again
-	err = suite.db.Save(&transferTargetAccount).Error
+	err = suite.db.Model(&transferTargetAccount).Updates(&transferTargetAccount).Error
 	assert.Nil(suite.T(), err, "Target account could not be updated despite transaction having its envelope removed")
 }
 
