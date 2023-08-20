@@ -12,23 +12,23 @@ import (
 )
 
 type EnvelopeListResponse struct {
-	Data []models.Envelope `json:"data"`
+	Data []models.Envelope `json:"data"` // List of Envelopes
 }
 
 type EnvelopeResponse struct {
-	Data models.Envelope `json:"data"`
+	Data models.Envelope `json:"data"` // Data for the Envelope
 }
 
 type EnvelopeMonthResponse struct {
-	Data models.EnvelopeMonth `json:"data"`
+	Data models.EnvelopeMonth `json:"data"` // Data for the month for the envelope
 }
 
 type EnvelopeQueryFilter struct {
-	Name       string `form:"name" filterField:"false"`
-	CategoryID string `form:"category"`
-	Note       string `form:"note" filterField:"false"`
-	Hidden     bool   `form:"hidden"`
-	Search     string `form:"search" filterField:"false"`
+	Name       string `form:"name" filterField:"false"`   // By name
+	CategoryID string `form:"category"`                   // By the ID of the category
+	Note       string `form:"note" filterField:"false"`   // By the note
+	Hidden     bool   `form:"hidden"`                     // Is the envelope archived?
+	Search     string `form:"search" filterField:"false"` // By string in name or note
 }
 
 func (f EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bool) {

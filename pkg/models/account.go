@@ -17,43 +17,45 @@ type Account struct {
 	DefaultModel
 	AccountCreate
 	Budget            Budget          `json:"-"`
-	Balance           decimal.Decimal `json:"balance" gorm:"-" example:"2735.17"`
-	ReconciledBalance decimal.Decimal `json:"reconciledBalance" gorm:"-" example:"2539.57"`
-	Links             struct {
-		Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
-		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`
+	Balance           decimal.Decimal `json:"balance" gorm:"-" example:"2735.17"`           // Balance of the account, including all transactions referencing it
+	ReconciledBalance decimal.Decimal `json:"reconciledBalance" gorm:"-" example:"2539.57"` // Balance of the account, including all reconciled transactions referencing it
+	RecentEnvelopes   []Envelope      `json:"recentEnvelopes" gorm:"-"`                     // Envelopes recently used with this account
+
+	Links struct {
+		Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`                     // The account itself
+		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"` // Transactions referencing the account
 	} `json:"links" gorm:"-"`
 }
 
 type AccountCreate struct {
-	Name               string          `json:"name" example:"Cash" default:"" gorm:"uniqueIndex:account_name_budget_id"`
-	Note               string          `json:"note" example:"Money in my wallet" default:""`
-	BudgetID           uuid.UUID       `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf" gorm:"uniqueIndex:account_name_budget_id"`
-	OnBudget           bool            `json:"onBudget" example:"true" default:"false"` // Always false when external: true
-	External           bool            `json:"external" example:"false" default:"false"`
-	InitialBalance     decimal.Decimal `json:"initialBalance" example:"173.12" default:"0"`
-	InitialBalanceDate *time.Time      `json:"initialBalanceDate" example:"2017-05-12T00:00:00Z"`
-	Hidden             bool            `json:"hidden" example:"true" default:"false"`
-	ImportHash         string          `json:"importHash" example:"867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70" default:""` // The SHA256 hash of a unique combination of values to use in duplicate detection
+	Name               string          `json:"name" example:"Cash" default:"" gorm:"uniqueIndex:account_name_budget_id"`                          // Name of the account
+	Note               string          `json:"note" example:"Money in my wallet" default:""`                                                      // A longer description for the account
+	BudgetID           uuid.UUID       `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf" gorm:"uniqueIndex:account_name_budget_id"` // ID of the budget this account belongs to
+	OnBudget           bool            `json:"onBudget" example:"true" default:"false"`                                                           // Does the account factor into the available budget? Always false when external: true
+	External           bool            `json:"external" example:"false" default:"false"`                                                          // Does the account belong to the budget owner or not?
+	InitialBalance     decimal.Decimal `json:"initialBalance" example:"173.12" default:"0"`                                                       // Balance of the account before any transactions were recorded
+	InitialBalanceDate *time.Time      `json:"initialBalanceDate" example:"2017-05-12T00:00:00Z"`                                                 // Date of the initial balance
+	Hidden             bool            `json:"hidden" example:"true" default:"false"`                                                             // Is the account archived?
+	ImportHash         string          `json:"importHash" example:"867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70" default:""`  // The SHA256 hash of a unique combination of values to use in duplicate detection
 }
 
 func (a Account) Self() string {
 	return "Account"
 }
 
-func (a Account) WithCalculations(db *gorm.DB) (Account, error) {
+func (a *Account) WithCalculations(db *gorm.DB) error {
 	balance, _, err := a.GetBalanceMonth(db, types.Month{})
 	if err != nil {
-		return Account{}, err
+		return err
 	}
 	a.Balance = balance
 
 	a.ReconciledBalance, err = a.SumReconciled(db)
 	if err != nil {
-		return Account{}, err
+		return err
 	}
 
-	return a, nil
+	return nil
 }
 
 func (a *Account) AfterFind(tx *gorm.DB) (err error) {
@@ -199,12 +201,13 @@ func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, avail
 	return
 }
 
-// RecentEnvelopes returns the most common envelopes used in the last 10
+// SetRecentEnvelopes returns the most common envelopes used in the last 10
 // transactions where the account is the destination account.
 //
 // The list is sorted by decending frequency of the envelope being used.
-func (a Account) RecentEnvelopes(db *gorm.DB) (envelopes []Envelope, err error) {
-	err = db.
+func (a *Account) SetRecentEnvelopes(db *gorm.DB) error {
+	var envelopes []Envelope
+	err := db.
 		Table("transactions").
 		Select("envelopes.*, count(envelopes.id) AS count").
 		Joins("JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
@@ -217,6 +220,10 @@ func (a Account) RecentEnvelopes(db *gorm.DB) (envelopes []Envelope, err error) 
 		Limit(10).
 		Group("envelopes.id").
 		Find(&envelopes).Error
+	if err != nil {
+		return err
+	}
 
-	return
+	a.RecentEnvelopes = envelopes
+	return nil
 }

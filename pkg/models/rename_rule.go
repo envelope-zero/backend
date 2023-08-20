@@ -12,7 +12,7 @@ type RenameRule struct {
 	DefaultModel
 	RenameRuleCreate
 	Links struct {
-		Self string `json:"self" example:"https://example.com/api/v2/rename-rules/95685c82-53c6-455d-b235-f49960b73b21"`
+		Self string `json:"self" example:"https://example.com/api/v2/rename-rules/95685c82-53c6-455d-b235-f49960b73b21"` // The match rule itself
 	} `json:"links" gorm:"-"`
 }
 

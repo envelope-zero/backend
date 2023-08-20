@@ -1,7 +1,7 @@
 package httperrors
 
 type HTTPError struct {
-	Error string `json:"error" example:"An ID specified in the query string was not a valid uint64"`
+	Error string `json:"error" example:"An ID specified in the query string was not a valid UUID"`
 }
 
 // ErrorStatus is used to return an error with the corresponding HTTP status code to a controller.

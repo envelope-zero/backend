@@ -1,5 +1,8 @@
 package controllers
 
+// We use one type per Endpoint so that swagger can parse them - it cannot handle generics yet, see
+// https://github.com/swaggo/swag/issues/1170
+
 import (
 	"github.com/envelope-zero/backend/v3/pkg/models"
 )

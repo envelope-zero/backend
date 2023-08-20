@@ -14,17 +14,17 @@ import (
 )
 
 type AllocationResponse struct {
-	Data models.Allocation `json:"data"`
+	Data models.Allocation `json:"data"` // List of allocations
 }
 
 type AllocationListResponse struct {
-	Data []models.Allocation `json:"data"`
+	Data []models.Allocation `json:"data"` // Data for the allocation
 }
 
 type AllocationQueryFilter struct {
-	Month      string          `form:"month"`
-	Amount     decimal.Decimal `form:"amount"`
-	EnvelopeID string          `form:"envelope"`
+	Month      string          `form:"month"`    // By month
+	Amount     decimal.Decimal `form:"amount"`   // By exact amount
+	EnvelopeID string          `form:"envelope"` // By the Envelope ID
 }
 
 func (f AllocationQueryFilter) Parse(c *gin.Context) (models.AllocationCreate, bool) {

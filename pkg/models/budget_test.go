@@ -417,3 +417,7 @@ func (suite *TestSuiteStandard) TestMonth() {
 		})
 	}
 }
+
+func (suite *TestSuiteStandard) TestBudgetSelf() {
+	assert.Equal(suite.T(), "Budget", models.Budget{}.Self())
+}

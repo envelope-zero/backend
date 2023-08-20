@@ -18,3 +18,7 @@ func (suite *TestSuiteStandard) TestMonthConfigHooks() {
 	err = mConfig.AfterSave(suite.db)
 	assert.Nil(suite.T(), err)
 }
+
+func (suite *TestSuiteStandard) TestMonthConfigSelf() {
+	assert.Equal(suite.T(), "Month Config", models.MonthConfig{}.Self())
+}

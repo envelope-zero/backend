@@ -13,7 +13,7 @@ import (
 )
 
 type MonthResponse struct {
-	Data models.Month `json:"data"`
+	Data models.Month `json:"data"` // Data for the month
 }
 
 // parseMonthQuery takes in the context and parses the request
