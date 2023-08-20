@@ -13,16 +13,16 @@ import (
 )
 
 type MonthConfigResponse struct {
-	Data models.MonthConfig `json:"data"`
+	Data models.MonthConfig `json:"data"` // Data for the month
 }
 
 type MonthConfigListResponse struct {
-	Data []models.MonthConfig `json:"data"`
+	Data []models.MonthConfig `json:"data"` // List of month configs
 }
 
 type MonthConfigQueryFilter struct {
-	EnvelopeID string `form:"envelope"`
-	Month      string `form:"month"`
+	EnvelopeID string `form:"envelope"` // By ID of the envelope
+	Month      string `form:"month"`    // By month
 }
 
 type MonthConfigFilter struct {

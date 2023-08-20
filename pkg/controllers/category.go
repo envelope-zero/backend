@@ -11,24 +11,19 @@ import (
 )
 
 type CategoryListResponse struct {
-	Data []Category `json:"data"`
+	Data []models.Category `json:"data"` // List of categories
 }
 
 type CategoryResponse struct {
-	Data Category `json:"data"`
-}
-
-type Category struct {
-	models.Category
-	Envelopes []models.Envelope `json:"envelopes"`
+	Data models.Category `json:"data"` // Data for the category
 }
 
 type CategoryQueryFilter struct {
-	Name     string `form:"name" filterField:"false"`
-	BudgetID string `form:"budget"`
-	Note     string `form:"note" filterField:"false"`
-	Hidden   bool   `form:"hidden"`
-	Search   string `form:"search" filterField:"false"`
+	Name     string `form:"name" filterField:"false"`   // By name
+	BudgetID string `form:"budget"`                     // By ID of the budget
+	Note     string `form:"note" filterField:"false"`   // By note
+	Hidden   bool   `form:"hidden"`                     // Is the category archived?
+	Search   string `form:"search" filterField:"false"` // By string in name or note
 }
 
 func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, bool) {
@@ -177,7 +172,7 @@ func (co Controller) GetCategories(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	categoryObjects := make([]Category, 0)
+	categoryObjects := make([]models.Category, 0)
 
 	for _, category := range categories {
 		o, _ := co.getCategoryObject(c, category.ID)
@@ -303,21 +298,17 @@ func (co Controller) getCategoryResources(c *gin.Context, id uuid.UUID) ([]model
 	return categories, true
 }
 
-func (co Controller) getCategoryObject(c *gin.Context, id uuid.UUID) (Category, bool) {
+func (co Controller) getCategoryObject(c *gin.Context, id uuid.UUID) (models.Category, bool) {
 	resource, ok := getResourceByIDAndHandleErrors[models.Category](c, co, id)
 	if !ok {
-		return Category{}, false
+		return models.Category{}, false
 	}
 
-	var envelopes []models.Envelope
-	err := co.DB.Where(&models.Envelope{EnvelopeCreate: models.EnvelopeCreate{CategoryID: id}}).Find(&envelopes).Error
+	err := resource.SetEnvelopes(co.DB)
 	if err != nil {
 		httperrors.Handler(c, err)
-		return Category{}, false
+		return models.Category{}, false
 	}
 
-	return Category{
-		resource,
-		envelopes,
-	}, true
+	return resource, true
 }

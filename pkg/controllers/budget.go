@@ -13,22 +13,22 @@ import (
 )
 
 type BudgetListResponse struct {
-	Data []models.Budget `json:"data"`
+	Data []models.Budget `json:"data"` // List of budgets
 }
 
 type BudgetResponse struct {
-	Data models.Budget `json:"data"`
+	Data models.Budget `json:"data"` // Data for the budget
 }
 
 type BudgetMonthResponse struct {
-	Data models.BudgetMonth `json:"data"`
+	Data models.BudgetMonth `json:"data"` // Data for the budget's month
 }
 
 type BudgetQueryFilter struct {
-	Name     string `form:"name" filterField:"false"`
-	Note     string `form:"note" filterField:"false"`
-	Currency string `form:"currency"`
-	Search   string `form:"search" filterField:"false"`
+	Name     string `form:"name" filterField:"false"`   // By name
+	Note     string `form:"note" filterField:"false"`   // By note
+	Currency string `form:"currency"`                   // By currency
+	Search   string `form:"search" filterField:"false"` // By string in name or note
 }
 
 // swagger:enum AllocationMode
@@ -40,7 +40,7 @@ const (
 )
 
 type BudgetAllocationMode struct {
-	Mode AllocationMode `json:"mode" example:"ALLOCATE_LAST_MONTH_SPEND"`
+	Mode AllocationMode `json:"mode" example:"ALLOCATE_LAST_MONTH_SPEND"` // Mode to allocate budget with
 }
 
 // RegisterBudgetRoutes registers the routes for budgets with

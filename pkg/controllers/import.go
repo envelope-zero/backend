@@ -20,15 +20,15 @@ import (
 )
 
 type ImportQuery struct {
-	BudgetName string `form:"budgetName" binding:"required"`
+	BudgetName string `form:"budgetName" binding:"required"` // Name for the new budget
 }
 
 type ImportPreviewQuery struct {
-	AccountID string `form:"accountId" binding:"required"`
+	AccountID string `form:"accountId" binding:"required"` // ID of the account to import the transactions for
 }
 
 type ImportPreviewList struct {
-	Data []importer.TransactionPreview `json:"data"`
+	Data []importer.TransactionPreview `json:"data"` // List of transaction previews
 }
 
 // RegisterImportRoutes registers the routes for imports.
@@ -382,13 +382,13 @@ func recommendEnvelope(co Controller, transaction *importer.TransactionPreview, 
 	}
 
 	// Preset the most popular recent envelope
-	recentEnvelopes, err := opposingAccount.RecentEnvelopes(co.DB)
+	err = opposingAccount.SetRecentEnvelopes(co.DB)
 	if err != nil {
 		return err
 	}
 
-	if len(recentEnvelopes) > 0 {
-		transaction.Transaction.EnvelopeID = &recentEnvelopes[0].ID
+	if len(opposingAccount.RecentEnvelopes) > 0 {
+		transaction.Transaction.EnvelopeID = &opposingAccount.RecentEnvelopes[0].ID
 	}
 
 	return nil

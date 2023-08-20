@@ -3215,107 +3215,14 @@
         }
     },
     "definitions": {
-        "controllers.Account": {
-            "type": "object",
-            "properties": {
-                "balance": {
-                    "type": "number",
-                    "example": 2735.17
-                },
-                "budgetId": {
-                    "type": "string",
-                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "external": {
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
-                "hidden": {
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "initialBalance": {
-                    "type": "number",
-                    "default": 0,
-                    "example": 173.12
-                },
-                "initialBalanceDate": {
-                    "type": "string",
-                    "example": "2017-05-12T00:00:00Z"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "type": "string",
-                            "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        },
-                        "transactions": {
-                            "type": "string",
-                            "example": "https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        }
-                    }
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Cash"
-                },
-                "note": {
-                    "type": "string",
-                    "example": "Money in my wallet"
-                },
-                "onBudget": {
-                    "description": "Always false when external: true",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "recentEnvelopes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Envelope"
-                    }
-                },
-                "reconciledBalance": {
-                    "type": "number",
-                    "example": 2539.57
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
         "controllers.AccountListResponse": {
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of accounts",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.Account"
+                        "$ref": "#/definitions/models.Account"
                     }
                 }
             }
@@ -3324,7 +3231,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.Account"
+                    "description": "Data for the account",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Account"
+                        }
+                    ]
                 }
             }
         },
@@ -3332,6 +3244,7 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "Data for the allocation",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Allocation"
@@ -3354,7 +3267,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Allocation"
+                    "description": "List of allocations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Allocation"
+                        }
+                    ]
                 }
             }
         },
@@ -3362,6 +3280,7 @@
             "type": "object",
             "properties": {
                 "mode": {
+                    "description": "Mode to allocate budget with",
                     "allOf": [
                         {
                             "$ref": "#/definitions/controllers.AllocationMode"
@@ -3375,6 +3294,7 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of budgets",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Budget"
@@ -3386,7 +3306,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.BudgetMonth"
+                    "description": "Data for the budget's month",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.BudgetMonth"
+                        }
+                    ]
                 }
             }
         },
@@ -3394,72 +3319,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Budget"
-                }
-            }
-        },
-        "controllers.Category": {
-            "type": "object",
-            "properties": {
-                "budgetId": {
-                    "description": "ID of the budget the category belongs to",
-                    "type": "string",
-                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Envelope"
-                    }
-                },
-                "hidden": {
-                    "description": "Is the category hidden?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelopes": {
-                            "type": "string",
-                            "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
-                        },
-                        "self": {
-                            "type": "string",
-                            "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
+                    "description": "Data for the budget",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Budget"
                         }
-                    }
-                },
-                "name": {
-                    "description": "Name of the category",
-                    "type": "string",
-                    "example": "Saving"
-                },
-                "note": {
-                    "description": "Notes about the category",
-                    "type": "string",
-                    "example": "All envelopes for long-term saving"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
+                    ]
                 }
             }
         },
@@ -3467,9 +3332,10 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of categories",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controllers.Category"
+                        "$ref": "#/definitions/models.Category"
                     }
                 }
             }
@@ -3478,7 +3344,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/controllers.Category"
+                    "description": "Data for the category",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Category"
+                        }
+                    ]
                 }
             }
         },
@@ -3486,6 +3357,7 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of Envelopes",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Envelope"
@@ -3497,7 +3369,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.EnvelopeMonth"
+                    "description": "Data for the month for the envelope",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EnvelopeMonth"
+                        }
+                    ]
                 }
             }
         },
@@ -3505,7 +3382,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Envelope"
+                    "description": "Data for the Envelope",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Envelope"
+                        }
+                    ]
                 }
             }
         },
@@ -3513,6 +3395,7 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of transaction previews",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/importer.TransactionPreview"
@@ -3524,6 +3407,7 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of month configs",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.MonthConfig"
@@ -3535,7 +3419,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.MonthConfig"
+                    "description": "Data for the month",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.MonthConfig"
+                        }
+                    ]
                 }
             }
         },
@@ -3543,7 +3432,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Month"
+                    "description": "Data for the month",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Month"
+                        }
+                    ]
                 }
             }
         },
@@ -3551,6 +3445,7 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of rename rules",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.RenameRule"
@@ -3562,7 +3457,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.RenameRule"
+                    "description": "Data for the rename rule",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.RenameRule"
+                        }
+                    ]
                 }
             }
         },
@@ -3606,6 +3506,7 @@
             "type": "object",
             "properties": {
                 "data": {
+                    "description": "List of transactions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Transaction"
@@ -3617,7 +3518,12 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/models.Transaction"
+                    "description": "Data for the transaction",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Transaction"
+                        }
+                    ]
                 }
             }
         },
@@ -3626,7 +3532,7 @@
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "An ID specified in the query string was not a valid uint64"
+                    "example": "An ID specified in the query string was not a valid UUID"
                 }
             }
         },
@@ -3660,19 +3566,128 @@
                 }
             }
         },
-        "models.AccountCreate": {
+        "models.Account": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "description": "Balance of the account, including all transactions referencing it",
+                    "type": "number",
+                    "example": 2735.17
+                },
                 "budgetId": {
+                    "description": "ID of the budget this account belongs to",
                     "type": "string",
                     "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
                 "external": {
+                    "description": "Does the account belong to the budget owner or not?",
                     "type": "boolean",
                     "default": false,
                     "example": false
                 },
                 "hidden": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The account itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        },
+                        "transactions": {
+                            "description": "Transactions referencing the account",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "recentEnvelopes": {
+                    "description": "Envelopes recently used with this account",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Envelope"
+                    }
+                },
+                "reconciledBalance": {
+                    "description": "Balance of the account, including all reconciled transactions referencing it",
+                    "type": "number",
+                    "example": 2539.57
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "models.AccountCreate": {
+            "type": "object",
+            "properties": {
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "hidden": {
+                    "description": "Is the account archived?",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3683,24 +3698,28 @@
                     "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
                 },
                 "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
                     "type": "number",
                     "default": 0,
                     "example": 173.12
                 },
                 "initialBalanceDate": {
+                    "description": "Date of the initial balance",
                     "type": "string",
                     "example": "2017-05-12T00:00:00Z"
                 },
                 "name": {
+                    "description": "Name of the account",
                     "type": "string",
                     "example": "Cash"
                 },
                 "note": {
+                    "description": "A longer description for the account",
                     "type": "string",
                     "example": "Money in my wallet"
                 },
                 "onBudget": {
-                    "description": "Always false when external: true",
+                    "description": "Does the account factor into the available budget? Always false when external: true",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3729,6 +3748,7 @@
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "envelopeId": {
+                    "description": "ID of the envelope",
                     "type": "string",
                     "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
                 },
@@ -3741,6 +3761,7 @@
                     "type": "object",
                     "properties": {
                         "self": {
+                            "description": "The allocation itself",
                             "type": "string",
                             "example": "https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"
                         }
@@ -3770,6 +3791,7 @@
                     "example": 22.01
                 },
                 "envelopeId": {
+                    "description": "ID of the envelope",
                     "type": "string",
                     "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
                 },
@@ -3794,6 +3816,7 @@
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "currency": {
+                    "description": "The currency for the budget",
                     "type": "string",
                     "example": "€"
                 },
@@ -3811,14 +3834,17 @@
                     "type": "object",
                     "properties": {
                         "accounts": {
+                            "description": "Accounts for this budget",
                             "type": "string",
                             "example": "https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                         },
                         "categories": {
+                            "description": "Categories for this budget",
                             "type": "string",
                             "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                         },
                         "envelopes": {
+                            "description": "Envelopes for this budget",
                             "type": "string",
                             "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                         },
@@ -3838,20 +3864,24 @@
                             "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
                         },
                         "self": {
+                            "description": "The budget itself",
                             "type": "string",
                             "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                         },
                         "transactions": {
+                            "description": "Transactions for this budget",
                             "type": "string",
                             "example": "https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                         }
                     }
                 },
                 "name": {
+                    "description": "Name of the budget",
                     "type": "string",
                     "example": "Morre's Budget"
                 },
                 "note": {
+                    "description": "A longer description of the budget",
                     "type": "string",
                     "example": "My personal expenses"
                 },
@@ -3866,14 +3896,17 @@
             "type": "object",
             "properties": {
                 "currency": {
+                    "description": "The currency for the budget",
                     "type": "string",
                     "example": "€"
                 },
                 "name": {
+                    "description": "Name of the budget",
                     "type": "string",
                     "example": "Morre's Budget"
                 },
                 "note": {
+                    "description": "A longer description of the budget",
                     "type": "string",
                     "example": "My personal expenses"
                 }
@@ -3883,14 +3916,17 @@
             "type": "object",
             "properties": {
                 "available": {
+                    "description": "The amount of money still available to budget.",
                     "type": "number",
                     "example": 217.34
                 },
                 "budgeted": {
+                    "description": "Amount of money that has been allocated to envelopes",
                     "type": "number",
                     "example": 2100
                 },
                 "envelopes": {
+                    "description": "The envelopes this budget has, with detailed calculations",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.EnvelopeMonth"
@@ -3902,10 +3938,12 @@
                     "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
                 },
                 "income": {
+                    "description": "Income. This is all money that is sent from off-budget to on-budget accounts without an envelope set.",
                     "type": "number",
                     "example": 2317.34
                 },
                 "month": {
+                    "description": "Month these calculations are made for",
                     "type": "string",
                     "example": "2006-05-01T00:00:00.000000Z"
                 },
@@ -3913,6 +3951,74 @@
                     "description": "The name of the Budget",
                     "type": "string",
                     "example": "Groceries"
+                }
+            }
+        },
+        "models.Category": {
+            "type": "object",
+            "properties": {
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopes": {
+                    "description": "Envelopes for the category",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Envelope"
+                    }
+                },
+                "hidden": {
+                    "description": "Is the category hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelopes": {
+                            "description": "Envelopes for this category",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                        },
+                        "self": {
+                            "description": "The category itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -3992,10 +4098,12 @@
                     "type": "object",
                     "properties": {
                         "envelopes": {
+                            "description": "Envelopes for this category",
                             "type": "string",
                             "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
                         },
                         "self": {
+                            "description": "The category itself",
                             "type": "string",
                             "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
                         }
@@ -4057,22 +4165,22 @@
                     "type": "object",
                     "properties": {
                         "allocations": {
-                            "description": "URL for the envelope's allocations",
+                            "description": "the envelope's allocations",
                             "type": "string",
                             "example": "https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                         },
                         "month": {
-                            "description": "URL to query for month information. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
+                            "description": "Month information endpoint. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
                             "type": "string",
                             "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
                         },
                         "self": {
-                            "description": "URL of the envelope",
+                            "description": "The envelope itself",
                             "type": "string",
                             "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                         },
                         "transactions": {
-                            "description": "URL for the envelope's transactions",
+                            "description": "The envelope's transactions",
                             "type": "string",
                             "example": "https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                         }
@@ -4199,7 +4307,7 @@
             "type": "object",
             "properties": {
                 "allocation": {
-                    "description": "This is an empty string when no allocation exists",
+                    "description": "The allocations for this envelope for this month",
                     "type": "string",
                     "example": "https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"
                 }
@@ -4276,6 +4384,7 @@
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "envelopeId": {
+                    "description": "ID of the envelope",
                     "type": "string",
                     "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
                 },
@@ -4283,19 +4392,19 @@
                     "type": "object",
                     "properties": {
                         "envelope": {
-                            "description": "URL of the envelope this config belongs to",
+                            "description": "The envelope this config belongs to",
                             "type": "string",
                             "example": "https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
                         },
                         "self": {
-                            "description": "URL for the month config",
+                            "description": "The month config itself",
                             "type": "string",
                             "example": "https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
                         }
                     }
                 },
                 "month": {
-                    "description": "This is always set to 00:00 UTC on the first of the month.",
+                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
                     "type": "string",
                     "example": "1969-06-01T00:00:00.000000Z"
                 },
@@ -4305,6 +4414,7 @@
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
                 },
                 "overspendMode": {
+                    "description": "The overspend handling mode to use",
                     "default": "AFFECT_AVAILABLE",
                     "allOf": [
                         {
@@ -4329,6 +4439,7 @@
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
                 },
                 "overspendMode": {
+                    "description": "The overspend handling mode to use",
                     "default": "AFFECT_AVAILABLE",
                     "allOf": [
                         {
@@ -4377,6 +4488,7 @@
                     "type": "object",
                     "properties": {
                         "self": {
+                            "description": "The match rule itself",
                             "type": "string",
                             "example": "https://example.com/api/v2/rename-rules/95685c82-53c6-455d-b235-f49960b73b21"
                         }
@@ -4436,6 +4548,7 @@
                     "example": "2021-11-17T00:00:00Z"
                 },
                 "budgetId": {
+                    "description": "ID of the budget",
                     "type": "string",
                     "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
                 },
@@ -4445,6 +4558,7 @@
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "date": {
+                    "description": "Date of the transaction. Time is currently only used for sorting",
                     "type": "string",
                     "example": "1815-12-10T18:43:00.271152Z"
                 },
@@ -4454,10 +4568,12 @@
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "destinationAccountId": {
+                    "description": "ID of the destination account",
                     "type": "string",
                     "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
                 },
                 "envelopeId": {
+                    "description": "ID of the envelope",
                     "type": "string",
                     "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
                 },
@@ -4476,13 +4592,14 @@
                     "type": "object",
                     "properties": {
                         "self": {
-                            "description": "URL of the transaction resource",
+                            "description": "The transaction itself",
                             "type": "string",
                             "example": "https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
                         }
                     }
                 },
                 "note": {
+                    "description": "A note",
                     "type": "string",
                     "example": "Lunch"
                 },
@@ -4493,16 +4610,19 @@
                     "example": true
                 },
                 "reconciledDestination": {
+                    "description": "Is the transaction reconciled in the destination account?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "reconciledSource": {
+                    "description": "Is the transaction reconciled in the source account?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "sourceAccountId": {
+                    "description": "ID of the source account",
                     "type": "string",
                     "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
                 },
@@ -4530,18 +4650,22 @@
                     "example": "2021-11-17T00:00:00Z"
                 },
                 "budgetId": {
+                    "description": "ID of the budget",
                     "type": "string",
                     "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
                 },
                 "date": {
+                    "description": "Date of the transaction. Time is currently only used for sorting",
                     "type": "string",
                     "example": "1815-12-10T18:43:00.271152Z"
                 },
                 "destinationAccountId": {
+                    "description": "ID of the destination account",
                     "type": "string",
                     "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
                 },
                 "envelopeId": {
+                    "description": "ID of the envelope",
                     "type": "string",
                     "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
                 },
@@ -4551,6 +4675,7 @@
                     "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
                 },
                 "note": {
+                    "description": "A note",
                     "type": "string",
                     "example": "Lunch"
                 },
@@ -4561,16 +4686,19 @@
                     "example": true
                 },
                 "reconciledDestination": {
+                    "description": "Is the transaction reconciled in the destination account?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "reconciledSource": {
+                    "description": "Is the transaction reconciled in the source account?",
                     "type": "boolean",
                     "default": false,
                     "example": true
                 },
                 "sourceAccountId": {
+                    "description": "ID of the source account",
                     "type": "string",
                     "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
                 }
@@ -4605,7 +4733,12 @@
             "type": "object",
             "properties": {
                 "links": {
-                    "$ref": "#/definitions/router.RootLinks"
+                    "description": "URLs of API endpoints",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/router.RootLinks"
+                        }
+                    ]
                 }
             }
         },

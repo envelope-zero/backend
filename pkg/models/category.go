@@ -12,10 +12,11 @@ import (
 type Category struct {
 	DefaultModel
 	CategoryCreate
-	Budget Budget `json:"-"` // The budget the category belongs to
-	Links  struct {
-		Self      string `json:"self" example:"https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`
-		Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"`
+	Budget    Budget     `json:"-"`                  // The budget the category belongs to
+	Envelopes []Envelope `json:"envelopes" gorm:"-"` // Envelopes for the category
+	Links     struct {
+		Self      string `json:"self" example:"https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`              // The category itself
+		Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"` // Envelopes for this category
 	} `json:"links" gorm:"-"`
 }
 
@@ -70,5 +71,17 @@ func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 		}
 	}
 
+	return nil
+}
+
+// SetEnvelopes sets the Envelope field to the envelopes of the category.
+func (c *Category) SetEnvelopes(tx *gorm.DB) error {
+	var envelopes []Envelope
+	err := tx.Where(&Envelope{EnvelopeCreate: EnvelopeCreate{CategoryID: c.ID}}).Find(&envelopes).Error
+	if err != nil {
+		return err
+	}
+
+	c.Envelopes = envelopes
 	return nil
 }

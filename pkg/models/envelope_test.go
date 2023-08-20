@@ -225,3 +225,7 @@ func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
 	suite.db.First(&category, category.ID)
 	assert.False(suite.T(), category.Hidden, "Category should be unarchived when child envelope is unarchived")
 }
+
+func (suite *TestSuiteStandard) TestEnvelopeSelf() {
+	assert.Equal(suite.T(), "Envelope", models.Envelope{}.Self())
+}

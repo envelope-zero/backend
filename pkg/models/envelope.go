@@ -18,10 +18,10 @@ type Envelope struct {
 	EnvelopeCreate
 	Category Category `json:"-"`
 	Links    struct {
-		Self         string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                     // URL of the envelope
-		Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`   // URL for the envelope's allocations
-		Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // URL to query for month information. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
-		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // URL for the envelope's transactions
+		Self         string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                     // The envelope itself
+		Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`   // the envelope's allocations
+		Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // Month information endpoint. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
+		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // The envelope's transactions
 	} `json:"links" gorm:"-"` // Links to related resources
 }
 
@@ -117,16 +117,6 @@ type AggregatedTransaction struct {
 	Date                       time.Time
 	SourceAccountOnBudget      bool
 	DestinationAccountOnBudget bool
-}
-
-type EnvelopeMonthAllocation struct {
-	Month      time.Time
-	Allocation decimal.Decimal
-}
-
-type EnvelopeMonthConfig struct {
-	Month         time.Time
-	OverspendMode OverspendMode
 }
 
 // Balance calculates the balance of an Envelope in a specific month.
@@ -306,7 +296,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 }
 
 type EnvelopeMonthLinks struct {
-	Allocation string `json:"allocation" example:"https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"` // This is an empty string when no allocation exists
+	Allocation string `json:"allocation" example:"https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"` // The allocations for this envelope for this month
 }
 
 // EnvelopeMonth contains data about an Envelope for a specific month.

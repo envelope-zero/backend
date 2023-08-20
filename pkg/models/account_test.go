@@ -63,14 +63,14 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		Note:                 "Future Income Transaction",
 	})
 
-	a, err := account.WithCalculations(suite.db)
+	err := account.WithCalculations(suite.db)
 	assert.Nil(suite.T(), err)
 
-	expected := incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(a.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
-	assert.True(suite.T(), a.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, a.Balance)
+	expected := incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(account.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
+	assert.True(suite.T(), account.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, account.Balance)
 
-	expected = incomingTransaction.Amount.Add(a.InitialBalance)
-	assert.True(suite.T(), a.ReconciledBalance.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, a.ReconciledBalance)
+	expected = incomingTransaction.Amount.Add(account.InitialBalance)
+	assert.True(suite.T(), account.ReconciledBalance.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, account.ReconciledBalance)
 
 	balanceNow, availableNow, err := account.GetBalanceMonth(suite.db, types.MonthOf(time.Now()))
 	assert.Nil(suite.T(), err)
@@ -86,14 +86,14 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	a, err = account.WithCalculations(suite.db)
+	err = account.WithCalculations(suite.db)
 	assert.Nil(suite.T(), err)
 
-	expected = outgoingTransaction.Amount.Neg().Add(a.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
-	assert.True(suite.T(), a.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, a.Balance)
+	expected = outgoingTransaction.Amount.Neg().Add(account.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
+	assert.True(suite.T(), account.Balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, account.Balance)
 
-	expected = decimal.NewFromFloat(0).Add(a.InitialBalance)
-	assert.True(suite.T(), a.ReconciledBalance.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, a.ReconciledBalance)
+	expected = decimal.NewFromFloat(0).Add(account.InitialBalance)
+	assert.True(suite.T(), account.ReconciledBalance.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, account.ReconciledBalance)
 }
 
 func (suite *TestSuiteStandard) TestAccountTransactions() {
@@ -182,22 +182,22 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		})
 	}
 
-	recent, err := externalAccount.RecentEnvelopes(suite.db)
+	err := externalAccount.SetRecentEnvelopes(suite.db)
 	if err != nil {
 		suite.Assert().FailNow("Could not compute recent envelopes", err)
 	}
 
 	// The last envelope needs to be the first in the sort since it
 	// has been the most common one in the last 10 transactions
-	suite.Assert().Equal(*envelopeIDs[2], recent[0].ID)
+	suite.Assert().Equal(*envelopeIDs[2], externalAccount.RecentEnvelopes[0].ID)
 
 	// The second envelope is as common as the first, but its newest transaction
 	// is newer than the first envelope's newest transaction,
 	// so it needs to come second
-	suite.Assert().Equal(*envelopeIDs[1], recent[1].ID)
+	suite.Assert().Equal(*envelopeIDs[1], externalAccount.RecentEnvelopes[1].ID)
 
 	// The first envelope is the last one
-	suite.Assert().Equal(*envelopeIDs[0], recent[2].ID)
+	suite.Assert().Equal(*envelopeIDs[0], externalAccount.RecentEnvelopes[2].ID)
 }
 
 func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
@@ -329,4 +329,8 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 	err := suite.db.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
 
 	assert.Nil(suite.T(), err, "Target account could not be updated to be on budget, but it does not have transactions with envelopes being set")
+}
+
+func (suite *TestSuiteStandard) TestAccountSelf() {
+	assert.Equal(suite.T(), "Account", models.Account{}.Self())
 }

@@ -12,17 +12,17 @@ import (
 )
 
 type RenameRuleResponse struct {
-	Data models.RenameRule `json:"data"`
+	Data models.RenameRule `json:"data"` // Data for the rename rule
 }
 
 type RenameRuleListResponse struct {
-	Data []models.RenameRule `json:"data"`
+	Data []models.RenameRule `json:"data"` // List of rename rules
 }
 
 type RenameRuleQueryFilter struct {
-	Priority  uint   `form:"month"`
-	Match     string `form:"match"`
-	AccountID string `form:"account"`
+	Priority  uint   `form:"month"`   // By priority
+	Match     string `form:"match"`   // By match
+	AccountID string `form:"account"` // By ID of the account they map to
 }
 
 func (f RenameRuleQueryFilter) Parse(c *gin.Context) (models.RenameRuleCreate, bool) {

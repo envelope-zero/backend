@@ -11,26 +11,21 @@ import (
 )
 
 type AccountListResponse struct {
-	Data []Account `json:"data"`
+	Data []models.Account `json:"data"` // List of accounts
 }
 
 type AccountResponse struct {
-	Data Account `json:"data"`
-}
-
-type Account struct {
-	models.Account
-	RecentEnvelopes []models.Envelope `json:"recentEnvelopes"`
+	Data models.Account `json:"data"` // Data for the account
 }
 
 type AccountQueryFilter struct {
-	Name     string `form:"name" filterField:"false"` // Fuzzy filter for the account name
-	Note     string `form:"note" filterField:"false"` // Fuzzy filter for the note
-	BudgetID string `form:"budget"`                   // By budget ID
-	OnBudget bool   `form:"onBudget"`                 // Is the account on-budget?
-	External bool   `form:"external"`                 // Is the account external?
-	Hidden   bool   `form:"hidden"`                   // Is the account hidden?
-	Search   string `form:"search" filterField:"false"`
+	Name     string `form:"name" filterField:"false"`   // Fuzzy filter for the account name
+	Note     string `form:"note" filterField:"false"`   // Fuzzy filter for the note
+	BudgetID string `form:"budget"`                     // By budget ID
+	OnBudget bool   `form:"onBudget"`                   // Is the account on-budget?
+	External bool   `form:"external"`                   // Is the account external?
+	Hidden   bool   `form:"hidden"`                     // Is the account hidden?
+	Search   string `form:"search" filterField:"false"` // By string in name or note
 }
 
 func (f AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool) {
@@ -184,7 +179,7 @@ func (co Controller) GetAccounts(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	accountObjects := make([]Account, 0)
+	accountObjects := make([]models.Account, 0)
 
 	for _, account := range accounts {
 		o, _ := co.getAccountObject(c, account.ID)
@@ -296,27 +291,24 @@ func (co Controller) DeleteAccount(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (Account, bool) {
+func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (models.Account, bool) {
 	account, ok := getResourceByIDAndHandleErrors[models.Account](c, co, id)
 
 	if !ok {
-		return Account{}, false
+		return models.Account{}, false
 	}
 
-	recentEnvelopes, err := account.RecentEnvelopes(co.DB)
+	err := account.SetRecentEnvelopes(co.DB)
 	if err != nil {
 		httperrors.Handler(c, err)
-		return Account{}, false
+		return models.Account{}, false
 	}
 
-	account, err = account.WithCalculations(co.DB)
+	err = account.WithCalculations(co.DB)
 	if err != nil {
 		httperrors.Handler(c, err)
-		return Account{}, false
+		return models.Account{}, false
 	}
 
-	return Account{
-		account,
-		recentEnvelopes,
-	}, true
+	return account, true
 }

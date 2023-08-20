@@ -116,3 +116,7 @@ func (suite *TestSuiteStandard) TestTransactionReconciled() {
 		})
 	}
 }
+
+func (suite *TestSuiteStandard) TestTransactionSelf() {
+	assert.Equal(suite.T(), "Transaction", models.Transaction{}.Self())
+}

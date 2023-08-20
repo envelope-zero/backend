@@ -23,6 +23,14 @@ Once those are installed, run `make setup` to perform the repository setup.
 - Use `// FIXME: What to fix` or `// BUG: what is broken` to make pre-commit fail as a reminder to fix something before opening a PR
 - Use `// TODO: What needs to be done` for things that need to be changed at a later point in time
 
+## API documentation
+
+API documentation is auto-generated with swagger. All struct fields used in the API must have
+
+- the `json` field
+- the `example` field, where a swagger-parseable example can be set (go basic data types)
+- A comment indicating the use of the field
+
 ## Commit messages
 
 This project uses [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/)

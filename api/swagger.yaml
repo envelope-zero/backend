@@ -1,91 +1,23 @@
 definitions:
-  controllers.Account:
-    properties:
-      balance:
-        example: 2735.17
-        type: number
-      budgetId:
-        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      external:
-        default: false
-        example: false
-        type: boolean
-      hidden:
-        default: false
-        example: true
-        type: boolean
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      initialBalance:
-        default: 0
-        example: 173.12
-        type: number
-      initialBalanceDate:
-        example: "2017-05-12T00:00:00Z"
-        type: string
-      links:
-        properties:
-          self:
-            example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-          transactions:
-            example: https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-        type: object
-      name:
-        example: Cash
-        type: string
-      note:
-        example: Money in my wallet
-        type: string
-      onBudget:
-        default: false
-        description: 'Always false when external: true'
-        example: true
-        type: boolean
-      recentEnvelopes:
-        items:
-          $ref: '#/definitions/models.Envelope'
-        type: array
-      reconciledBalance:
-        example: 2539.57
-        type: number
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
   controllers.AccountListResponse:
     properties:
       data:
+        description: List of accounts
         items:
-          $ref: '#/definitions/controllers.Account'
+          $ref: '#/definitions/models.Account'
         type: array
     type: object
   controllers.AccountResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.Account'
+        allOf:
+        - $ref: '#/definitions/models.Account'
+        description: Data for the account
     type: object
   controllers.AllocationListResponse:
     properties:
       data:
+        description: Data for the allocation
         items:
           $ref: '#/definitions/models.Allocation'
         type: array
@@ -101,18 +33,22 @@ definitions:
   controllers.AllocationResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Allocation'
+        allOf:
+        - $ref: '#/definitions/models.Allocation'
+        description: List of allocations
     type: object
   controllers.BudgetAllocationMode:
     properties:
       mode:
         allOf:
         - $ref: '#/definitions/controllers.AllocationMode'
+        description: Mode to allocate budget with
         example: ALLOCATE_LAST_MONTH_SPEND
     type: object
   controllers.BudgetListResponse:
     properties:
       data:
+        description: List of budgets
         items:
           $ref: '#/definitions/models.Budget'
         type: array
@@ -120,77 +56,36 @@ definitions:
   controllers.BudgetMonthResponse:
     properties:
       data:
-        $ref: '#/definitions/models.BudgetMonth'
+        allOf:
+        - $ref: '#/definitions/models.BudgetMonth'
+        description: Data for the budget's month
     type: object
   controllers.BudgetResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Budget'
-    type: object
-  controllers.Category:
-    properties:
-      budgetId:
-        description: ID of the budget the category belongs to
-        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopes:
-        items:
-          $ref: '#/definitions/models.Envelope'
-        type: array
-      hidden:
-        default: false
-        description: Is the category hidden?
-        example: true
-        type: boolean
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        properties:
-          envelopes:
-            example: https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-          self:
-            example: https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-        type: object
-      name:
-        description: Name of the category
-        example: Saving
-        type: string
-      note:
-        description: Notes about the category
-        example: All envelopes for long-term saving
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
+        allOf:
+        - $ref: '#/definitions/models.Budget'
+        description: Data for the budget
     type: object
   controllers.CategoryListResponse:
     properties:
       data:
+        description: List of categories
         items:
-          $ref: '#/definitions/controllers.Category'
+          $ref: '#/definitions/models.Category'
         type: array
     type: object
   controllers.CategoryResponse:
     properties:
       data:
-        $ref: '#/definitions/controllers.Category'
+        allOf:
+        - $ref: '#/definitions/models.Category'
+        description: Data for the category
     type: object
   controllers.EnvelopeListResponse:
     properties:
       data:
+        description: List of Envelopes
         items:
           $ref: '#/definitions/models.Envelope'
         type: array
@@ -198,16 +93,21 @@ definitions:
   controllers.EnvelopeMonthResponse:
     properties:
       data:
-        $ref: '#/definitions/models.EnvelopeMonth'
+        allOf:
+        - $ref: '#/definitions/models.EnvelopeMonth'
+        description: Data for the month for the envelope
     type: object
   controllers.EnvelopeResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Envelope'
+        allOf:
+        - $ref: '#/definitions/models.Envelope'
+        description: Data for the Envelope
     type: object
   controllers.ImportPreviewList:
     properties:
       data:
+        description: List of transaction previews
         items:
           $ref: '#/definitions/importer.TransactionPreview'
         type: array
@@ -215,6 +115,7 @@ definitions:
   controllers.MonthConfigListResponse:
     properties:
       data:
+        description: List of month configs
         items:
           $ref: '#/definitions/models.MonthConfig'
         type: array
@@ -222,16 +123,21 @@ definitions:
   controllers.MonthConfigResponse:
     properties:
       data:
-        $ref: '#/definitions/models.MonthConfig'
+        allOf:
+        - $ref: '#/definitions/models.MonthConfig'
+        description: Data for the month
     type: object
   controllers.MonthResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Month'
+        allOf:
+        - $ref: '#/definitions/models.Month'
+        description: Data for the month
     type: object
   controllers.RenameRuleListResponse:
     properties:
       data:
+        description: List of rename rules
         items:
           $ref: '#/definitions/models.RenameRule'
         type: array
@@ -239,7 +145,9 @@ definitions:
   controllers.RenameRuleResponse:
     properties:
       data:
-        $ref: '#/definitions/models.RenameRule'
+        allOf:
+        - $ref: '#/definitions/models.RenameRule'
+        description: Data for the rename rule
     type: object
   controllers.ResponseRenameRule:
     properties:
@@ -266,6 +174,7 @@ definitions:
   controllers.TransactionListResponse:
     properties:
       data:
+        description: List of transactions
         items:
           $ref: '#/definitions/models.Transaction'
         type: array
@@ -273,12 +182,14 @@ definitions:
   controllers.TransactionResponse:
     properties:
       data:
-        $ref: '#/definitions/models.Transaction'
+        allOf:
+        - $ref: '#/definitions/models.Transaction'
+        description: Data for the transaction
     type: object
   httperrors.HTTPError:
     properties:
       error:
-        example: An ID specified in the query string was not a valid uint64
+        example: An ID specified in the query string was not a valid UUID
         type: string
     type: object
   importer.TransactionPreview:
@@ -303,17 +214,107 @@ definitions:
       transaction:
         $ref: '#/definitions/models.TransactionCreate'
     type: object
-  models.AccountCreate:
+  models.Account:
     properties:
+      balance:
+        description: Balance of the account, including all transactions referencing
+          it
+        example: 2735.17
+        type: number
       budgetId:
+        description: ID of the budget this account belongs to
         example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
         type: string
       external:
         default: false
+        description: Does the account belong to the budget owner or not?
         example: false
         type: boolean
       hidden:
         default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      links:
+        properties:
+          self:
+            description: The account itself
+            example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+          transactions:
+            description: Transactions referencing the account
+            example: https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+        type: object
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+      recentEnvelopes:
+        description: Envelopes recently used with this account
+        items:
+          $ref: '#/definitions/models.Envelope'
+        type: array
+      reconciledBalance:
+        description: Balance of the account, including all reconciled transactions
+          referencing it
+        example: 2539.57
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.AccountCreate:
+    properties:
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      hidden:
+        default: false
+        description: Is the account archived?
         example: true
         type: boolean
       importHash:
@@ -323,20 +324,25 @@ definitions:
         type: string
       initialBalance:
         default: 0
+        description: Balance of the account before any transactions were recorded
         example: 173.12
         type: number
       initialBalanceDate:
+        description: Date of the initial balance
         example: "2017-05-12T00:00:00Z"
         type: string
       name:
+        description: Name of the account
         example: Cash
         type: string
       note:
+        description: A longer description for the account
         example: Money in my wallet
         type: string
       onBudget:
         default: false
-        description: 'Always false when external: true'
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
         example: true
         type: boolean
     type: object
@@ -359,6 +365,7 @@ definitions:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopeId:
+        description: ID of the envelope
         example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
         type: string
       id:
@@ -368,6 +375,7 @@ definitions:
       links:
         properties:
           self:
+            description: The allocation itself
             example: https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc
             type: string
         type: object
@@ -393,6 +401,7 @@ definitions:
         multipleOf: 1e-08
         type: number
       envelopeId:
+        description: ID of the envelope
         example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
         type: string
       month:
@@ -413,6 +422,7 @@ definitions:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       currency:
+        description: The currency for the budget
         example: €
         type: string
       deletedAt:
@@ -426,12 +436,15 @@ definitions:
       links:
         properties:
           accounts:
+            description: Accounts for this budget
             example: https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
             type: string
           categories:
+            description: Categories for this budget
             example: https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
             type: string
           envelopes:
+            description: Envelopes for this budget
             example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
             type: string
           groupedMonth:
@@ -450,16 +463,20 @@ definitions:
             example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
             type: string
           self:
+            description: The budget itself
             example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
             type: string
           transactions:
+            description: Transactions for this budget
             example: https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
             type: string
         type: object
       name:
+        description: Name of the budget
         example: Morre's Budget
         type: string
       note:
+        description: A longer description of the budget
         example: My personal expenses
         type: string
       updatedAt:
@@ -470,24 +487,30 @@ definitions:
   models.BudgetCreate:
     properties:
       currency:
+        description: The currency for the budget
         example: €
         type: string
       name:
+        description: Name of the budget
         example: Morre's Budget
         type: string
       note:
+        description: A longer description of the budget
         example: My personal expenses
         type: string
     type: object
   models.BudgetMonth:
     properties:
       available:
+        description: The amount of money still available to budget.
         example: 217.34
         type: number
       budgeted:
+        description: Amount of money that has been allocated to envelopes
         example: 2100
         type: number
       envelopes:
+        description: The envelopes this budget has, with detailed calculations
         items:
           $ref: '#/definitions/models.EnvelopeMonth'
         type: array
@@ -496,14 +519,69 @@ definitions:
         example: 1e777d24-3f5b-4c43-8000-04f65f895578
         type: string
       income:
+        description: Income. This is all money that is sent from off-budget to on-budget
+          accounts without an envelope set.
         example: 2317.34
         type: number
       month:
+        description: Month these calculations are made for
         example: "2006-05-01T00:00:00.000000Z"
         type: string
       name:
         description: The name of the Budget
         example: Groceries
+        type: string
+    type: object
+  models.Category:
+    properties:
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopes:
+        description: Envelopes for the category
+        items:
+          $ref: '#/definitions/models.Envelope'
+        type: array
+      hidden:
+        default: false
+        description: Is the category hidden?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          envelopes:
+            description: Envelopes for this category
+            example: https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+          self:
+            description: The category itself
+            example: https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+        type: object
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   models.CategoryCreate:
@@ -565,9 +643,11 @@ definitions:
       links:
         properties:
           envelopes:
+            description: Envelopes for this category
             example: https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
             type: string
           self:
+            description: The category itself
             example: https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f
             type: string
         type: object
@@ -615,20 +695,20 @@ definitions:
         description: Links to related resources
         properties:
           allocations:
-            description: URL for the envelope's allocations
+            description: the envelope's allocations
             example: https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
             type: string
           month:
-            description: URL to query for month information. This will always end
-              in 'YYYY-MM' for clients to use replace with actual numbers.
+            description: Month information endpoint. This will always end in 'YYYY-MM'
+              for clients to use replace with actual numbers.
             example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
             type: string
           self:
-            description: URL of the envelope
+            description: The envelope itself
             example: https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
             type: string
           transactions:
-            description: URL for the envelope's transactions
+            description: The envelope's transactions
             example: https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
             type: string
         type: object
@@ -725,7 +805,7 @@ definitions:
   models.EnvelopeMonthLinks:
     properties:
       allocation:
-        description: This is an empty string when no allocation exists
+        description: The allocations for this envelope for this month
         example: https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3
         type: string
     type: object
@@ -786,21 +866,23 @@ definitions:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopeId:
+        description: ID of the envelope
         example: 10b9705d-3356-459e-9d5a-28d42a6c4547
         type: string
       links:
         properties:
           envelope:
-            description: URL of the envelope this config belongs to
+            description: The envelope this config belongs to
             example: https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
             type: string
           self:
-            description: URL for the month config
+            description: The month config itself
             example: https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
             type: string
         type: object
       month:
-        description: This is always set to 00:00 UTC on the first of the month.
+        description: The month. This is always set to 00:00 UTC on the first of the
+          month.
         example: "1969-06-01T00:00:00.000000Z"
         type: string
       note:
@@ -811,6 +893,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.OverspendMode'
         default: AFFECT_AVAILABLE
+        description: The overspend handling mode to use
         example: AFFECT_ENVELOPE
       updatedAt:
         description: Last time the resource was updated
@@ -827,6 +910,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.OverspendMode'
         default: AFFECT_AVAILABLE
+        description: The overspend handling mode to use
         example: AFFECT_ENVELOPE
     type: object
   models.OverspendMode:
@@ -858,6 +942,7 @@ definitions:
       links:
         properties:
           self:
+            description: The match rule itself
             example: https://example.com/api/v2/rename-rules/95685c82-53c6-455d-b235-f49960b73b21
             type: string
         type: object
@@ -908,6 +993,7 @@ definitions:
         example: "2021-11-17T00:00:00Z"
         type: string
       budgetId:
+        description: ID of the budget
         example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
         type: string
       createdAt:
@@ -915,6 +1001,7 @@ definitions:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       date:
+        description: Date of the transaction. Time is currently only used for sorting
         example: "1815-12-10T18:43:00.271152Z"
         type: string
       deletedAt:
@@ -922,9 +1009,11 @@ definitions:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       destinationAccountId:
+        description: ID of the destination account
         example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
         type: string
       envelopeId:
+        description: ID of the envelope
         example: 2649c965-7999-4873-ae16-89d5d5fa972e
         type: string
       id:
@@ -940,11 +1029,12 @@ definitions:
         description: Links for the transaction
         properties:
           self:
-            description: URL of the transaction resource
+            description: The transaction itself
             example: https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
             type: string
         type: object
       note:
+        description: A note
         example: Lunch
         type: string
       reconciled:
@@ -956,13 +1046,16 @@ definitions:
         type: boolean
       reconciledDestination:
         default: false
+        description: Is the transaction reconciled in the destination account?
         example: true
         type: boolean
       reconciledSource:
         default: false
+        description: Is the transaction reconciled in the source account?
         example: true
         type: boolean
       sourceAccountId:
+        description: ID of the source account
         example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
         type: string
       updatedAt:
@@ -987,15 +1080,19 @@ definitions:
         example: "2021-11-17T00:00:00Z"
         type: string
       budgetId:
+        description: ID of the budget
         example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
         type: string
       date:
+        description: Date of the transaction. Time is currently only used for sorting
         example: "1815-12-10T18:43:00.271152Z"
         type: string
       destinationAccountId:
+        description: ID of the destination account
         example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
         type: string
       envelopeId:
+        description: ID of the envelope
         example: 2649c965-7999-4873-ae16-89d5d5fa972e
         type: string
       importHash:
@@ -1004,6 +1101,7 @@ definitions:
         example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
         type: string
       note:
+        description: A note
         example: Lunch
         type: string
       reconciled:
@@ -1015,13 +1113,16 @@ definitions:
         type: boolean
       reconciledDestination:
         default: false
+        description: Is the transaction reconciled in the destination account?
         example: true
         type: boolean
       reconciledSource:
         default: false
+        description: Is the transaction reconciled in the source account?
         example: true
         type: boolean
       sourceAccountId:
+        description: ID of the source account
         example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
         type: string
     type: object
@@ -1047,7 +1148,9 @@ definitions:
   router.RootResponse:
     properties:
       links:
-        $ref: '#/definitions/router.RootLinks'
+        allOf:
+        - $ref: '#/definitions/router.RootLinks'
+        description: URLs of API endpoints
     type: object
   router.V1Links:
     properties:

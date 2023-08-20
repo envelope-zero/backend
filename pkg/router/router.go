@@ -138,7 +138,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 }
 
 type RootResponse struct {
-	Links RootLinks `json:"links"`
+	Links RootLinks `json:"links"` // URLs of API endpoints
 }
 
 type RootLinks struct {

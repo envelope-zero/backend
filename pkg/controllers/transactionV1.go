@@ -16,29 +16,29 @@ import (
 )
 
 type TransactionListResponse struct {
-	Data []models.Transaction `json:"data"`
+	Data []models.Transaction `json:"data"` // List of transactions
 }
 
 type TransactionResponse struct {
-	Data models.Transaction `json:"data"`
+	Data models.Transaction `json:"data"` // Data for the transaction
 }
 
 type TransactionQueryFilter struct {
-	Date                  time.Time       `form:"date" filterField:"false"`
-	FromDate              time.Time       `form:"fromDate" filterField:"false"`
-	UntilDate             time.Time       `form:"untilDate" filterField:"false"`
-	Amount                decimal.Decimal `form:"amount"`
+	Date                  time.Time       `form:"date" filterField:"false"`              // Exact date. Time is ignored.
+	FromDate              time.Time       `form:"fromDate" filterField:"false"`          // From this date. Time is ignored.
+	UntilDate             time.Time       `form:"untilDate" filterField:"false"`         // Until this date. Time is ignored.
+	Amount                decimal.Decimal `form:"amount"`                                // Exact amount
 	AmountLessOrEqual     decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
 	AmountMoreOrEqual     decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
-	Note                  string          `form:"note" filterField:"false"`
-	BudgetID              string          `form:"budget"`
-	SourceAccountID       string          `form:"source"`
-	DestinationAccountID  string          `form:"destination"`
-	EnvelopeID            string          `form:"envelope"`
-	Reconciled            bool            `form:"reconciled"`            // DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.
-	ReconciledSource      bool            `form:"reconciledSource"`      // Is the transaction reconciled in the source account?
-	ReconciledDestination bool            `form:"reconciledDestination"` // Is the transaction reconciled in the destination account?
-	AccountID             string          `form:"account" filterField:"false"`
+	Note                  string          `form:"note" filterField:"false"`              // Note contains this string
+	BudgetID              string          `form:"budget"`                                // ID of the budget
+	SourceAccountID       string          `form:"source"`                                // ID of the source account
+	DestinationAccountID  string          `form:"destination"`                           // ID of the destination account
+	EnvelopeID            string          `form:"envelope"`                              // ID of the envelope
+	Reconciled            bool            `form:"reconciled"`                            // DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.
+	ReconciledSource      bool            `form:"reconciledSource"`                      // Is the transaction reconciled in the source account?
+	ReconciledDestination bool            `form:"reconciledDestination"`                 // Is the transaction reconciled in the destination account?
+	AccountID             string          `form:"account" filterField:"false"`           // ID of either source or destination account
 }
 
 func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, bool) {
