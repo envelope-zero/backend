@@ -169,7 +169,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	//  * 2 for the first envelope
 	//  * 2 for the second envelope
 	//  * 11 for the last envelope
-	for i := 1; i <= 15; i++ {
+	for i := 0; i < 15; i++ {
 		eIndex := i
 		if i > 5 {
 			eIndex = 2
@@ -177,28 +177,44 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		_ = suite.createTestTransaction(models.TransactionCreate{
 			BudgetID:             budget.ID,
 			EnvelopeID:           envelopeIDs[eIndex%3],
-			SourceAccountID:      account.ID,
-			DestinationAccountID: externalAccount.ID,
+			SourceAccountID:      externalAccount.ID,
+			DestinationAccountID: account.ID,
 			Amount:               decimal.NewFromFloat(17.45),
 		})
 	}
 
-	err := externalAccount.SetRecentEnvelopes(suite.db)
+	// Create one income transaction
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		BudgetID:             budget.ID,
+		EnvelopeID:           nil,
+		SourceAccountID:      externalAccount.ID,
+		DestinationAccountID: account.ID,
+		Amount:               decimal.NewFromFloat(1337.42),
+	})
+
+	err := account.SetRecentEnvelopes(suite.db)
 	if err != nil {
 		suite.Assert().FailNow("Could not compute recent envelopes", err)
 	}
 
+	if !suite.Assert().Len(account.RecentEnvelopes, 4, "The number of envelopes in recentEnvelopes is not correct, expected 4, got %d", len(account.RecentEnvelopes)) {
+		suite.FailNow("Incorrect envelope number")
+	}
+
 	// The last envelope needs to be the first in the sort since it
-	// has been the most common one in the last 10 transactions
-	suite.Assert().Equal(*envelopeIDs[2], externalAccount.RecentEnvelopes[0].ID)
+	// has been the most common one
+	suite.Assert().Equal(*envelopeIDs[2], account.RecentEnvelopes[0].ID)
 
 	// The second envelope is as common as the first, but its newest transaction
 	// is newer than the first envelope's newest transaction,
 	// so it needs to come second
-	suite.Assert().Equal(*envelopeIDs[1], externalAccount.RecentEnvelopes[1].ID)
+	suite.Assert().Equal(*envelopeIDs[1], account.RecentEnvelopes[1].ID)
 
 	// The first envelope is the last one
-	suite.Assert().Equal(*envelopeIDs[0], externalAccount.RecentEnvelopes[2].ID)
+	suite.Assert().Equal(*envelopeIDs[0], account.RecentEnvelopes[2].ID)
+
+	// Income is the last one
+	suite.Assert().Equal(uuid.Nil, account.RecentEnvelopes[3].ID)
 }
 
 func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {

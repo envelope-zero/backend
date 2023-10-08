@@ -173,12 +173,7 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		duplicateTransactions(co, &transaction, account.BudgetID)
 
 		// Recommend an envelope
-		if transaction.Transaction.SourceAccountID != account.ID && transaction.Transaction.SourceAccountID != uuid.Nil {
-			err = recommendEnvelope(co, &transaction, transaction.Transaction.SourceAccountID)
-			if err != nil {
-				httperrors.Handler(c, err)
-			}
-		} else if transaction.Transaction.DestinationAccountID != account.ID && transaction.Transaction.DestinationAccountID != uuid.Nil {
+		if transaction.Transaction.DestinationAccountID != uuid.Nil {
 			err = recommendEnvelope(co, &transaction, transaction.Transaction.DestinationAccountID)
 			if err != nil {
 				httperrors.Handler(c, err)
@@ -383,20 +378,20 @@ func match(transaction *importer.TransactionPreview, rules []models.MatchRule) {
 // recommendEnvelope sets the first of the recommended envelopes for the opposing account.
 func recommendEnvelope(co Controller, transaction *importer.TransactionPreview, id uuid.UUID) error {
 	// Load the account
-	var opposingAccount models.Account
-	err := co.DB.First(&opposingAccount, models.Account{DefaultModel: models.DefaultModel{ID: id}}).Error
+	var destinationAccount models.Account
+	err := co.DB.First(&destinationAccount, models.Account{DefaultModel: models.DefaultModel{ID: id}}).Error
 	if err != nil {
 		return err
 	}
 
 	// Preset the most popular recent envelope
-	err = opposingAccount.SetRecentEnvelopes(co.DB)
+	err = destinationAccount.SetRecentEnvelopes(co.DB)
 	if err != nil {
 		return err
 	}
 
-	if len(opposingAccount.RecentEnvelopes) > 0 {
-		transaction.Transaction.EnvelopeID = &opposingAccount.RecentEnvelopes[0].ID
+	if len(destinationAccount.RecentEnvelopes) > 0 && destinationAccount.RecentEnvelopes[0].ID != uuid.Nil {
+		transaction.Transaction.EnvelopeID = &destinationAccount.RecentEnvelopes[0].ID
 	}
 
 	return nil
