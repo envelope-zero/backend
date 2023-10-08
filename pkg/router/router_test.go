@@ -153,6 +153,7 @@ func TestGetV2(t *testing.T) {
 		Links: router.V2Links{
 			Transactions: "/v2/transactions",
 			RenameRules:  "/v2/rename-rules",
+			MatchRules:   "/v2/match-rules",
 		},
 	}
 

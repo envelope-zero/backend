@@ -139,21 +139,21 @@ definitions:
       data:
         description: List of rename rules
         items:
-          $ref: '#/definitions/models.RenameRule'
+          $ref: '#/definitions/models.MatchRule'
         type: array
     type: object
   controllers.RenameRuleResponse:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/models.RenameRule'
+        - $ref: '#/definitions/models.MatchRule'
         description: Data for the rename rule
     type: object
-  controllers.ResponseRenameRule:
+  controllers.ResponseMatchRule:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/models.RenameRule'
+        - $ref: '#/definitions/models.MatchRule'
         description: This field contains the model data
       error:
         description: This field contains a human readable error message
@@ -203,8 +203,14 @@ definitions:
         items:
           type: string
         type: array
+      matchRuleId:
+        description: ID of the match rule that was applied to this transaction preview
+        example: 042d101d-f1de-4403-9295-59dc0ea58677
+        type: string
       renameRuleId:
-        description: ID of the rename rule that was applied to this transaction preview
+        description: ID of the match rule that was applied to this transaction preview.
+          This is kept for backwards compatibility and will be removed with API version
+          3
         example: 042d101d-f1de-4403-9295-59dc0ea58677
         type: string
       sourceAccountName:
@@ -809,6 +815,61 @@ definitions:
         example: https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3
         type: string
     type: object
+  models.MatchRule:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          self:
+            description: The match rule itself
+            example: https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21
+            type: string
+        type: object
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.MatchRuleCreate:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+    type: object
   models.Month:
     properties:
       allocation:
@@ -921,61 +982,6 @@ definitions:
     x-enum-varnames:
     - AffectAvailable
     - AffectEnvelope
-  models.RenameRule:
-    properties:
-      accountId:
-        description: The account to map matching transactions to
-        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        properties:
-          self:
-            description: The match rule itself
-            example: https://example.com/api/v2/rename-rules/95685c82-53c6-455d-b235-f49960b73b21
-            type: string
-        type: object
-      match:
-        description: The matching applied to the opposite account. This is a glob
-          pattern. Multiple globs are allowed. Globbing is case sensitive.
-        example: Bank*
-        type: string
-      priority:
-        description: The priority of the rename rule
-        example: 3
-        type: integer
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  models.RenameRuleCreate:
-    properties:
-      accountId:
-        description: The account to map matching transactions to
-        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
-        type: string
-      match:
-        description: The matching applied to the opposite account. This is a glob
-          pattern. Multiple globs are allowed. Globbing is case sensitive.
-        example: Bank*
-        type: string
-      priority:
-        description: The priority of the rename rule
-        example: 3
-        type: integer
-    type: object
   models.Transaction:
     properties:
       amount:
@@ -1196,6 +1202,10 @@ definitions:
     type: object
   router.V2Links:
     properties:
+      match-rules:
+        description: URL of match-rule list endpoint
+        example: https://example.com/api/v2/match-rules
+        type: string
       rename-rules:
         description: URL of rename-rule list endpoint
         example: https://example.com/api/v2/rename-rules
@@ -3155,8 +3165,200 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - v2
+  /v2/match-rules:
+    get:
+      description: Returns a list of matchRules
+      parameters:
+      - description: Filter by priority
+        in: query
+        name: priority
+        type: integer
+      - description: Filter by match
+        in: query
+        name: match
+        type: string
+      - description: Filter by account ID
+        in: query
+        name: account
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.MatchRule'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Get matchRules
+      tags:
+      - MatchRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - MatchRules
+    post:
+      description: Creates matchRules from the list of submitted matchRule data. The
+        response code is the highest response code number that a single matchRule
+        creation would have caused. If it is not equal to 201, at least one matchRule
+        has an error.
+      parameters:
+      - description: MatchRules
+        in: body
+        name: matchRules
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.MatchRuleCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseMatchRule'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseMatchRule'
+            type: array
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ResponseMatchRule'
+            type: array
+      summary: Create matchRules
+      tags:
+      - MatchRules
+  /v2/match-rules/{matchRuleId}:
+    delete:
+      description: Deletes an matchRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: matchRuleId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete matchRule
+      tags:
+      - MatchRules
+    get:
+      description: Returns a specific matchRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: matchRuleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MatchRule'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Get matchRule
+      tags:
+      - MatchRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: matchRuleId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - MatchRules
+    patch:
+      consumes:
+      - application/json
+      description: Update an matchRule. Only values to be updated need to be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: matchRuleId
+        required: true
+        type: string
+      - description: MatchRule
+        in: body
+        name: matchRule
+        required: true
+        schema:
+          $ref: '#/definitions/models.MatchRuleCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MatchRule'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Update matchRule
+      tags:
+      - MatchRules
   /v2/rename-rules:
     get:
+      deprecated: true
       description: Returns a list of renameRules
       parameters:
       - description: Filter by priority
@@ -3192,6 +3394,7 @@ paths:
       tags:
       - RenameRules
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3201,6 +3404,7 @@ paths:
       tags:
       - RenameRules
     post:
+      deprecated: true
       description: Creates renameRules from the list of submitted renameRule data.
         The response code is the highest response code number that a single renameRule
         creation would have caused. If it is not equal to 201, at least one renameRule
@@ -3212,7 +3416,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/models.RenameRuleCreate'
+            $ref: '#/definitions/models.MatchRuleCreate'
           type: array
       produces:
       - application/json
@@ -3221,13 +3425,13 @@ paths:
           description: Created
           schema:
             items:
-              $ref: '#/definitions/controllers.ResponseRenameRule'
+              $ref: '#/definitions/controllers.ResponseMatchRule'
             type: array
         "400":
           description: Bad Request
           schema:
             items:
-              $ref: '#/definitions/controllers.ResponseRenameRule'
+              $ref: '#/definitions/controllers.ResponseMatchRule'
             type: array
         "404":
           description: Not Found
@@ -3235,13 +3439,14 @@ paths:
           description: Internal Server Error
           schema:
             items:
-              $ref: '#/definitions/controllers.ResponseRenameRule'
+              $ref: '#/definitions/controllers.ResponseMatchRule'
             type: array
       summary: Create renameRules
       tags:
       - RenameRules
   /v2/rename-rules/{renameRuleId}:
     delete:
+      deprecated: true
       description: Deletes an renameRule
       parameters:
       - description: ID formatted as string
@@ -3266,6 +3471,7 @@ paths:
       tags:
       - RenameRules
     get:
+      deprecated: true
       description: Returns a specific renameRule
       parameters:
       - description: ID formatted as string
@@ -3294,6 +3500,7 @@ paths:
       tags:
       - RenameRules
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3311,6 +3518,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update an renameRule. Only values to be updated need to be specified.
       parameters:
       - description: ID formatted as string
@@ -3323,7 +3531,7 @@ paths:
         name: renameRule
         required: true
         schema:
-          $ref: '#/definitions/models.RenameRuleCreate'
+          $ref: '#/definitions/models.MatchRuleCreate'
       produces:
       - application/json
       responses:

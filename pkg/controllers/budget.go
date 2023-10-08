@@ -470,7 +470,7 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 //	@Param			month		path		string	true	"The month in YYYY-MM format"
 //	@Param			budgetId	path		string	true	"Budget ID formatted as string"
 //	@Router			/v1/budgets/{budgetId}/{month}/allocations [delete]
-//	@Deprecated		true.
+//	@Deprecated		true
 func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {
@@ -524,7 +524,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 //	@Param			budgetId	path		string					true	"Budget ID formatted as string"
 //	@Param			mode		body		BudgetAllocationMode	true	"Budget"
 //	@Router			/v1/budgets/{budgetId}/{month}/allocations [post]
-//	@Deprecated		true.
+//	@Deprecated		true
 func (co Controller) SetAllocationsMonth(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("budgetId"))
 	if err != nil {

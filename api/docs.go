@@ -2847,6 +2847,287 @@ const docTemplate = `{
                 }
             }
         },
+        "/v2/match-rules": {
+            "get": {
+                "description": "Returns a list of matchRules",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Get matchRules",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by priority",
+                        "name": "priority",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by match",
+                        "name": "match",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by account ID",
+                        "name": "account",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MatchRule"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates matchRules from the list of submitted matchRule data. The response code is the highest response code number that a single matchRule creation would have caused. If it is not equal to 201, at least one matchRule has an error.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Create matchRules",
+                "parameters": [
+                    {
+                        "description": "MatchRules",
+                        "name": "matchRules",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MatchRuleCreate"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ResponseMatchRule"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ResponseMatchRule"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.ResponseMatchRule"
+                            }
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v2/match-rules/{matchRuleId}": {
+            "get": {
+                "description": "Returns a specific matchRule",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Get matchRule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "matchRuleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MatchRule"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an matchRule",
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Delete matchRule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "matchRuleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "matchRuleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an matchRule. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Update matchRule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "matchRuleId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "MatchRule",
+                        "name": "matchRule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MatchRuleCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MatchRule"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/rename-rules": {
             "get": {
                 "description": "Returns a list of renameRules",
@@ -2857,6 +3138,7 @@ const docTemplate = `{
                     "RenameRules"
                 ],
                 "summary": "Get renameRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -2910,6 +3192,7 @@ const docTemplate = `{
                     "RenameRules"
                 ],
                 "summary": "Create renameRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "RenameRules",
@@ -2919,7 +3202,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.RenameRuleCreate"
+                                "$ref": "#/definitions/models.MatchRuleCreate"
                             }
                         }
                     }
@@ -2930,7 +3213,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.ResponseRenameRule"
+                                "$ref": "#/definitions/controllers.ResponseMatchRule"
                             }
                         }
                     },
@@ -2939,7 +3222,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.ResponseRenameRule"
+                                "$ref": "#/definitions/controllers.ResponseMatchRule"
                             }
                         }
                     },
@@ -2951,7 +3234,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.ResponseRenameRule"
+                                "$ref": "#/definitions/controllers.ResponseMatchRule"
                             }
                         }
                     }
@@ -2963,6 +3246,7 @@ const docTemplate = `{
                     "RenameRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2980,6 +3264,7 @@ const docTemplate = `{
                     "RenameRules"
                 ],
                 "summary": "Get renameRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3019,6 +3304,7 @@ const docTemplate = `{
                     "RenameRules"
                 ],
                 "summary": "Delete renameRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3055,6 +3341,7 @@ const docTemplate = `{
                     "RenameRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3082,6 +3369,7 @@ const docTemplate = `{
                     "RenameRules"
                 ],
                 "summary": "Update renameRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3096,7 +3384,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.RenameRuleCreate"
+                            "$ref": "#/definitions/models.MatchRuleCreate"
                         }
                     }
                 ],
@@ -3459,7 +3747,7 @@ const docTemplate = `{
                     "description": "List of rename rules",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.RenameRule"
+                        "$ref": "#/definitions/models.MatchRule"
                     }
                 }
             }
@@ -3471,20 +3759,20 @@ const docTemplate = `{
                     "description": "Data for the rename rule",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.RenameRule"
+                            "$ref": "#/definitions/models.MatchRule"
                         }
                     ]
                 }
             }
         },
-        "controllers.ResponseRenameRule": {
+        "controllers.ResponseMatchRule": {
             "type": "object",
             "properties": {
                 "data": {
                     "description": "This field contains the model data",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.RenameRule"
+                            "$ref": "#/definitions/models.MatchRule"
                         }
                     ]
                 },
@@ -3562,8 +3850,13 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "matchRuleId": {
+                    "description": "ID of the match rule that was applied to this transaction preview",
+                    "type": "string",
+                    "example": "042d101d-f1de-4403-9295-59dc0ea58677"
+                },
                 "renameRuleId": {
-                    "description": "ID of the rename rule that was applied to this transaction preview",
+                    "description": "ID of the match rule that was applied to this transaction preview. This is kept for backwards compatibility and will be removed with API version 3",
                     "type": "string",
                     "example": "042d101d-f1de-4403-9295-59dc0ea58677"
                 },
@@ -4324,6 +4617,76 @@ const docTemplate = `{
                 }
             }
         },
+        "models.MatchRule": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The match rule itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
+                        }
+                    }
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "models.MatchRuleCreate": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                }
+            }
+        },
         "models.Month": {
             "type": "object",
             "properties": {
@@ -4471,76 +4834,6 @@ const docTemplate = `{
                 "AffectAvailable",
                 "AffectEnvelope"
             ]
-        },
-        "models.RenameRule": {
-            "type": "object",
-            "properties": {
-                "accountId": {
-                    "description": "The account to map matching transactions to",
-                    "type": "string",
-                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The match rule itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v2/rename-rules/95685c82-53c6-455d-b235-f49960b73b21"
-                        }
-                    }
-                },
-                "match": {
-                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
-                    "type": "string",
-                    "example": "Bank*"
-                },
-                "priority": {
-                    "description": "The priority of the rename rule",
-                    "type": "integer",
-                    "example": 3
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "models.RenameRuleCreate": {
-            "type": "object",
-            "properties": {
-                "accountId": {
-                    "description": "The account to map matching transactions to",
-                    "type": "string",
-                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
-                },
-                "match": {
-                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
-                    "type": "string",
-                    "example": "Bank*"
-                },
-                "priority": {
-                    "description": "The priority of the rename rule",
-                    "type": "integer",
-                    "example": 3
-                }
-            }
         },
         "models.Transaction": {
             "type": "object",
@@ -4814,6 +5107,11 @@ const docTemplate = `{
         "router.V2Links": {
             "type": "object",
             "properties": {
+                "match-rules": {
+                    "description": "URL of match-rule list endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v2/match-rules"
+                },
                 "rename-rules": {
                     "description": "URL of rename-rule list endpoint",
                     "type": "string",

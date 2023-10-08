@@ -250,7 +250,7 @@ func (suite *TestSuiteStandard) TestYnabImportFindAccounts() {
 	}
 }
 
-func (suite *TestSuiteStandard) TestRename() {
+func (suite *TestSuiteStandard) TestMatch() {
 	// Create a budget and two existing accounts to use
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	edeka := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
@@ -277,12 +277,12 @@ func (suite *TestSuiteStandard) TestRename() {
 			[]uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestRenameRule(t, models.RenameRuleCreate{
+				edeka := suite.createTestMatchRule(t, models.MatchRuleCreate{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
 
-				return [3]uuid.UUID{edeka.Data.ID}
+				return [3]uuid.UUID{edeka.ID}
 			},
 		},
 		{
@@ -291,25 +291,25 @@ func (suite *TestSuiteStandard) TestRename() {
 			[]uuid.UUID{edeka.Data.ID, bahn.Data.ID, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestRenameRule(t, models.RenameRuleCreate{
+				edeka := suite.createTestMatchRule(t, models.MatchRuleCreate{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
 
-				db := suite.createTestRenameRule(t, models.RenameRuleCreate{
+				db := suite.createTestMatchRule(t, models.MatchRuleCreate{
 					Match:     "DB Vertrieb GmbH",
 					AccountID: bahn.Data.ID,
 				})
 
-				return [3]uuid.UUID{edeka.Data.ID, db.Data.ID}
+				return [3]uuid.UUID{edeka.ID, db.ID}
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			renameRuleIDs := tt.preTest(t)
-			preview := parseCSV(suite, internalAccount.Data.ID, "rename-rule-test.csv")
+			matchRuleIDs := tt.preTest(t)
+			preview := parseCSV(suite, internalAccount.Data.ID, "match-rule-test.csv")
 
 			for i, transaction := range preview.Data {
 				line := i + 1
@@ -321,15 +321,19 @@ func (suite *TestSuiteStandard) TestRename() {
 					assert.Equal(t, tt.destinationAccountIDs[i], transaction.Transaction.DestinationAccountID, "destinationAccountID does not match in line %d", line)
 				}
 
-				assert.Equal(t, renameRuleIDs[i], transaction.RenameRuleID, "Expected rename rule has match '%s', actual rename rule has match '%s'", renameRuleIDs[i])
+				assert.Equal(t, matchRuleIDs[i], transaction.MatchRuleID, "Expected match rule has match '%s', actual match rule has match '%s'", matchRuleIDs[i], transaction.MatchRuleID)
+
+				// This is kept for backwards compatibility and will be removed with API version 3
+				// https://github.com/envelope-zero/backend/issues/763
+				assert.Equal(t, matchRuleIDs[i], transaction.RenameRuleID, "Expected rename rule has match '%s', actual rename rule has match '%s'", matchRuleIDs[i], transaction.MatchRuleID)
 
 				assert.Equal(t, tt.envelopeIDs[i], transaction.Transaction.EnvelopeID, "proposed envelope ID does not match in line %d", line)
 			}
 
-			// Delete rename rules
-			for _, id := range renameRuleIDs {
+			// Delete match rules
+			for _, id := range matchRuleIDs {
 				if id != uuid.Nil {
-					suite.controller.DB.Delete(&models.RenameRule{}, id)
+					suite.controller.DB.Delete(&models.MatchRule{}, id)
 				}
 			}
 		})
