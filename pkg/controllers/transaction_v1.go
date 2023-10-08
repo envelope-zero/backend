@@ -147,6 +147,7 @@ func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			transaction	body		models.TransactionCreate	true	"Transaction"
 //	@Router			/v1/transactions [post]
+//	@Deprecated		true
 func (co Controller) CreateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 

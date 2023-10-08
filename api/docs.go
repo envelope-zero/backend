@@ -101,6 +101,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "List accounts",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2615,6 +2616,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Create transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Transaction",
@@ -2843,6 +2845,106 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v2/accounts": {
+            "get": {
+                "description": "Returns a list of accounts",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "List accounts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by budget ID",
+                        "name": "budget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the account on-budget?",
+                        "name": "onBudget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the account external?",
+                        "name": "external",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the account hidden?",
+                        "name": "hidden",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -5107,6 +5209,11 @@ const docTemplate = `{
         "router.V2Links": {
             "type": "object",
             "properties": {
+                "accounts": {
+                    "description": "URL of transaction list endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v2/accounts"
+                },
                 "match-rules": {
                     "description": "URL of match-rule list endpoint",
                     "type": "string",

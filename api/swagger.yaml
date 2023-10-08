@@ -1202,6 +1202,10 @@ definitions:
     type: object
   router.V2Links:
     properties:
+      accounts:
+        description: URL of transaction list endpoint
+        example: https://example.com/api/v2/accounts
+        type: string
       match-rules:
         description: URL of match-rule list endpoint
         example: https://example.com/api/v2/match-rules
@@ -1293,6 +1297,7 @@ paths:
       - v1
   /v1/accounts:
     get:
+      deprecated: true
       description: Returns a list of accounts
       parameters:
       - description: Filter by name
@@ -3012,6 +3017,7 @@ paths:
       tags:
       - Transactions
     post:
+      deprecated: true
       description: Creates a new transaction
       parameters:
       - description: Transaction
@@ -3165,6 +3171,73 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - v2
+  /v2/accounts:
+    get:
+      description: Returns a list of accounts
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Is the account on-budget?
+        in: query
+        name: onBudget
+        type: boolean
+      - description: Is the account external?
+        in: query
+        name: external
+        type: boolean
+      - description: Is the account hidden?
+        in: query
+        name: hidden
+        type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: List accounts
+      tags:
+      - Accounts
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
   /v2/match-rules:
     get:
       description: Returns a list of matchRules

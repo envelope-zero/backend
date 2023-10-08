@@ -133,6 +133,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 		v2.OPTIONS("", OptionsV2)
 	}
 
+	co.RegisterAccountRoutesV2(v2.Group("/accounts"))
 	co.RegisterTransactionRoutesV2(v2.Group("/transactions"))
 	co.RegisterRenameRuleRoutes(v2.Group("/rename-rules"))
 	co.RegisterMatchRuleRoutes(v2.Group("/match-rules"))
@@ -264,6 +265,7 @@ type V2Response struct {
 }
 
 type V2Links struct {
+	Accounts     string `json:"accounts" example:"https://example.com/api/v2/accounts"`         // URL of transaction list endpoint
 	Transactions string `json:"transactions" example:"https://example.com/api/v2/transactions"` // URL of transaction list endpoint
 	RenameRules  string `json:"rename-rules" example:"https://example.com/api/v2/rename-rules"` // URL of rename-rule list endpoint
 	MatchRules   string `json:"match-rules" example:"https://example.com/api/v2/match-rules"`   // URL of match-rule list endpoint
@@ -279,6 +281,7 @@ type V2Links struct {
 func GetV2(c *gin.Context) {
 	c.JSON(http.StatusOK, V2Response{
 		Links: V2Links{
+			Accounts:     c.GetString(string(database.ContextURL)) + "/v2/accounts",
 			Transactions: c.GetString(string(database.ContextURL)) + "/v2/transactions",
 			RenameRules:  c.GetString(string(database.ContextURL)) + "/v2/rename-rules",
 			MatchRules:   c.GetString(string(database.ContextURL)) + "/v2/match-rules",
