@@ -207,10 +207,12 @@ func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, avail
 // The list is sorted by decending frequency of the envelope being used.
 func (a *Account) SetRecentEnvelopes(db *gorm.DB) error {
 	var envelopes []Envelope
+
+	// TODO: For v2, just return the IDs and use `null` for income
 	err := db.
 		Table("transactions").
-		Select("envelopes.*, count(envelopes.id) AS count").
-		Joins("JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
+		Select("envelopes.*, count(*) AS count").
+		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
 		Order("count DESC, date(transactions.date) DESC").
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{
