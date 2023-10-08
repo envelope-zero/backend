@@ -144,21 +144,21 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	// Get all rename rules for the budget that the import target account is part of
-	var renameRules []models.RenameRule
+	// Get all match rules for the budget that the import target account is part of
+	var matchRules []models.MatchRule
 	err = co.DB.
 		Joins("JOIN accounts ON accounts.budget_id = ?", account.BudgetID).
-		Joins("JOIN rename_rules rr ON rr.account_id = accounts.id").
+		Joins("JOIN match_rules rr ON rr.account_id = accounts.id").
 		Order("rr.priority asc").
-		Find(&renameRules).Error
+		Find(&matchRules).Error
 	if err != nil {
 		httperrors.Handler(c, err)
 		return
 	}
 
 	for i, transaction := range transactions {
-		if len(renameRules) > 0 {
-			rename(&transaction, renameRules)
+		if len(matchRules) > 0 {
+			match(&transaction, matchRules)
 		}
 
 		// Only find accounts when they are not yet both set
@@ -349,8 +349,8 @@ func findAccounts(co Controller, transaction *importer.TransactionPreview, budge
 	return nil
 }
 
-// rename applies the renaming rules to a transaction.
-func rename(transaction *importer.TransactionPreview, rules []models.RenameRule) {
+// match applies the match rules to a transaction.
+func match(transaction *importer.TransactionPreview, rules []models.MatchRule) {
 	replace := func(name string) (uuid.UUID, uuid.UUID) {
 		// Iterate over all rules
 		for _, rule := range rules {
@@ -364,11 +364,19 @@ func rename(transaction *importer.TransactionPreview, rules []models.RenameRule)
 	}
 
 	if transaction.SourceAccountName != "" {
-		transaction.Transaction.SourceAccountID, transaction.RenameRuleID = replace(transaction.SourceAccountName)
+		transaction.Transaction.SourceAccountID, transaction.MatchRuleID = replace(transaction.SourceAccountName)
+
+		// This is kept for backwards compatibility and will be removed with API version 3
+		// https://github.com/envelope-zero/backend/issues/763
+		transaction.RenameRuleID = transaction.MatchRuleID
 	}
 
 	if transaction.DestinationAccountName != "" {
-		transaction.Transaction.DestinationAccountID, transaction.RenameRuleID = replace(transaction.DestinationAccountName)
+		transaction.Transaction.DestinationAccountID, transaction.MatchRuleID = replace(transaction.DestinationAccountName)
+
+		// This is kept for backwards compatibility and will be removed with API version 3
+		// https://github.com/envelope-zero/backend/issues/763
+		transaction.RenameRuleID = transaction.MatchRuleID
 	}
 }
 

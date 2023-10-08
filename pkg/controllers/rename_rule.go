@@ -12,11 +12,11 @@ import (
 )
 
 type RenameRuleResponse struct {
-	Data models.RenameRule `json:"data"` // Data for the rename rule
+	Data models.MatchRule `json:"data"` // Data for the rename rule
 }
 
 type RenameRuleListResponse struct {
-	Data []models.RenameRule `json:"data"` // List of rename rules
+	Data []models.MatchRule `json:"data"` // List of rename rules
 }
 
 type RenameRuleQueryFilter struct {
@@ -25,19 +25,19 @@ type RenameRuleQueryFilter struct {
 	AccountID string `form:"account"` // By ID of the account they map to
 }
 
-func (f RenameRuleQueryFilter) Parse(c *gin.Context) (models.RenameRuleCreate, bool) {
+func (f RenameRuleQueryFilter) Parse(c *gin.Context) (models.MatchRuleCreate, bool) {
 	envelopeID, ok := httputil.UUIDFromString(c, f.AccountID)
 	if !ok {
-		return models.RenameRuleCreate{}, false
+		return models.MatchRuleCreate{}, false
 	}
 
 	var month QueryMonth
 	if err := c.Bind(&month); err != nil {
 		httperrors.Handler(c, err)
-		return models.RenameRuleCreate{}, false
+		return models.MatchRuleCreate{}, false
 	}
 
-	return models.RenameRuleCreate{
+	return models.MatchRuleCreate{
 		Priority:  f.Priority,
 		Match:     f.Match,
 		AccountID: envelopeID,
@@ -70,6 +70,7 @@ func (co Controller) RegisterRenameRuleRoutes(r *gin.RouterGroup) {
 //	@Tags			RenameRules
 //	@Success		204
 //	@Router			/v2/rename-rules [options]
+//	@Deprecated		true
 func (co Controller) OptionsRenameRuleList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -82,6 +83,7 @@ func (co Controller) OptionsRenameRuleList(c *gin.Context) {
 //	@Success		204
 //	@Param			renameRuleId	path	string	true	"ID formatted as string"
 //	@Router			/v2/rename-rules/{renameRuleId} [options]
+//	@Deprecated		true
 func (co Controller) OptionsRenameRuleDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("renameRuleId"))
 	if err != nil {
@@ -89,7 +91,7 @@ func (co Controller) OptionsRenameRuleDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := getResourceByIDAndHandleErrors[models.RenameRule](c, co, id)
+	_, ok := getResourceByIDAndHandleErrors[models.MatchRule](c, co, id)
 	if !ok {
 		return
 	}
@@ -102,21 +104,22 @@ func (co Controller) OptionsRenameRuleDetail(c *gin.Context) {
 //	@Description	Creates renameRules from the list of submitted renameRule data. The response code is the highest response code number that a single renameRule creation would have caused. If it is not equal to 201, at least one renameRule has an error.
 //	@Tags			RenameRules
 //	@Produce		json
-//	@Success		201	{object}	[]ResponseRenameRule
-//	@Failure		400	{object}	[]ResponseRenameRule
+//	@Success		201	{object}	[]ResponseMatchRule
+//	@Failure		400	{object}	[]ResponseMatchRule
 //	@Failure		404
-//	@Failure		500			{object}	[]ResponseRenameRule
-//	@Param			renameRules	body		[]models.RenameRuleCreate	true	"RenameRules"
+//	@Failure		500			{object}	[]ResponseMatchRule
+//	@Param			renameRules	body		[]models.MatchRuleCreate	true	"RenameRules"
 //	@Router			/v2/rename-rules [post]
+//	@Deprecated		true
 func (co Controller) CreateRenameRules(c *gin.Context) {
-	var renameRules []models.RenameRule
+	var renameRules []models.MatchRule
 
 	if err := httputil.BindData(c, &renameRules); err != nil {
 		return
 	}
 
 	// The response list has the same length as the request list
-	r := make([]ResponseRenameRule, 0, len(renameRules))
+	r := make([]ResponseMatchRule, 0, len(renameRules))
 
 	// The final http status. Will be modified when errors occur
 	status := http.StatusCreated
@@ -126,7 +129,7 @@ func (co Controller) CreateRenameRules(c *gin.Context) {
 
 		// Append the error or the successfully created transaction to the response list
 		if !err.Nil() {
-			r = append(r, ResponseRenameRule{Error: err.Error()})
+			r = append(r, ResponseMatchRule{Error: err.Error()})
 
 			// The final status code is the highest HTTP status code number since this also
 			// represents the priority we
@@ -134,7 +137,7 @@ func (co Controller) CreateRenameRules(c *gin.Context) {
 				status = err.Status
 			}
 		} else {
-			r = append(r, ResponseRenameRule{Data: o})
+			r = append(r, ResponseMatchRule{Data: o})
 		}
 	}
 
@@ -155,6 +158,7 @@ func (co Controller) CreateRenameRules(c *gin.Context) {
 //	@Param			match		query		string	false	"Filter by match"
 //	@Param			account		query		string	false	"Filter by account ID"
 //	@Router			/v2/rename-rules [get]
+//	@Deprecated		true
 func (co Controller) GetRenameRules(c *gin.Context) {
 	var filter RenameRuleQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -171,9 +175,9 @@ func (co Controller) GetRenameRules(c *gin.Context) {
 		return
 	}
 
-	var renameRules []models.RenameRule
-	if !queryWithRetry(c, co.DB.Where(&models.RenameRule{
-		RenameRuleCreate: create,
+	var renameRules []models.MatchRule
+	if !queryWithRetry(c, co.DB.Where(&models.MatchRule{
+		MatchRuleCreate: create,
 	}, queryFields...).Find(&renameRules)) {
 		return
 	}
@@ -182,7 +186,7 @@ func (co Controller) GetRenameRules(c *gin.Context) {
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
 	if len(renameRules) == 0 {
-		renameRules = make([]models.RenameRule, 0)
+		renameRules = make([]models.MatchRule, 0)
 	}
 
 	c.JSON(http.StatusOK, RenameRuleListResponse{Data: renameRules})
@@ -200,6 +204,7 @@ func (co Controller) GetRenameRules(c *gin.Context) {
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			renameRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/rename-rules/{renameRuleId} [get]
+//	@Deprecated		true
 func (co Controller) GetRenameRule(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("renameRuleId"))
 	if err != nil {
@@ -207,7 +212,7 @@ func (co Controller) GetRenameRule(c *gin.Context) {
 		return
 	}
 
-	renameRuleObject, ok := getResourceByIDAndHandleErrors[models.RenameRule](c, co, id)
+	renameRuleObject, ok := getResourceByIDAndHandleErrors[models.MatchRule](c, co, id)
 	if !ok {
 		return
 	}
@@ -227,8 +232,9 @@ func (co Controller) GetRenameRule(c *gin.Context) {
 //	@Failure		404
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			renameRuleId	path		string					true	"ID formatted as string"
-//	@Param			renameRule		body		models.RenameRuleCreate	true	"RenameRule"
+//	@Param			renameRule		body		models.MatchRuleCreate	true	"RenameRule"
 //	@Router			/v2/rename-rules/{renameRuleId} [patch]
+//	@Deprecated		true
 func (co Controller) UpdateRenameRule(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("renameRuleId"))
 	if err != nil {
@@ -236,17 +242,17 @@ func (co Controller) UpdateRenameRule(c *gin.Context) {
 		return
 	}
 
-	renameRule, ok := getResourceByIDAndHandleErrors[models.RenameRule](c, co, id)
+	renameRule, ok := getResourceByIDAndHandleErrors[models.MatchRule](c, co, id)
 	if !ok {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.RenameRuleCreate{})
+	updateFields, err := httputil.GetBodyFields(c, models.MatchRuleCreate{})
 	if err != nil {
 		return
 	}
 
-	var data models.RenameRule
+	var data models.MatchRule
 	if err := httputil.BindData(c, &data); err != nil {
 		return
 	}
@@ -269,6 +275,7 @@ func (co Controller) UpdateRenameRule(c *gin.Context) {
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			renameRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/rename-rules/{renameRuleId} [delete]
+//	@Deprecated		true
 func (co Controller) DeleteRenameRule(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("renameRuleId"))
 	if err != nil {
@@ -276,7 +283,7 @@ func (co Controller) DeleteRenameRule(c *gin.Context) {
 		return
 	}
 
-	renameRule, ok := getResourceByIDAndHandleErrors[models.RenameRule](c, co, id)
+	renameRule, ok := getResourceByIDAndHandleErrors[models.MatchRule](c, co, id)
 	if !ok {
 		return
 	}
@@ -290,7 +297,7 @@ func (co Controller) DeleteRenameRule(c *gin.Context) {
 }
 
 // createRenameRule creates a single renameRule after verifying it is a valid renameRule.
-func (co Controller) createRenameRule(c *gin.Context, r models.RenameRule) (models.RenameRule, httperrors.ErrorStatus) {
+func (co Controller) createRenameRule(c *gin.Context, r models.MatchRule) (models.MatchRule, httperrors.ErrorStatus) {
 	// Check that the referenced account exists
 	_, err := getResourceByID[models.Account](c, co, r.AccountID)
 	if !err.Nil() {
@@ -300,7 +307,7 @@ func (co Controller) createRenameRule(c *gin.Context, r models.RenameRule) (mode
 	// Create the resource
 	dbErr := co.DB.Create(&r).Error
 	if dbErr != nil {
-		return models.RenameRule{}, httperrors.GenericDBError[models.RenameRule](r, c, dbErr)
+		return models.MatchRule{}, httperrors.GenericDBError[models.MatchRule](r, c, dbErr)
 	}
 
 	return r, httperrors.ErrorStatus{}

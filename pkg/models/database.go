@@ -21,7 +21,16 @@ func Migrate(db *gorm.DB) (err error) {
 		}
 	}
 
-	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, RenameRule{})
+	// https://github.com/envelope-zero/backend/issues/763
+	// Remove with 4.0.0
+	if db.Migrator().HasTable("rename_rules") {
+		err := db.Migrator().RenameTable("rename_rules", "match_rules")
+		if err != nil {
+			return fmt.Errorf("error during rename_rules -> match_rules migration: %w", err)
+		}
+	}
+
+	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, MatchRule{})
 	if err != nil {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}

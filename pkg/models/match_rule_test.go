@@ -5,6 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) TestRenameRuleSelf() {
-	assert.Equal(suite.T(), "Rename Rule", models.RenameRule{}.Self())
+func (suite *TestSuiteStandard) TestMatchRuleSelf() {
+	assert.Equal(suite.T(), "Match Rule", models.MatchRule{}.Self())
 }
