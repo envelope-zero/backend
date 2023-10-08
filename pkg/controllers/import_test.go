@@ -11,6 +11,7 @@ import (
 	"path"
 	"testing"
 
+	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/envelope-zero/backend/v3/pkg/controllers"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
@@ -173,6 +174,22 @@ func (suite *TestSuiteStandard) TestYnabImportPreviewDuplicateDetection() {
 
 	suite.Assert().Len(preview.Data[0].DuplicateTransactionIDs, 1, "Duplicate transaction IDs field does not have the correct number of IDs")
 	suite.Assert().Equal(transaction.Data.ID, preview.Data[0].DuplicateTransactionIDs[0], "Duplicate transaction ID is not ID of the transaction that is duplicated")
+}
+
+func (suite *TestSuiteStandard) TestYnabImportAvailableFrom() {
+	// Create test account
+	account := suite.createTestAccount(models.AccountCreate{Name: "TestYnabImportAvailableFrom"})
+	preview := parseCSV(suite, account.Data.ID, "available-from-test.csv")
+
+	dates := []types.Month{
+		types.NewMonth(2019, 2),
+		types.NewMonth(2019, 4),
+		types.NewMonth(2019, 5),
+	}
+
+	for i, transaction := range preview.Data {
+		assert.Equal(suite.T(), dates[i], transaction.Transaction.AvailableFrom)
+	}
 }
 
 func parseCSV(suite *TestSuiteStandard, accountID uuid.UUID, file string) controllers.ImportPreviewList {

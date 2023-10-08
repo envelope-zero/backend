@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/envelope-zero/backend/v3/pkg/importer"
 	"github.com/envelope-zero/backend/v3/pkg/importer/helpers"
 	"github.com/envelope-zero/backend/v3/pkg/models"
@@ -45,10 +46,11 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 
 		t := importer.TransactionPreview{
 			Transaction: models.TransactionCreate{
-				Date:       date,
-				ImportHash: helpers.Sha256String(strings.Join(record, ",")),
-				Note:       record[Memo],
-				BudgetID:   account.BudgetID,
+				Date:          date,
+				AvailableFrom: types.NewMonth(date.Year(), date.Month()),
+				ImportHash:    helpers.Sha256String(strings.Join(record, ",")),
+				Note:          record[Memo],
+				BudgetID:      account.BudgetID,
 			},
 		}
 
