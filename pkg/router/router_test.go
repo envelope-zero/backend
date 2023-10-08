@@ -151,6 +151,7 @@ func TestGetV2(t *testing.T) {
 	// this only tests the path, not the host
 	l := router.V2Response{
 		Links: router.V2Links{
+			Accounts:     "/v2/accounts",
 			Transactions: "/v2/transactions",
 			RenameRules:  "/v2/rename-rules",
 			MatchRules:   "/v2/match-rules",

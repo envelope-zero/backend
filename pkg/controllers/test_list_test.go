@@ -13,8 +13,8 @@ var methodNotAllowedTests = []struct {
 	{"/", http.MethodPost},
 	{"/", http.MethodDelete},
 	{"http://example.com/v1", http.MethodPost},
-	{"http://example.com/v1/budgets", "HEAD"},
-	{"http://example.com/v1/budgets", "PUT"},
+	{"http://example.com/v1/budgets", http.MethodHead},
+	{"http://example.com/v1/budgets", http.MethodPut},
 }
 
 func (suite *TestSuiteStandard) TestMethodNotAllowed() {
