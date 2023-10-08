@@ -213,7 +213,7 @@ func (a *Account) SetRecentEnvelopes(db *gorm.DB) error {
 		Table("transactions").
 		Select("envelopes.*, count(*) AS count").
 		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
-		Order("count DESC, date(transactions.date) DESC").
+		Order("count DESC, date(transactions.date) DESC, envelopes.created_at DESC").
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{
 				DestinationAccountID: a.ID,
