@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -119,4 +120,25 @@ func (suite *TestSuiteStandard) TestTransactionReconciled() {
 
 func (suite *TestSuiteStandard) TestTransactionSelf() {
 	assert.Equal(suite.T(), "Transaction", models.Transaction{}.Self())
+}
+
+// Regression test for https://github.com/envelope-zero/backend/issues/768
+func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+
+	transaction := models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			SourceAccountID:      externalAccount.ID,
+			DestinationAccountID: internalAccount.ID,
+			Note:                 "TestTransactionAvailableFromDate",
+			AvailableFrom:        types.NewMonth(2023, 9),
+			Date:                 time.Date(2023, 10, 7, 0, 0, 0, 0, time.UTC),
+		},
+	}
+
+	err := suite.db.Save(&transaction).Error
+	suite.Assert().NotNil(err, "Saving a transaction with an AvailableFrom date in a month before the transaction date should not be possible")
+	suite.Assert().Contains(err.Error(), "availability month must not be earlier than the month of the transaction")
 }

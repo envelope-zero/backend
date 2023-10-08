@@ -59,6 +59,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		SourceAccountID:      externalAccount.ID,
 		DestinationAccountID: account.ID,
 		Amount:               decimal.NewFromFloat(100),
+		Date:                 time.Now(),
 		AvailableFrom:        types.MonthOf(time.Now()).AddDate(0, 1),
 		Note:                 "Future Income Transaction",
 	})

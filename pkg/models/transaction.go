@@ -90,6 +90,8 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 	// Default the AvailableForBudget date to the transaction date
 	if t.AvailableFrom.IsZero() {
 		t.AvailableFrom = types.MonthOf(t.Date)
+	} else if t.AvailableFrom.Before(types.MonthOf(t.Date)) {
+		return fmt.Errorf("availability month must not be earlier than the month of the transaction, transaction date: %s, available month %s", t.Date, t.AvailableFrom)
 	}
 
 	// Enforce ReconciledSource = false when source account is external
