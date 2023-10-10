@@ -18,7 +18,7 @@ require (
 	github.com/swaggo/swag v1.16.2
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
 	golang.org/x/text v0.13.0
-	gorm.io/gorm v1.25.4
+	gorm.io/gorm v1.25.5
 )
 
 require github.com/gin-contrib/pprof v1.4.0
