@@ -65,6 +65,11 @@ func DBError(c *gin.Context, err error) ErrorStatus {
 		return ErrorStatus{Status: http.StatusNotFound, Err: errors.New("there is no resource for the ID you specified")}
 	}
 
+	// Availability month is set before the month of the transaction
+	if strings.Contains(err.Error(), "availability month must not be earlier than the month of the transaction") {
+		return ErrorStatus{Status: http.StatusBadRequest, Err: err}
+	}
+
 	// Account name must be unique per Budget
 	if strings.Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id") {
 		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("the account name must be unique for the budget")}
