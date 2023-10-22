@@ -321,6 +321,16 @@ func (suite *TestSuiteStandard) TestCreateTransaction() {
 	_ = suite.createTestTransaction(models.TransactionCreate{Note: "More tests something something", Amount: decimal.NewFromFloat(1253.17)})
 }
 
+// TestTransactionEnvelopeNilUUID is a regression test to ensure that when the API receives a
+// nil UUID "00000000-0000-0000-0000-000000000000" for the envelope, we do not check for the
+// envelopes existence in checkTransaction()
+//
+// If we did, it would always error.
+func (suite *TestSuiteStandard) TestCreateTransactionCheckTransactionEnvelopeNilUUID() {
+	eID := uuid.Nil
+	_ = suite.createTestTransaction(models.TransactionCreate{Note: "More tests something something", Amount: decimal.NewFromFloat(1253.17), EnvelopeID: &eID})
+}
+
 func (suite *TestSuiteStandard) TestTransactionSorting() {
 	tFebrurary := suite.createTestTransaction(models.TransactionCreate{Note: "Should be second in the list", Amount: decimal.NewFromFloat(1253.17), Date: time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC)})
 
