@@ -81,6 +81,12 @@ func (t *Transaction) links(tx *gorm.DB) {
 //   - sets the timezone for the Date for UTC
 //   - ensures that ReconciledSource and ReconciledDestination are set to valid values
 func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
+	// Ensure that the Envelope ID is nil and not a pointer to a nil UUID
+	// when it is set
+	if t.EnvelopeID != nil && *t.EnvelopeID == uuid.Nil {
+		t.EnvelopeID = nil
+	}
+
 	if t.Date.IsZero() {
 		t.Date = time.Now().In(time.UTC)
 	} else {

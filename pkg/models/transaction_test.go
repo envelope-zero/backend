@@ -142,3 +142,29 @@ func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 	suite.Assert().NotNil(err, "Saving a transaction with an AvailableFrom date in a month before the transaction date should not be possible")
 	suite.Assert().Contains(err.Error(), "availability month must not be earlier than the month of the transaction")
 }
+
+// TestTransactionEnvelopeNilUUID is a regression test to ensure that when the API receives a
+// nil UUID "00000000-0000-0000-0000-000000000000" for the envelope,
+// it is set to nil for the transaction resource.
+//
+// If it were not, it would reference the envelope with the nil UUID, which does not exist.
+func (suite *TestSuiteStandard) TestTransactionEnvelopeNilUUID() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+
+	eID := uuid.Nil
+
+	transaction := models.Transaction{
+		TransactionCreate: models.TransactionCreate{
+			BudgetID:             budget.ID,
+			SourceAccountID:      externalAccount.ID,
+			DestinationAccountID: internalAccount.ID,
+			EnvelopeID:           &eID,
+			Note:                 "TestTransactionEnvelopeNilUUID",
+		},
+	}
+
+	err := suite.db.Save(&transaction).Error
+	suite.Assert().Nil(err, "Saving a transaction with a nil UUID for the Envelope ID should not result in an error")
+}

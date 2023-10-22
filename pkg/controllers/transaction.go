@@ -7,6 +7,7 @@ import (
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -95,7 +96,7 @@ func (co Controller) checkTransaction(c *gin.Context, transaction models.Transac
 	}
 
 	// Check envelope being set for transfer between on-budget accounts
-	if transaction.EnvelopeID != nil {
+	if transaction.EnvelopeID != nil && *transaction.EnvelopeID != uuid.Nil {
 		if source.OnBudget && destination.OnBudget {
 			// TODO: Verify this state in the model hooks
 			return httperrors.ErrorStatus{Err: errors.New("transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible"), Status: http.StatusBadRequest}
