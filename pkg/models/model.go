@@ -13,7 +13,7 @@ type Model interface {
 
 // DefaultModel is the base model for most models in Envelope Zero.
 // As EnvelopeMonth uses the Envelope ID and the Month as primary key,
-// we the timestamps are managed in the Timestamps struct.
+// the timestamps are managed in the Timestamps struct.
 type DefaultModel struct {
 	ID uuid.UUID `json:"id" example:"65392deb-5e92-4268-b114-297faad6cdce"` // UUID for the resource
 	Timestamps

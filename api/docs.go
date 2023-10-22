@@ -3616,6 +3616,112 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.Account": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "Balance of the account, including all transactions referencing it",
+                    "type": "number",
+                    "example": 2735.17
+                },
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "hidden": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The account itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        },
+                        "transactions": {
+                            "description": "Transactions referencing the account",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "recentEnvelopes": {
+                    "description": "Envelopes recently used with this account",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Envelope"
+                    }
+                },
+                "reconciledBalance": {
+                    "description": "Balance of the account, including all reconciled transactions referencing it",
+                    "type": "number",
+                    "example": 2539.57
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.AccountListResponse": {
             "type": "object",
             "properties": {
@@ -3623,7 +3729,7 @@ const docTemplate = `{
                     "description": "List of accounts",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Account"
+                        "$ref": "#/definitions/controllers.Account"
                     }
                 }
             }
@@ -3635,7 +3741,7 @@ const docTemplate = `{
                     "description": "Data for the account",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Account"
+                            "$ref": "#/definitions/controllers.Account"
                         }
                     ]
                 }
@@ -3969,112 +4075,6 @@ const docTemplate = `{
                 },
                 "transaction": {
                     "$ref": "#/definitions/models.TransactionCreate"
-                }
-            }
-        },
-        "models.Account": {
-            "type": "object",
-            "properties": {
-                "balance": {
-                    "description": "Balance of the account, including all transactions referencing it",
-                    "type": "number",
-                    "example": 2735.17
-                },
-                "budgetId": {
-                    "description": "ID of the budget this account belongs to",
-                    "type": "string",
-                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "external": {
-                    "description": "Does the account belong to the budget owner or not?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
-                "hidden": {
-                    "description": "Is the account archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "initialBalance": {
-                    "description": "Balance of the account before any transactions were recorded",
-                    "type": "number",
-                    "default": 0,
-                    "example": 173.12
-                },
-                "initialBalanceDate": {
-                    "description": "Date of the initial balance",
-                    "type": "string",
-                    "example": "2017-05-12T00:00:00Z"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The account itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        },
-                        "transactions": {
-                            "description": "Transactions referencing the account",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        }
-                    }
-                },
-                "name": {
-                    "description": "Name of the account",
-                    "type": "string",
-                    "example": "Cash"
-                },
-                "note": {
-                    "description": "A longer description for the account",
-                    "type": "string",
-                    "example": "Money in my wallet"
-                },
-                "onBudget": {
-                    "description": "Does the account factor into the available budget? Always false when external: true",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "recentEnvelopes": {
-                    "description": "Envelopes recently used with this account",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Envelope"
-                    }
-                },
-                "reconciledBalance": {
-                    "description": "Balance of the account, including all reconciled transactions referencing it",
-                    "type": "number",
-                    "example": 2539.57
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

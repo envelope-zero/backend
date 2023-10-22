@@ -21,14 +21,16 @@ func (suite *TestSuiteStandard) TestAccountsV2() {
 }
 
 func (suite *TestSuiteStandard) TestGetAccountsV2() {
-	_ = suite.createTestAccount(models.AccountCreate{Name: "TestGetAccounts"})
+	account := suite.createTestAccount(models.AccountCreate{Name: "TestGetAccounts"})
 
-	var response []models.AccountV2
+	var response []controllers.AccountV2
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v2/accounts", "")
 	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 	suite.decodeResponse(&recorder, &response)
 
 	assert.Len(suite.T(), response, 1)
+	assert.Equal(suite.T(), fmt.Sprintf("http://example.com/v2/accounts/%s", account.Data.ID), response[0].Links.Self)
+	assert.Equal(suite.T(), fmt.Sprintf("http://example.com/v2/transactions?account=%s", account.Data.ID), response[0].Links.Transactions)
 }
 
 func (suite *TestSuiteStandard) TestGetAccountsV2InvalidQuery() {
@@ -107,7 +109,7 @@ func (suite *TestSuiteStandard) TestGetAccountsV2Filter() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			var re []models.AccountV2
+			var re []controllers.AccountV2
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v2/accounts?%s", tt.query), "")
 			assertHTTPStatus(suite.T(), &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)

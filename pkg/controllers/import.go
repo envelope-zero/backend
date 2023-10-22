@@ -378,20 +378,20 @@ func match(transaction *importer.TransactionPreview, rules []models.MatchRule) {
 // recommendEnvelope sets the first of the recommended envelopes for the opposing account.
 func recommendEnvelope(co Controller, transaction *importer.TransactionPreview, id uuid.UUID) error {
 	// Load the account
-	var destinationAccount models.AccountV2
-	err := co.DB.First(&destinationAccount, models.AccountV2{DefaultModel: models.DefaultModel{ID: id}}).Error
+	var destinationAccount models.Account
+	err := co.DB.First(&destinationAccount, models.Account{DefaultModel: models.DefaultModel{ID: id}}).Error
 	if err != nil {
 		return err
 	}
 
 	// Preset the most popular recent envelope
-	err = destinationAccount.SetRecentEnvelopes(co.DB)
+	envelopes, err := destinationAccount.RecentEnvelopes(co.DB)
 	if err != nil {
 		return err
 	}
 
-	if len(destinationAccount.RecentEnvelopes) > 0 && destinationAccount.RecentEnvelopes[0] != &uuid.Nil {
-		transaction.Transaction.EnvelopeID = destinationAccount.RecentEnvelopes[0]
+	if len(envelopes) > 0 && envelopes[0] != &uuid.Nil {
+		transaction.Transaction.EnvelopeID = envelopes[0]
 	}
 
 	return nil

@@ -18,7 +18,7 @@ func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate, expect
 		c.BudgetID = suite.createTestBudget(models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}
 
-	// Default to 200 OK as expected status
+	// Default to 201 Created as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
@@ -54,7 +54,7 @@ func (suite *TestSuiteStandard) TestOptionsAccount() {
 }
 
 func (suite *TestSuiteStandard) TestGetAccounts() {
-	_ = suite.createTestAccount(models.AccountCreate{Name: "TestGetAccounts"})
+	account := suite.createTestAccount(models.AccountCreate{Name: "TestGetAccounts"})
 
 	var response controllers.AccountListResponse
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/accounts", "")
@@ -62,6 +62,8 @@ func (suite *TestSuiteStandard) TestGetAccounts() {
 	suite.decodeResponse(&recorder, &response)
 
 	assert.Len(suite.T(), response.Data, 1)
+	assert.Equal(suite.T(), fmt.Sprintf("http://example.com/v1/accounts/%s", account.Data.ID), response.Data[0].Links.Self)
+	assert.Equal(suite.T(), fmt.Sprintf("http://example.com/v1/transactions?account=%s", account.Data.ID), response.Data[0].Links.Transactions)
 }
 
 func (suite *TestSuiteStandard) TestGetAccountsInvalidQuery() {

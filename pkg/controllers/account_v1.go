@@ -1,21 +1,102 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
+// Account is the API v1 representation of an Account in EZ.
+type Account struct {
+	models.Account
+	Balance           decimal.Decimal   `json:"balance" example:"2735.17"`           // Balance of the account, including all transactions referencing it
+	ReconciledBalance decimal.Decimal   `json:"reconciledBalance" example:"2539.57"` // Balance of the account, including all reconciled transactions referencing it
+	RecentEnvelopes   []models.Envelope `json:"recentEnvelopes"`                     // Envelopes recently used with this account
+
+	Links struct {
+		Self         string `json:"self" example:"https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`                     // The account itself
+		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"` // Transactions referencing the account
+	} `json:"links"`
+}
+
+// links generates the HATEOAS links for the Account.
+func (a *Account) links(c *gin.Context) {
+	url := c.GetString(string(database.ContextURL))
+	a.Links.Self = fmt.Sprintf("%s/v1/accounts/%s", url, a.ID)
+	a.Links.Transactions = fmt.Sprintf("%s/v1/transactions?account=%s", url, a.ID)
+}
+
 type AccountListResponse struct {
-	Data []models.Account `json:"data"` // List of accounts
+	Data []Account `json:"data"` // List of accounts
 }
 
 type AccountResponse struct {
-	Data models.Account `json:"data"` // Data for the account
+	Data Account `json:"data"` // Data for the account
+}
+
+func (co Controller) getAccount(c *gin.Context, id uuid.UUID) (Account, bool) {
+	accountModel, ok := getResourceByIDAndHandleErrors[models.Account](c, co, id)
+
+	account := Account{
+		Account: accountModel,
+	}
+
+	if !ok {
+		return Account{}, false
+	}
+
+	// Recent Envelopes
+	envelopeIDs, err := accountModel.RecentEnvelopes(co.DB)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return Account{}, false
+	}
+
+	envelopes := make([]models.Envelope, 0)
+	for _, id := range envelopeIDs {
+		// If the ID is nil, append the zero Envelope
+		if id == nil {
+			envelopes = append(envelopes, models.Envelope{})
+			continue
+		}
+
+		envelope, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, *id)
+		if !ok {
+			return Account{}, false
+		}
+		envelopes = append(envelopes, envelope)
+	}
+
+	account.RecentEnvelopes = envelopes
+
+	// Balance
+	balance, _, err := accountModel.GetBalanceMonth(co.DB, types.Month{})
+	if err != nil {
+		httperrors.Handler(c, err)
+		return Account{}, false
+	}
+	account.Balance = balance
+
+	// Reconciled Balance
+	reconciledBalance, err := accountModel.SumReconciled(co.DB)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return Account{}, false
+	}
+	account.ReconciledBalance = reconciledBalance
+
+	// Links
+	account.links(c)
+
+	return account, true
 }
 
 // RegisterAccountRoutes registers the routes for accounts with
@@ -67,7 +148,7 @@ func (co Controller) OptionsAccountDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getAccountObject(c, id)
+	_, ok := co.getAccount(c, id)
 	if !ok {
 		return
 	}
@@ -87,10 +168,14 @@ func (co Controller) OptionsAccountDetail(c *gin.Context) {
 //	@Param			account	body		models.AccountCreate	true	"Account"
 //	@Router			/v1/accounts [post]
 func (co Controller) CreateAccount(c *gin.Context) {
-	var account models.Account
+	var accountCreate models.AccountCreate
 
-	if err := httputil.BindData(c, &account); err != nil {
+	if err := httputil.BindData(c, &accountCreate); err != nil {
 		return
+	}
+
+	account := models.Account{
+		AccountCreate: accountCreate,
 	}
 
 	// Check if the budget that the account shoud belong to exists
@@ -103,7 +188,10 @@ func (co Controller) CreateAccount(c *gin.Context) {
 		return
 	}
 
-	accountObject, _ := co.getAccountObject(c, account.ID)
+	accountObject, ok := co.getAccount(c, account.ID)
+	if !ok {
+		return
+	}
 	c.JSON(http.StatusCreated, AccountResponse{Data: accountObject})
 }
 
@@ -156,10 +244,14 @@ func (co Controller) GetAccounts(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	accountObjects := make([]models.Account, 0)
+	accountObjects := make([]Account, 0)
 
 	for _, account := range accounts {
-		o, _ := co.getAccountObject(c, account.ID)
+		o, ok := co.getAccount(c, account.ID)
+		if !ok {
+			return
+		}
+
 		accountObjects = append(accountObjects, o)
 	}
 
@@ -185,7 +277,7 @@ func (co Controller) GetAccount(c *gin.Context) {
 		return
 	}
 
-	accountObject, ok := co.getAccountObject(c, id)
+	accountObject, ok := co.getAccount(c, id)
 	if !ok {
 		return
 	}
@@ -224,7 +316,7 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 	}
 
 	var data models.Account
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindData(c, &data.AccountCreate); err != nil {
 		return
 	}
 
@@ -232,7 +324,10 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	accountObject, _ := co.getAccountObject(c, account.ID)
+	accountObject, ok := co.getAccount(c, account.ID)
+	if !ok {
+		return
+	}
 	c.JSON(http.StatusOK, AccountResponse{Data: accountObject})
 }
 
@@ -266,26 +361,4 @@ func (co Controller) DeleteAccount(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-func (co Controller) getAccountObject(c *gin.Context, id uuid.UUID) (models.Account, bool) {
-	account, ok := getResourceByIDAndHandleErrors[models.Account](c, co, id)
-
-	if !ok {
-		return models.Account{}, false
-	}
-
-	err := account.SetRecentEnvelopes(co.DB)
-	if err != nil {
-		httperrors.Handler(c, err)
-		return models.Account{}, false
-	}
-
-	err = account.WithCalculations(co.DB)
-	if err != nil {
-		httperrors.Handler(c, err)
-		return models.Account{}, false
-	}
-
-	return account, true
 }
