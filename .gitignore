@@ -14,3 +14,6 @@ package.json
 
 # VSCode logs
 .vscode/*.log
+
+# Debugging binaries
+__debug_bin*

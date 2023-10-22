@@ -70,11 +70,12 @@ func (b *Budget) AfterFind(tx *gorm.DB) (err error) {
 
 	// Add all their balances to the budget's balance
 	for _, account := range accounts {
-		if err = account.WithCalculations(tx); err != nil {
+		balance, _, err := account.GetBalanceMonth(tx, types.Month{})
+		if err != nil {
 			return err
 		}
 
-		b.Balance = b.Balance.Add(account.Balance)
+		b.Balance = b.Balance.Add(balance)
 	}
 
 	return

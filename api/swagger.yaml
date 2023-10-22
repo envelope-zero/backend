@@ -1,17 +1,104 @@
 definitions:
+  controllers.Account:
+    properties:
+      balance:
+        description: Balance of the account, including all transactions referencing
+          it
+        example: 2735.17
+        type: number
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      hidden:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      links:
+        properties:
+          self:
+            description: The account itself
+            example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+          transactions:
+            description: Transactions referencing the account
+            example: https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+        type: object
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+      recentEnvelopes:
+        description: Envelopes recently used with this account
+        items:
+          $ref: '#/definitions/models.Envelope'
+        type: array
+      reconciledBalance:
+        description: Balance of the account, including all reconciled transactions
+          referencing it
+        example: 2539.57
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.AccountListResponse:
     properties:
       data:
         description: List of accounts
         items:
-          $ref: '#/definitions/models.Account'
+          $ref: '#/definitions/controllers.Account'
         type: array
     type: object
   controllers.AccountResponse:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/models.Account'
+        - $ref: '#/definitions/controllers.Account'
         description: Data for the account
     type: object
   controllers.AllocationListResponse:
@@ -219,93 +306,6 @@ definitions:
         type: string
       transaction:
         $ref: '#/definitions/models.TransactionCreate'
-    type: object
-  models.Account:
-    properties:
-      balance:
-        description: Balance of the account, including all transactions referencing
-          it
-        example: 2735.17
-        type: number
-      budgetId:
-        description: ID of the budget this account belongs to
-        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      external:
-        default: false
-        description: Does the account belong to the budget owner or not?
-        example: false
-        type: boolean
-      hidden:
-        default: false
-        description: Is the account archived?
-        example: true
-        type: boolean
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      initialBalance:
-        default: 0
-        description: Balance of the account before any transactions were recorded
-        example: 173.12
-        type: number
-      initialBalanceDate:
-        description: Date of the initial balance
-        example: "2017-05-12T00:00:00Z"
-        type: string
-      links:
-        properties:
-          self:
-            description: The account itself
-            example: https://example.com/api/v1/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-          transactions:
-            description: Transactions referencing the account
-            example: https://example.com/api/v1/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-        type: object
-      name:
-        description: Name of the account
-        example: Cash
-        type: string
-      note:
-        description: A longer description for the account
-        example: Money in my wallet
-        type: string
-      onBudget:
-        default: false
-        description: 'Does the account factor into the available budget? Always false
-          when external: true'
-        example: true
-        type: boolean
-      recentEnvelopes:
-        description: Envelopes recently used with this account
-        items:
-          $ref: '#/definitions/models.Envelope'
-        type: array
-      reconciledBalance:
-        description: Balance of the account, including all reconciled transactions
-          referencing it
-        example: 2539.57
-        type: number
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
     type: object
   models.AccountCreate:
     properties:
