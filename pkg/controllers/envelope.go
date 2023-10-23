@@ -80,7 +80,10 @@ func (co Controller) OptionsEnvelopeList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Envelopes
 //	@Success		204
-//	@Param			envelopeId	path	string	true	"ID formatted as string"
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			envelopeId	path		string	true	"ID formatted as string"
 //	@Router			/v1/envelopes/{envelopeId} [options]
 func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("envelopeId"))
@@ -103,9 +106,9 @@ func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 //	@Description	Creates a new envelope
 //	@Tags			Envelopes
 //	@Produce		json
-//	@Success		201	{object}	EnvelopeResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		201			{object}	EnvelopeResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelope	body		models.EnvelopeCreate	true	"Envelope"
 //	@Router			/v1/envelopes [post]
@@ -137,7 +140,6 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	EnvelopeListResponse
 //	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/envelopes [get]
 //	@Param			name		query	string	false	"Filter by name"
@@ -186,9 +188,9 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 //	@Description	Returns a specific envelope
 //	@Tags			Envelopes
 //	@Produce		json
-//	@Success		200	{object}	EnvelopeResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	EnvelopeResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string	true	"ID formatted as string"
 //	@Router			/v1/envelopes/{envelopeId} [get]
@@ -213,9 +215,9 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 //	@Description	Returns data about an envelope for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Envelopes
 //	@Produce		json
-//	@Success		200	{object}	EnvelopeMonthResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	EnvelopeMonthResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string	true	"ID formatted as string"
 //	@Param			month		path		string	true	"The month in YYYY-MM format"
@@ -260,9 +262,9 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 //	@Tags			Envelopes
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	EnvelopeResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	EnvelopeResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string					true	"ID formatted as string"
 //	@Param			envelope	body		models.EnvelopeCreate	true	"Envelope"
@@ -302,8 +304,8 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 //	@Description	Deletes an envelope
 //	@Tags			Envelopes
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string	true	"ID formatted as string"
 //	@Router			/v1/envelopes/{envelopeId} [delete]

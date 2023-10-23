@@ -82,7 +82,10 @@ func (co Controller) OptionsAllocationList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Allocations
 //	@Success		204
-//	@Param			allocationId	path	string	true	"ID formatted as string"
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			allocationId	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{allocationId} [options]
 func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("allocationId"))
@@ -104,9 +107,9 @@ func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 //	@Description	Create a new allocation of funds to an envelope for a specific month
 //	@Tags			Allocations
 //	@Produce		json
-//	@Success		201	{object}	AllocationResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		201			{object}	AllocationResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			allocation	body		models.AllocationCreate	true	"Allocation"
 //	@Router			/v1/allocations [post]
@@ -138,7 +141,6 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	AllocationListResponse
 //	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/allocations [get]
 //	@Param			month		query	string	false	"Filter by month"
@@ -183,9 +185,9 @@ func (co Controller) GetAllocations(c *gin.Context) {
 //	@Description	Returns a specific allocation
 //	@Tags			Allocations
 //	@Produce		json
-//	@Success		200	{object}	AllocationResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200				{object}	AllocationResponse
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			allocationId	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{allocationId} [get]
@@ -211,9 +213,9 @@ func (co Controller) GetAllocation(c *gin.Context) {
 //	@Tags			Allocations
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	AllocationResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200				{object}	AllocationResponse
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			allocationId	path		string					true	"ID formatted as string"
 //	@Param			allocation		body		models.AllocationCreate	true	"Allocation"
@@ -253,8 +255,8 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 //	@Description	Deletes an allocation
 //	@Tags			Allocations
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			allocationId	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{allocationId} [delete]

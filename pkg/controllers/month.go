@@ -78,9 +78,9 @@ func (co Controller) OptionsMonth(c *gin.Context) {
 //	@Description	Returns data about a specific month.
 //	@Tags			Months
 //	@Produce		json
-//	@Success		200	{object}	MonthResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200		{object}	MonthResponse
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
 //	@Failure		500		{object}	httperrors.HTTPError
 //	@Param			budget	query		string	true	"ID formatted as string"
 //	@Param			month	query		string	true	"The month in YYYY-MM format"
@@ -105,8 +105,8 @@ func (co Controller) GetMonth(c *gin.Context) {
 //	@Description	Deletes all allocation for the specified month
 //	@Tags			Months
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
 //	@Failure		500		{object}	httperrors.HTTPError
 //	@Param			budget	query		string	true	"ID formatted as string"
 //	@Param			month	query		string	true	"The month in YYYY-MM format"
@@ -145,8 +145,8 @@ func (co Controller) DeleteAllocations(c *gin.Context) {
 //	@Description	Sets allocations for a month for all envelopes that do not have an allocation yet
 //	@Tags			Months
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
 //	@Failure		500		{object}	httperrors.HTTPError
 //	@Param			budget	query		string					true	"ID formatted as string"
 //	@Param			month	query		string					true	"The month in YYYY-MM format"

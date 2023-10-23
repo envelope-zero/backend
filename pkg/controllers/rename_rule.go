@@ -81,7 +81,10 @@ func (co Controller) OptionsRenameRuleList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			RenameRules
 //	@Success		204
-//	@Param			renameRuleId	path	string	true	"ID formatted as string"
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			renameRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/rename-rules/{renameRuleId} [options]
 //	@Deprecated		true
 func (co Controller) OptionsRenameRuleDetail(c *gin.Context) {
@@ -104,9 +107,9 @@ func (co Controller) OptionsRenameRuleDetail(c *gin.Context) {
 //	@Description	Creates renameRules from the list of submitted renameRule data. The response code is the highest response code number that a single renameRule creation would have caused. If it is not equal to 201, at least one renameRule has an error.
 //	@Tags			RenameRules
 //	@Produce		json
-//	@Success		201	{object}	[]ResponseMatchRule
-//	@Failure		400	{object}	[]ResponseMatchRule
-//	@Failure		404
+//	@Success		201			{object}	[]ResponseMatchRule
+//	@Failure		400			{object}	[]ResponseMatchRule
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	[]ResponseMatchRule
 //	@Param			renameRules	body		[]models.MatchRuleCreate	true	"RenameRules"
 //	@Router			/v2/rename-rules [post]
@@ -150,9 +153,8 @@ func (co Controller) CreateRenameRules(c *gin.Context) {
 //	@Description	Returns a list of renameRules
 //	@Tags			RenameRules
 //	@Produce		json
-//	@Success		200	{object}	RenameRuleListResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	RenameRuleListResponse
+//	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			priority	query		uint	false	"Filter by priority"
 //	@Param			match		query		string	false	"Filter by match"
@@ -198,9 +200,9 @@ func (co Controller) GetRenameRules(c *gin.Context) {
 //	@Description	Returns a specific renameRule
 //	@Tags			RenameRules
 //	@Produce		json
-//	@Success		200	{object}	RenameRuleResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200				{object}	RenameRuleResponse
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			renameRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/rename-rules/{renameRuleId} [get]
@@ -270,8 +272,8 @@ func (co Controller) UpdateRenameRule(c *gin.Context) {
 //	@Description	Deletes an renameRule
 //	@Tags			RenameRules
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			renameRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/rename-rules/{renameRuleId} [delete]

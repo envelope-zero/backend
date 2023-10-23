@@ -183,9 +183,6 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -228,7 +225,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -247,15 +247,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found"
                     }
                 }
             }
@@ -293,7 +284,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -332,7 +326,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -368,7 +365,16 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -413,7 +419,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -467,9 +476,6 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -512,7 +518,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -568,7 +577,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -604,7 +616,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -632,6 +647,24 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -679,7 +712,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -794,12 +830,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
                     }
                 }
             }
@@ -837,7 +867,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -873,7 +906,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -909,7 +945,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -963,7 +1002,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1015,7 +1057,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1059,7 +1104,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1072,7 +1120,7 @@
         },
         "/v1/budgets/{budgetId}/{month}/allocations": {
             "post": {
-                "description": "Sets allocations for a month for all envelopes that do not have an allocation yet. **Use POST /month endpoint with month and budgetId query parameters instead.**",
+                "description": "Sets allocations for a month for all envelopes that do not have an allocation yet. **Deprecated. Use POST /month endpoint with month and budgetId query parameters instead.**",
                 "tags": [
                     "Budgets"
                 ],
@@ -1109,6 +1157,12 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
@@ -1196,7 +1250,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1262,9 +1319,6 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1307,7 +1361,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1326,15 +1383,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found"
                     }
                 }
             }
@@ -1372,7 +1420,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1408,7 +1459,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1444,7 +1498,16 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -1492,7 +1555,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1558,9 +1624,6 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1603,7 +1666,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1659,7 +1725,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1695,7 +1764,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1723,6 +1795,24 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -1770,7 +1860,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1822,7 +1915,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1890,12 +1986,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
                     }
                 }
             }
@@ -1941,6 +2031,12 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1958,12 +2054,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
                     }
                 }
             }
@@ -2026,12 +2116,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
                     }
                 }
             }
@@ -2069,12 +2153,6 @@
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
@@ -2141,6 +2219,12 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
@@ -2248,6 +2332,12 @@
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -2285,6 +2375,12 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
@@ -2338,6 +2434,12 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2387,7 +2489,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2439,7 +2544,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2482,7 +2590,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2620,9 +2731,6 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2666,7 +2774,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2722,7 +2833,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2758,7 +2872,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2786,6 +2903,24 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -2833,7 +2968,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2940,9 +3078,6 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2960,15 +3095,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found"
                     }
                 }
             }
@@ -3018,9 +3144,6 @@
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
-                    },
-                    "404": {
-                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3073,7 +3196,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3132,7 +3258,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3168,7 +3297,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3196,6 +3328,24 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -3243,7 +3393,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3298,9 +3451,6 @@
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3353,7 +3503,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3414,7 +3567,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3451,7 +3607,10 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -3480,6 +3639,24 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
                     }
                 }
             },
@@ -3576,14 +3753,17 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/controllers.ResponseTransactionV2"
                             }
                         }
-                    },
-                    "404": {
-                        "description": "Not Found"
                     },
                     "500": {
                         "description": "Internal Server Error",

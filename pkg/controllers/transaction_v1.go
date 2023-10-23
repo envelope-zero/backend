@@ -145,7 +145,10 @@ func (co Controller) OptionsTransactionList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Transactions
 //	@Success		204
-//	@Param			transactionId	path	string	true	"ID formatted as string"
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [options]
 func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("transactionId"))
@@ -170,9 +173,9 @@ func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 //	@Description	Creates a new transaction
 //	@Tags			Transactions
 //	@Produce		json
-//	@Success		201	{object}	TransactionResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		201			{object}	TransactionResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			transaction	body		models.TransactionCreate	true	"Transaction"
 //	@Router			/v1/transactions [post]
@@ -210,7 +213,6 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	TransactionListResponse
 //	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/transactions [get]
 //	@Param			date					query	string	false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
@@ -318,9 +320,9 @@ func (co Controller) GetTransactions(c *gin.Context) {
 //	@Description	Returns a specific transaction
 //	@Tags			Transactions
 //	@Produce		json
-//	@Success		200	{object}	TransactionResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200				{object}	TransactionResponse
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [get]
@@ -353,9 +355,9 @@ func (co Controller) GetTransaction(c *gin.Context) {
 //	@Tags			Transactions
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	TransactionResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200				{object}	TransactionResponse
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			transactionId	path		string						true	"ID formatted as string"
 //	@Param			transaction		body		models.TransactionCreate	true	"Transaction"
@@ -433,8 +435,8 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 //	@Description	Deletes a transaction
 //	@Tags			Transactions
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [delete]

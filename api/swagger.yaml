@@ -1454,8 +1454,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -1469,12 +1467,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
       summary: Allowed HTTP verbs
       tags:
       - Accounts
@@ -1500,6 +1492,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1527,6 +1521,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1555,6 +1551,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1580,6 +1578,12 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Accounts
@@ -1610,6 +1614,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1644,8 +1650,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -1685,6 +1689,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1710,6 +1716,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1738,6 +1746,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1757,6 +1767,18 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Allocations
@@ -1789,6 +1811,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1836,10 +1860,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Budgets
@@ -1890,6 +1910,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1918,6 +1940,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1943,6 +1967,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1980,6 +2006,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2016,6 +2044,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2048,6 +2078,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2110,6 +2142,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2120,8 +2154,8 @@ paths:
     post:
       deprecated: true
       description: Sets allocations for a month for all envelopes that do not have
-        an allocation yet. **Use POST /month endpoint with month and budgetId query
-        parameters instead.**
+        an allocation yet. **Deprecated. Use POST /month endpoint with month and budgetId
+        query parameters instead.**
       parameters:
       - description: The month in YYYY-MM format
         in: path
@@ -2144,6 +2178,10 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
         "500":
@@ -2188,8 +2226,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -2203,12 +2239,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
       summary: Allowed HTTP verbs
       tags:
       - Categories
@@ -2234,6 +2264,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2259,6 +2291,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2287,6 +2321,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2312,6 +2348,12 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Categories
@@ -2345,6 +2387,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2387,8 +2431,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -2427,6 +2469,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2452,6 +2496,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2480,6 +2526,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2499,6 +2547,18 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Envelopes
@@ -2532,6 +2592,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2568,6 +2630,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2584,10 +2648,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Import
@@ -2630,10 +2690,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Import
@@ -2663,6 +2719,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2677,10 +2737,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Import
@@ -2739,10 +2795,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2786,6 +2838,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Delete MonthConfig
       tags:
       - MonthConfigs
@@ -2817,6 +2873,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Get MonthConfig
       tags:
       - MonthConfigs
@@ -2843,6 +2903,10 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
@@ -2876,6 +2940,10 @@ paths:
             $ref: '#/definitions/controllers.MonthConfigResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
         "500":
@@ -2949,6 +3017,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -2982,6 +3052,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3027,6 +3099,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3113,8 +3187,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -3154,6 +3226,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3179,6 +3253,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3207,6 +3283,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3226,6 +3304,18 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - Transactions
@@ -3259,6 +3349,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3329,8 +3421,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -3344,12 +3434,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
       summary: Allowed HTTP verbs
       tags:
       - Accounts
@@ -3382,8 +3466,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -3431,6 +3513,8 @@ paths:
             type: array
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3458,6 +3542,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3486,6 +3572,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3505,6 +3593,18 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - MatchRules
@@ -3537,6 +3637,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3572,8 +3674,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httperrors.HTTPError'
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:
@@ -3623,6 +3723,8 @@ paths:
             type: array
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3651,6 +3753,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3680,6 +3784,8 @@ paths:
             $ref: '#/definitions/httperrors.HTTPError'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -3700,6 +3806,18 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
       summary: Allowed HTTP verbs
       tags:
       - RenameRules
@@ -3776,11 +3894,13 @@ paths:
         "400":
           description: Bad Request
           schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
             items:
               $ref: '#/definitions/controllers.ResponseTransactionV2'
             type: array
-        "404":
-          description: Not Found
         "500":
           description: Internal Server Error
           schema:

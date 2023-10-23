@@ -60,9 +60,9 @@ func (co Controller) OptionsTransactionsV2(c *gin.Context) {
 //	@Description	Creates transactions from the list of submitted transaction data. The response code is the highest response code number that a single transaction creation would have caused. If it is not equal to 201, at least one transaction has an error.
 //	@Tags			Transactions
 //	@Produce		json
-//	@Success		201	{object}	[]ResponseTransactionV2
-//	@Failure		400	{object}	[]ResponseTransactionV2
-//	@Failure		404
+//	@Success		201				{object}	[]ResponseTransactionV2
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	[]ResponseTransactionV2
 //	@Failure		500				{object}	[]ResponseTransactionV2
 //	@Param			transactions	body		[]models.TransactionCreate	true	"Transactions"
 //	@Router			/v2/transactions [post]

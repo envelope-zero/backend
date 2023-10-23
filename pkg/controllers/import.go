@@ -52,7 +52,6 @@ func (co Controller) RegisterImportRoutes(r *gin.RouterGroup) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Please use /v1/import/ynab4, which works exactly the same.**
 //	@Tags			Import
 //	@Success		204
-//	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/import [options]
 //	@Deprecated		true
 func (co Controller) OptionsImport(c *gin.Context) {
@@ -65,7 +64,6 @@ func (co Controller) OptionsImport(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Import
 //	@Success		204
-//	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/import/ynab4 [options]
 func (co Controller) OptionsImportYnab4(c *gin.Context) {
 	httputil.OptionsPost(c)
@@ -77,7 +75,6 @@ func (co Controller) OptionsImportYnab4(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Import
 //	@Success		204
-//	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/import/ynab-import-preview [options]
 func (co Controller) OptionsImportYnabImportPreview(c *gin.Context) {
 	httputil.OptionsPost(c)
@@ -111,6 +108,7 @@ func (co Controller) Import(c *gin.Context) {
 //	@Produce		json
 //	@Success		200			{object}	ImportPreviewList
 //	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			file		formData	file	true	"File to import"
 //	@Param			accountId	query		string	false	"ID of the account to import transactions for"
