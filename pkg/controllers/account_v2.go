@@ -92,8 +92,6 @@ func (co Controller) RegisterAccountRoutesV2(r *gin.RouterGroup) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Accounts
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Router			/v2/accounts [options]
 func (co Controller) OptionsAccountListV2(c *gin.Context) {
 	httputil.OptionsGet(c)
@@ -107,7 +105,6 @@ func (co Controller) OptionsAccountListV2(c *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	AccountListResponse
 //	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v2/accounts [get]
 //	@Param			name		query	string	false	"Filter by name"

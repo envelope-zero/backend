@@ -72,7 +72,10 @@ func (co Controller) OptionsMatchRuleList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			MatchRules
 //	@Success		204
-//	@Param			matchRuleId	path	string	true	"ID formatted as string"
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			matchRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/match-rules/{matchRuleId} [options]
 func (co Controller) OptionsMatchRuleDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("matchRuleId"))
@@ -94,9 +97,9 @@ func (co Controller) OptionsMatchRuleDetail(c *gin.Context) {
 //	@Description	Creates matchRules from the list of submitted matchRule data. The response code is the highest response code number that a single matchRule creation would have caused. If it is not equal to 201, at least one matchRule has an error.
 //	@Tags			MatchRules
 //	@Produce		json
-//	@Success		201	{object}	[]ResponseMatchRule
-//	@Failure		400	{object}	[]ResponseMatchRule
-//	@Failure		404
+//	@Success		201			{object}	[]ResponseMatchRule
+//	@Failure		400			{object}	[]ResponseMatchRule
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	[]ResponseMatchRule
 //	@Param			matchRules	body		[]models.MatchRuleCreate	true	"MatchRules"
 //	@Router			/v2/match-rules [post]
@@ -139,9 +142,8 @@ func (co Controller) CreateMatchRules(c *gin.Context) {
 //	@Description	Returns a list of matchRules
 //	@Tags			MatchRules
 //	@Produce		json
-//	@Success		200	{object}	[]models.MatchRule
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	[]models.MatchRule
+//	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			priority	query		uint	false	"Filter by priority"
 //	@Param			match		query		string	false	"Filter by match"
@@ -186,9 +188,9 @@ func (co Controller) GetMatchRules(c *gin.Context) {
 //	@Description	Returns a specific matchRule
 //	@Tags			MatchRules
 //	@Produce		json
-//	@Success		200	{object}	models.MatchRule
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	models.MatchRule
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			matchRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/match-rules/{matchRuleId} [get]
@@ -214,9 +216,9 @@ func (co Controller) GetMatchRule(c *gin.Context) {
 //	@Tags			MatchRules
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	models.MatchRule
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	models.MatchRule
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			matchRuleId	path		string					true	"ID formatted as string"
 //	@Param			matchRule	body		models.MatchRuleCreate	true	"MatchRule"
@@ -256,8 +258,8 @@ func (co Controller) UpdateMatchRule(c *gin.Context) {
 //	@Description	Deletes an matchRule
 //	@Tags			MatchRules
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			matchRuleId	path		string	true	"ID formatted as string"
 //	@Router			/v2/match-rules/{matchRuleId} [delete]

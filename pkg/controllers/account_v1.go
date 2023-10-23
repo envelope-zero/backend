@@ -124,8 +124,6 @@ func (co Controller) RegisterAccountRoutes(r *gin.RouterGroup) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Accounts
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Router			/v1/accounts [options]
 func (co Controller) OptionsAccountList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
@@ -137,9 +135,10 @@ func (co Controller) OptionsAccountList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Accounts
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
-//	@Param			accountId	path	string	true	"ID formatted as string"
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			accountId	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{accountId} [options]
 func (co Controller) OptionsAccountDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("accountId"))
@@ -161,9 +160,9 @@ func (co Controller) OptionsAccountDetail(c *gin.Context) {
 //	@Description	Creates a new account
 //	@Tags			Accounts
 //	@Produce		json
-//	@Success		201	{object}	AccountResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		201		{object}	AccountResponse
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
 //	@Failure		500		{object}	httperrors.HTTPError
 //	@Param			account	body		models.AccountCreate	true	"Account"
 //	@Router			/v1/accounts [post]
@@ -203,7 +202,6 @@ func (co Controller) CreateAccount(c *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	AccountListResponse
 //	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/accounts [get]
 //	@Param			name		query	string	false	"Filter by name"
@@ -264,9 +262,9 @@ func (co Controller) GetAccounts(c *gin.Context) {
 //	@Description	Returns a specific account
 //	@Tags			Accounts
 //	@Produce		json
-//	@Success		200	{object}	AccountResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	AccountResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			accountId	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{accountId} [get]
@@ -291,9 +289,9 @@ func (co Controller) GetAccount(c *gin.Context) {
 //	@Description	Updates an account. Only values to be updated need to be specified.
 //	@Tags			Accounts
 //	@Produce		json
-//	@Success		200	{object}	AccountResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	AccountResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			accountId	path		string					true	"ID formatted as string"
 //	@Param			account		body		models.AccountCreate	true	"Account"
@@ -338,8 +336,8 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 //	@Tags			Accounts
 //	@Produce		json
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			accountId	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{accountId} [delete]

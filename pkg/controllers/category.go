@@ -63,8 +63,6 @@ func (co Controller) RegisterCategoryRoutes(r *gin.RouterGroup) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Categories
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Router			/v1/categories [options]
 func (co Controller) OptionsCategoryList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
@@ -76,9 +74,10 @@ func (co Controller) OptionsCategoryList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Categories
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
-//	@Param			categoryId	path	string	true	"ID formatted as string"
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			categoryId	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{categoryId} [options]
 func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("categoryId"))
@@ -100,9 +99,9 @@ func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 //	@Description	Creates a new category
 //	@Tags			Categories
 //	@Produce		json
-//	@Success		201	{object}	CategoryResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		201			{object}	CategoryResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			category	body		models.CategoryCreate	true	"Category"
 //	@Router			/v1/categories [post]
@@ -135,7 +134,6 @@ func (co Controller) CreateCategory(c *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	CategoryListResponse
 //	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1/categories [get]
 //	@Param			name	query	string	false	"Filter by name"
@@ -188,9 +186,9 @@ func (co Controller) GetCategories(c *gin.Context) {
 //	@Description	Returns a specific category
 //	@Tags			Categories
 //	@Produce		json
-//	@Success		200	{object}	CategoryResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	CategoryResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			categoryId	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{categoryId} [get]
@@ -216,9 +214,9 @@ func (co Controller) GetCategory(c *gin.Context) {
 //	@Tags			Categories
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	CategoryResponse
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Success		200			{object}	CategoryResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			categoryId	path		string					true	"ID formatted as string"
 //	@Param			category	body		models.CategoryCreate	true	"Category"
@@ -259,8 +257,8 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 //	@Description	Deletes a category
 //	@Tags			Categories
 //	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			categoryId	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{categoryId} [delete]

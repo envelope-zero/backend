@@ -80,6 +80,7 @@ func (co Controller) OptionsMonthConfigList(c *gin.Context) {
 //	@Success		204
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string	true	"ID of the Envelope"
 //	@Param			month		path		string	true	"The month in YYYY-MM format"
 //	@Router			/v1/month-configs/{envelopeId}/{month} [options]
@@ -108,6 +109,7 @@ func (co Controller) OptionsMonthConfigDetail(c *gin.Context) {
 //	@Success		200			{object}	MonthConfigResponse
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string	true	"ID of the Envelope"
 //	@Param			month		path		string	true	"The month in YYYY-MM format"
 //	@Router			/v1/month-configs/{envelopeId}/{month} [get]
@@ -145,7 +147,6 @@ func (co Controller) GetMonthConfig(c *gin.Context) {
 //	@Produce		json
 //	@Success		200			{object}	MonthConfigListResponse
 //	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelope	query		string	false	"Filter by name"
 //	@Param			month		query		string	false	"Filter by month"
@@ -247,6 +248,7 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 //	@Produce		json
 //	@Success		201			{object}	MonthConfigResponse
 //	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string						true	"ID of the Envelope"
 //	@Param			month		path		string						true	"The month in YYYY-MM format"
@@ -301,6 +303,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 //	@Success		204
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			envelopeId	path		string	true	"ID of the Envelope"
 //	@Param			month		path		string	true	"The month in YYYY-MM format"
 //	@Router			/v1/month-configs/{envelopeId}/{month} [delete]
