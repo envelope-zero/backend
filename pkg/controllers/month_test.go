@@ -39,7 +39,7 @@ func (suite *TestSuiteStandard) TestEnvelopeNoAllocationLink() {
 	assertHTTPStatus(suite.T(), &r, http.StatusOK)
 	suite.decodeResponse(&r, &month)
 	suite.Assert().NotEmpty(month.Data.Categories[0].Envelopes)
-	suite.Assert().Equal("https://example.com/v1/allocations", month.Data.Categories[0].Envelopes[0].Links.Allocation)
+	suite.Assert().Equal("http://example.com/v1/allocations", month.Data.Categories[0].Envelopes[0].Links.Allocation)
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeAllocationLink() {

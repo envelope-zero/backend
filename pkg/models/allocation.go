@@ -1,10 +1,7 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -15,9 +12,6 @@ type Allocation struct {
 	DefaultModel
 	AllocationCreate
 	Envelope Envelope `json:"-"`
-	Links    struct {
-		Self string `json:"self" example:"https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"` // The allocation itself
-	} `json:"links" gorm:"-"`
 }
 
 type AllocationCreate struct {
@@ -39,20 +33,4 @@ func (a *Allocation) BeforeSave(_ *gorm.DB) (err error) {
 	}
 
 	return
-}
-
-// AfterSave also sets the links so that we do not need to
-// query the resource directly after creating or updating it.
-func (a *Allocation) AfterSave(tx *gorm.DB) (err error) {
-	a.links(tx)
-	return
-}
-
-func (a *Allocation) AfterFind(tx *gorm.DB) (err error) {
-	a.links(tx)
-	return
-}
-
-func (a *Allocation) links(tx *gorm.DB) {
-	a.Links.Self = fmt.Sprintf("%s/v1/allocations/%s", tx.Statement.Context.Value(database.ContextURL), a.ID)
 }

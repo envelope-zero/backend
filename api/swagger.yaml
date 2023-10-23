@@ -101,12 +101,56 @@ definitions:
         - $ref: '#/definitions/controllers.Account'
         description: Data for the account
     type: object
+  controllers.Allocation:
+    properties:
+      amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          self:
+            description: The allocation itself
+            example: https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc
+            type: string
+        type: object
+      month:
+        description: Only year and month of this timestamp are used, everything else
+          is ignored. This will always be set to 00:00 UTC on the first of the specified
+          month
+        example: "2021-12-01T00:00:00.000000Z"
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.AllocationListResponse:
     properties:
       data:
         description: Data for the allocation
         items:
-          $ref: '#/definitions/models.Allocation'
+          $ref: '#/definitions/controllers.Allocation'
         type: array
     type: object
   controllers.AllocationMode:
@@ -121,7 +165,7 @@ definitions:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/models.Allocation'
+        - $ref: '#/definitions/controllers.Allocation'
         description: List of allocations
     type: object
   controllers.BudgetAllocationMode:
@@ -525,50 +569,6 @@ definitions:
           when external: true'
         example: true
         type: boolean
-    type: object
-  models.Allocation:
-    properties:
-      amount:
-        description: The maximum value is "999999999999.99999999", swagger unfortunately
-          rounds this.
-        example: 22.01
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopeId:
-        description: ID of the envelope
-        example: a0909e84-e8f9-4cb6-82a5-025dff105ff2
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        properties:
-          self:
-            description: The allocation itself
-            example: https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc
-            type: string
-        type: object
-      month:
-        description: Only year and month of this timestamp are used, everything else
-          is ignored. This will always be set to 00:00 UTC on the first of the specified
-          month
-        example: "2021-12-01T00:00:00.000000Z"
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
     type: object
   models.AllocationCreate:
     properties:
