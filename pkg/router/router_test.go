@@ -88,6 +88,7 @@ func TestGetRoot(t *testing.T) {
 	l := router.RootResponse{
 		Links: router.RootLinks{
 			Docs:    "/docs/index.html",
+			Healthz: "/healthz",
 			Version: "/version",
 			V1:      "/v1",
 			V2:      "/v2",
