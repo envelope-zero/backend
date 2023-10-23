@@ -1,24 +1,51 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 )
 
+type Allocation struct {
+	models.Allocation
+	Links struct {
+		Self string `json:"self" example:"https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"` // The allocation itself
+	} `json:"links" gorm:"-"`
+}
+
+func (a *Allocation) links(c *gin.Context) {
+	a.Links.Self = fmt.Sprintf("%s/v1/allocations/%s", c.GetString(string(database.ContextURL)), a.ID)
+}
+
+func (co Controller) getAllocation(c *gin.Context, id uuid.UUID) (Allocation, bool) {
+	m, ok := getResourceByIDAndHandleErrors[models.Allocation](c, co, id)
+	if !ok {
+		return Allocation{}, false
+	}
+
+	a := Allocation{
+		Allocation: m,
+	}
+
+	a.links(c)
+	return a, true
+}
+
 type AllocationResponse struct {
-	Data models.Allocation `json:"data"` // List of allocations
+	Data Allocation `json:"data"` // List of allocations
 }
 
 type AllocationListResponse struct {
-	Data []models.Allocation `json:"data"` // Data for the allocation
+	Data []Allocation `json:"data"` // Data for the allocation
 }
 
 type AllocationQueryFilter struct {
@@ -114,23 +141,32 @@ func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 //	@Param			allocation	body		models.AllocationCreate	true	"Allocation"
 //	@Router			/v1/allocations [post]
 func (co Controller) CreateAllocation(c *gin.Context) {
-	var allocation models.Allocation
+	var create models.AllocationCreate
 
-	err := httputil.BindData(c, &allocation)
+	err := httputil.BindData(c, &create)
 	if err != nil {
 		return
 	}
 
-	_, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, allocation.EnvelopeID)
+	a := models.Allocation{
+		AllocationCreate: create,
+	}
+
+	_, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, a.EnvelopeID)
 	if !ok {
 		return
 	}
 
-	if !queryAndHandleErrors(c, co.DB.Create(&allocation)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&a)) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, AllocationResponse{Data: allocation})
+	o, ok := co.getAllocation(c, a.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusCreated, AllocationResponse{Data: o})
 }
 
 // GetAllocations returns a list of allocations matching the search parameters
@@ -169,14 +205,17 @@ func (co Controller) GetAllocations(c *gin.Context) {
 		return
 	}
 
-	// When there are no resources, we want an empty list, not null
-	// Therefore, we use make to create a slice with zero elements
-	// which will be marshalled to an empty JSON array
-	if len(allocations) == 0 {
-		allocations = make([]models.Allocation, 0)
+	s := make([]Allocation, 0)
+	for _, allocation := range allocations {
+		a, ok := co.getAllocation(c, allocation.ID)
+		if !ok {
+			return
+		}
+
+		s = append(s, a)
 	}
 
-	c.JSON(http.StatusOK, AllocationListResponse{Data: allocations})
+	c.JSON(http.StatusOK, AllocationListResponse{Data: s})
 }
 
 // GetAllocation returns data about a specific allocation
@@ -198,12 +237,17 @@ func (co Controller) GetAllocation(c *gin.Context) {
 		return
 	}
 
-	allocationObject, ok := getResourceByIDAndHandleErrors[models.Allocation](c, co, id)
+	allocation, ok := getResourceByIDAndHandleErrors[models.Allocation](c, co, id)
 	if !ok {
 		return
 	}
 
-	c.JSON(http.StatusOK, AllocationResponse{Data: allocationObject})
+	a, ok := co.getAllocation(c, allocation.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, AllocationResponse{Data: a})
 }
 
 // UpdateAllocation updates allocation data
@@ -238,7 +282,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 	}
 
 	var data models.Allocation
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindData(c, &data.AllocationCreate); err != nil {
 		return
 	}
 
@@ -246,7 +290,12 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, AllocationResponse{Data: allocation})
+	a, ok := co.getAllocation(c, allocation.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, AllocationResponse{Data: a})
 }
 
 // DeleteAllocation deletes an allocation
@@ -277,5 +326,5 @@ func (co Controller) DeleteAllocation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusNoContent, gin.H{})
+	c.JSON(http.StatusNoContent, nil)
 }

@@ -120,7 +120,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsGet() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			path := fmt.Sprintf("%s/%s/%s", "https://example.com/v1/month-configs", tt.envelopeID, tt.month)
+			path := fmt.Sprintf("%s/%s/%s", "http://example.com/v1/month-configs", tt.envelopeID, tt.month)
 
 			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, path, "")
 			assert.Equal(t, tt.status, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
@@ -129,10 +129,10 @@ func (suite *TestSuiteStandard) TestMonthConfigsGet() {
 				var mConfig controllers.MonthConfigResponse
 				suite.decodeResponse(&recorder, &mConfig)
 
-				selfLink := fmt.Sprintf("https://example.com/v1/month-configs/%s/%s", tt.envelopeID, tt.month)
+				selfLink := fmt.Sprintf("http://example.com/v1/month-configs/%s/%s", tt.envelopeID, tt.month)
 				assert.Equal(t, selfLink, mConfig.Data.Links.Self, "Request ID %s", recorder.Header().Get("x-request-id"))
 
-				envelopeLink := fmt.Sprintf("https://example.com/v1/envelopes/%s", tt.envelopeID)
+				envelopeLink := fmt.Sprintf("http://example.com/v1/envelopes/%s", tt.envelopeID)
 				assert.Equal(t, envelopeLink, mConfig.Data.Links.Envelope, "Request ID %s", recorder.Header().Get("x-request-id"))
 			}
 		})

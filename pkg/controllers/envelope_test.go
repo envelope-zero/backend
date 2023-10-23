@@ -375,7 +375,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthInvalid() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeMonthNoEnvelope() {
-	r := test.Request(suite.controller, suite.T(), http.MethodGet, "https://example.com/v1/envelopes/510ffa95-e445-43cc-8abc-da8e2c20ea5c/2022-04", "")
+	r := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/envelopes/510ffa95-e445-43cc-8abc-da8e2c20ea5c/2022-04", "")
 	assertHTTPStatus(suite.T(), &r, http.StatusNotFound)
 }
 

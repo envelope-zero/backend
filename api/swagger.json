@@ -3951,6 +3951,59 @@
                 }
             }
         },
+        "controllers.Allocation": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The allocation itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"
+                        }
+                    }
+                },
+                "month": {
+                    "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
+                    "type": "string",
+                    "example": "2021-12-01T00:00:00.000000Z"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.AllocationListResponse": {
             "type": "object",
             "properties": {
@@ -3958,7 +4011,7 @@
                     "description": "Data for the allocation",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Allocation"
+                        "$ref": "#/definitions/controllers.Allocation"
                     }
                 }
             }
@@ -3981,7 +4034,7 @@
                     "description": "List of allocations",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Allocation"
+                            "$ref": "#/definitions/controllers.Allocation"
                         }
                     ]
                 }
@@ -4537,59 +4590,6 @@
                     "type": "boolean",
                     "default": false,
                     "example": true
-                }
-            }
-        },
-        "models.Allocation": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 22.01
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopeId": {
-                    "description": "ID of the envelope",
-                    "type": "string",
-                    "example": "a0909e84-e8f9-4cb6-82a5-025dff105ff2"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The allocation itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"
-                        }
-                    }
-                },
-                "month": {
-                    "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
-                    "type": "string",
-                    "example": "2021-12-01T00:00:00.000000Z"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

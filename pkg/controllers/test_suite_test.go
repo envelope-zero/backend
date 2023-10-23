@@ -52,7 +52,7 @@ func (suite *TestSuiteStandard) SetupTest() {
 
 	// Create the context and store the API URL
 	ctx := context.Background()
-	url, _ := url.Parse("https://example.com")
+	url, _ := url.Parse("http://example.com")
 	ctx = context.WithValue(ctx, database.ContextURL, url)
 
 	suite.controller = controllers.Controller{db.WithContext(ctx)}
