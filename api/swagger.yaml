@@ -1263,6 +1263,30 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - General
+  /healthz:
+    get:
+      description: Returns the application health and, if not healthy, an error
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Get health
+      tags:
+      - General
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - General
   /v1:
     delete:
       description: Permanently deletes all resources

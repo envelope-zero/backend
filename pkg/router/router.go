@@ -107,6 +107,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	}
 
 	group.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	co.RegisterHealthzRoutes(group.Group("/healthz"))
 
 	// API v1 setup
 	v1 := group.Group("/v1")
