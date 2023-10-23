@@ -146,6 +146,7 @@ type RootResponse struct {
 
 type RootLinks struct {
 	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"` // Swagger API documentation
+	Healthz string `json:"healthz" example:"https://example.com/api/healtzh"`      // Healthz endpoint
 	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
 	V1      string `json:"v1" example:"https://example.com/api/v1"`                // List endpoint for all v1 endpoints
 	V2      string `json:"v2" example:"https://example.com/api/v2"`                // List endpoint for all v2 endpoints
@@ -162,6 +163,7 @@ func GetRoot(c *gin.Context) {
 	c.JSON(http.StatusOK, RootResponse{
 		Links: RootLinks{
 			Docs:    c.GetString(string(database.ContextURL)) + "/docs/index.html",
+			Healthz: c.GetString(string(database.ContextURL)) + "/healthz",
 			Version: c.GetString(string(database.ContextURL)) + "/version",
 			V1:      c.GetString(string(database.ContextURL)) + "/v1",
 			V2:      c.GetString(string(database.ContextURL)) + "/v2",

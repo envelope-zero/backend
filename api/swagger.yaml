@@ -1138,6 +1138,10 @@ definitions:
         description: Swagger API documentation
         example: https://example.com/api/docs/index.html
         type: string
+      healthz:
+        description: Healthz endpoint
+        example: https://example.com/api/healtzh
+        type: string
       v1:
         description: List endpoint for all v1 endpoints
         example: https://example.com/api/v1

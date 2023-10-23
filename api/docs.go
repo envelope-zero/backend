@@ -5153,6 +5153,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/docs/index.html"
                 },
+                "healthz": {
+                    "description": "Healthz endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/healtzh"
+                },
                 "v1": {
                     "description": "List endpoint for all v1 endpoints",
                     "type": "string",
