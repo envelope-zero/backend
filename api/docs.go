@@ -4033,7 +4033,7 @@ const docTemplate = `{
                     "description": "This field contains the transaction data",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/controllers.TransactionV2"
                         }
                     ]
                 },
@@ -4044,6 +4044,108 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 14.03
+                },
+                "availableFrom": {
+                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string",
+                    "example": "2021-11-17T00:00:00Z"
+                },
+                "budgetId": {
+                    "description": "ID of the budget",
+                    "type": "string",
+                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "date": {
+                    "description": "Date of the transaction. Time is currently only used for sorting",
+                    "type": "string",
+                    "example": "1815-12-10T18:43:00.271152Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "destinationAccountId": {
+                    "description": "ID of the destination account",
+                    "type": "string",
+                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "links": {
+                    "description": "Links for the transaction",
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The transaction itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
+                        }
+                    }
+                },
+                "note": {
+                    "description": "A note",
+                    "type": "string",
+                    "example": "Lunch"
+                },
+                "reconciled": {
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledDestination": {
+                    "description": "Is the transaction reconciled in the destination account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledSource": {
+                    "description": "Is the transaction reconciled in the source account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "sourceAccountId": {
+                    "description": "ID of the source account",
+                    "type": "string",
+                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.TransactionListResponse": {
             "type": "object",
             "properties": {
@@ -4051,7 +4153,7 @@ const docTemplate = `{
                     "description": "List of transactions",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Transaction"
+                        "$ref": "#/definitions/controllers.Transaction"
                     }
                 }
             }
@@ -4063,9 +4165,111 @@ const docTemplate = `{
                     "description": "Data for the transaction",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/controllers.Transaction"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.TransactionV2": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 14.03
+                },
+                "availableFrom": {
+                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string",
+                    "example": "2021-11-17T00:00:00Z"
+                },
+                "budgetId": {
+                    "description": "ID of the budget",
+                    "type": "string",
+                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "date": {
+                    "description": "Date of the transaction. Time is currently only used for sorting",
+                    "type": "string",
+                    "example": "1815-12-10T18:43:00.271152Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "destinationAccountId": {
+                    "description": "ID of the destination account",
+                    "type": "string",
+                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "links": {
+                    "description": "Links for the transaction",
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The transaction itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
+                        }
+                    }
+                },
+                "note": {
+                    "description": "A note",
+                    "type": "string",
+                    "example": "Lunch"
+                },
+                "reconciled": {
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledDestination": {
+                    "description": "Is the transaction reconciled in the destination account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledSource": {
+                    "description": "Is the transaction reconciled in the source account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "sourceAccountId": {
+                    "description": "ID of the source account",
+                    "type": "string",
+                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -4971,108 +5175,6 @@ const docTemplate = `{
                 "AffectAvailable",
                 "AffectEnvelope"
             ]
-        },
-        "models.Transaction": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 14.03
-                },
-                "availableFrom": {
-                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
-                    "type": "string",
-                    "example": "2021-11-17T00:00:00Z"
-                },
-                "budgetId": {
-                    "description": "ID of the budget",
-                    "type": "string",
-                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "date": {
-                    "description": "Date of the transaction. Time is currently only used for sorting",
-                    "type": "string",
-                    "example": "1815-12-10T18:43:00.271152Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "destinationAccountId": {
-                    "description": "ID of the destination account",
-                    "type": "string",
-                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
-                },
-                "envelopeId": {
-                    "description": "ID of the envelope",
-                    "type": "string",
-                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "links": {
-                    "description": "Links for the transaction",
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The transaction itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
-                        }
-                    }
-                },
-                "note": {
-                    "description": "A note",
-                    "type": "string",
-                    "example": "Lunch"
-                },
-                "reconciled": {
-                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "reconciledDestination": {
-                    "description": "Is the transaction reconciled in the destination account?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "reconciledSource": {
-                    "description": "Is the transaction reconciled in the source account?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "sourceAccountId": {
-                    "description": "ID of the source account",
-                    "type": "string",
-                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
         },
         "models.TransactionCreate": {
             "type": "object",

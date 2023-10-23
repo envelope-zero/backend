@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
 	"github.com/google/uuid"
@@ -31,20 +32,18 @@ func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate
 		*c.EnvelopeID = suite.createTestEnvelope(models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
 	}
 
-	// Default to 200 OK as expected status
+	// Default to 201 Created as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	tSlice := []models.TransactionCreate{c}
-
-	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v2/transactions", tSlice)
+	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/transactions", c)
 	assertHTTPStatus(suite.T(), &r, expectedStatus...)
 
-	var tr []controllers.TransactionResponse
+	var tr controllers.TransactionResponse
 	suite.decodeResponse(&r, &tr)
 
-	return tr[0]
+	return tr
 }
 
 func (suite *TestSuiteStandard) TestTransactionsCreate() {
@@ -54,65 +53,45 @@ func (suite *TestSuiteStandard) TestTransactionsCreate() {
 
 	tests := []struct {
 		name           string
-		transactions   []models.TransactionCreate
+		transaction    models.TransactionCreate
 		expectedStatus int
-		expectedErrors []string
+		expectedError  string
 	}{
 		{
-			"One success, one fail",
-			[]models.TransactionCreate{
-				{
-					BudgetID: uuid.New(),
-					Amount:   decimal.NewFromFloat(17.23),
-					Note:     "v2 non-existing budget ID",
-				},
-				{
-					BudgetID:             budget.Data.ID,
-					SourceAccountID:      internalAccount.Data.ID,
-					DestinationAccountID: externalAccount.Data.ID,
-					Amount:               decimal.NewFromFloat(57.01),
-				},
+			"Fail",
+			models.TransactionCreate{
+				BudgetID: uuid.New(),
+				Amount:   decimal.NewFromFloat(17.23),
+				Note:     "v2 non-existing budget ID",
 			},
 			http.StatusNotFound,
-			[]string{
-				"there is no Budget with this ID",
-				"",
-			},
+			"there is no Budget with this ID",
 		},
 		{
-			"Both succeed",
-			[]models.TransactionCreate{
-				{
-					BudgetID:             budget.Data.ID,
-					SourceAccountID:      internalAccount.Data.ID,
-					DestinationAccountID: externalAccount.Data.ID,
-					Amount:               decimal.NewFromFloat(17.23),
-				},
-				{
-					BudgetID:             budget.Data.ID,
-					SourceAccountID:      internalAccount.Data.ID,
-					DestinationAccountID: externalAccount.Data.ID,
-					Amount:               decimal.NewFromFloat(57.01),
-				},
+			"Success",
+			models.TransactionCreate{
+				BudgetID:             budget.Data.ID,
+				SourceAccountID:      internalAccount.Data.ID,
+				DestinationAccountID: externalAccount.Data.ID,
+				Amount:               decimal.NewFromFloat(17.23),
 			},
 			http.StatusCreated,
-			[]string{
-				"",
-				"",
-			},
+			"",
 		},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v2/transactions", tt.transactions)
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v1/transactions", tt.transaction)
 			assertHTTPStatus(t, &r, tt.expectedStatus)
 
-			var tr []controllers.ResponseTransactionV2
-			suite.decodeResponse(&r, &tr)
-
-			for i, transaction := range tr {
-				assert.Equal(t, tt.expectedErrors[i], transaction.Error)
+			if tt.expectedStatus == http.StatusCreated {
+				var tr controllers.TransactionResponse
+				suite.decodeResponse(&r, &tr)
+			} else {
+				var tr httperrors.HTTPError
+				suite.decodeResponse(&r, &tr)
+				assert.Equal(t, tt.expectedError, tr.Error)
 			}
 		})
 	}
@@ -538,7 +517,12 @@ func (suite *TestSuiteStandard) TestGetTransaction() {
 	tr := suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(13.71)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, tr.Data.Links.Self, "")
-	assert.Equal(suite.T(), http.StatusOK, r.Code)
+	assertHTTPStatus(suite.T(), &r, http.StatusOK)
+
+	var response controllers.TransactionResponse
+	suite.decodeResponse(&r, &response)
+
+	assert.Equal(suite.T(), fmt.Sprintf("http://example.com/v1/transactions/%s", response.Data.ID), response.Data.Links.Self)
 }
 
 func (suite *TestSuiteStandard) TestUpdateTransaction() {

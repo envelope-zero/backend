@@ -1,12 +1,37 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
+
+type TransactionV2 Transaction
+
+// links generates HATEOAS links for the transaction.
+func (t *TransactionV2) links(c *gin.Context) {
+	// Set links
+	t.Links.Self = fmt.Sprintf("%s/v2/transactions/%s", c.GetString(string(database.ContextURL)), t.ID)
+}
+
+func (co Controller) getTransactionV2(c *gin.Context, id uuid.UUID) (TransactionV2, bool) {
+	transactionModel, ok := getResourceByIDAndHandleErrors[models.Transaction](c, co, id)
+	if !ok {
+		return TransactionV2{}, false
+	}
+
+	transaction := TransactionV2{
+		Transaction: transactionModel,
+	}
+
+	transaction.links(c)
+	return transaction, true
+}
 
 // RegisterTransactionRoutesV2 registers the routes for transactions with
 // the RouterGroup that is passed.
@@ -67,7 +92,11 @@ func (co Controller) CreateTransactionsV2(c *gin.Context) {
 				status = err.Status
 			}
 		} else {
-			r = append(r, ResponseTransactionV2{Data: t})
+			tObject, ok := co.getTransactionV2(c, t.ID)
+			if !ok {
+				return
+			}
+			r = append(r, ResponseTransactionV2{Data: tObject})
 		}
 	}
 

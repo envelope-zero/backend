@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
@@ -15,12 +16,40 @@ import (
 	"gorm.io/gorm"
 )
 
+// Transaction is the API v1 representation of a Transaction in EZ.
+type Transaction struct {
+	models.Transaction
+	Links struct {
+		Self string `json:"self" example:"https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"` // The transaction itself
+	} `json:"links"` // Links for the transaction
+}
+
+// links generates HATEOAS links for the transaction.
+func (t *Transaction) links(c *gin.Context) {
+	// Set links
+	t.Links.Self = fmt.Sprintf("%s/v1/transactions/%s", c.GetString(string(database.ContextURL)), t.ID)
+}
+
 type TransactionListResponse struct {
-	Data []models.Transaction `json:"data"` // List of transactions
+	Data []Transaction `json:"data"` // List of transactions
 }
 
 type TransactionResponse struct {
-	Data models.Transaction `json:"data"` // Data for the transaction
+	Data Transaction `json:"data"` // Data for the transaction
+}
+
+func (co Controller) getTransaction(c *gin.Context, id uuid.UUID) (Transaction, bool) {
+	transactionModel, ok := getResourceByIDAndHandleErrors[models.Transaction](c, co, id)
+	if !ok {
+		return Transaction{}, false
+	}
+
+	transaction := Transaction{
+		Transaction: transactionModel,
+	}
+
+	transaction.links(c)
+	return transaction, true
 }
 
 type TransactionQueryFilter struct {
@@ -149,10 +178,14 @@ func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 //	@Router			/v1/transactions [post]
 //	@Deprecated		true
 func (co Controller) CreateTransaction(c *gin.Context) {
-	var transaction models.Transaction
+	var transactionCreate models.TransactionCreate
 
-	if err := httputil.BindData(c, &transaction); err != nil {
+	if err := httputil.BindData(c, &transactionCreate); err != nil {
 		return
+	}
+
+	transaction := models.Transaction{
+		TransactionCreate: transactionCreate,
 	}
 
 	transaction, err := co.createTransaction(c, transaction)
@@ -161,7 +194,12 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, TransactionResponse{Data: transaction})
+	transactionObject, ok := co.getTransaction(c, transaction.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusCreated, TransactionResponse{Data: transactionObject})
 }
 
 // GetTransactions returns transactions filtered by the query parameters
@@ -261,14 +299,17 @@ func (co Controller) GetTransactions(c *gin.Context) {
 		return
 	}
 
-	// When there are no resources, we want an empty list, not null
-	// Therefore, we use make to create a slice with zero elements
-	// which will be marshalled to an empty JSON array
-	if len(transactions) == 0 {
-		transactions = make([]models.Transaction, 0)
+	transactionObjects := make([]Transaction, 0)
+	for _, t := range transactions {
+		transactionObject, ok := co.getTransaction(c, t.ID)
+		if !ok {
+			return
+		}
+
+		transactionObjects = append(transactionObjects, transactionObject)
 	}
 
-	c.JSON(http.StatusOK, TransactionListResponse{Data: transactions})
+	c.JSON(http.StatusOK, TransactionListResponse{Data: transactionObjects})
 }
 
 // GetTransaction returns a specific transaction
@@ -297,7 +338,12 @@ func (co Controller) GetTransaction(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, TransactionResponse{Data: t})
+	tObject, ok := co.getTransaction(c, t.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, TransactionResponse{Data: tObject})
 }
 
 // UpdateTransaction updates a specific transaction
@@ -332,7 +378,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	}
 
 	var data models.Transaction
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindData(c, &data.TransactionCreate); err != nil {
 		return
 	}
 
@@ -373,7 +419,12 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, TransactionResponse{Data: transaction})
+	transactionObject, ok := co.getTransaction(c, transaction.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, TransactionResponse{Data: transactionObject})
 }
 
 // DeleteTransaction deletes a specific transaction

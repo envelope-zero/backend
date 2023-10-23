@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -19,10 +18,6 @@ type Transaction struct {
 	SourceAccount      Account  `json:"-"`
 	DestinationAccount Account  `json:"-"`
 	Envelope           Envelope `json:"-"`
-
-	Links struct {
-		Self string `json:"self" example:"https://example.com/api/v1/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"` // The transaction itself
-	} `json:"links" gorm:"-"` // Links for the transaction
 }
 
 type TransactionCreate struct {
@@ -60,21 +55,7 @@ func (t *Transaction) AfterFind(tx *gorm.DB) (err error) {
 
 	// Enforce dates to be in UTC
 	t.Date = t.Date.In(time.UTC)
-
-	t.links(tx)
 	return
-}
-
-// AfterSave also sets the links so that we do not need to
-// query the resource directly after creating or updating it.
-func (t *Transaction) AfterSave(tx *gorm.DB) (err error) {
-	t.links(tx)
-	return
-}
-
-func (t *Transaction) links(tx *gorm.DB) {
-	// Set links
-	t.Links.Self = fmt.Sprintf("%s/v1/transactions/%s", tx.Statement.Context.Value(database.ContextURL), t.ID)
 }
 
 // BeforeSave
