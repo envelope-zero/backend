@@ -13,6 +13,7 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 		path     string
 		response string
 	}{
+		{"http://example.com/healthz", "OPTIONS, GET"},
 		{"http://example.com/v1/budgets", "OPTIONS, GET, POST"},
 		{"http://example.com/v1/accounts", "OPTIONS, GET, POST"},
 		{"http://example.com/v1/categories", "OPTIONS, GET, POST"},
