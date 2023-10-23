@@ -125,7 +125,7 @@ func (co Controller) CreateEnvelope(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Create(&envelope)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&envelope)) {
 		return
 	}
 
@@ -168,7 +168,7 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
 	var envelopes []models.Envelope
-	if !queryWithRetry(c, query.Find(&envelopes)) {
+	if !queryAndHandleErrors(c, query.Find(&envelopes)) {
 		return
 	}
 
@@ -291,7 +291,7 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&envelope).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&envelope).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -321,7 +321,7 @@ func (co Controller) DeleteEnvelope(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Delete(&envelope)) {
+	if !queryAndHandleErrors(c, co.DB.Delete(&envelope)) {
 		return
 	}
 

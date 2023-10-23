@@ -297,7 +297,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	}
 
 	var transactions []models.Transaction
-	if !queryWithRetry(c, query.Find(&transactions)) {
+	if !queryAndHandleErrors(c, query.Find(&transactions)) {
 		return
 	}
 
@@ -417,7 +417,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&transaction).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&transaction).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -452,7 +452,7 @@ func (co Controller) DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Delete(&transaction)) {
+	if !queryAndHandleErrors(c, co.DB.Delete(&transaction)) {
 		return
 	}
 

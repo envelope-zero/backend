@@ -137,7 +137,7 @@ func (co Controller) GetAccountsV2(c *gin.Context) {
 	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
 	var accounts []models.Account
-	if !queryWithRetry(c, query.Find(&accounts)) {
+	if !queryAndHandleErrors(c, query.Find(&accounts)) {
 		return
 	}
 

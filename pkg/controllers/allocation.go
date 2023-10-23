@@ -126,7 +126,7 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Create(&allocation)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&allocation)) {
 		return
 	}
 
@@ -163,7 +163,7 @@ func (co Controller) GetAllocations(c *gin.Context) {
 	}
 
 	var allocations []models.Allocation
-	if !queryWithRetry(c, co.DB.Where(&models.Allocation{
+	if !queryAndHandleErrors(c, co.DB.Where(&models.Allocation{
 		AllocationCreate: create,
 	}, queryFields...).Find(&allocations)) {
 		return
@@ -242,7 +242,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&allocation).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&allocation).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -273,7 +273,7 @@ func (co Controller) DeleteAllocation(c *gin.Context) {
 	}
 
 	// Allocations are hard deleted instantly to avoid conflicts for the UNIQUE(id,month)
-	if !queryWithRetry(c, co.DB.Unscoped().Delete(&allocation)) {
+	if !queryAndHandleErrors(c, co.DB.Unscoped().Delete(&allocation)) {
 		return
 	}
 

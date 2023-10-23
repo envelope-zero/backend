@@ -188,7 +188,7 @@ func (co Controller) CreateBudget(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Create(&budget)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&budget)) {
 		return
 	}
 
@@ -229,7 +229,7 @@ func (co Controller) GetBudgets(c *gin.Context) {
 
 	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
-	if !queryWithRetry(c, query.Find(&budgets)) {
+	if !queryAndHandleErrors(c, query.Find(&budgets)) {
 		return
 	}
 
@@ -315,7 +315,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 	for _, category := range categories {
 		var e []models.Envelope
 
-		if !queryWithRetry(c, co.DB.Where(&models.Envelope{
+		if !queryAndHandleErrors(c, co.DB.Where(&models.Envelope{
 			EnvelopeCreate: models.EnvelopeCreate{
 				CategoryID: category.ID,
 			},
@@ -341,7 +341,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 	for _, envelope := range envelopes {
 		var a models.Allocation
 
-		if !queryWithRetry(c, co.DB.Where(&models.Allocation{
+		if !queryAndHandleErrors(c, co.DB.Where(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: envelope.ID,
 				Month:      types.MonthOf(month.Month),
@@ -420,7 +420,7 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&budget).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&budget).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -450,7 +450,7 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Delete(&budget)) {
+	if !queryAndHandleErrors(c, co.DB.Delete(&budget)) {
 		return
 	}
 
@@ -491,7 +491,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	// We query for all allocations here
 	var allocations []models.Allocation
 
-	if !queryWithRetry(c, co.DB.
+	if !queryAndHandleErrors(c, co.DB.
 		Joins("JOIN envelopes ON envelopes.id = allocations.envelope_id").
 		Joins("JOIN categories ON categories.id = envelopes.category_id").
 		Joins("JOIN budgets on budgets.id = categories.budget_id").
@@ -502,7 +502,7 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 	}
 
 	for _, allocation := range allocations {
-		if !queryWithRetry(c, co.DB.Unscoped().Delete(&allocation)) {
+		if !queryAndHandleErrors(c, co.DB.Unscoped().Delete(&allocation)) {
 			return
 		}
 	}
@@ -568,7 +568,7 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 
 	// Get all envelope IDs and allocation amounts where there is no allocation
 	// for the request month, but one for the last month
-	if !queryWithRetry(c, co.DB.
+	if !queryAndHandleErrors(c, co.DB.
 		Joins("JOIN allocations ON allocations.envelope_id = envelopes.id AND allocations.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
 		Select("envelopes.id, allocations.amount").
 		Table("envelopes").
@@ -584,7 +584,7 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 			amount = models.Envelope{DefaultModel: models.DefaultModel{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth)
 		}
 
-		if !queryWithRetry(c, co.DB.Create(&models.Allocation{
+		if !queryAndHandleErrors(c, co.DB.Create(&models.Allocation{
 			AllocationCreate: models.AllocationCreate{
 				EnvelopeID: allocation.EnvelopeID,
 				Amount:     amount,

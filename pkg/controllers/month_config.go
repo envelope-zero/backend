@@ -168,7 +168,7 @@ func (co Controller) GetMonthConfigs(c *gin.Context) {
 	}
 
 	var mConfigs []models.MonthConfig
-	if !queryWithRetry(c, co.DB.Where(&models.MonthConfig{
+	if !queryAndHandleErrors(c, co.DB.Where(&models.MonthConfig{
 		EnvelopeID: parsed.EnvelopeID,
 		Month:      parsed.Month,
 	}, queryFields...).Find(&mConfigs)) {
@@ -287,7 +287,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&mConfig).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&mConfig).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -330,7 +330,7 @@ func (co Controller) DeleteMonthConfig(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Delete(&mConfig)) {
+	if !queryAndHandleErrors(c, co.DB.Delete(&mConfig)) {
 		return
 	}
 
@@ -346,7 +346,7 @@ func (co Controller) getMonthConfigResource(c *gin.Context, envelopeID uuid.UUID
 
 	var mConfig models.MonthConfig
 
-	if !queryWithRetry(c, co.DB.First(&mConfig, &models.MonthConfig{
+	if !queryAndHandleErrors(c, co.DB.First(&mConfig, &models.MonthConfig{
 		EnvelopeID: envelopeID,
 		Month:      month,
 	}), "No MonthConfig found for the Envelope and month specified") {
