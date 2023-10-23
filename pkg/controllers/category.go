@@ -118,7 +118,7 @@ func (co Controller) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Create(&category)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&category)) {
 		return
 	}
 
@@ -163,7 +163,7 @@ func (co Controller) GetCategories(c *gin.Context) {
 	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
 	var categories []models.Category
-	if !queryWithRetry(c, query.Find(&categories)) {
+	if !queryAndHandleErrors(c, query.Find(&categories)) {
 		return
 	}
 
@@ -243,7 +243,7 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&category).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&category).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -274,7 +274,7 @@ func (co Controller) DeleteCategory(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Delete(&category)) {
+	if !queryAndHandleErrors(c, co.DB.Delete(&category)) {
 		return
 	}
 
@@ -285,7 +285,7 @@ func (co Controller) DeleteCategory(c *gin.Context) {
 func (co Controller) getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, bool) {
 	var categories []models.Category
 
-	if !queryWithRetry(c, co.DB.Where(&models.Category{
+	if !queryAndHandleErrors(c, co.DB.Where(&models.Category{
 		CategoryCreate: models.CategoryCreate{
 			BudgetID: id,
 		},

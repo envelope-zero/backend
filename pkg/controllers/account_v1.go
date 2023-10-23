@@ -183,7 +183,7 @@ func (co Controller) CreateAccount(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Create(&account)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&account)) {
 		return
 	}
 
@@ -235,7 +235,7 @@ func (co Controller) GetAccounts(c *gin.Context) {
 	query = stringFilters(co.DB, query, setFields, filter.Name, filter.Note, filter.Search)
 
 	var accounts []models.Account
-	if !queryWithRetry(c, query.Find(&accounts)) {
+	if !queryAndHandleErrors(c, query.Find(&accounts)) {
 		return
 	}
 
@@ -318,7 +318,7 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&account).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&account).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -354,7 +354,7 @@ func (co Controller) DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Delete(&account)) {
+	if !queryAndHandleErrors(c, co.DB.Delete(&account)) {
 		return
 	}
 

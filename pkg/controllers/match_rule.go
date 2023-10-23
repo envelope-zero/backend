@@ -166,7 +166,7 @@ func (co Controller) GetMatchRules(c *gin.Context) {
 	}
 
 	var matchRules []models.MatchRule
-	if !queryWithRetry(c, co.DB.Where(&models.MatchRule{
+	if !queryAndHandleErrors(c, co.DB.Where(&models.MatchRule{
 		MatchRuleCreate: create,
 	}, queryFields...).Find(&matchRules)) {
 		return
@@ -245,7 +245,7 @@ func (co Controller) UpdateMatchRule(c *gin.Context) {
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Model(&matchRule).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&matchRule).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
@@ -276,7 +276,7 @@ func (co Controller) DeleteMatchRule(c *gin.Context) {
 	}
 
 	// MatchRules are hard deleted instantly to avoid conflicts for the UNIQUE(id,month)
-	if !queryWithRetry(c, co.DB.Unscoped().Delete(&matchRule)) {
+	if !queryAndHandleErrors(c, co.DB.Unscoped().Delete(&matchRule)) {
 		return
 	}
 

@@ -20,7 +20,7 @@ func getResourceByIDAndHandleErrors[T models.Model](c *gin.Context, co Controlle
 		return
 	}
 
-	if !queryWithRetry(c, co.DB.Where(
+	if !queryAndHandleErrors(c, co.DB.Where(
 		map[string]interface{}{"ID": id},
 	).First(&resource), fmt.Sprintf("No %s found for the specified ID", resource.Self())) {
 		return
