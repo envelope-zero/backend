@@ -53,6 +53,11 @@ func (suite *TestSuiteStandard) TestOptionsAccount() {
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
+func (suite *TestSuiteStandard) TestCreateBrokenAccount() {
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/accounts", `{ "note": 2 }`)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
+}
+
 func (suite *TestSuiteStandard) TestGetAccounts() {
 	account := suite.createTestAccount(models.AccountCreate{Name: "TestGetAccounts"})
 
