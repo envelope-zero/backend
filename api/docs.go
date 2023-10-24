@@ -4051,6 +4051,96 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Budget": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.",
+                    "type": "number",
+                    "example": 3423.42
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "currency": {
+                    "description": "The currency for the budget",
+                    "type": "string",
+                    "example": "€"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "accounts": {
+                            "description": "Accounts for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "categories": {
+                            "description": "Categories for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "envelopes": {
+                            "description": "Envelopes for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "groupedMonth": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                        },
+                        "month": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
+                        },
+                        "monthAllocations": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                        },
+                        "self": {
+                            "description": "The budget itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "transactions": {
+                            "description": "Transactions for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the budget",
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "description": "A longer description of the budget",
+                    "type": "string",
+                    "example": "My personal expenses"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.BudgetAllocationMode": {
             "type": "object",
             "properties": {
@@ -4072,7 +4162,7 @@ const docTemplate = `{
                     "description": "List of budgets",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Budget"
+                        "$ref": "#/definitions/controllers.Budget"
                     }
                 }
             }
@@ -4097,7 +4187,7 @@ const docTemplate = `{
                     "description": "Data for the budget",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Budget"
+                            "$ref": "#/definitions/controllers.Budget"
                         }
                     ]
                 }
@@ -4624,96 +4714,6 @@ const docTemplate = `{
                     "description": "Only year and month of this timestamp are used, everything else is ignored. This will always be set to 00:00 UTC on the first of the specified month",
                     "type": "string",
                     "example": "2021-12-01T00:00:00.000000Z"
-                }
-            }
-        },
-        "models.Budget": {
-            "type": "object",
-            "properties": {
-                "balance": {
-                    "description": "DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.",
-                    "type": "number",
-                    "example": 3423.42
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "currency": {
-                    "description": "The currency for the budget",
-                    "type": "string",
-                    "example": "€"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "accounts": {
-                            "description": "Accounts for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "categories": {
-                            "description": "Categories for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "envelopes": {
-                            "description": "Envelopes for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "groupedMonth": {
-                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
-                        },
-                        "month": {
-                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"
-                        },
-                        "monthAllocations": {
-                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
-                        },
-                        "self": {
-                            "description": "The budget itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "transactions": {
-                            "description": "Transactions for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        }
-                    }
-                },
-                "name": {
-                    "description": "Name of the budget",
-                    "type": "string",
-                    "example": "Morre's Budget"
-                },
-                "note": {
-                    "description": "A longer description of the budget",
-                    "type": "string",
-                    "example": "My personal expenses"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

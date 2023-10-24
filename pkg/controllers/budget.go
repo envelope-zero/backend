@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
@@ -12,12 +14,64 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// Budget is the API v1 representation of a Budget.
+type Budget struct {
+	models.Budget
+	Balance decimal.Decimal `json:"balance" gorm:"-" example:"3423.42"` // DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
+	Links   struct {
+		Self             string `json:"self" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`                                 // The budget itself
+		Accounts         string `json:"accounts" example:"https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`                     // Accounts for this budget
+		Categories       string `json:"categories" example:"https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`                 // Categories for this budget
+		Envelopes        string `json:"envelopes" example:"https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`                   // Envelopes for this budget
+		Transactions     string `json:"transactions" example:"https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`             // Transactions for this budget
+		Month            string `json:"month" example:"https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM"`                        // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+		GroupedMonth     string `json:"groupedMonth" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"`     // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+		MonthAllocations string `json:"monthAllocations" example:"https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+	} `json:"links" gorm:"-"`
+}
+
+// links sets all links for the Budget.
+func (b *Budget) links(c *gin.Context) {
+	url := c.GetString(string(database.ContextURL))
+
+	b.Links.Self = fmt.Sprintf("%s/v1/budgets/%s", url, b.ID)
+	b.Links.Month = b.Links.Self + "/YYYY-MM"
+	b.Links.Accounts = fmt.Sprintf("%s/v1/accounts?budget=%s", url, b.ID)
+	b.Links.Categories = fmt.Sprintf("%s/v1/categories?budget=%s", url, b.ID)
+	b.Links.Envelopes = fmt.Sprintf("%s/v1/envelopes?budget=%s", url, b.ID)
+	b.Links.Transactions = fmt.Sprintf("%s/v1/transactions?budget=%s", url, b.ID)
+	b.Links.GroupedMonth = fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", url, b.ID)
+	b.Links.MonthAllocations = fmt.Sprintf("%s/v1/months?budget=%s&month=YYYY-MM", url, b.ID)
+}
+
+// getBudget returns a budget with all fields set.
+func (co Controller) getBudget(c *gin.Context, id uuid.UUID) (Budget, bool) {
+	m, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
+	if !ok {
+		return Budget{}, false
+	}
+
+	b := Budget{
+		Budget: m,
+	}
+
+	balance, err := m.Balance(co.DB)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return Budget{}, false
+	}
+	b.Balance = balance
+	b.links(c)
+
+	return b, true
+}
+
 type BudgetListResponse struct {
-	Data []models.Budget `json:"data"` // List of budgets
+	Data []Budget `json:"data"` // List of budgets
 }
 
 type BudgetResponse struct {
-	Data models.Budget `json:"data"` // Data for the budget
+	Data Budget `json:"data"` // Data for the budget
 }
 
 type BudgetMonthResponse struct {
@@ -182,17 +236,26 @@ func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 //	@Param			budget	body		models.BudgetCreate	true	"Budget"
 //	@Router			/v1/budgets [post]
 func (co Controller) CreateBudget(c *gin.Context) {
-	var budget models.Budget
+	var bCreate models.BudgetCreate
 
-	if err := httputil.BindData(c, &budget); err != nil {
+	if err := httputil.BindData(c, &bCreate); err != nil {
 		return
+	}
+
+	budget := models.Budget{
+		BudgetCreate: bCreate,
 	}
 
 	if !queryAndHandleErrors(c, co.DB.Create(&budget)) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, BudgetResponse{Data: budget})
+	b, ok := co.getBudget(c, budget.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusCreated, BudgetResponse{Data: b})
 }
 
 // GetBudgets returns data for all budgets filtered by the query parameters
@@ -233,14 +296,16 @@ func (co Controller) GetBudgets(c *gin.Context) {
 		return
 	}
 
-	// When there are no budgets, we want an empty list, not null
-	// Therefore, we use make to create a slice with zero elements
-	// which will be marshalled to an empty JSON array
-	if len(budgets) == 0 {
-		budgets = make([]models.Budget, 0)
+	budgetResources := make([]Budget, 0)
+	for _, budget := range budgets {
+		r, ok := co.getBudget(c, budget.ID)
+		if !ok {
+			return
+		}
+		budgetResources = append(budgetResources, r)
 	}
 
-	c.JSON(http.StatusOK, BudgetListResponse{Data: budgets})
+	c.JSON(http.StatusOK, BudgetListResponse{Data: budgetResources})
 }
 
 // GetBudget returns data for a single budget
@@ -262,12 +327,17 @@ func (co Controller) GetBudget(c *gin.Context) {
 		return
 	}
 
-	budgetObject, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
+	m, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, id)
 	if !ok {
 		return
 	}
 
-	c.JSON(http.StatusOK, BudgetResponse{Data: budgetObject})
+	r, ok := co.getBudget(c, m.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, BudgetResponse{Data: r})
 }
 
 // GetBudgetMonth returns data for a month for a specific budget
@@ -416,7 +486,7 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 	}
 
 	var data models.Budget
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindData(c, &data.BudgetCreate); err != nil {
 		return
 	}
 
@@ -424,7 +494,12 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, BudgetResponse{Data: budget})
+	r, ok := co.getBudget(c, budget.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, BudgetResponse{Data: r})
 }
 
 // Do stuff

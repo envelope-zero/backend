@@ -225,7 +225,7 @@ func (suite *TestSuiteStandard) TestCreateBudget() {
 }
 
 func (suite *TestSuiteStandard) TestCreateBrokenBudget() {
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "createdAt": "New Budget", "note": "More tests something something" }`)
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v1/budgets", `{ "note": 2 }`)
 	assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
 }
 

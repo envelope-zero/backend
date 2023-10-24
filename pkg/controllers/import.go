@@ -243,7 +243,12 @@ func (co Controller) ImportYnab4(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, BudgetResponse{Data: budget})
+	r, ok := co.getBudget(c, budget.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusCreated, BudgetResponse{Data: r})
 }
 
 // getUploadedFile returns the form file and handles potential errors.

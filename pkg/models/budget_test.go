@@ -149,7 +149,11 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	assert.Nil(suite.T(), err)
 
 	shouldBalance := decimal.NewFromFloat(7269.38)
-	assert.True(suite.T(), budget.Balance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, budget.Balance)
+	isBalance, err := budget.Balance(suite.db)
+	if err != nil {
+		assert.FailNow(suite.T(), "Balance for budget could not be calculated")
+	}
+	assert.True(suite.T(), isBalance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, budget.Balance)
 
 	// Verify income for used budget in March
 	shouldIncome := decimal.NewFromFloat(4600)

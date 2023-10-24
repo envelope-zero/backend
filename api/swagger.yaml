@@ -168,6 +168,79 @@ definitions:
         - $ref: '#/definitions/controllers.Allocation'
         description: List of allocations
     type: object
+  controllers.Budget:
+    properties:
+      balance:
+        description: DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
+        example: 3423.42
+        type: number
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          accounts:
+            description: Accounts for this budget
+            example: https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          categories:
+            description: Categories for this budget
+            example: https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          envelopes:
+            description: Envelopes for this budget
+            example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          groupedMonth:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+            type: string
+          month:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
+            type: string
+          monthAllocations:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+            type: string
+          self:
+            description: The budget itself
+            example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          transactions:
+            description: Transactions for this budget
+            example: https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+        type: object
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.BudgetAllocationMode:
     properties:
       mode:
@@ -181,7 +254,7 @@ definitions:
       data:
         description: List of budgets
         items:
-          $ref: '#/definitions/models.Budget'
+          $ref: '#/definitions/controllers.Budget'
         type: array
     type: object
   controllers.BudgetMonthResponse:
@@ -195,7 +268,7 @@ definitions:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/models.Budget'
+        - $ref: '#/definitions/controllers.Budget'
         description: Data for the budget
     type: object
   controllers.CategoryListResponse:
@@ -589,79 +662,6 @@ definitions:
           is ignored. This will always be set to 00:00 UTC on the first of the specified
           month
         example: "2021-12-01T00:00:00.000000Z"
-        type: string
-    type: object
-  models.Budget:
-    properties:
-      balance:
-        description: DEPRECATED. Will be removed in API v2, see https://github.com/envelope-zero/backend/issues/526.
-        example: 3423.42
-        type: number
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      currency:
-        description: The currency for the budget
-        example: €
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        properties:
-          accounts:
-            description: Accounts for this budget
-            example: https://example.com/api/v1/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          categories:
-            description: Categories for this budget
-            example: https://example.com/api/v1/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          envelopes:
-            description: Envelopes for this budget
-            example: https://example.com/api/v1/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          groupedMonth:
-            description: This uses 'YYYY-MM' for clients to replace with the actual
-              year and month.
-            example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
-            type: string
-          month:
-            description: This uses 'YYYY-MM' for clients to replace with the actual
-              year and month.
-            example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf/YYYY-MM
-            type: string
-          monthAllocations:
-            description: This uses 'YYYY-MM' for clients to replace with the actual
-              year and month.
-            example: https://example.com/api/v1/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
-            type: string
-          self:
-            description: The budget itself
-            example: https://example.com/api/v1/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          transactions:
-            description: Transactions for this budget
-            example: https://example.com/api/v1/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-        type: object
-      name:
-        description: Name of the budget
-        example: Morre's Budget
-        type: string
-      note:
-        description: A longer description of the budget
-        example: My personal expenses
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   models.BudgetCreate:
