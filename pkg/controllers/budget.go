@@ -377,17 +377,30 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 		return
 	}
 
-	var envelopes []models.Envelope
+	// Get all categories for the budget
+	var categories []models.Category
 
-	categories, _ := co.getCategoryResources(c, budget.ID)
+	if !queryAndHandleErrors(c, co.DB.Where(&models.Category{
+		CategoryCreate: models.CategoryCreate{
+			BudgetID: budget.ID,
+		},
+	}).Find(&categories)) {
+		return
+	}
+
+	ids := make([]uuid.UUID, 0)
+	for _, cat := range categories {
+		ids = append(ids, cat.ID)
+	}
 
 	// Get envelopes for all categories
-	for _, category := range categories {
+	var envelopes []models.Envelope
+	for _, id := range ids {
 		var e []models.Envelope
 
 		if !queryAndHandleErrors(c, co.DB.Where(&models.Envelope{
 			EnvelopeCreate: models.EnvelopeCreate{
-				CategoryID: category.ID,
+				CategoryID: id,
 			},
 		}).Find(&e)) {
 			return

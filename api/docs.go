@@ -4193,6 +4193,74 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Category": {
+            "type": "object",
+            "properties": {
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopes": {
+                    "description": "Envelopes for the category",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.Envelope"
+                    }
+                },
+                "hidden": {
+                    "description": "Is the category hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelopes": {
+                            "description": "Envelopes for this category",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                        },
+                        "self": {
+                            "description": "The category itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.CategoryListResponse": {
             "type": "object",
             "properties": {
@@ -4200,7 +4268,7 @@ const docTemplate = `{
                     "description": "List of categories",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Category"
+                        "$ref": "#/definitions/controllers.Category"
                     }
                 }
             }
@@ -4212,9 +4280,81 @@ const docTemplate = `{
                     "description": "Data for the category",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Category"
+                            "$ref": "#/definitions/controllers.Category"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.Envelope": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "hidden": {
+                    "description": "Is the envelope hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "description": "Links to related resources",
+                    "type": "object",
+                    "properties": {
+                        "allocations": {
+                            "description": "the envelope's allocations",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        },
+                        "month": {
+                            "description": "Month information endpoint. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
+                        },
+                        "self": {
+                            "description": "The envelope itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        },
+                        "transactions": {
+                            "description": "The envelope's transactions",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -4225,7 +4365,7 @@ const docTemplate = `{
                     "description": "List of Envelopes",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Envelope"
+                        "$ref": "#/definitions/controllers.Envelope"
                     }
                 }
             }
@@ -4250,7 +4390,7 @@ const docTemplate = `{
                     "description": "Data for the Envelope",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Envelope"
+                            "$ref": "#/definitions/controllers.Envelope"
                         }
                     ]
                 }
@@ -4779,74 +4919,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Category": {
-            "type": "object",
-            "properties": {
-                "budgetId": {
-                    "description": "ID of the budget the category belongs to",
-                    "type": "string",
-                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopes": {
-                    "description": "Envelopes for the category",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Envelope"
-                    }
-                },
-                "hidden": {
-                    "description": "Is the category hidden?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelopes": {
-                            "description": "Envelopes for this category",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
-                        },
-                        "self": {
-                            "description": "The category itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
-                        }
-                    }
-                },
-                "name": {
-                    "description": "Name of the category",
-                    "type": "string",
-                    "example": "Saving"
-                },
-                "note": {
-                    "description": "Notes about the category",
-                    "type": "string",
-                    "example": "All envelopes for long-term saving"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
         "models.CategoryCreate": {
             "type": "object",
             "properties": {
@@ -4919,21 +4991,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelopes": {
-                            "description": "Envelopes for this category",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
-                        },
-                        "self": {
-                            "description": "The category itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
-                        }
-                    }
-                },
                 "name": {
                     "description": "Name of the category",
                     "type": "string",
@@ -4984,32 +5041,6 @@ const docTemplate = `{
                     "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "description": "Links to related resources",
-                    "type": "object",
-                    "properties": {
-                        "allocations": {
-                            "description": "the envelope's allocations",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                        },
-                        "month": {
-                            "description": "Month information endpoint. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
-                        },
-                        "self": {
-                            "description": "The envelope itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                        },
-                        "transactions": {
-                            "description": "The envelope's transactions",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                        }
-                    }
                 },
                 "name": {
                     "description": "Name of the envelope",

@@ -1,12 +1,10 @@
 package models
 
 import (
-	"fmt"
 	"sort"
 	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -17,12 +15,6 @@ type Envelope struct {
 	DefaultModel
 	EnvelopeCreate
 	Category Category `json:"-"`
-	Links    struct {
-		Self         string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                     // The envelope itself
-		Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`   // the envelope's allocations
-		Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // Month information endpoint. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
-		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // The envelope's transactions
-	} `json:"links" gorm:"-"` // Links to related resources
 }
 
 type EnvelopeCreate struct {
@@ -54,29 +46,6 @@ func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
 	}
 
 	return
-}
-
-func (e *Envelope) AfterFind(tx *gorm.DB) (err error) {
-	e.links(tx)
-	return
-}
-
-// AfterSave also sets the links so that we do not need to
-// query the resource directly after creating or updating it.
-func (e *Envelope) AfterSave(tx *gorm.DB) (err error) {
-	e.links(tx)
-
-	return
-}
-
-func (e *Envelope) links(tx *gorm.DB) {
-	url := tx.Statement.Context.Value(database.ContextURL)
-	self := fmt.Sprintf("%s/v1/envelopes/%s", url, e.ID)
-
-	e.Links.Self = self
-	e.Links.Allocations = self + "/allocations"
-	e.Links.Month = self + "/YYYY-MM"
-	e.Links.Transactions = fmt.Sprintf("%s/v1/transactions?envelope=%s", url, e.ID)
 }
 
 // Spent returns the amount spent for the month the time.Time instance is in.
