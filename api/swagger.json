@@ -4447,6 +4447,66 @@
                 }
             }
         },
+        "controllers.MonthConfig": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelope": {
+                            "description": "The envelope this config belongs to",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
+                        },
+                        "self": {
+                            "description": "The month config itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
+                        }
+                    }
+                },
+                "month": {
+                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
+                },
+                "note": {
+                    "description": "A note for the month config",
+                    "type": "string",
+                    "example": "Added 200€ here because we replaced Tim's expensive vase"
+                },
+                "overspendMode": {
+                    "description": "The overspend handling mode to use",
+                    "default": "AFFECT_AVAILABLE",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.OverspendMode"
+                        }
+                    ],
+                    "example": "AFFECT_ENVELOPE"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.MonthConfigListResponse": {
             "type": "object",
             "properties": {
@@ -4454,7 +4514,7 @@
                     "description": "List of month configs",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.MonthConfig"
+                        "$ref": "#/definitions/controllers.MonthConfig"
                     }
                 }
             }
@@ -4466,7 +4526,7 @@
                     "description": "Data for the month",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.MonthConfig"
+                            "$ref": "#/definitions/controllers.MonthConfig"
                         }
                     ]
                 }
@@ -5322,66 +5382,6 @@
                     "description": "The amount of money spent in this month",
                     "type": "number",
                     "example": 133.7
-                }
-            }
-        },
-        "models.MonthConfig": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopeId": {
-                    "description": "ID of the envelope",
-                    "type": "string",
-                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelope": {
-                            "description": "The envelope this config belongs to",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
-                        },
-                        "self": {
-                            "description": "The month config itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
-                        }
-                    }
-                },
-                "month": {
-                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
-                    "type": "string",
-                    "example": "1969-06-01T00:00:00.000000Z"
-                },
-                "note": {
-                    "description": "A note for the month config",
-                    "type": "string",
-                    "example": "Added 200€ here because we replaced Tim's expensive vase"
-                },
-                "overspendMode": {
-                    "description": "The overspend handling mode to use",
-                    "default": "AFFECT_AVAILABLE",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.OverspendMode"
-                        }
-                    ],
-                    "example": "AFFECT_ENVELOPE"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

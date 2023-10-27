@@ -255,7 +255,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsDelete() {
 			path := fmt.Sprintf("%s/%s/%s", "http://example.com/v1/month-configs", tt.envelopeID, tt.month)
 
 			recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, path, "")
-			assert.Equal(t, tt.status, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+			assertHTTPStatus(t, &recorder, tt.status)
 		})
 	}
 }
@@ -299,7 +299,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsUpdateInvalid() {
 			path := fmt.Sprintf("%s/%s/%s", "http://example.com/v1/month-configs", tt.envelopeID, tt.month)
 
 			recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, path, tt.body)
-			assert.Equal(t, tt.status, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
+			assertHTTPStatus(t, &recorder, tt.status)
 		})
 	}
 }
