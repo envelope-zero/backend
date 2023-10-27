@@ -464,19 +464,64 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.MonthConfig:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      links:
+        properties:
+          envelope:
+            description: The envelope this config belongs to
+            example: https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
+            type: string
+          self:
+            description: The month config itself
+            example: https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
+            type: string
+        type: object
+      month:
+        description: The month. This is always set to 00:00 UTC on the first of the
+          month.
+        example: "1969-06-01T00:00:00.000000Z"
+        type: string
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+      overspendMode:
+        allOf:
+        - $ref: '#/definitions/models.OverspendMode'
+        default: AFFECT_AVAILABLE
+        description: The overspend handling mode to use
+        example: AFFECT_ENVELOPE
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.MonthConfigListResponse:
     properties:
       data:
         description: List of month configs
         items:
-          $ref: '#/definitions/models.MonthConfig'
+          $ref: '#/definitions/controllers.MonthConfig'
         type: array
     type: object
   controllers.MonthConfigResponse:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/models.MonthConfig'
+        - $ref: '#/definitions/controllers.MonthConfig'
         description: Data for the month
     type: object
   controllers.MonthResponse:
@@ -1146,51 +1191,6 @@ definitions:
         description: The amount of money spent in this month
         example: 133.7
         type: number
-    type: object
-  models.MonthConfig:
-    properties:
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopeId:
-        description: ID of the envelope
-        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
-        type: string
-      links:
-        properties:
-          envelope:
-            description: The envelope this config belongs to
-            example: https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
-            type: string
-          self:
-            description: The month config itself
-            example: https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
-            type: string
-        type: object
-      month:
-        description: The month. This is always set to 00:00 UTC on the first of the
-          month.
-        example: "1969-06-01T00:00:00.000000Z"
-        type: string
-      note:
-        description: A note for the month config
-        example: Added 200€ here because we replaced Tim's expensive vase
-        type: string
-      overspendMode:
-        allOf:
-        - $ref: '#/definitions/models.OverspendMode'
-        default: AFFECT_AVAILABLE
-        description: The overspend handling mode to use
-        example: AFFECT_ENVELOPE
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
     type: object
   models.MonthConfigCreate:
     properties:

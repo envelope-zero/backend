@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
@@ -12,12 +14,54 @@ import (
 	"github.com/google/uuid"
 )
 
+type MonthConfig struct {
+	models.MonthConfig
+	Links struct {
+		Self     string `json:"self" example:"https://example.com/api/v1/month-configs/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"` // The month config itself
+		Envelope string `json:"envelope" example:"https://example.com/api/v1/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"`         // The envelope this config belongs to
+	} `json:"links"`
+}
+
+func (m *MonthConfig) links(c *gin.Context) {
+	url := c.GetString(string(database.ContextURL))
+
+	m.Links.Self = fmt.Sprintf("%s/v1/month-configs/%s/%s", url, m.EnvelopeID, m.Month)
+	m.Links.Envelope = fmt.Sprintf("%s/v1/envelopes/%s", url, m.EnvelopeID)
+}
+
+func (co Controller) getMonthConfig(c *gin.Context, id uuid.UUID, month types.Month) (MonthConfig, bool) {
+	m, ok := co.getMonthConfigModel(c, id, month)
+	if !ok {
+		return MonthConfig{}, false
+	}
+
+	r := MonthConfig{
+		MonthConfig: m,
+	}
+
+	r.links(c)
+	return r, true
+}
+
+func (co Controller) getMonthConfigModel(c *gin.Context, id uuid.UUID, month types.Month) (models.MonthConfig, bool) {
+	var m models.MonthConfig
+
+	if !queryAndHandleErrors(c, co.DB.First(&m, &models.MonthConfig{
+		EnvelopeID: id,
+		Month:      month,
+	}), "No MonthConfig found for the Envelope and month specified") {
+		return models.MonthConfig{}, false
+	}
+
+	return m, true
+}
+
 type MonthConfigResponse struct {
-	Data models.MonthConfig `json:"data"` // Data for the month
+	Data MonthConfig `json:"data"` // Data for the month
 }
 
 type MonthConfigListResponse struct {
-	Data []models.MonthConfig `json:"data"` // List of month configs
+	Data []MonthConfig `json:"data"` // List of month configs
 }
 
 type MonthConfigQueryFilter struct {
@@ -131,7 +175,7 @@ func (co Controller) GetMonthConfig(c *gin.Context) {
 		return
 	}
 
-	mConfig, ok := co.getMonthConfigResource(c, envelopeID, types.MonthOf(month.Month))
+	mConfig, ok := co.getMonthConfig(c, envelopeID, types.MonthOf(month.Month))
 	if !ok {
 		return
 	}
@@ -175,14 +219,16 @@ func (co Controller) GetMonthConfigs(c *gin.Context) {
 		return
 	}
 
-	// When there are no resources, we want an empty list, not null
-	// Therefore, we use make to create a slice with zero elements
-	// which will be marshalled to an empty JSON array
-	if len(mConfigs) == 0 {
-		mConfigs = make([]models.MonthConfig, 0)
+	r := make([]MonthConfig, 0)
+	for _, m := range mConfigs {
+		o, ok := co.getMonthConfig(c, m.EnvelopeID, m.Month)
+		if !ok {
+			return
+		}
+		r = append(r, o)
 	}
 
-	c.JSON(http.StatusOK, MonthConfigListResponse{Data: mConfigs})
+	c.JSON(http.StatusOK, MonthConfigListResponse{Data: r})
 }
 
 // CreateMonthConfig creates a new month config
@@ -213,7 +259,7 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 	}
 
 	var mConfig models.MonthConfig
-	if err = httputil.BindData(c, &mConfig); err != nil {
+	if err = httputil.BindData(c, &mConfig.MonthConfigCreate); err != nil {
 		return
 	}
 
@@ -237,7 +283,12 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, MonthConfigResponse{Data: mConfig})
+	r, ok := co.getMonthConfig(c, mConfig.EnvelopeID, mConfig.Month)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusCreated, MonthConfigResponse{Data: r})
 }
 
 // UpdateMonthConfig updates configuration data for a specific envelope and month
@@ -272,7 +323,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	mConfig, ok := co.getMonthConfigResource(c, envelopeID, types.MonthOf(month.Month))
+	m, ok := co.getMonthConfigModel(c, envelopeID, types.MonthOf(month.Month))
 	if !ok {
 		return
 	}
@@ -283,15 +334,20 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 	}
 
 	var data models.MonthConfig
-	if err = httputil.BindData(c, &data); err != nil {
+	if err = httputil.BindData(c, &data.MonthConfigCreate); err != nil {
 		return
 	}
 
-	if !queryAndHandleErrors(c, co.DB.Model(&mConfig).Select("", updateFields...).Updates(data)) {
+	if !queryAndHandleErrors(c, co.DB.Model(&m).Select("", updateFields...).Updates(data)) {
 		return
 	}
 
-	c.JSON(http.StatusOK, MonthConfigResponse{Data: mConfig})
+	o, ok := co.getMonthConfig(c, m.EnvelopeID, m.Month)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, MonthConfigResponse{Data: o})
 }
 
 // DeleteMonthConfig deletes configuration data for a specific envelope and month
@@ -325,33 +381,14 @@ func (co Controller) DeleteMonthConfig(c *gin.Context) {
 		return
 	}
 
-	mConfig, ok := co.getMonthConfigResource(c, envelopeID, types.MonthOf(month.Month))
+	m, ok := co.getMonthConfigModel(c, envelopeID, types.MonthOf(month.Month))
 	if !ok {
 		return
 	}
 
-	if !queryAndHandleErrors(c, co.DB.Delete(&mConfig)) {
+	if !queryAndHandleErrors(c, co.DB.Delete(&m)) {
 		return
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// getMonthConfigResource verifies that the request URI is valid for the transaction and returns it.
-func (co Controller) getMonthConfigResource(c *gin.Context, envelopeID uuid.UUID, month types.Month) (models.MonthConfig, bool) {
-	if envelopeID == uuid.Nil {
-		httperrors.New(c, http.StatusBadRequest, "no envelope ID specified")
-		return models.MonthConfig{}, false
-	}
-
-	var mConfig models.MonthConfig
-
-	if !queryAndHandleErrors(c, co.DB.First(&mConfig, &models.MonthConfig{
-		EnvelopeID: envelopeID,
-		Month:      month,
-	}), "No MonthConfig found for the Envelope and month specified") {
-		return models.MonthConfig{}, false
-	}
-
-	return mConfig, true
 }
