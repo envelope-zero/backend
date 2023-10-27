@@ -14,11 +14,11 @@ import (
 
 type Category struct {
 	models.Category
-	Envelopes []Envelope `json:"envelopes" gorm:"-"` // Envelopes for the category
+	Envelopes []Envelope `json:"envelopes"` // Envelopes for the category
 	Links     struct {
 		Self      string `json:"self" example:"https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`              // The category itself
 		Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"` // Envelopes for this category
-	} `json:"links" gorm:"-"`
+	} `json:"links"`
 }
 
 func (c *Category) links(context *gin.Context) {

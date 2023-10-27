@@ -20,7 +20,7 @@ type Envelope struct {
 		Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`   // the envelope's allocations
 		Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // Month information endpoint. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
 		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // The envelope's transactions
-	} `json:"links" gorm:"-"` // Links to related resources
+	} `json:"links"` // Links to related resources
 }
 
 func (e *Envelope) links(c *gin.Context) {
