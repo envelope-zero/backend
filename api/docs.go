@@ -4408,6 +4408,56 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.MatchRule": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The match rule itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
+                        }
+                    }
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.MonthConfigListResponse": {
             "type": "object",
             "properties": {
@@ -4475,10 +4525,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "description": "This field contains the model data",
+                    "description": "This field contains the MatchRule data",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.MatchRule"
+                            "$ref": "#/definitions/controllers.MatchRule"
                         }
                     ]
                 },
@@ -4493,7 +4543,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "description": "This field contains the transaction data",
+                    "description": "This field contains the Transaction data",
                     "allOf": [
                         {
                             "$ref": "#/definitions/controllers.TransactionV2"
@@ -5191,16 +5241,6 @@ const docTemplate = `{
                     "description": "UUID for the resource",
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The match rule itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
-                        }
-                    }
                 },
                 "match": {
                     "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",

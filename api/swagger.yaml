@@ -425,6 +425,45 @@ definitions:
           $ref: '#/definitions/importer.TransactionPreview'
         type: array
     type: object
+  controllers.MatchRule:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          self:
+            description: The match rule itself
+            example: https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21
+            type: string
+        type: object
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.MonthConfigListResponse:
     properties:
       data:
@@ -466,8 +505,8 @@ definitions:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/models.MatchRule'
-        description: This field contains the model data
+        - $ref: '#/definitions/controllers.MatchRule'
+        description: This field contains the MatchRule data
       error:
         description: This field contains a human readable error message
         example: A human readable error message
@@ -478,7 +517,7 @@ definitions:
       data:
         allOf:
         - $ref: '#/definitions/controllers.TransactionV2'
-        description: This field contains the transaction data
+        description: This field contains the Transaction data
       error:
         description: This field contains a human readable error message
         example: A human readable error message
@@ -1032,13 +1071,6 @@ definitions:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
-      links:
-        properties:
-          self:
-            description: The match rule itself
-            example: https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21
-            type: string
-        type: object
       match:
         description: The matching applied to the opposite account. This is a glob
           pattern. Multiple globs are allowed. Globbing is case sensitive.

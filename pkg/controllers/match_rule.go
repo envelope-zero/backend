@@ -1,15 +1,42 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
 
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 )
+
+type MatchRule struct {
+	models.MatchRule
+	Links struct {
+		Self string `json:"self" example:"https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21"` // The match rule itself
+	} `json:"links"`
+}
+
+func (r *MatchRule) links(c *gin.Context) {
+	r.Links.Self = fmt.Sprintf("%s/v2/match-rules/%s", c.GetString(string(database.ContextURL)), r.ID)
+}
+
+func (co Controller) getMatchRule(c *gin.Context, id uuid.UUID) (MatchRule, bool) {
+	m, ok := getResourceByIDAndHandleErrors[models.MatchRule](c, co, id)
+	if !ok {
+		return MatchRule{}, false
+	}
+
+	r := MatchRule{
+		MatchRule: m,
+	}
+
+	r.links(c)
+	return r, true
+}
 
 type MatchRuleQueryFilter struct {
 	Priority  uint   `form:"month"`   // By priority
@@ -104,7 +131,7 @@ func (co Controller) OptionsMatchRuleDetail(c *gin.Context) {
 //	@Param			matchRules	body		[]models.MatchRuleCreate	true	"MatchRules"
 //	@Router			/v2/match-rules [post]
 func (co Controller) CreateMatchRules(c *gin.Context) {
-	var matchRules []models.MatchRule
+	var matchRules []models.MatchRuleCreate
 
 	if err := httputil.BindData(c, &matchRules); err != nil {
 		return
@@ -116,8 +143,8 @@ func (co Controller) CreateMatchRules(c *gin.Context) {
 	// The final http status. Will be modified when errors occur
 	status := http.StatusCreated
 
-	for _, o := range matchRules {
-		o, err := co.createMatchRule(c, o)
+	for _, create := range matchRules {
+		m, err := co.createMatchRule(c, create)
 
 		// Append the error or the successfully created transaction to the response list
 		if !err.Nil() {
@@ -129,6 +156,10 @@ func (co Controller) CreateMatchRules(c *gin.Context) {
 				status = err.Status
 			}
 		} else {
+			o, ok := co.getMatchRule(c, m.ID)
+			if !ok {
+				return
+			}
 			r = append(r, ResponseMatchRule{Data: o})
 		}
 	}
@@ -241,7 +272,7 @@ func (co Controller) UpdateMatchRule(c *gin.Context) {
 	}
 
 	var data models.MatchRule
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindData(c, &data.MatchRuleCreate); err != nil {
 		return
 	}
 
@@ -284,7 +315,11 @@ func (co Controller) DeleteMatchRule(c *gin.Context) {
 }
 
 // createMatchRule creates a single matchRule after verifying it is a valid matchRule.
-func (co Controller) createMatchRule(c *gin.Context, r models.MatchRule) (models.MatchRule, httperrors.ErrorStatus) {
+func (co Controller) createMatchRule(c *gin.Context, create models.MatchRuleCreate) (models.MatchRule, httperrors.ErrorStatus) {
+	r := models.MatchRule{
+		MatchRuleCreate: create,
+	}
+
 	// Check that the referenced account exists
 	_, err := getResourceByID[models.Account](c, co, r.AccountID)
 	if !err.Nil() {

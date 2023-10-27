@@ -127,8 +127,8 @@ func (co Controller) CreateRenameRules(c *gin.Context) {
 	// The final http status. Will be modified when errors occur
 	status := http.StatusCreated
 
-	for _, o := range renameRules {
-		o, err := co.createRenameRule(c, o)
+	for _, create := range renameRules {
+		m, err := co.createRenameRule(c, create)
 
 		// Append the error or the successfully created transaction to the response list
 		if !err.Nil() {
@@ -140,6 +140,10 @@ func (co Controller) CreateRenameRules(c *gin.Context) {
 				status = err.Status
 			}
 		} else {
+			o, ok := co.getMatchRule(c, m.ID)
+			if !ok {
+				return
+			}
 			r = append(r, ResponseMatchRule{Data: o})
 		}
 	}
