@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
@@ -11,12 +13,46 @@ import (
 	"github.com/google/uuid"
 )
 
+type Envelope struct {
+	models.Envelope
+	Links struct {
+		Self         string `json:"self" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                     // The envelope itself
+		Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`   // the envelope's allocations
+		Month        string `json:"month" example:"https://example.com/api/v1/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // Month information endpoint. This will always end in 'YYYY-MM' for clients to use replace with actual numbers.
+		Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // The envelope's transactions
+	} `json:"links" gorm:"-"` // Links to related resources
+}
+
+func (e *Envelope) links(c *gin.Context) {
+	url := c.GetString(string(database.ContextURL))
+	self := fmt.Sprintf("%s/v1/envelopes/%s", url, e.ID)
+
+	e.Links.Self = self
+	e.Links.Allocations = self + "/allocations"
+	e.Links.Month = self + "/YYYY-MM"
+	e.Links.Transactions = fmt.Sprintf("%s/v1/transactions?envelope=%s", url, e.ID)
+}
+
+func (co Controller) getEnvelope(c *gin.Context, id uuid.UUID) (Envelope, bool) {
+	m, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
+	if !ok {
+		return Envelope{}, false
+	}
+
+	r := Envelope{
+		Envelope: m,
+	}
+
+	r.links(c)
+	return r, true
+}
+
 type EnvelopeListResponse struct {
-	Data []models.Envelope `json:"data"` // List of Envelopes
+	Data []Envelope `json:"data"` // List of Envelopes
 }
 
 type EnvelopeResponse struct {
-	Data models.Envelope `json:"data"` // Data for the Envelope
+	Data Envelope `json:"data"` // Data for the Envelope
 }
 
 type EnvelopeMonthResponse struct {
@@ -113,23 +149,32 @@ func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 //	@Param			envelope	body		models.EnvelopeCreate	true	"Envelope"
 //	@Router			/v1/envelopes [post]
 func (co Controller) CreateEnvelope(c *gin.Context) {
-	var envelope models.Envelope
+	var create models.EnvelopeCreate
 
-	err := httputil.BindData(c, &envelope)
+	err := httputil.BindData(c, &create)
 	if err != nil {
 		return
 	}
 
-	_, ok := getResourceByIDAndHandleErrors[models.Category](c, co, envelope.CategoryID)
+	e := models.Envelope{
+		EnvelopeCreate: create,
+	}
+
+	_, ok := getResourceByIDAndHandleErrors[models.Category](c, co, create.CategoryID)
 	if !ok {
 		return
 	}
 
-	if !queryAndHandleErrors(c, co.DB.Create(&envelope)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&e)) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, EnvelopeResponse{Data: envelope})
+	r, ok := co.getEnvelope(c, e.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusCreated, EnvelopeResponse{Data: r})
 }
 
 // GetEnvelopes returns a list of envelopes filtered by the query parameters
@@ -172,14 +217,17 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 		return
 	}
 
-	// When there are no resources, we want an empty list, not null
-	// Therefore, we use make to create a slice with zero elements
-	// which will be marshalled to an empty JSON array
-	if len(envelopes) == 0 {
-		envelopes = make([]models.Envelope, 0)
+	r := make([]Envelope, 0)
+	for _, e := range envelopes {
+		o, ok := co.getEnvelope(c, e.ID)
+		if !ok {
+			return
+		}
+
+		r = append(r, o)
 	}
 
-	c.JSON(http.StatusOK, EnvelopeListResponse{Data: envelopes})
+	c.JSON(http.StatusOK, EnvelopeListResponse{Data: r})
 }
 
 // GetEnvelope returns data about a specific envelope
@@ -201,12 +249,17 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelopeObject, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
+	m, ok := getResourceByIDAndHandleErrors[models.Envelope](c, co, id)
 	if !ok {
 		return
 	}
 
-	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelopeObject})
+	r, ok := co.getEnvelope(c, m.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, EnvelopeResponse{Data: r})
 }
 
 // GetEnvelopeMonth returns month data for a specific envelope
@@ -287,7 +340,7 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 	}
 
 	var data models.Envelope
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindData(c, &data.EnvelopeCreate); err != nil {
 		return
 	}
 
@@ -295,7 +348,12 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, EnvelopeResponse{Data: envelope})
+	r, ok := co.getEnvelope(c, envelope.ID)
+	if !ok {
+		return
+	}
+
+	c.JSON(http.StatusOK, EnvelopeResponse{Data: r})
 }
 
 // DeleteEnvelope deletes an envelope

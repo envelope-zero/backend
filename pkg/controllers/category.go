@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/httputil"
 	"github.com/envelope-zero/backend/v3/pkg/models"
@@ -10,12 +12,59 @@ import (
 	"github.com/google/uuid"
 )
 
+type Category struct {
+	models.Category
+	Envelopes []Envelope `json:"envelopes" gorm:"-"` // Envelopes for the category
+	Links     struct {
+		Self      string `json:"self" example:"https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`              // The category itself
+		Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"` // Envelopes for this category
+	} `json:"links" gorm:"-"`
+}
+
+func (c *Category) links(context *gin.Context) {
+	url := context.GetString(string(database.ContextURL))
+
+	c.Links.Self = fmt.Sprintf("%s/v1/categories/%s", url, c.ID)
+	c.Links.Envelopes = fmt.Sprintf("%s/v1/envelopes?category=%s", url, c.ID)
+}
+
+func (co Controller) getCategory(c *gin.Context, id uuid.UUID) (Category, bool) {
+	m, ok := getResourceByIDAndHandleErrors[models.Category](c, co, id)
+	if !ok {
+		return Category{}, false
+	}
+
+	cat := Category{
+		Category: m,
+	}
+
+	eModels, err := m.Envelopes(co.DB)
+	if err != nil {
+		httperrors.Handler(c, err)
+		return Category{}, false
+	}
+
+	envelopes := make([]Envelope, 0)
+	for _, e := range eModels {
+		o, ok := co.getEnvelope(c, e.ID)
+		if !ok {
+			return Category{}, false
+		}
+		envelopes = append(envelopes, o)
+	}
+
+	cat.Envelopes = envelopes
+	cat.links(c)
+
+	return cat, true
+}
+
 type CategoryListResponse struct {
-	Data []models.Category `json:"data"` // List of categories
+	Data []Category `json:"data"` // List of categories
 }
 
 type CategoryResponse struct {
-	Data models.Category `json:"data"` // Data for the category
+	Data Category `json:"data"` // Data for the category
 }
 
 type CategoryQueryFilter struct {
@@ -86,7 +135,7 @@ func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 		return
 	}
 
-	_, ok := co.getCategoryObject(c, id)
+	_, ok := co.getCategory(c, id)
 	if !ok {
 		return
 	}
@@ -106,24 +155,31 @@ func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 //	@Param			category	body		models.CategoryCreate	true	"Category"
 //	@Router			/v1/categories [post]
 func (co Controller) CreateCategory(c *gin.Context) {
-	var category models.Category
+	var create models.CategoryCreate
 
-	err := httputil.BindData(c, &category)
+	err := httputil.BindData(c, &create)
 	if err != nil {
 		return
 	}
 
-	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, category.BudgetID)
+	cat := models.Category{
+		CategoryCreate: create,
+	}
+
+	_, ok := getResourceByIDAndHandleErrors[models.Budget](c, co, cat.BudgetID)
 	if !ok {
 		return
 	}
 
-	if !queryAndHandleErrors(c, co.DB.Create(&category)) {
+	if !queryAndHandleErrors(c, co.DB.Create(&cat)) {
 		return
 	}
 
-	categoryObject, _ := co.getCategoryObject(c, category.ID)
-	c.JSON(http.StatusCreated, CategoryResponse{Data: categoryObject})
+	r, ok := co.getCategory(c, cat.ID)
+	if !ok {
+		return
+	}
+	c.JSON(http.StatusCreated, CategoryResponse{Data: r})
 }
 
 // GetCategories returns a list of categories filtered by the query parameters
@@ -167,17 +223,16 @@ func (co Controller) GetCategories(c *gin.Context) {
 		return
 	}
 
-	// When there are no resources, we want an empty list, not null
-	// Therefore, we use make to create a slice with zero elements
-	// which will be marshalled to an empty JSON array
-	categoryObjects := make([]models.Category, 0)
-
+	r := make([]Category, 0)
 	for _, category := range categories {
-		o, _ := co.getCategoryObject(c, category.ID)
-		categoryObjects = append(categoryObjects, o)
+		o, ok := co.getCategory(c, category.ID)
+		if !ok {
+			return
+		}
+		r = append(r, o)
 	}
 
-	c.JSON(http.StatusOK, CategoryListResponse{Data: categoryObjects})
+	c.JSON(http.StatusOK, CategoryListResponse{Data: r})
 }
 
 // GetCategory returns data for a specific category
@@ -199,12 +254,12 @@ func (co Controller) GetCategory(c *gin.Context) {
 		return
 	}
 
-	categoryObject, ok := co.getCategoryObject(c, id)
+	r, ok := co.getCategory(c, id)
 	if !ok {
 		return
 	}
 
-	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
+	c.JSON(http.StatusOK, CategoryResponse{Data: r})
 }
 
 // UpdateCategory updates data for a specific category
@@ -239,7 +294,7 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 	}
 
 	var data models.Category
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindData(c, &data.CategoryCreate); err != nil {
 		return
 	}
 
@@ -247,8 +302,11 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	categoryObject, _ := co.getCategoryObject(c, category.ID)
-	c.JSON(http.StatusOK, CategoryResponse{Data: categoryObject})
+	r, ok := co.getCategory(c, category.ID)
+	if !ok {
+		return
+	}
+	c.JSON(http.StatusOK, CategoryResponse{Data: r})
 }
 
 // DeleteCategory deletes a specific category
@@ -279,34 +337,4 @@ func (co Controller) DeleteCategory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// getCategoryResources returns all categories for the requested budget.
-func (co Controller) getCategoryResources(c *gin.Context, id uuid.UUID) ([]models.Category, bool) {
-	var categories []models.Category
-
-	if !queryAndHandleErrors(c, co.DB.Where(&models.Category{
-		CategoryCreate: models.CategoryCreate{
-			BudgetID: id,
-		},
-	}).Find(&categories)) {
-		return []models.Category{}, false
-	}
-
-	return categories, true
-}
-
-func (co Controller) getCategoryObject(c *gin.Context, id uuid.UUID) (models.Category, bool) {
-	resource, ok := getResourceByIDAndHandleErrors[models.Category](c, co, id)
-	if !ok {
-		return models.Category{}, false
-	}
-
-	err := resource.SetEnvelopes(co.DB)
-	if err != nil {
-		httperrors.Handler(c, err)
-		return models.Category{}, false
-	}
-
-	return resource, true
 }

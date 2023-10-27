@@ -32,14 +32,22 @@ func (suite *TestSuiteStandard) TestCategorySetEnvelopes() {
 	})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.ID})
 
-	// Verify no envelopes are set
-	assert.Len(suite.T(), category.Envelopes, 0)
-
 	// Set envelopes and verify
-	err := category.SetEnvelopes(suite.db)
+	envelopes, err := category.Envelopes(suite.db)
 	assert.Nil(suite.T(), err)
-	assert.Len(suite.T(), category.Envelopes, 1)
-	assert.Equal(suite.T(), envelope.ID, category.Envelopes[0].ID)
+	assert.Len(suite.T(), envelopes, 1)
+	assert.Equal(suite.T(), envelope.ID, envelopes[0].ID)
+}
+
+func (suite *TestSuiteStandard) TestCategorySetEnvelopesDBFail() {
+	category := suite.createTestCategory(models.CategoryCreate{
+		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+	})
+	suite.CloseDB()
+
+	_, err := category.Envelopes(suite.db)
+	assert.NotNil(suite.T(), err)
+	assert.Contains(suite.T(), err.Error(), "database is closed")
 }
 
 func (suite *TestSuiteStandard) TestCategorySelf() {

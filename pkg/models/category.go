@@ -1,9 +1,6 @@
 package models
 
 import (
-	"fmt"
-
-	"github.com/envelope-zero/backend/v3/pkg/database"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -12,12 +9,7 @@ import (
 type Category struct {
 	DefaultModel
 	CategoryCreate
-	Budget    Budget     `json:"-"`                  // The budget the category belongs to
-	Envelopes []Envelope `json:"envelopes" gorm:"-"` // Envelopes for the category
-	Links     struct {
-		Self      string `json:"self" example:"https://example.com/api/v1/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`              // The category itself
-		Envelopes string `json:"envelopes" example:"https://example.com/api/v1/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"` // Envelopes for this category
-	} `json:"links" gorm:"-"`
+	Budget Budget `json:"-"` // The budget the category belongs to
 }
 
 type CategoryCreate struct {
@@ -29,25 +21,6 @@ type CategoryCreate struct {
 
 func (c Category) Self() string {
 	return "Category"
-}
-
-func (c *Category) AfterFind(tx *gorm.DB) (err error) {
-	c.links(tx)
-	return
-}
-
-// AfterSave also sets the links so that we do not need to
-// query the resource directly after creating or updating it.
-func (c *Category) AfterSave(tx *gorm.DB) (err error) {
-	c.links(tx)
-	return
-}
-
-func (c *Category) links(tx *gorm.DB) {
-	url := tx.Statement.Context.Value(database.ContextURL)
-
-	c.Links.Self = fmt.Sprintf("%s/v1/categories/%s", url, c.ID)
-	c.Links.Envelopes = fmt.Sprintf("%s/v1/envelopes?category=%s", url, c.ID)
 }
 
 // BeforeUpdate archives all envelopes when the category is archived.
@@ -74,14 +47,12 @@ func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-// SetEnvelopes sets the Envelope field to the envelopes of the category.
-func (c *Category) SetEnvelopes(tx *gorm.DB) error {
+func (c *Category) Envelopes(tx *gorm.DB) ([]Envelope, error) {
 	var envelopes []Envelope
 	err := tx.Where(&Envelope{EnvelopeCreate: EnvelopeCreate{CategoryID: c.ID}}).Find(&envelopes).Error
 	if err != nil {
-		return err
+		return []Envelope{}, err
 	}
 
-	c.Envelopes = envelopes
-	return nil
+	return envelopes, nil
 }
