@@ -24,10 +24,16 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 
 	var transactions []importer.TransactionPreview
 
-	// Skip the first line
-	_, err := reader.Read()
+	// First line contains headers
+	headerRow, err := reader.Read()
 	if err == io.EOF {
 		return []importer.TransactionPreview{}, nil
+	}
+
+	// Build map for header keys
+	headers := map[string]int{}
+	for i := range headerRow {
+		headers[headerRow[i]] = i
 	}
 
 	for {
@@ -39,7 +45,7 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 			return csvReadError(reader, fmt.Errorf("could not read line in CSV: %w", err))
 		}
 
-		date, err := time.Parse("01/02/2006", record[Date])
+		date, err := time.Parse("01/02/2006", record[headers["Date"]])
 		if err != nil {
 			return csvReadError(reader, fmt.Errorf("could not parse time: %w", err))
 		}
@@ -49,21 +55,21 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 				Date:          date,
 				AvailableFrom: types.NewMonth(date.Year(), date.Month()),
 				ImportHash:    helpers.Sha256String(strings.Join(record, ",")),
-				Note:          record[Memo],
+				Note:          record[headers["Memo"]],
 				BudgetID:      account.BudgetID,
 			},
 		}
 
 		// Set the source and destination account
-		if record[Outflow] != "" && record[Inflow] != "" {
+		if record[headers["Outflow"]] != "" && record[headers["Inflow"]] != "" {
 			return csvReadError(reader, errors.New("both outflow and inflow are set for the transaction"))
-		} else if record[Outflow] == "" && record[Inflow] == "" {
+		} else if record[headers["Outflow"]] == "" && record[headers["Inflow"]] == "" {
 			return csvReadError(reader, errors.New("no amount is set for the transaction"))
-		} else if record[Outflow] != "" {
+		} else if record[headers["Outflow"]] != "" {
 			t.Transaction.SourceAccountID = account.DefaultModel.ID
-			t.DestinationAccountName = record[Payee]
+			t.DestinationAccountName = record[headers["Payee"]]
 
-			amount, err := decimal.NewFromString(record[Outflow])
+			amount, err := decimal.NewFromString(record[headers["Outflow"]])
 			if err != nil {
 				return csvReadError(reader, errors.New("outflow could not be parsed to a decimal"))
 			}
@@ -71,9 +77,9 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 			t.Transaction.Amount = amount
 		} else {
 			t.Transaction.DestinationAccountID = account.DefaultModel.ID
-			t.SourceAccountName = record[Payee]
+			t.SourceAccountName = record[headers["Payee"]]
 
-			amount, err := decimal.NewFromString(record[Inflow])
+			amount, err := decimal.NewFromString(record[headers["Inflow"]])
 			if err != nil {
 				return csvReadError(reader, errors.New("inflow could not be parsed to a decimal"))
 			}
