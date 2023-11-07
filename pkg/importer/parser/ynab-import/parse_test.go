@@ -20,6 +20,7 @@ func TestParse(t *testing.T) {
 	}{
 		{"Empty file", "empty.csv", 0},
 		{"With content", "comdirect-ynap.csv", 3},
+		{"With differently ordered content", "bank2ynab-ynap.csv", 1},
 	}
 
 	for _, tt := range tests {
