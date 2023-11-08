@@ -65,7 +65,6 @@ func TestErrors(t *testing.T) {
 		{"error-decimal-inflow.csv", "error in line 4 of the CSV: inflow could not be parsed to a decimal"},
 		{"error-decimal-outflow.csv", "error in line 2 of the CSV: outflow could not be parsed to a decimal"},
 		{"error-missing-amount.csv", "error in line 3 of the CSV: no amount is set for the transaction"},
-		{"error-amount-zero.csv", "error in line 4 of the CSV: the amount for a transaction must not be 0"},
 		{"error-outflow-and-inflow.csv", "error in line 2 of the CSV: both outflow and inflow are set for the transaction"},
 	}
 

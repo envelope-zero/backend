@@ -87,8 +87,9 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 			t.Transaction.Amount = amount
 		}
 
+		// Ignore transactions that have an amount of 0
 		if t.Transaction.Amount.IsZero() {
-			return csvReadError(reader, errors.New("the amount for a transaction must not be 0"))
+			continue
 		}
 
 		transactions = append(transactions, t)
