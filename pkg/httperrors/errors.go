@@ -70,6 +70,11 @@ func DBError(c *gin.Context, err error) ErrorStatus {
 		return ErrorStatus{Status: http.StatusBadRequest, Err: err}
 	}
 
+	// Account cannot be on budget because transactions have envelopes
+	if strings.Contains(err.Error(), "the account cannot be set to on budget because") {
+		return ErrorStatus{Status: http.StatusBadRequest, Err: err}
+	}
+
 	// Account name must be unique per Budget
 	if strings.Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id") {
 		return ErrorStatus{Status: http.StatusBadRequest, Err: errors.New("the account name must be unique for the budget")}

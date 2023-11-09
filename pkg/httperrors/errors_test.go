@@ -172,6 +172,7 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		msg  string
 	}{
 		{http.StatusBadRequest, "availability month must not be earlier than the month of the transaction, transaction date: 2023-10-22, available month 2023-09", "availability month must not be earlier than the month of the transaction, transaction date: 2023-10-22, available month 2023-09"},
+		{http.StatusBadRequest, "the account cannot be set to on budget because the following transactions have an envelope set", "the account cannot be set to on budget because the following transactions have an envelope set"},
 		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "source and destination accounts for a transaction must be different"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: accounts.name, accounts.budget_id", "the account name must be unique for the budget"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
