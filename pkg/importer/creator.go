@@ -2,6 +2,7 @@ package importer
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/google/uuid"
@@ -32,6 +33,23 @@ func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 
 		// Update the account in the resources struct so that it also contains the ID
 		resources.Accounts[idx] = account
+	}
+
+	// Create Match Rules
+	for _, matchRule := range resources.MatchRules {
+		aIdx := slices.IndexFunc(resources.Accounts, func(a models.Account) bool { return a.Name == matchRule.Account })
+		if aIdx == -1 {
+			tx.Rollback()
+			return models.Budget{}, fmt.Errorf("the account '%s' specified in the Match Rule matching '%s' could not be found in the list of Accounts", matchRule.Account, matchRule.Match)
+		}
+
+		matchRule.MatchRule.AccountID = resources.Accounts[aIdx].ID
+
+		err := tx.Create(&matchRule.MatchRule).Error
+		if err != nil {
+			tx.Rollback()
+			return models.Budget{}, err
+		}
 	}
 
 	for cName, category := range resources.Categories {

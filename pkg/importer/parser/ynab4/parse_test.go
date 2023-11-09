@@ -110,6 +110,13 @@ func TestParse(t *testing.T) {
 		testAccounts(t, accounts)
 	})
 
+	// Check MatchRules
+	var matchRules []models.MatchRule
+	db.Find(&matchRules)
+	t.Run("MatchRules", func(t *testing.T) {
+		testMatchRules(t, matchRules, accounts)
+	})
+
 	// Check categories
 	var categories []models.Category
 	db.Find(&categories)
@@ -210,6 +217,47 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 			if tt.initialBalance != 0 {
 				assert.Equal(t, &tt.initialBalanceDate, a.InitialBalanceDate, "Initial balance date does not match")
 			}
+		})
+	}
+}
+
+// testMatchRules tests all MatchRule resources.
+func testMatchRules(t *testing.T, matchRules []models.MatchRule, accounts []models.Account) {
+	assert.Len(t, matchRules, 5, "Number of MatchRules is wrong")
+
+	// Check MatchRule details
+	//
+	// Not checking priority because YNAB4 does not have priorities here
+	// Therefore we always set it to 0 on import
+	tests := []struct {
+		match   string
+		account string
+	}{
+		{"Mum*", "Parents"},
+		{"*& Dad", "Parents"},
+		{"My Parents", "Parents"},
+		{"Co", "Favorite Coffee Shop"},
+		{"*Coffee Shop*", "Favorite Coffee Shop"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.match, func(t *testing.T) {
+			// Find Account
+			aIdx := slices.IndexFunc(accounts, func(a models.Account) bool { return a.Name == tt.account })
+			if !assert.NotEqual(t, -1, aIdx, "No Account with the name the Match Rule is targeting") {
+				return
+			}
+
+			// Find Match Rule
+			mIdx := slices.IndexFunc(matchRules, func(m models.MatchRule) bool { return m.Match == tt.match })
+			if !assert.NotEqual(t, -1, mIdx, "No Match Rule with the match we are looking for") {
+				return
+			}
+
+			a := accounts[aIdx]
+			m := matchRules[mIdx]
+
+			assert.Equal(t, a.ID, m.AccountID, "Match Rule Account ID and actual Account ID do not match")
 		})
 	}
 }

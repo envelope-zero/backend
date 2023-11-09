@@ -15,6 +15,7 @@ type ParsedResources struct {
 	Allocations  []Allocation
 	Transactions []Transaction
 	MonthConfigs []MonthConfig
+	MatchRules   []MatchRule
 }
 
 type Category struct {
@@ -24,6 +25,12 @@ type Category struct {
 
 type Envelope struct {
 	Model models.Envelope
+}
+
+// MatchRule represents a MatchRule to be imported.
+type MatchRule struct {
+	models.MatchRule
+	Account string
 }
 
 type Allocation struct {
