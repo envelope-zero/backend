@@ -134,6 +134,38 @@ func parsePayees(resources *importer.ParsedResources, payees []Payee) IDToName {
 				ImportHash: helpers.Sha256String(payee.EntityID),
 			},
 		})
+
+		// Parse the Match Rules from the payee's rename conditions
+		for _, r := range payee.RenameConditions {
+			// Skip deleted rename conditions
+			if r.Deleted {
+				continue
+			}
+
+			// Determine the match string. Since EZ uses globs and YNAB4 has different
+			// operators, we translate between the two
+			var match string
+			switch r.Operator {
+			case "Is":
+				match = r.Operand
+			case "Contains":
+				match = fmt.Sprintf("*%s*", r.Operand)
+			case "StartsWith":
+				match = fmt.Sprintf("%s*", r.Operand)
+			case "EndsWith":
+				match = fmt.Sprintf("*%s", r.Operand)
+			}
+
+			resources.MatchRules = append(resources.MatchRules, importer.MatchRule{
+				Account: payee.Name,
+				MatchRule: models.MatchRule{
+					MatchRuleCreate: models.MatchRuleCreate{
+						Priority: 0,
+						Match:    match,
+					},
+				},
+			})
+		}
 	}
 
 	return idToNames
