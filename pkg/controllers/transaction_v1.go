@@ -247,7 +247,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	}
 
 	var query *gorm.DB
-	query = co.DB.Order("date(date) DESC").Where(&models.Transaction{
+	query = co.DB.Order("datetime(date) DESC, datetime(created_at) DESC").Where(&models.Transaction{
 		TransactionCreate: create,
 	}, queryFields...)
 

@@ -118,9 +118,29 @@ func (suite *TestSuiteStandard) TestOptionsTransaction() {
 	assert.Equal(suite.T(), http.StatusNoContent, recorder.Code, "Request ID %s", recorder.Header().Get("x-request-id"))
 }
 
+// TestGetTransactions verifies that transactions can be read from the API.
+// It also acts as a regression test for a bug where transactions were sorted by date(date)
+// instead of datetime(date), leading to transactions being correctly sorted by dates, but
+// not correctly sorted when multiple transactions occurred on a day. In that case, the
+// oldest transaction would be at the bottom and not at the top.
 func (suite *TestSuiteStandard) TestGetTransactions() {
-	_ = suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(17.23)})
-	_ = suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(23.42)})
+	t1 := suite.createTestTransaction(models.TransactionCreate{
+		Amount: decimal.NewFromFloat(17.23),
+		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
+	})
+
+	_ = suite.createTestTransaction(models.TransactionCreate{
+		Amount: decimal.NewFromFloat(23.42),
+		Date:   time.Date(2023, 11, 10, 11, 12, 13, 0, time.UTC),
+	})
+
+	// Need to sleep 1 second because SQLite datetime only has second precision
+	time.Sleep(1 * time.Second)
+
+	t3 := suite.createTestTransaction(models.TransactionCreate{
+		Amount: decimal.NewFromFloat(44.05),
+		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
+	})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/transactions", "")
 
@@ -128,7 +148,14 @@ func (suite *TestSuiteStandard) TestGetTransactions() {
 	suite.decodeResponse(&recorder, &response)
 
 	assert.Equal(suite.T(), 200, recorder.Code)
-	assert.Len(suite.T(), response.Data, 2)
+	assert.Len(suite.T(), response.Data, 3)
+
+	// Verify that the transaction with the earlier date is the last in the list
+	assert.Equal(suite.T(), t1.Data.ID, response.Data[2].ID, t1.Data.CreatedAt)
+
+	// Verify that the transaction added for the same time as the first, but added later
+	// is before the other
+	assert.Equal(suite.T(), t3.Data.ID, response.Data[1].ID, t3.Data.CreatedAt)
 }
 
 func (suite *TestSuiteStandard) TestGetTransactionsInvalidQuery() {
