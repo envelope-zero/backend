@@ -648,7 +648,7 @@ definitions:
         default: false
         description: DEPRECATED. Do not use, this field does not work as intended.
           See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
-          and reconciledDestination instead.
+          and reconciledDestination instead. This field will be removed in 4.0.0
         example: true
         type: boolean
       reconciledDestination:
@@ -668,6 +668,17 @@ definitions:
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  controllers.TransactionCreateResponseV3:
+    properties:
+      data:
+        description: List of created transactions
+        items:
+          $ref: '#/definitions/controllers.TransactionResponseV3'
+        type: array
+      error:
+        description: The error, if any occurred
         type: string
     type: object
   controllers.TransactionListResponse:
@@ -699,6 +710,16 @@ definitions:
         allOf:
         - $ref: '#/definitions/controllers.Transaction'
         description: Data for the transaction
+    type: object
+  controllers.TransactionResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.TransactionV3'
+        description: The transaction data, if creation was successful
+      error:
+        description: The error, if any occurred for this transaction
+        type: string
     type: object
   controllers.TransactionV2:
     properties:
@@ -765,7 +786,7 @@ definitions:
         default: false
         description: DEPRECATED. Do not use, this field does not work as intended.
           See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
-          and reconciledDestination instead.
+          and reconciledDestination instead. This field will be removed in 4.0.0
         example: true
         type: boolean
       reconciledDestination:
@@ -852,7 +873,7 @@ definitions:
         default: false
         description: DEPRECATED. Do not use, this field does not work as intended.
           See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
-          and reconciledDestination instead.
+          and reconciledDestination instead. This field will be removed in 4.0.0
         example: true
         type: boolean
       reconciledDestination:
@@ -1375,7 +1396,7 @@ definitions:
         default: false
         description: DEPRECATED. Do not use, this field does not work as intended.
           See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource
-          and reconciledDestination instead.
+          and reconciledDestination instead. This field will be removed in 4.0.0
         example: true
         type: boolean
       reconciledDestination:
@@ -4219,6 +4240,42 @@ paths:
         "204":
           description: No Content
       summary: Allowed HTTP verbs
+      tags:
+      - Transactions
+    post:
+      description: Creates transactions from the list of submitted transaction data.
+        The response code is the highest response code number that a single transaction
+        creation would have caused. If it is not equal to 201, at least one transaction
+        has an error.
+      parameters:
+      - description: Transactions
+        in: body
+        name: transactions
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.TransactionCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+      summary: Create transactions
       tags:
       - Transactions
   /version:

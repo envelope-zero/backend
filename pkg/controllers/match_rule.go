@@ -133,7 +133,7 @@ func (co Controller) OptionsMatchRuleDetail(c *gin.Context) {
 func (co Controller) CreateMatchRules(c *gin.Context) {
 	var matchRules []models.MatchRuleCreate
 
-	if err := httputil.BindData(c, &matchRules); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &matchRules); err != nil {
 		return
 	}
 
@@ -272,7 +272,7 @@ func (co Controller) UpdateMatchRule(c *gin.Context) {
 	}
 
 	var data models.MatchRule
-	if err := httputil.BindData(c, &data.MatchRuleCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data.MatchRuleCreate); err != nil {
 		return
 	}
 

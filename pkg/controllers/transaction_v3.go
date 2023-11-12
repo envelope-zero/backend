@@ -22,6 +22,16 @@ type TransactionListResponseV3 struct {
 	Pagination *Pagination     `json:"pagination"` // Pagination information
 }
 
+type TransactionCreateResponseV3 struct {
+	Error *string                 `json:"error"` // The error, if any occurred
+	Data  []TransactionResponseV3 `json:"data"`  // List of created transactions
+}
+
+type TransactionResponseV3 struct {
+	Error *string        `json:"error"` // The error, if any occurred for this transaction
+	Data  *TransactionV3 `json:"data"`  // The transaction data, if creation was successful
+}
+
 // TransactionV3 is the representation of a Transaction in API v3.
 type TransactionV3 struct {
 	models.Transaction
@@ -76,6 +86,7 @@ func (co Controller) RegisterTransactionRoutesV3(r *gin.RouterGroup) {
 	{
 		r.OPTIONS("", co.OptionsTransactionsV3)
 		r.GET("", co.GetTransactionsV3)
+		r.POST("", co.CreateTransactionsV3)
 	}
 }
 
@@ -87,7 +98,7 @@ func (co Controller) RegisterTransactionRoutesV3(r *gin.RouterGroup) {
 //	@Success		204
 //	@Router			/v3/transactions [options]
 func (co Controller) OptionsTransactionsV3(c *gin.Context) {
-	httputil.OptionsGet(c)
+	httputil.OptionsGetPost(c)
 }
 
 // GetTransactions returns transactions filtered by the query parameters
@@ -247,4 +258,64 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 			Limit:  limit,
 		},
 	})
+}
+
+// CreateTransactionsV3 creates transactions
+//
+//	@Summary		Create transactions
+//	@Description	Creates transactions from the list of submitted transaction data. The response code is the highest response code number that a single transaction creation would have caused. If it is not equal to 201, at least one transaction has an error.
+//	@Tags			Transactions
+//	@Produce		json
+//	@Success		201				{object}	TransactionCreateResponseV3
+//	@Failure		400				{object}	TransactionCreateResponseV3
+//	@Failure		404				{object}	TransactionCreateResponseV3
+//	@Failure		500				{object}	TransactionCreateResponseV3
+//	@Param			transactions	body		[]models.TransactionCreate	true	"Transactions"
+//	@Router			/v3/transactions [post]
+func (co Controller) CreateTransactionsV3(c *gin.Context) {
+	var transactions []models.Transaction
+
+	// Bind data and return error if not possible
+	err := httputil.BindData(c, &transactions)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionCreateResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	// The final http status. Will be modified when errors occur
+	status := http.StatusCreated
+	r := TransactionCreateResponseV3{}
+
+	for _, t := range transactions {
+		t, err := co.createTransaction(c, t)
+
+		// Append the error
+		if !err.Nil() {
+			e := err.Error()
+			r.Data = append(r.Data, TransactionResponseV3{Error: &e})
+
+			// The final status code is the highest HTTP status code number since this also
+			// represents the priority we
+			if err.Status > status {
+				status = err.Status
+			}
+			continue
+		}
+
+		// Append the transaction
+		tObject, err := co.getTransactionV3(c, t.ID)
+		if !err.Nil() {
+			e := err.Error()
+			c.JSON(err.Status, TransactionCreateResponseV3{
+				Error: &e,
+			})
+			return
+		}
+		r.Data = append(r.Data, TransactionResponseV3{Data: &tObject})
+	}
+
+	c.JSON(status, r)
 }

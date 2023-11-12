@@ -117,7 +117,7 @@ func (co Controller) OptionsRenameRuleDetail(c *gin.Context) {
 func (co Controller) CreateRenameRules(c *gin.Context) {
 	var renameRules []models.MatchRule
 
-	if err := httputil.BindData(c, &renameRules); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &renameRules); err != nil {
 		return
 	}
 
@@ -259,7 +259,7 @@ func (co Controller) UpdateRenameRule(c *gin.Context) {
 	}
 
 	var data models.MatchRule
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data); err != nil {
 		return
 	}
 

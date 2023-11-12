@@ -19,6 +19,7 @@ import (
 
 var (
 	ErrInvalidQueryString            = errors.New("the query string contains unparseable data. Please check the values")
+	ErrInvalidBody                   = errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
 	ErrInvalidUUID                   = errors.New("the specified resource ID is not a valid UUID")
 	ErrNoResource                    = errors.New("there is no resource for the ID you specified")
 	ErrDatabaseClosed                = errors.New("there is a problem with the database connection, please try again later")

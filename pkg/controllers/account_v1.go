@@ -169,7 +169,7 @@ func (co Controller) OptionsAccountDetail(c *gin.Context) {
 func (co Controller) CreateAccount(c *gin.Context) {
 	var accountCreate models.AccountCreate
 
-	if err := httputil.BindData(c, &accountCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &accountCreate); err != nil {
 		return
 	}
 
@@ -314,7 +314,7 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 	}
 
 	var data models.Account
-	if err := httputil.BindData(c, &data.AccountCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data.AccountCreate); err != nil {
 		return
 	}
 

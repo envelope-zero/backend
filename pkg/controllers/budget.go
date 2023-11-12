@@ -238,7 +238,7 @@ func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 func (co Controller) CreateBudget(c *gin.Context) {
 	var bCreate models.BudgetCreate
 
-	if err := httputil.BindData(c, &bCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &bCreate); err != nil {
 		return
 	}
 
@@ -499,7 +499,7 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 	}
 
 	var data models.Budget
-	if err := httputil.BindData(c, &data.BudgetCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data.BudgetCreate); err != nil {
 		return
 	}
 
@@ -634,7 +634,7 @@ func (co Controller) SetAllocationsMonth(c *gin.Context) {
 
 	// Get the mode to set new allocations in
 	var data BudgetAllocationMode
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data); err != nil {
 		return
 	}
 

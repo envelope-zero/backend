@@ -157,7 +157,7 @@ func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 func (co Controller) CreateCategory(c *gin.Context) {
 	var create models.CategoryCreate
 
-	err := httputil.BindData(c, &create)
+	err := httputil.BindDataHandleErrors(c, &create)
 	if err != nil {
 		return
 	}
@@ -294,7 +294,7 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 	}
 
 	var data models.Category
-	if err := httputil.BindData(c, &data.CategoryCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data.CategoryCreate); err != nil {
 		return
 	}
 

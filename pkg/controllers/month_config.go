@@ -271,7 +271,7 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 	}
 
 	var mConfig models.MonthConfig
-	if err = httputil.BindData(c, &mConfig.MonthConfigCreate); err != nil {
+	if err = httputil.BindDataHandleErrors(c, &mConfig.MonthConfigCreate); err != nil {
 		return
 	}
 
@@ -346,7 +346,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 	}
 
 	var data models.MonthConfig
-	if err = httputil.BindData(c, &data.MonthConfigCreate); err != nil {
+	if err = httputil.BindDataHandleErrors(c, &data.MonthConfigCreate); err != nil {
 		return
 	}
 

@@ -151,7 +151,7 @@ func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
 func (co Controller) CreateEnvelope(c *gin.Context) {
 	var create models.EnvelopeCreate
 
-	err := httputil.BindData(c, &create)
+	err := httputil.BindDataHandleErrors(c, &create)
 	if err != nil {
 		return
 	}
@@ -340,7 +340,7 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 	}
 
 	var data models.Envelope
-	if err := httputil.BindData(c, &data.EnvelopeCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data.EnvelopeCreate); err != nil {
 		return
 	}
 
