@@ -162,7 +162,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsOptions() {
 		errMsg   string
 	}{
 		{"Bad Envelope ID", "Definitely-Not-A-UUID", "1984-03", http.StatusBadRequest, "not a valid UUID"},
-		{"Invalid Month", envelope.Data.ID.String(), "2000-00", http.StatusBadRequest, "Could not parse the specified month"},
+		{"Invalid Month", envelope.Data.ID.String(), "2000-00", http.StatusBadRequest, "could not parse the specified month"},
 		{"No envelope", uuid.New().String(), "1984-03", http.StatusNoContent, ""},
 		{"No MonthConfig", envelope.Data.ID.String(), "1984-03", http.StatusNoContent, ""},
 		{"Existing", envelope.Data.ID.String(), "2014-05", http.StatusNoContent, ""},
