@@ -55,7 +55,7 @@ type AllocationQueryFilter struct {
 }
 
 func (f AllocationQueryFilter) Parse(c *gin.Context) (models.AllocationCreate, bool) {
-	envelopeID, ok := httputil.UUIDFromString(c, f.EnvelopeID)
+	envelopeID, ok := httputil.UUIDFromStringHandleErrors(c, f.EnvelopeID)
 	if !ok {
 		return models.AllocationCreate{}, false
 	}

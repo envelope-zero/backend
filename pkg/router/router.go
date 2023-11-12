@@ -138,6 +138,15 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	co.RegisterTransactionRoutesV2(v2.Group("/transactions"))
 	co.RegisterRenameRuleRoutes(v2.Group("/rename-rules"))
 	co.RegisterMatchRuleRoutes(v2.Group("/match-rules"))
+
+	// API v3 setup
+	v3 := group.Group("/v3")
+	{
+		v3.GET("", GetV3)
+		v3.OPTIONS("", OptionsV3)
+	}
+
+	co.RegisterTransactionRoutesV3(v3.Group("/transactions"))
 }
 
 type RootResponse struct {
@@ -150,6 +159,7 @@ type RootLinks struct {
 	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
 	V1      string `json:"v1" example:"https://example.com/api/v1"`                // List endpoint for all v1 endpoints
 	V2      string `json:"v2" example:"https://example.com/api/v2"`                // List endpoint for all v2 endpoints
+	V3      string `json:"v3" example:"https://example.com/api/v3"`                // List endpoint for all v3 endpoints
 }
 
 // GetRoot returns the link list for the API root
@@ -167,6 +177,7 @@ func GetRoot(c *gin.Context) {
 			Version: c.GetString(string(database.ContextURL)) + "/version",
 			V1:      c.GetString(string(database.ContextURL)) + "/v1",
 			V2:      c.GetString(string(database.ContextURL)) + "/v2",
+			V3:      c.GetString(string(database.ContextURL)) + "/v3",
 		},
 	})
 }
@@ -300,5 +311,39 @@ func GetV2(c *gin.Context) {
 //	@Success		204
 //	@Router			/v2 [options]
 func OptionsV2(c *gin.Context) {
+	httputil.OptionsGet(c)
+}
+
+type V3Response struct {
+	Links V3Links `json:"links"` // Links for the v2 API
+}
+
+type V3Links struct {
+	Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions"` // URL of transaction collection endpoint
+}
+
+// GetV3 returns the link list for v3
+//
+//	@Summary		v3 API
+//	@Description	Returns general information about the v3 API
+//	@Tags			v3
+//	@Success		200	{object}	V3Response
+//	@Router			/v3 [get]
+func GetV3(c *gin.Context) {
+	c.JSON(http.StatusOK, V3Response{
+		Links: V3Links{
+			Transactions: c.GetString(string(database.ContextURL)) + "/v3/transactions",
+		},
+	})
+}
+
+// OptionsV3 returns the allowed HTTP methods
+//
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			v3
+//	@Success		204
+//	@Router			/v3 [options]
+func OptionsV3(c *gin.Context) {
 	httputil.OptionsGet(c)
 }

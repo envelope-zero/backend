@@ -68,7 +68,7 @@ type EnvelopeQueryFilter struct {
 }
 
 func (f EnvelopeQueryFilter) ToCreate(c *gin.Context) (models.EnvelopeCreate, bool) {
-	categoryID, ok := httputil.UUIDFromString(c, f.CategoryID)
+	categoryID, ok := httputil.UUIDFromStringHandleErrors(c, f.CategoryID)
 	if !ok {
 		return models.EnvelopeCreate{}, false
 	}

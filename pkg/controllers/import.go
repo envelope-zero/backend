@@ -125,7 +125,7 @@ func (co Controller) ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	accountID, ok := httputil.UUIDFromString(c, query.AccountID)
+	accountID, ok := httputil.UUIDFromStringHandleErrors(c, query.AccountID)
 	if !ok {
 		return
 	}

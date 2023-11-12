@@ -11,7 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type TransactionV2 Transaction
+type TransactionV2 struct {
+	models.Transaction
+	Links struct {
+		Self string `json:"self" example:"https://example.com/api/v2/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"` // The transaction itself
+	} `json:"links"` // Links for the transaction
+}
 
 // links generates HATEOAS links for the transaction.
 func (t *TransactionV2) links(c *gin.Context) {

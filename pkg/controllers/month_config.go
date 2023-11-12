@@ -46,10 +46,22 @@ func (co Controller) getMonthConfig(c *gin.Context, id uuid.UUID, month types.Mo
 func (co Controller) getMonthConfigModel(c *gin.Context, id uuid.UUID, month types.Month) (models.MonthConfig, bool) {
 	var m models.MonthConfig
 
-	if !queryAndHandleErrors(c, co.DB.First(&m, &models.MonthConfig{
+	err := query(c, co.DB.First(&m, &models.MonthConfig{
 		EnvelopeID: id,
 		Month:      month,
-	}), "No MonthConfig found for the Envelope and month specified") {
+	}))
+
+	if !err.Nil() {
+		msg := err.Error()
+		if err.Status == http.StatusNotFound {
+			s := "No MonthConfig found for the Envelope and month specified"
+			msg = s
+		}
+
+		c.JSON(err.Status, httperrors.HTTPError{
+			Error: msg,
+		})
+
 		return models.MonthConfig{}, false
 	}
 
@@ -75,7 +87,7 @@ type MonthConfigFilter struct {
 }
 
 func (m MonthConfigQueryFilter) Parse(c *gin.Context) (MonthConfigFilter, bool) {
-	envelopeID, ok := httputil.UUIDFromString(c, m.EnvelopeID)
+	envelopeID, ok := httputil.UUIDFromStringHandleErrors(c, m.EnvelopeID)
 	if !ok {
 		return MonthConfigFilter{}, false
 	}
