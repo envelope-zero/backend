@@ -166,7 +166,7 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "the envelope name must be unique for the category"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "you can not create multiple allocations for the same month"},
-		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "there is no resource for the ID you specificed in the reference to another resource"},
+		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "a resource you are referencing in another resource does not exist"},
 		{http.StatusInternalServerError, "This is a very weird error", "an error occurred on the server during your request, please contact your server administrator. The request id is '', send this to your server administrator to help them finding the problem"},
 		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "the database is currently in read-only mode, please try again later"},
 	}
@@ -221,7 +221,7 @@ func TestDatabaseNo(t *testing.T) {
 		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "the envelope name must be unique for the category"},
 		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "you can not create multiple allocations for the same month"},
-		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "there is no resource for the ID you specificed in the reference to another resource"},
+		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "a resource you are referencing in another resource does not exist"},
 		{http.StatusInternalServerError, "This is a very weird error", "an error occurred on the server during your request, please contact your server administrator. The request id is '', send this to your server administrator to help them finding the problem"},
 		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "the database is currently in read-only mode, please try again later"},
 	}

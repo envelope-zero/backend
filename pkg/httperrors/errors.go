@@ -18,11 +18,19 @@ import (
 )
 
 var (
-	ErrInvalidQueryString = errors.New("the query string contains unparseable data. Please check the values")
-	ErrInvalidUUID        = errors.New("the specified resource ID is not a valid UUID")
-	ErrNoResource         = errors.New("there is no resource for the ID you specified")
-	ErrDatabaseClosed     = errors.New("there is a problem with the database connection, please try again later")
-	ErrRequestBodyEmpty   = errors.New("the request body must not be empty")
+	ErrInvalidQueryString            = errors.New("the query string contains unparseable data. Please check the values")
+	ErrInvalidUUID                   = errors.New("the specified resource ID is not a valid UUID")
+	ErrNoResource                    = errors.New("there is no resource for the ID you specified")
+	ErrDatabaseClosed                = errors.New("there is a problem with the database connection, please try again later")
+	ErrDatabaseReadOnly              = errors.New("the database is currently in read-only mode, please try again later")
+	ErrRequestBodyEmpty              = errors.New("the request body must not be empty")
+	ErrInvalidMonth                  = errors.New("could not parse the specified month, did you use YYYY-MM format?")
+	ErrAccountNameNotUnique          = errors.New("the account name must be unique for the budget")
+	ErrCategoryNameNotUnique         = errors.New("the category name must be unique for the budget")
+	ErrEnvelopeNameNotUniqe          = errors.New("the envelope name must be unique for the category")
+	ErrMultipleAllocations           = errors.New("you can not create multiple allocations for the same month")
+	ErrSourceEqualsDestination       = errors.New("source and destination accounts for a transaction must be different")
+	ErrReferenceResourceDoesNotExist = errors.New("a resource you are referencing in another resource does not exist")
 )
 
 // Generate a struct containing the HTTP error on the fly.
@@ -61,7 +69,7 @@ func InvalidQueryString(c *gin.Context) {
 }
 
 func InvalidMonth(c *gin.Context) {
-	New(c, http.StatusBadRequest, "Could not parse the specified month, did you use YYYY-MM format?")
+	New(c, http.StatusBadRequest, ErrInvalidMonth.Error())
 }
 
 // GenericDBError wraps DBError with a more specific error message for not found errors.
@@ -91,38 +99,38 @@ func DBError(c *gin.Context, err error) Error {
 
 	// Account name must be unique per Budget
 	if strings.Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id") {
-		return Error{Status: http.StatusBadRequest, Err: errors.New("the account name must be unique for the budget")}
+		return Error{Status: http.StatusBadRequest, Err: ErrAccountNameNotUnique}
 	}
 
 	// Category names need to be unique per budget
 	if strings.Contains(err.Error(), "UNIQUE constraint failed: categories.name, categories.budget_id") {
-		return Error{Status: http.StatusBadRequest, Err: errors.New("the category name must be unique for the budget")}
+		return Error{Status: http.StatusBadRequest, Err: ErrCategoryNameNotUnique}
 	}
 
 	// Unique envelope names per category
 	if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.name, envelopes.category_id") {
-		return Error{Status: http.StatusBadRequest, Err: errors.New("the envelope name must be unique for the category")}
+		return Error{Status: http.StatusBadRequest, Err: ErrEnvelopeNameNotUniqe}
 	}
 
 	// Only one allocation per envelope per month
 	if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month, allocations.envelope_id") {
-		return Error{Status: http.StatusBadRequest, Err: errors.New("you can not create multiple allocations for the same month")}
+		return Error{Status: http.StatusBadRequest, Err: ErrMultipleAllocations}
 	}
 
 	// Source and destination accounts need to be different
 	if strings.Contains(err.Error(), "CHECK constraint failed: source_destination_different") {
-		return Error{Status: http.StatusBadRequest, Err: errors.New("source and destination accounts for a transaction must be different")}
+		return Error{Status: http.StatusBadRequest, Err: ErrSourceEqualsDestination}
 	}
 
 	// General message when a field references a non-existing resource
 	if strings.Contains(err.Error(), "constraint failed: FOREIGN KEY constraint failed") {
-		return Error{Status: http.StatusBadRequest, Err: errors.New("there is no resource for the ID you specificed in the reference to another resource")}
+		return Error{Status: http.StatusBadRequest, Err: ErrReferenceResourceDoesNotExist}
 	}
 
 	// Database is read only or file has been deleted
 	if strings.Contains(err.Error(), "attempt to write a readonly database (1032)") {
-		log.Error().Msgf("Database is in read-only mode. This might be due to the file being deleted: %#v", err)
-		return Error{Status: http.StatusInternalServerError, Err: errors.New("the database is currently in read-only mode, please try again later")}
+		log.Error().Msgf("Database is in read-only mode. This might be due to the file having been deleted: %#v", err)
+		return Error{Status: http.StatusInternalServerError, Err: ErrDatabaseReadOnly}
 	}
 
 	// A general error we do not know more about
