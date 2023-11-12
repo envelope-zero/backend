@@ -45,7 +45,7 @@ You can run the backend on any Kubernetes cluster with a supported version using
 ```yaml
 image:
   repository: ghcr.io/envelope-zero/backend
-  tag: v0.2.1
+  tag: v3.3.4
 
 # All data is stored to a sqlite database in /data.
 # Make sure to persist and backup this directory.
@@ -76,6 +76,15 @@ ingress:
   tls:
     - hosts:
         - envelope-zero.example.com
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
 ```
 
 ## Supported Versions
