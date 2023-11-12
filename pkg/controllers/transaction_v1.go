@@ -38,6 +38,26 @@ type TransactionResponse struct {
 	Data Transaction `json:"data"` // Data for the transaction
 }
 
+type TransactionQueryFilterV1 struct {
+	Date                  time.Time       `form:"date" filterField:"false"`              // Exact date. Time is ignored.
+	FromDate              time.Time       `form:"fromDate" filterField:"false"`          // From this date. Time is ignored.
+	UntilDate             time.Time       `form:"untilDate" filterField:"false"`         // Until this date. Time is ignored.
+	Amount                decimal.Decimal `form:"amount"`                                // Exact amount
+	AmountLessOrEqual     decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
+	AmountMoreOrEqual     decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
+	Note                  string          `form:"note" filterField:"false"`              // Note contains this string
+	BudgetID              string          `form:"budget"`                                // ID of the budget
+	SourceAccountID       string          `form:"source"`                                // ID of the source account
+	DestinationAccountID  string          `form:"destination"`                           // ID of the destination account
+	EnvelopeID            string          `form:"envelope"`                              // ID of the envelope
+	ReconciledSource      bool            `form:"reconciledSource"`                      // Is the transaction reconciled in the source account?
+	ReconciledDestination bool            `form:"reconciledDestination"`                 // Is the transaction reconciled in the destination account?
+	AccountID             string          `form:"account" filterField:"false"`           // ID of either source or destination account
+	Offset                uint            `form:"offset" filterField:"false"`            // The offset of the first Transaction returned. Defaults to 0.
+	Limit                 int             `form:"limit" filterField:"false"`             // Maximum number of transactions to return. Defaults to 50.
+	Reconciled            bool            `form:"reconciled"`                            // DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.
+}
+
 func (co Controller) getTransaction(c *gin.Context, id uuid.UUID) (Transaction, bool) {
 	transactionModel, ok := getResourceByIDAndHandleErrors[models.Transaction](c, co, id)
 	if !ok {
@@ -50,63 +70,6 @@ func (co Controller) getTransaction(c *gin.Context, id uuid.UUID) (Transaction, 
 
 	transaction.links(c)
 	return transaction, true
-}
-
-type TransactionQueryFilter struct {
-	Date                  time.Time       `form:"date" filterField:"false"`              // Exact date. Time is ignored.
-	FromDate              time.Time       `form:"fromDate" filterField:"false"`          // From this date. Time is ignored.
-	UntilDate             time.Time       `form:"untilDate" filterField:"false"`         // Until this date. Time is ignored.
-	Amount                decimal.Decimal `form:"amount"`                                // Exact amount
-	AmountLessOrEqual     decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
-	AmountMoreOrEqual     decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
-	Note                  string          `form:"note" filterField:"false"`              // Note contains this string
-	BudgetID              string          `form:"budget"`                                // ID of the budget
-	SourceAccountID       string          `form:"source"`                                // ID of the source account
-	DestinationAccountID  string          `form:"destination"`                           // ID of the destination account
-	EnvelopeID            string          `form:"envelope"`                              // ID of the envelope
-	Reconciled            bool            `form:"reconciled"`                            // DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.
-	ReconciledSource      bool            `form:"reconciledSource"`                      // Is the transaction reconciled in the source account?
-	ReconciledDestination bool            `form:"reconciledDestination"`                 // Is the transaction reconciled in the destination account?
-	AccountID             string          `form:"account" filterField:"false"`           // ID of either source or destination account
-}
-
-func (f TransactionQueryFilter) ToCreate(c *gin.Context) (models.TransactionCreate, bool) {
-	budgetID, ok := httputil.UUIDFromString(c, f.BudgetID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	sourceAccountID, ok := httputil.UUIDFromString(c, f.SourceAccountID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	destinationAccountID, ok := httputil.UUIDFromString(c, f.DestinationAccountID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	envelopeID, ok := httputil.UUIDFromString(c, f.EnvelopeID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	// If the envelopeID is nil, use an actual nil, not uuid.Nil
-	var eID *uuid.UUID
-	if envelopeID != uuid.Nil {
-		eID = &envelopeID
-	}
-
-	return models.TransactionCreate{
-		Amount:                f.Amount,
-		BudgetID:              budgetID,
-		SourceAccountID:       sourceAccountID,
-		DestinationAccountID:  destinationAccountID,
-		EnvelopeID:            eID,
-		Reconciled:            f.Reconciled,
-		ReconciledSource:      f.ReconciledSource,
-		ReconciledDestination: f.ReconciledDestination,
-	}, true
 }
 
 // RegisterTransactionRoutes registers the routes for transactions with
@@ -193,7 +156,7 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 
 	transaction, err := co.createTransaction(c, transaction)
 	if !err.Nil() {
-		c.JSON(err.Status, err.Body())
+		c.JSON(err.Status, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -231,7 +194,7 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 //	@Param			reconciledSource		query	bool	false	"Reconcilication state in source account"
 //	@Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
 func (co Controller) GetTransactions(c *gin.Context) {
-	var filter TransactionQueryFilter
+	var filter TransactionQueryFilterV1
 	if err := c.Bind(&filter); err != nil {
 		httperrors.InvalidQueryString(c)
 		return
@@ -241,7 +204,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, ok := filter.ToCreate(c)
+	create, ok := filter.ToCreateHandleErrors(c)
 	if !ok {
 		return
 	}
@@ -266,7 +229,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 	}
 
 	if filter.AccountID != "" {
-		accountID, ok := httputil.UUIDFromString(c, filter.AccountID)
+		accountID, ok := httputil.UUIDFromStringHandleErrors(c, filter.AccountID)
 		if !ok {
 			return
 		}

@@ -17,7 +17,7 @@ type AccountQueryFilter struct {
 }
 
 func (f AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool) {
-	budgetID, ok := httputil.UUIDFromString(c, f.BudgetID)
+	budgetID, ok := httputil.UUIDFromStringHandleErrors(c, f.BudgetID)
 	if !ok {
 		return models.AccountCreate{}, false
 	}

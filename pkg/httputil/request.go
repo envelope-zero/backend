@@ -32,7 +32,9 @@ func BindData(c *gin.Context, data interface{}) error {
 
 // This is needed because gin does not support form binding to uuid.UUID currently.
 // Follow https://github.com/gin-gonic/gin/pull/3045 to see when this gets resolved.
-func UUIDFromString(c *gin.Context, s string) (uuid.UUID, bool) {
+//
+// This method is deprecated. Use UUIDFromString and handle errors in the calling method.
+func UUIDFromStringHandleErrors(c *gin.Context, s string) (uuid.UUID, bool) {
 	if s == "" {
 		return uuid.Nil, true
 	}
@@ -44,4 +46,24 @@ func UUIDFromString(c *gin.Context, s string) (uuid.UUID, bool) {
 	}
 
 	return u, true
+}
+
+// UUIDFromString binds a string to a UUID
+//
+// This is needed because gin does not support form binding to uuid.UUID currently.
+// Follow https://github.com/gin-gonic/gin/pull/3045 to see when this gets resolved.
+func UUIDFromString(_ *gin.Context, s string) (uuid.UUID, httperrors.Error) {
+	if s == "" {
+		return uuid.Nil, httperrors.Error{}
+	}
+
+	u, err := uuid.Parse(s)
+	if err != nil {
+		return uuid.Nil, httperrors.Error{
+			Status: http.StatusBadRequest,
+			Err:    httperrors.ErrInvalidUUID,
+		}
+	}
+
+	return u, httperrors.Error{}
 }

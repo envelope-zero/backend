@@ -92,6 +92,7 @@ func TestGetRoot(t *testing.T) {
 			Version: "/version",
 			V1:      "/v1",
 			V2:      "/v2",
+			V3:      "/v3",
 		},
 	}
 
@@ -169,6 +170,33 @@ func TestGetV2(t *testing.T) {
 	assert.Equal(t, l, lr)
 }
 
+func TestGetV3(t *testing.T) {
+	t.Parallel()
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/v3", func(ctx *gin.Context) {
+		router.GetV3(c)
+	})
+
+	// Test contexts cannot be injected any middleware, therefore
+	// this only tests the path, not the host
+	l := router.V3Response{
+		Links: router.V3Links{
+			Transactions: "/v3/transactions",
+		},
+	}
+
+	var lr router.V3Response
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/v3", nil)
+	r.ServeHTTP(w, c.Request)
+
+	decodeResponse(t, w, &lr)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, l, lr)
+}
+
 func TestGetVersion(t *testing.T) {
 	t.Parallel()
 	w := httptest.NewRecorder()
@@ -205,6 +233,8 @@ func TestOptions(t *testing.T) {
 		{"/", router.OptionsRoot, "OPTIONS, GET"},
 		{"/version", router.OptionsVersion, "OPTIONS, GET"},
 		{"/v1", router.OptionsV1, "OPTIONS, GET, DELETE"},
+		{"/v2", router.OptionsV2, "OPTIONS, GET"},
+		{"/v3", router.OptionsV3, "OPTIONS, GET"},
 	}
 
 	for _, tt := range tests {

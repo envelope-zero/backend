@@ -78,7 +78,7 @@ func TestUUIDFromString(t *testing.T) {
 		}
 
 		_ = c.Bind(&o)
-		_, ok := httputil.UUIDFromString(c, o.UUID)
+		_, ok := httputil.UUIDFromStringHandleErrors(c, o.UUID)
 		if !ok {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}
@@ -100,7 +100,7 @@ func TestUUIDFromStringInvalid(t *testing.T) {
 		}
 
 		_ = c.Bind(&o)
-		_, ok := httputil.UUIDFromString(c, o.UUID)
+		_, ok := httputil.UUIDFromStringHandleErrors(c, o.UUID)
 		if !ok {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}
@@ -122,7 +122,7 @@ func TestUUIDFromStringEmpty(t *testing.T) {
 		}
 
 		_ = c.Bind(&o)
-		_, ok := httputil.UUIDFromString(c, o.UUID)
+		_, ok := httputil.UUIDFromStringHandleErrors(c, o.UUID)
 		if !ok {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}

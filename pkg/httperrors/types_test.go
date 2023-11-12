@@ -1,7 +1,6 @@
 package httperrors_test
 
 import (
-	"errors"
 	"net/http"
 	"testing"
 
@@ -10,23 +9,13 @@ import (
 )
 
 func TestErrorStatusNil(t *testing.T) {
-	err := httperrors.ErrorStatus{}
+	err := httperrors.Error{}
 	assert.True(t, err.Nil())
 }
 
 func TestErrorStatusNotNil(t *testing.T) {
-	err := httperrors.ErrorStatus{
+	err := httperrors.Error{
 		Status: http.StatusOK,
 	}
 	assert.False(t, err.Nil())
-}
-
-func TestErrorStatusBody(t *testing.T) {
-	err := httperrors.ErrorStatus{
-		Status: http.StatusBadRequest,
-		Err:    errors.New("Testing the response body"),
-	}
-	assert.Equal(t, map[string]string{
-		"error": "Testing the response body",
-	}, err.Body())
 }

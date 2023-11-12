@@ -26,7 +26,7 @@ type RenameRuleQueryFilter struct {
 }
 
 func (f RenameRuleQueryFilter) Parse(c *gin.Context) (models.MatchRuleCreate, bool) {
-	envelopeID, ok := httputil.UUIDFromString(c, f.AccountID)
+	envelopeID, ok := httputil.UUIDFromStringHandleErrors(c, f.AccountID)
 	if !ok {
 		return models.MatchRuleCreate{}, false
 	}
@@ -303,7 +303,7 @@ func (co Controller) DeleteRenameRule(c *gin.Context) {
 }
 
 // createRenameRule creates a single renameRule after verifying it is a valid renameRule.
-func (co Controller) createRenameRule(c *gin.Context, r models.MatchRule) (models.MatchRule, httperrors.ErrorStatus) {
+func (co Controller) createRenameRule(c *gin.Context, r models.MatchRule) (models.MatchRule, httperrors.Error) {
 	// Check that the referenced account exists
 	_, err := getResourceByID[models.Account](c, co, r.AccountID)
 	if !err.Nil() {
@@ -316,5 +316,5 @@ func (co Controller) createRenameRule(c *gin.Context, r models.MatchRule) (model
 		return models.MatchRule{}, httperrors.GenericDBError[models.MatchRule](r, c, dbErr)
 	}
 
-	return r, httperrors.ErrorStatus{}
+	return r, httperrors.Error{}
 }

@@ -2,6 +2,7 @@ package httperrors_test
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
@@ -37,20 +39,6 @@ func TestDBErrorErrRecordNotFound(t *testing.T) {
 	status := httperrors.DBError(c, gorm.ErrRecordNotFound)
 	assert.Equal(t, http.StatusNotFound, status.Status)
 	assert.Equal(t, "there is no resource for the ID you specified", status.Error())
-}
-
-func TestFetchErrorHandlerErrRecordNotFoundAdditionalMessage(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-
-	r.GET("/", func(ctx *gin.Context) {
-		httperrors.Handler(c, gorm.ErrRecordNotFound, "No flabargl found for the ID you specified")
-	})
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
-	r.ServeHTTP(w, c.Request)
-	assert.Equal(t, http.StatusNotFound, w.Code)
-	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "flabargl")
 }
 
 func TestFetchErrorHandlerTimeParseError(t *testing.T) {
@@ -187,10 +175,39 @@ func TestDatabaseErrorMessages(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	for _, tt := range tests {
-		err := errors.New(tt.err)
-		status := httperrors.DBError(c, err)
-		assert.Equal(t, tt.code, status.Status)
-		assert.Equal(t, tt.msg, status.Error())
+		t.Run(tt.msg, func(t *testing.T) {
+			err := errors.New(tt.err)
+			status := httperrors.DBError(c, err)
+			assert.Equal(t, tt.code, status.Status)
+			assert.Equal(t, tt.msg, status.Error())
+		})
+	}
+}
+
+func TestParse(t *testing.T) {
+	tests := []struct {
+		code       int    // The status code that should be set in the httperrors.Error
+		err        string // The error string for the httperrors.Error.Err
+		parseError error  // The error to parse
+	}{
+		{http.StatusNotFound, httperrors.ErrNoResource.Error(), gorm.ErrRecordNotFound},
+		{http.StatusInternalServerError, "an error occurred on the server during your request", &sqlite.Error{}},
+		{http.StatusBadRequest, models.ErrAllocationZero.Error(), models.ErrAllocationZero},
+		{http.StatusInternalServerError, httperrors.ErrDatabaseClosed.Error(), errors.New("sql: database is closed")},
+		{http.StatusBadRequest, httperrors.ErrRequestBodyEmpty.Error(), io.EOF},
+		{http.StatusBadRequest, "Test Message", &time.ParseError{Message: "Test Message"}},
+		{http.StatusInternalServerError, "an error occurred on the server during your request", errors.New("Some random error")},
+	}
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%d", tt.code), func(t *testing.T) {
+			status := httperrors.Parse(c, tt.parseError)
+			assert.Equal(t, tt.code, status.Status)
+			assert.Contains(t, status.Err.Error(), tt.err)
+		})
 	}
 }
 
@@ -213,10 +230,12 @@ func TestDatabaseNo(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	for _, tt := range tests {
-		err := errors.New(tt.err)
-		status := httperrors.DBError(c, err)
-		assert.Equal(t, tt.code, status.Status)
-		assert.Equal(t, tt.msg, status.Error())
+		t.Run(tt.msg, func(t *testing.T) {
+			err := errors.New(tt.err)
+			status := httperrors.DBError(c, err)
+			assert.Equal(t, tt.code, status.Status)
+			assert.Equal(t, tt.msg, status.Error())
+		})
 	}
 }
 

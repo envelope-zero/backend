@@ -76,7 +76,7 @@ type CategoryQueryFilter struct {
 }
 
 func (f CategoryQueryFilter) ToCreate(c *gin.Context) (models.CategoryCreate, bool) {
-	budgetID, ok := httputil.UUIDFromString(c, f.BudgetID)
+	budgetID, ok := httputil.UUIDFromStringHandleErrors(c, f.BudgetID)
 	if !ok {
 		return models.CategoryCreate{}, false
 	}

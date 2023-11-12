@@ -45,7 +45,7 @@ type MatchRuleQueryFilter struct {
 }
 
 func (f MatchRuleQueryFilter) Parse(c *gin.Context) (models.MatchRuleCreate, bool) {
-	envelopeID, ok := httputil.UUIDFromString(c, f.AccountID)
+	envelopeID, ok := httputil.UUIDFromStringHandleErrors(c, f.AccountID)
 	if !ok {
 		return models.MatchRuleCreate{}, false
 	}
@@ -315,7 +315,7 @@ func (co Controller) DeleteMatchRule(c *gin.Context) {
 }
 
 // createMatchRule creates a single matchRule after verifying it is a valid matchRule.
-func (co Controller) createMatchRule(c *gin.Context, create models.MatchRuleCreate) (models.MatchRule, httperrors.ErrorStatus) {
+func (co Controller) createMatchRule(c *gin.Context, create models.MatchRuleCreate) (models.MatchRule, httperrors.Error) {
 	r := models.MatchRule{
 		MatchRuleCreate: create,
 	}
@@ -332,5 +332,5 @@ func (co Controller) createMatchRule(c *gin.Context, create models.MatchRuleCrea
 		return models.MatchRule{}, httperrors.GenericDBError[models.MatchRule](r, c, dbErr)
 	}
 
-	return r, httperrors.ErrorStatus{}
+	return r, httperrors.Error{}
 }
