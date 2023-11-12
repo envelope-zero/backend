@@ -143,7 +143,7 @@ func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 func (co Controller) CreateAllocation(c *gin.Context) {
 	var create models.AllocationCreate
 
-	err := httputil.BindData(c, &create)
+	err := httputil.BindDataHandleErrors(c, &create)
 	if err != nil {
 		return
 	}
@@ -282,7 +282,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 	}
 
 	var data models.Allocation
-	if err := httputil.BindData(c, &data.AllocationCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data.AllocationCreate); err != nil {
 		return
 	}
 

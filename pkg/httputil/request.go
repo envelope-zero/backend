@@ -12,8 +12,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// BindData binds the data from the request to the struct passed in the interface.
-func BindData(c *gin.Context, data interface{}) error {
+// BindDataHandleErrors binds the data from the request to the struct passed in the interface.
+//
+// This function is deprecated. Use BindData(*gin.Context, any) httperrors.Error.
+func BindDataHandleErrors(c *gin.Context, data interface{}) error {
 	if err := c.ShouldBindJSON(&data); err != nil {
 		if errors.Is(io.EOF, err) {
 			e := errors.New("request body must not be empty")
@@ -28,6 +30,26 @@ func BindData(c *gin.Context, data interface{}) error {
 	}
 
 	return nil
+}
+
+// BindData binds the data from the request to the struct passed in the interface.
+func BindData(c *gin.Context, data interface{}) httperrors.Error {
+	if err := c.ShouldBindJSON(&data); err != nil {
+		if errors.Is(io.EOF, err) {
+			return httperrors.Error{
+				Status: http.StatusBadRequest,
+				Err:    httperrors.ErrRequestBodyEmpty,
+			}
+		}
+
+		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
+		return httperrors.Error{
+			Status: http.StatusBadRequest,
+			Err:    httperrors.ErrInvalidBody,
+		}
+	}
+
+	return httperrors.Error{}
 }
 
 // This is needed because gin does not support form binding to uuid.UUID currently.

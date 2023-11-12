@@ -74,7 +74,7 @@ func (co Controller) OptionsTransactionsV2(c *gin.Context) {
 func (co Controller) CreateTransactionsV2(c *gin.Context) {
 	var transactions []models.Transaction
 
-	if err := httputil.BindData(c, &transactions); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &transactions); err != nil {
 		return
 	}
 

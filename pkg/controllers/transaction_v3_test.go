@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/v3/pkg/controllers"
+	"github.com/envelope-zero/backend/v3/pkg/httperrors"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
@@ -196,6 +198,96 @@ func (suite *TestSuiteStandard) TestGetTransactionsFilterV3() {
 			suite.decodeResponse(&r, &re)
 
 			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
+		})
+	}
+}
+
+func (suite *TestSuiteStandard) TestTransactionsCreateV3InvalidBody() {
+	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v3/transactions", `{ Invalid request": Body }`)
+	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
+
+	var tr controllers.TransactionCreateResponseV3
+	suite.decodeResponse(&r, &tr)
+
+	assert.Equal(suite.T(), httperrors.ErrInvalidBody.Error(), *tr.Error)
+	assert.Nil(suite.T(), tr.Data)
+}
+
+func (suite *TestSuiteStandard) TestTransactionsCreateV3() {
+	budget := suite.createTestBudget(models.BudgetCreate{})
+	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsCreateV3 Internal"})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsCreateV3 External"})
+
+	tests := []struct {
+		name           string
+		transactions   []models.TransactionCreate
+		expectedStatus int
+		expectedError  *error   // Error expected in the response
+		expectedErrors []string // Errors expected for the individual transactions
+	}{
+		{
+			"One success, one fail",
+			[]models.TransactionCreate{
+				{
+					BudgetID: uuid.New(),
+					Amount:   decimal.NewFromFloat(17.23),
+					Note:     "v3 non-existing budget ID",
+				},
+				{
+					BudgetID:             budget.Data.ID,
+					SourceAccountID:      internalAccount.Data.ID,
+					DestinationAccountID: externalAccount.Data.ID,
+					Amount:               decimal.NewFromFloat(57.01),
+				},
+			},
+			http.StatusNotFound,
+			nil,
+			[]string{
+				"there is no Budget with this ID",
+				"",
+			},
+		},
+		{
+			"Both succeed",
+			[]models.TransactionCreate{
+				{
+					BudgetID:             budget.Data.ID,
+					SourceAccountID:      internalAccount.Data.ID,
+					DestinationAccountID: externalAccount.Data.ID,
+					Amount:               decimal.NewFromFloat(17.23),
+				},
+				{
+					BudgetID:             budget.Data.ID,
+					SourceAccountID:      internalAccount.Data.ID,
+					DestinationAccountID: externalAccount.Data.ID,
+					Amount:               decimal.NewFromFloat(57.01),
+				},
+			},
+			http.StatusCreated,
+			nil,
+			[]string{
+				"",
+				"",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/transactions", tt.transactions)
+			assertHTTPStatus(t, &r, tt.expectedStatus)
+
+			var tr controllers.TransactionCreateResponseV3
+			suite.decodeResponse(&r, &tr)
+
+			for i, transaction := range tr.Data {
+				if tt.expectedErrors[i] == "" {
+					assert.Equal(t, fmt.Sprintf("http://example.com/v3/transactions/%s", transaction.Data.ID), transaction.Data.Links.Self)
+				} else {
+					// This needs to be in the else to prevent nil pointer errors since we're dereferencing pointers
+					assert.Equal(t, tt.expectedErrors[i], *transaction.Error)
+				}
+			}
 		})
 	}
 }

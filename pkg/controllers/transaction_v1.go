@@ -146,7 +146,7 @@ func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 func (co Controller) CreateTransaction(c *gin.Context) {
 	var transactionCreate models.TransactionCreate
 
-	if err := httputil.BindData(c, &transactionCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &transactionCreate); err != nil {
 		return
 	}
 
@@ -343,7 +343,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 	}
 
 	var data models.Transaction
-	if err := httputil.BindData(c, &data.TransactionCreate); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data.TransactionCreate); err != nil {
 		return
 	}
 

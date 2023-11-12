@@ -160,7 +160,7 @@ func (co Controller) SetAllocations(c *gin.Context) {
 
 	// Get the mode to set new allocations in
 	var data BudgetAllocationMode
-	if err := httputil.BindData(c, &data); err != nil {
+	if err := httputil.BindDataHandleErrors(c, &data); err != nil {
 		return
 	}
 

@@ -3958,6 +3958,56 @@ const docTemplate = `{
                     }
                 }
             },
+            "post": {
+                "description": "Creates transactions from the list of submitted transaction data. The response code is the highest response code number that a single transaction creation would have caused. If it is not equal to 201, at least one transaction has an error.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create transactions",
+                "parameters": [
+                    {
+                        "description": "Transactions",
+                        "name": "transactions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TransactionCreate"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                        }
+                    }
+                }
+            },
             "options": {
                 "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
                 "tags": [
@@ -4882,7 +4932,7 @@ const docTemplate = `{
                     "example": "Lunch"
                 },
                 "reconciled": {
-                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead. This field will be removed in 4.0.0",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -4908,6 +4958,22 @@ const docTemplate = `{
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.TransactionCreateResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created transactions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.TransactionResponseV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string"
                 }
             }
         },
@@ -4957,6 +5023,23 @@ const docTemplate = `{
                             "$ref": "#/definitions/controllers.Transaction"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.TransactionResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "The transaction data, if creation was successful",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.TransactionV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred for this transaction",
+                    "type": "string"
                 }
             }
         },
@@ -5033,7 +5116,7 @@ const docTemplate = `{
                     "example": "Lunch"
                 },
                 "reconciled": {
-                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead. This field will be removed in 4.0.0",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -5135,7 +5218,7 @@ const docTemplate = `{
                     "example": "Lunch"
                 },
                 "reconciled": {
-                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead. This field will be removed in 4.0.0",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -5792,7 +5875,7 @@ const docTemplate = `{
                     "example": "Lunch"
                 },
                 "reconciled": {
-                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead.",
+                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead. This field will be removed in 4.0.0",
                     "type": "boolean",
                     "default": false,
                     "example": true
