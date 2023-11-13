@@ -3323,6 +3323,7 @@ paths:
       - Months
   /v1/transactions:
     get:
+      deprecated: true
       description: Returns a list of transactions
       parameters:
       - description: Date of the transaction. Ignores exact time, matches on the day
@@ -3408,6 +3409,7 @@ paths:
       tags:
       - Transactions
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -4073,6 +4075,7 @@ paths:
       - RenameRules
   /v2/transactions:
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -4082,6 +4085,7 @@ paths:
       tags:
       - Transactions
     post:
+      deprecated: true
       description: Creates transactions from the list of submitted transaction data.
         The response code is the highest response code number that a single transaction
         creation would have caused. If it is not equal to 201, at least one transaction
