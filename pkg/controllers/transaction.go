@@ -154,23 +154,23 @@ func (f TransactionQueryFilterV1) ToCreateHandleErrors(c *gin.Context) (models.T
 
 // ToCreate parses the query string and returns a TransactionCreate struct for
 // the database request. On error, it returns httperrors.ErrorStatus struct with.
-func (f TransactionQueryFilterV3) ToCreate(c *gin.Context) (models.TransactionCreate, httperrors.Error) {
-	budgetID, err := httputil.UUIDFromString(c, f.BudgetID)
+func (f TransactionQueryFilterV3) ToCreate() (models.TransactionCreate, httperrors.Error) {
+	budgetID, err := httputil.UUIDFromString(f.BudgetID)
 	if !err.Nil() {
 		return models.TransactionCreate{}, err
 	}
 
-	sourceAccountID, err := httputil.UUIDFromString(c, f.SourceAccountID)
+	sourceAccountID, err := httputil.UUIDFromString(f.SourceAccountID)
 	if !err.Nil() {
 		return models.TransactionCreate{}, err
 	}
 
-	destinationAccountID, err := httputil.UUIDFromString(c, f.DestinationAccountID)
+	destinationAccountID, err := httputil.UUIDFromString(f.DestinationAccountID)
 	if !err.Nil() {
 		return models.TransactionCreate{}, err
 	}
 
-	envelopeID, err := httputil.UUIDFromString(c, f.EnvelopeID)
+	envelopeID, err := httputil.UUIDFromString(f.EnvelopeID)
 	if !err.Nil() {
 		return models.TransactionCreate{}, err
 	}

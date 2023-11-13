@@ -15,6 +15,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func (suite *TestSuiteStandard) createTestTransactionV3(c models.TransactionCreate, expectedStatus ...int) controllers.TransactionResponseV3 {
+	c = suite.defaultTransactionCreate(c)
+
+	// Default to 201 Created as expected status
+	if len(expectedStatus) == 0 {
+		expectedStatus = append(expectedStatus, http.StatusCreated)
+	}
+
+	reqBody := []models.TransactionCreate{c}
+
+	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v3/transactions", reqBody)
+	assertHTTPStatus(suite.T(), &r, expectedStatus...)
+
+	var tr controllers.TransactionCreateResponseV3
+	suite.decodeResponse(&r, &tr)
+
+	return tr.Data[0]
+}
+
 func (suite *TestSuiteStandard) TestTransactionsV3() {
 	suite.CloseDB()
 
@@ -288,6 +307,91 @@ func (suite *TestSuiteStandard) TestTransactionsCreateV3() {
 					assert.Equal(t, tt.expectedErrors[i], *transaction.Error)
 				}
 			}
+		})
+	}
+}
+
+// TestGetTransactionV3 verifies that a transaction can be read from the API via its link
+// and that the link is for API v3.
+func (suite *TestSuiteStandard) TestGetTransactionV3() {
+	tests := []struct {
+		name     string        // Name for the test
+		status   int           // Expected HTTP status
+		id       string        // String to use as ID. Ignored when pathFunc is non-nil
+		pathFunc func() string // Function returning the path
+	}{
+		{
+			"Standard transaction",
+			http.StatusOK,
+			"",
+			func() string {
+				return suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(13.71)}).Data.Links.Self
+			},
+		},
+		{
+			"Invalid UUID",
+			http.StatusBadRequest,
+			"NotParseableAsUUID",
+			nil,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var p string
+			if tt.pathFunc != nil {
+				p = tt.pathFunc()
+			} else {
+				p = fmt.Sprintf("%s/%s", "http://example.com/v3/transactions", tt.id)
+			}
+
+			r := test.Request(suite.controller, suite.T(), http.MethodGet, p, "")
+			assertHTTPStatus(suite.T(), &r, tt.status)
+		})
+	}
+}
+
+// TestOptionsTransactionV3 verifies that the HTTP OPTIONS response for /v3/transactions/{id} is correct.
+func (suite *TestSuiteStandard) TestOptionsTransactionV3() {
+	tests := []struct {
+		name     string        // Name for the test
+		status   int           // Expected HTTP status
+		id       string        // String to use as ID. Ignored when pathFunc is non-nil
+		pathFunc func() string // Function returning the path
+	}{
+		{
+			"Does not exist",
+			http.StatusNotFound,
+			uuid.New().String(),
+			nil,
+		},
+		{
+			"Invalid UUID",
+			http.StatusBadRequest,
+			"NotParseableAsUUID",
+			nil,
+		},
+		{
+			"Success",
+			http.StatusNoContent,
+			"",
+			func() string {
+				return suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var p string
+			if tt.pathFunc != nil {
+				p = tt.pathFunc()
+			} else {
+				p = fmt.Sprintf("%s/%s", "http://example.com/v3/transactions", tt.id)
+			}
+
+			r := test.Request(suite.controller, suite.T(), http.MethodOptions, p, "")
+			assertHTTPStatus(suite.T(), &r, tt.status)
 		})
 	}
 }

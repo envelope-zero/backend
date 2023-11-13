@@ -16,21 +16,7 @@ import (
 )
 
 func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate, expectedStatus ...int) controllers.TransactionResponse {
-	if c.BudgetID == uuid.Nil {
-		c.BudgetID = suite.createTestBudget(models.BudgetCreate{Name: "Testing budget"}).Data.ID
-	}
-
-	if c.SourceAccountID == uuid.Nil {
-		c.SourceAccountID = suite.createTestAccount(models.AccountCreate{Name: "Source Account"}).Data.ID
-	}
-
-	if c.DestinationAccountID == uuid.Nil {
-		c.DestinationAccountID = suite.createTestAccount(models.AccountCreate{Name: "Destination Account"}).Data.ID
-	}
-
-	if c.EnvelopeID == &uuid.Nil {
-		*c.EnvelopeID = suite.createTestEnvelope(models.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
-	}
+	c = suite.defaultTransactionCreate(c)
 
 	// Default to 201 Created as expected status
 	if len(expectedStatus) == 0 {

@@ -74,7 +74,7 @@ func UUIDFromStringHandleErrors(c *gin.Context, s string) (uuid.UUID, bool) {
 //
 // This is needed because gin does not support form binding to uuid.UUID currently.
 // Follow https://github.com/gin-gonic/gin/pull/3045 to see when this gets resolved.
-func UUIDFromString(_ *gin.Context, s string) (uuid.UUID, httperrors.Error) {
+func UUIDFromString(s string) (uuid.UUID, httperrors.Error) {
 	if s == "" {
 		return uuid.Nil, httperrors.Error{}
 	}

@@ -88,6 +88,12 @@ func (co Controller) RegisterTransactionRoutesV3(r *gin.RouterGroup) {
 		r.GET("", co.GetTransactionsV3)
 		r.POST("", co.CreateTransactionsV3)
 	}
+
+	// Transaction with ID
+	{
+		r.OPTIONS("/:transactionId", co.OptionsTransactionDetailV3)
+		r.GET("/:transactionId", co.GetTransactionV3)
+	}
 }
 
 // OptionsTransactionsV3 returns the allowed HTTP methods
@@ -99,6 +105,82 @@ func (co Controller) RegisterTransactionRoutesV3(r *gin.RouterGroup) {
 //	@Router			/v3/transactions [options]
 func (co Controller) OptionsTransactionsV3(c *gin.Context) {
 	httputil.OptionsGetPost(c)
+}
+
+// OptionsTransactionDetailV3 returns the allowed HTTP methods
+//
+//	@Summary		Allowed HTTP verbs
+//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+//	@Tags			Transactions
+//	@Success		204
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			transactionId	path		string	true	"ID formatted as string"
+//	@Router			/v3/transactions/{transactionId} [options]
+func (co Controller) OptionsTransactionDetailV3(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	var t models.Transaction
+	err = query(c, co.DB.First(&t, id))
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	httputil.OptionsGet(c)
+}
+
+// GetTransactionV3 returns a specific transaction
+//
+//	@Summary		Get transaction
+//	@Description	Returns a specific transaction
+//	@Tags			Transactions
+//	@Produce		json
+//	@Success		200				{object}	TransactionResponseV3
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			transactionId	path		string	true	"ID formatted as string"
+//	@Router			/v3/transactions/{transactionId} [get]
+func (co Controller) GetTransactionV3(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	var t models.Transaction
+	err = query(c, co.DB.First(&t, id))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	tObject, err := co.getTransactionV3(c, t.ID)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, TransactionResponseV3{Data: &tObject})
 }
 
 // GetTransactions returns transactions filtered by the query parameters
@@ -142,7 +224,7 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate(c)
+	create, err := filter.ToCreate()
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionListResponseV3{
@@ -171,7 +253,7 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 	}
 
 	if filter.AccountID != "" {
-		accountID, err := httputil.UUIDFromString(c, filter.AccountID)
+		accountID, err := httputil.UUIDFromString(filter.AccountID)
 		if !err.Nil() {
 			s := fmt.Sprintf("Error parsing Account ID for filtering: %s", err.Error())
 			c.JSON(err.Status, TransactionListResponseV3{
