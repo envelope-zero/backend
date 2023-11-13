@@ -98,6 +98,7 @@ func (co Controller) RegisterTransactionRoutes(r *gin.RouterGroup) {
 //	@Tags			Transactions
 //	@Success		204
 //	@Router			/v1/transactions [options]
+//	@Deprecated		true
 func (co Controller) OptionsTransactionList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -193,6 +194,7 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 //	@Param			reconciled				query	bool	false	"DEPRECATED. Filter by reconcilication state"
 //	@Param			reconciledSource		query	bool	false	"Reconcilication state in source account"
 //	@Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
+//	@Deprecated		true
 func (co Controller) GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilterV1
 	if err := c.Bind(&filter); err != nil {

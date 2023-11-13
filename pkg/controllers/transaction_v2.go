@@ -55,6 +55,7 @@ func (co Controller) RegisterTransactionRoutesV2(r *gin.RouterGroup) {
 //	@Tags			Transactions
 //	@Success		204
 //	@Router			/v2/transactions [options]
+//	@Deprecated		true
 func (co Controller) OptionsTransactionsV2(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
@@ -71,6 +72,7 @@ func (co Controller) OptionsTransactionsV2(c *gin.Context) {
 //	@Failure		500				{object}	[]ResponseTransactionV2
 //	@Param			transactions	body		[]models.TransactionCreate	true	"Transactions"
 //	@Router			/v2/transactions [post]
+//	@Deprecated		true
 func (co Controller) CreateTransactionsV2(c *gin.Context) {
 	var transactions []models.Transaction
 

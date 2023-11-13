@@ -2626,6 +2626,7 @@
                     "Transactions"
                 ],
                 "summary": "Get transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2793,6 +2794,7 @@
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -3726,6 +3728,7 @@
                     "Transactions"
                 ],
                 "summary": "Create transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Transactions",
@@ -3782,6 +3785,7 @@
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"

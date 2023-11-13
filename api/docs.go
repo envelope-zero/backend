@@ -2637,6 +2637,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Get transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2804,6 +2805,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -3737,6 +3739,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Create transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Transactions",
@@ -3793,6 +3796,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
