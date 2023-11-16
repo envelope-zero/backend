@@ -253,7 +253,7 @@ func (co Controller) UpdateRenameRule(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.MatchRuleCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.MatchRuleCreate{})
 	if err != nil {
 		return
 	}

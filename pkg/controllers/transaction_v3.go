@@ -93,6 +93,8 @@ func (co Controller) RegisterTransactionRoutesV3(r *gin.RouterGroup) {
 	{
 		r.OPTIONS("/:transactionId", co.OptionsTransactionDetailV3)
 		r.GET("/:transactionId", co.GetTransactionV3)
+		r.PATCH("/:transactionId", co.UpdateTransactionV3)
+		r.DELETE("/:transactionId", co.DeleteTransactionV3)
 	}
 }
 
@@ -146,9 +148,9 @@ func (co Controller) OptionsTransactionDetailV3(c *gin.Context) {
 //	@Tags			Transactions
 //	@Produce		json
 //	@Success		200				{object}	TransactionResponseV3
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
+//	@Failure		400				{object}	TransactionResponseV3
+//	@Failure		404				{object}	TransactionResponseV3
+//	@Failure		500				{object}	TransactionResponseV3
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v3/transactions/{transactionId} [get]
 func (co Controller) GetTransactionV3(c *gin.Context) {
@@ -190,8 +192,8 @@ func (co Controller) GetTransactionV3(c *gin.Context) {
 //	@Tags			Transactions
 //	@Produce		json
 //	@Success		200	{object}	TransactionListResponseV3
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
+//	@Failure		400	{object}	TransactionListResponseV3
+//	@Failure		500	{object}	TransactionListResponseV3
 //	@Router			/v3/transactions [get]
 //	@Param			date					query	string	false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
 //	@Param			fromDate				query	string	false	"Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
@@ -207,7 +209,6 @@ func (co Controller) GetTransactionV3(c *gin.Context) {
 //	@Param			envelope				query	string	false	"Filter by envelope ID"
 //	@Param			reconciledSource		query	bool	false	"Reconcilication state in source account"
 //	@Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
-//
 //	@Param			offset					query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
 //	@Param			limit					query	int		false	" Maximum number of transactions to return. Defaults to 50.".
 func (co Controller) GetTransactionsV3(c *gin.Context) {
@@ -400,4 +401,164 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 	}
 
 	c.JSON(status, r)
+}
+
+// UpdateTransactionV3 updates a specific transaction
+//
+//	@Summary		Update transaction
+//	@Description	Updates an existing transaction. Only values to be updated need to be specified.
+//	@Tags			Transactions
+//	@Accept			json
+//	@Produce		json
+//	@Success		200				{object}	TransactionResponseV3
+//	@Failure		400				{object}	TransactionResponseV3
+//	@Failure		404				{object}	TransactionResponseV3
+//	@Failure		500				{object}	TransactionResponseV3
+//	@Param			transactionId	path		string						true	"ID formatted as string"
+//	@Param			transaction		body		models.TransactionCreate	true	"Transaction"
+//	@Router			/v3/transactions/{transactionId} [patch]
+func (co Controller) UpdateTransactionV3(c *gin.Context) {
+	// Get the resource ID
+	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	// Get the transaction resource
+	transaction, err := getResourceByID[models.Transaction](c, co, id)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	// Get the fields that are set to be updated
+	updateFields, err := httputil.GetBodyFields(c, models.TransactionCreate{})
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	// Bind the data for the patch
+	var data models.Transaction
+	err = httputil.BindData(c, &data.TransactionCreate)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	// If the amount set via the API request is not existent or
+	// is 0, we use the old amount
+	if data.Amount.IsZero() {
+		data.Amount = transaction.Amount
+	}
+
+	// Check the source account
+	sourceAccountID := transaction.SourceAccountID
+	if data.SourceAccountID != uuid.Nil {
+		sourceAccountID = data.SourceAccountID
+	}
+	sourceAccount, err := getResourceByID[models.Account](c, co, sourceAccountID)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	// Check the destination account
+	destinationAccountID := transaction.DestinationAccountID
+	if data.DestinationAccountID != uuid.Nil {
+		destinationAccountID = data.DestinationAccountID
+	}
+	destinationAccount, err := getResourceByID[models.Account](c, co, destinationAccountID)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	// Check the transaction that is set
+	err = co.checkTransaction(c, data, sourceAccount, destinationAccount)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	err = query(c, co.DB.Model(&transaction).Select("", updateFields...).Updates(data))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	transactionObject, err := co.getTransactionV3(c, transaction.ID)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, TransactionResponseV3{
+			Error: &e,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, TransactionResponseV3{Data: &transactionObject})
+}
+
+// DeleteTransactionV3 deletes a specific transaction
+//
+//	@Summary		Delete transaction
+//	@Description	Deletes a transaction
+//	@Tags			Transactions
+//	@Success		204
+//	@Failure		400				{object}	httperrors.HTTPError
+//	@Failure		404				{object}	httperrors.HTTPError
+//	@Failure		500				{object}	httperrors.HTTPError
+//	@Param			transactionId	path		string	true	"ID formatted as string"
+//	@Router			/v3/transactions/{transactionId} [delete]
+func (co Controller) DeleteTransactionV3(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	transaction, err := getResourceByID[models.Transaction](c, co, id)
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	err = query(c, co.DB.Delete(&transaction))
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
 }

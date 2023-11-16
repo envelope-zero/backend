@@ -288,7 +288,7 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.CategoryCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.CategoryCreate{})
 	if err != nil {
 		return
 	}

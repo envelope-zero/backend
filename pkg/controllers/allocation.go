@@ -276,7 +276,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.AllocationCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.AllocationCreate{})
 	if err != nil {
 		return
 	}

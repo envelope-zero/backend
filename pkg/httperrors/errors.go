@@ -79,7 +79,7 @@ func GenericDBError[T models.Model](r T, c *gin.Context, err error) Error {
 		return Error{Status: http.StatusNotFound, Err: fmt.Errorf("there is no %s with this ID", r.Self())}
 	}
 
-	return DBError(c, err)
+	return Parse(c, err)
 }
 
 // DBError returns an error message and status code appropriate to the error that has occurred.
@@ -151,31 +151,38 @@ func Parse(c *gin.Context, err error) Error {
 			Status: http.StatusNotFound,
 			Err:    ErrNoResource,
 		}
+	}
 
-		// Database error
-	} else if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
+	// Database error
+	if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
 		return DBError(c, err)
-	} else if errors.Is(err, models.ErrAllocationZero) {
+	}
+
+	// Allocation is 0
+	if errors.Is(err, models.ErrAllocationZero) {
 		return Error{
 			Status: http.StatusBadRequest,
 			Err:    err,
 		}
+	}
 
-		// Database connection has not been opened or has been closed already
-	} else if strings.Contains(err.Error(), "sql: database is closed") {
+	// Database connection has not been opened or has been closed already
+	if strings.Contains(err.Error(), "sql: database is closed") {
 		log.Error().Msgf("Database connection is closed: %#v", err)
 		return Error{
 			Status: http.StatusInternalServerError,
 			Err:    ErrDatabaseClosed,
 		}
+	}
 
-		// End of file reached when reading
-	} else if errors.Is(io.EOF, err) {
+	// End of file reached when reading
+	if errors.Is(io.EOF, err) {
 		return Error{Status: http.StatusBadRequest, Err: ErrRequestBodyEmpty}
+	}
 
-		// Time could not be parsed. Return the error string as lets the user
-		// know the exact issue
-	} else if reflect.TypeOf(err) == reflect.TypeOf(&time.ParseError{}) {
+	// Time could not be parsed. Return the error string as lets the user
+	// know the exact issue
+	if reflect.TypeOf(err) == reflect.TypeOf(&time.ParseError{}) {
 		return Error{Status: http.StatusBadRequest, Err: err}
 	}
 

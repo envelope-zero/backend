@@ -114,6 +114,7 @@ func (co Controller) OptionsTransactionList(c *gin.Context) {
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [options]
+//	@Deprecated		true
 func (co Controller) OptionsTransactionDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
@@ -291,6 +292,7 @@ func (co Controller) GetTransactions(c *gin.Context) {
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [get]
+//	@Deprecated		true
 func (co Controller) GetTransaction(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
@@ -327,6 +329,7 @@ func (co Controller) GetTransaction(c *gin.Context) {
 //	@Param			transactionId	path		string						true	"ID formatted as string"
 //	@Param			transaction		body		models.TransactionCreate	true	"Transaction"
 //	@Router			/v1/transactions/{transactionId} [patch]
+//	@Deprecated		true
 func (co Controller) UpdateTransaction(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {
@@ -339,7 +342,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.TransactionCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.TransactionCreate{})
 	if err != nil {
 		return
 	}
@@ -405,6 +408,7 @@ func (co Controller) UpdateTransaction(c *gin.Context) {
 //	@Failure		500				{object}	httperrors.HTTPError
 //	@Param			transactionId	path		string	true	"ID formatted as string"
 //	@Router			/v1/transactions/{transactionId} [delete]
+//	@Deprecated		true
 func (co Controller) DeleteTransaction(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("transactionId"))
 	if err != nil {

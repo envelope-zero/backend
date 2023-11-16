@@ -493,7 +493,7 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.BudgetCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.BudgetCreate{})
 	if err != nil {
 		return
 	}
