@@ -23,12 +23,12 @@ func TestGetURLFields(t *testing.T) {
 	assert.Equal(t, []string{"Name", "BudgetID", "OnBudget"}, setFields)
 }
 
-func TestGetBodyFields(t *testing.T) {
+func TestGetBodyFieldsHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
 	r.PATCH("/", func(ctx *gin.Context) {
-		fields, err := httputil.GetBodyFields(c, models.AccountCreate{})
+		fields, err := httputil.GetBodyFieldsHandleErrors(c, models.AccountCreate{})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
@@ -42,12 +42,12 @@ func TestGetBodyFields(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code, "Status is wrong, return body %#v", w.Body.String())
 }
 
-func TestGetBodyFieldsNull(t *testing.T) {
+func TestGetBodyFieldsHandleErrorsNull(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
 	r.PATCH("/", func(ctx *gin.Context) {
-		fields, err := httputil.GetBodyFields(c, models.AccountCreate{})
+		fields, err := httputil.GetBodyFieldsHandleErrors(c, models.AccountCreate{})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
@@ -62,12 +62,12 @@ func TestGetBodyFieldsNull(t *testing.T) {
 	assert.Equal(t, `["Name"]`, w.Body.String(), `Fields are not parsed correctly, should be ["Name"]`)
 }
 
-func TestGetBodyFieldsUnparseable(t *testing.T) {
+func TestGetBodyFieldsHandleErrorsUnparseable(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
 	r.PATCH("/", func(ctx *gin.Context) {
-		fields, err := httputil.GetBodyFields(c, models.AccountCreate{})
+		fields, err := httputil.GetBodyFieldsHandleErrors(c, models.AccountCreate{})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
@@ -79,4 +79,59 @@ func TestGetBodyFieldsUnparseable(t *testing.T) {
 	c.Request, _ = http.NewRequest(http.MethodPatch, "https://example.com/", bytes.NewBuffer(json))
 	r.ServeHTTP(w, c.Request)
 	assert.Equal(t, http.StatusBadRequest, w.Code, "Status is wrong, return body %#v", w.Body.String())
+}
+
+// TestGetBodyFields verifies that GetBodyFields parses correctly.
+func TestGetBodyFields(t *testing.T) {
+	tests := []struct {
+		name       string                             // Name of the test
+		body       string                             // The body to send to the PATCH request
+		status     int                                // The expected status code
+		assertFunc func(w *httptest.ResponseRecorder) // Additional assertions on the response. Can be nil
+	}{
+		{
+			"Success",
+			`{ "name": "test account" }`,
+			http.StatusOK,
+			nil,
+		},
+		{
+			"Field is null",
+			`{ "name": null }`,
+			http.StatusOK,
+			func(w *httptest.ResponseRecorder) {
+				assert.Equal(t, `["Name"]`, w.Body.String(), `Fields are not parsed correctly, should be ["Name"]`)
+			},
+		},
+		{
+			"Unparseable",
+			`{ "name": "test account }`,
+			http.StatusBadRequest,
+			nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			c, r := gin.CreateTestContext(w)
+
+			r.PATCH("/", func(ctx *gin.Context) {
+				fields, err := httputil.GetBodyFields(c, models.AccountCreate{})
+				if !err.Nil() {
+					c.JSON(err.Status, err.Error())
+				}
+				c.JSON(http.StatusOK, fields)
+			})
+
+			c.Request, _ = http.NewRequest(http.MethodPatch, "https://example.com/", bytes.NewBuffer([]byte(tt.body)))
+			r.ServeHTTP(w, c.Request)
+			assert.Equal(t, tt.status, w.Code, "Status is wrong, return body %#v", w.Body.String())
+
+			// Execute additional assertions
+			if tt.assertFunc != nil {
+				tt.assertFunc(w)
+			}
+		})
+	}
 }

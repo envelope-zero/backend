@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// createTestTransactionV3 creates a test transactions via the v3 API.
 func (suite *TestSuiteStandard) createTestTransactionV3(c models.TransactionCreate, expectedStatus ...int) controllers.TransactionResponseV3 {
 	c = suite.defaultTransactionCreate(c)
 
@@ -34,20 +35,85 @@ func (suite *TestSuiteStandard) createTestTransactionV3(c models.TransactionCrea
 	return tr.Data[0]
 }
 
-func (suite *TestSuiteStandard) TestTransactionsV3() {
-	suite.CloseDB()
+// TestTransactionsV3Options verifies that the HTTP OPTIONS response for /v3/transactions/{id} is correct.
+func (suite *TestSuiteStandard) TestTransactionsV3Options() {
+	tests := []struct {
+		name     string        // Name for the test
+		status   int           // Expected HTTP status
+		id       string        // String to use as ID. Ignored when pathFunc is non-nil
+		pathFunc func() string // Function returning the path
+	}{
+		{
+			"Does not exist",
+			http.StatusNotFound,
+			uuid.New().String(),
+			nil,
+		},
+		{
+			"Invalid UUID",
+			http.StatusBadRequest,
+			"NotParseableAsUUID",
+			nil,
+		},
+		{
+			"Success",
+			http.StatusNoContent,
+			"",
+			func() string {
+				return suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
+			},
+		},
+	}
 
-	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v3/transactions", "")
-	assertHTTPStatus(suite.T(), &recorder, http.StatusInternalServerError)
-	assert.Contains(suite.T(), test.DecodeError(suite.T(), recorder.Body.Bytes()), "there is a problem with the database connection")
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			var p string
+			if tt.pathFunc != nil {
+				p = tt.pathFunc()
+			} else {
+				p = fmt.Sprintf("%s/%s", "http://example.com/v3/transactions", tt.id)
+			}
+
+			r := test.Request(suite.controller, t, http.MethodOptions, p, "")
+			assertHTTPStatus(t, &r, tt.status)
+		})
+	}
 }
 
-// TestGetTransactions verifies that transactions can be read from the API.
+// TestTransactionsV3DatabaseError verifies that the endpoints return the appropriate
+// error when the database is disconncted.
+func (suite *TestSuiteStandard) TestTransactionsV3DatabaseError() {
+	tests := []struct {
+		name   string // Name of the test
+		path   string // Path to send request to
+		method string // HTTP method to use
+		body   string // The request body
+	}{
+		{"GET Collection", "", http.MethodGet, ""},
+		// Skipping POST Collection here since we need to check the indivdual transactions for that one
+		{"OPTIONS Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodOptions, ""},
+		{"GET Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodGet, ""},
+		{"PATCH Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodPatch, ""},
+		{"DELETE Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodDelete, ""},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			suite.CloseDB()
+
+			recorder := test.Request(suite.controller, t, tt.method, fmt.Sprintf("http://example.com/v3/transactions%s", tt.path), tt.body)
+			assertHTTPStatus(t, &recorder, http.StatusInternalServerError)
+			assert.Equal(t, httperrors.ErrDatabaseClosed.Error(), test.DecodeError(t, recorder.Body.Bytes()))
+		})
+	}
+}
+
+// TestTransactionsV3Get verifies that transactions can be read from the API.
 // It also acts as a regression test for a bug where transactions were sorted by date(date)
 // instead of datetime(date), leading to transactions being correctly sorted by dates, but
 // not correctly sorted when multiple transactions occurred on a day. In that case, the
 // oldest transaction would be at the bottom and not at the top.
-func (suite *TestSuiteStandard) TestGetTransactionsV3() {
+func (suite *TestSuiteStandard) TestTransactionsV3Get() {
 	t1 := suite.createTestTransaction(models.TransactionCreate{
 		Amount: decimal.NewFromFloat(17.23),
 		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
@@ -82,34 +148,13 @@ func (suite *TestSuiteStandard) TestGetTransactionsV3() {
 	assert.Equal(suite.T(), t3.Data.ID, response.Data[1].ID, t3.Data.CreatedAt)
 }
 
-func (suite *TestSuiteStandard) TestGetTransactionsInvalidQueryV3() {
-	tests := []string{
-		"budget=DefinitelyACat",
-		"source=MaybeADog",
-		"destination=OrARat?",
-		"envelope=NopeDefinitelyAMole",
-		"date=A long time ago",
-		"amount=Seventeen Cents",
-		"reconciledSource=I don't think so",
-		"account=ItIsAHippo!",
-		"offset=-1",  // offset is a uint
-		"limit=name", // limit is an int
-	}
-
-	for _, tt := range tests {
-		suite.T().Run(tt, func(t *testing.T) {
-			recorder := test.Request(suite.controller, suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v3/transactions?%s", tt), "")
-			assertHTTPStatus(suite.T(), &recorder, http.StatusBadRequest)
-		})
-	}
-}
-
-func (suite *TestSuiteStandard) TestGetTransactionsFilterV3() {
+// TestTransactionsV3GetFilter verifies that filtering transactions works as expected.
+func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 	b := suite.createTestBudget(models.BudgetCreate{})
 
-	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestGetTransactionsFilterV3 1"})
-	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestGetTransactionsFilterV3 2"})
-	a3 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestGetTransactionsFilterV3 3"})
+	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 1"})
+	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 2"})
+	a3 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 3"})
 
 	c := suite.createTestCategory(models.CategoryCreate{BudgetID: b.Data.ID})
 
@@ -213,7 +258,7 @@ func (suite *TestSuiteStandard) TestGetTransactionsFilterV3() {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			var re controllers.TransactionListResponse
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v3/transactions?%s", tt.query), "")
-			assertHTTPStatus(suite.T(), &r, http.StatusOK)
+			assertHTTPStatus(t, &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)
 
 			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))
@@ -221,7 +266,33 @@ func (suite *TestSuiteStandard) TestGetTransactionsFilterV3() {
 	}
 }
 
-func (suite *TestSuiteStandard) TestTransactionsCreateV3InvalidBody() {
+// TestTransactionsV3GetSingleInvalidQuery verifies that invalid filtering queries
+// return a HTTP Bad Request.
+func (suite *TestSuiteStandard) TestTransactionsV3GetInvalidQuery() {
+	tests := []string{
+		"budget=DefinitelyACat",
+		"source=MaybeADog",
+		"destination=OrARat?",
+		"envelope=NopeDefinitelyAMole",
+		"date=A long time ago",
+		"amount=Seventeen Cents",
+		"reconciledSource=I don't think so",
+		"account=ItIsAHippo!",
+		"offset=-1",  // offset is a uint
+		"limit=name", // limit is an int
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt, func(t *testing.T) {
+			recorder := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("http://example.com/v3/transactions?%s", tt), "")
+			assertHTTPStatus(t, &recorder, http.StatusBadRequest)
+		})
+	}
+}
+
+// TestTransactionsV3CreateInvalidBody verifies that creation of transactions
+// with an unparseable request body returns a HTTP Bad Request.
+func (suite *TestSuiteStandard) TestTransactionsV3CreateInvalidBody() {
 	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v3/transactions", `{ Invalid request": Body }`)
 	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
 
@@ -232,10 +303,11 @@ func (suite *TestSuiteStandard) TestTransactionsCreateV3InvalidBody() {
 	assert.Nil(suite.T(), tr.Data)
 }
 
-func (suite *TestSuiteStandard) TestTransactionsCreateV3() {
+// TestTransactionsV3Create verifies that transaction creation works.
+func (suite *TestSuiteStandard) TestTransactionsV3Create() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsCreateV3 Internal"})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsCreateV3 External"})
+	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create Internal"})
+	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create External"})
 
 	tests := []struct {
 		name           string
@@ -311,9 +383,9 @@ func (suite *TestSuiteStandard) TestTransactionsCreateV3() {
 	}
 }
 
-// TestGetTransactionV3 verifies that a transaction can be read from the API via its link
+// TestTransactionsV3GetSingle verifies that a transaction can be read from the API via its link
 // and that the link is for API v3.
-func (suite *TestSuiteStandard) TestGetTransactionV3() {
+func (suite *TestSuiteStandard) TestTransactionsV3GetSingle() {
 	tests := []struct {
 		name     string        // Name for the test
 		status   int           // Expected HTTP status
@@ -351,47 +423,142 @@ func (suite *TestSuiteStandard) TestGetTransactionV3() {
 	}
 }
 
-// TestOptionsTransactionV3 verifies that the HTTP OPTIONS response for /v3/transactions/{id} is correct.
-func (suite *TestSuiteStandard) TestOptionsTransactionV3() {
+// TestTransactionsV3Delete verifies the correct success and error responses
+// for DELETE requests.
+func (suite *TestSuiteStandard) TestTransactionsV3Delete() {
 	tests := []struct {
-		name     string        // Name for the test
-		status   int           // Expected HTTP status
-		id       string        // String to use as ID. Ignored when pathFunc is non-nil
-		pathFunc func() string // Function returning the path
+		name   string // Name for the test
+		status int    // Expected HTTP status
+		id     string // String to use as ID.
 	}{
+		{
+			"Standard deletion",
+			http.StatusNoContent,
+			suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(123.12)}).Data.ID.String(),
+		},
 		{
 			"Does not exist",
 			http.StatusNotFound,
-			uuid.New().String(),
-			nil,
+			"4bcb6d09-ced1-41e8-a3fe-bf4f16c5e501",
 		},
 		{
-			"Invalid UUID",
+			"Null transaction",
 			http.StatusBadRequest,
-			"NotParseableAsUUID",
-			nil,
-		},
-		{
-			"Success",
-			http.StatusNoContent,
-			"",
-			func() string {
-				return suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
-			},
+			"00000000-0000-0000-0000-000000000000",
 		},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			var p string
-			if tt.pathFunc != nil {
-				p = tt.pathFunc()
-			} else {
-				p = fmt.Sprintf("%s/%s", "http://example.com/v3/transactions", tt.id)
-			}
+			p := fmt.Sprintf("%s/%s", "http://example.com/v3/transactions", tt.id)
 
-			r := test.Request(suite.controller, suite.T(), http.MethodOptions, p, "")
-			assertHTTPStatus(suite.T(), &r, tt.status)
+			r := test.Request(suite.controller, t, http.MethodDelete, p, "")
+			assertHTTPStatus(t, &r, tt.status)
+		})
+	}
+}
+
+// TestTransactionsV3UpdateFail verifies that transaction updates fail where they should.
+func (suite *TestSuiteStandard) TestTransactionsV3UpdateFail() {
+	transaction := suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(584.42), Note: "Test note for transaction"})
+
+	tests := []struct {
+		name   string // Name for the test
+		status int    // Expected HTTP status
+		body   any    // Body to send to the PATCH endpoint
+	}{
+		{
+			"Source Equals Destination",
+			http.StatusBadRequest,
+			map[string]any{
+				"destinationAccountId": transaction.Data.SourceAccountID,
+			},
+		},
+		{
+			"Invalid body",
+			http.StatusBadRequest,
+			`{ "amount": 2" }`,
+		},
+		{
+			"Invalid type",
+			http.StatusBadRequest,
+			map[string]any{
+				"amount": false,
+			},
+		},
+		{
+			"Invalid budget ID",
+			http.StatusBadRequest,
+			models.TransactionCreate{}, // Sets the BudgetID to uuid.Nil
+		},
+		{
+			"Negative amount",
+			http.StatusBadRequest,
+			`{ "amount": -58.23 }`,
+		},
+		{
+			"Empty source account",
+			http.StatusNotFound,
+			models.TransactionCreate{SourceAccountID: uuid.New()},
+		},
+		{
+			"Empty destination account",
+			http.StatusNotFound,
+			models.TransactionCreate{DestinationAccountID: uuid.New()},
+		},
+		{
+			"Non-existing envelope",
+			http.StatusNotFound,
+			`{ "envelopeId": "e6fa8eb5-5f2c-4292-8ef9-02f0c2af1ce4" }`,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPatch, transaction.Data.Links.Self, tt.body)
+			assertHTTPStatus(t, &r, tt.status)
+		})
+	}
+}
+
+// TestUpdateNonExistingTransactionV3 verifies that patching a non-existent transaction returns a 404.
+func (suite *TestSuiteStandard) TestUpdateNonExistingTransactionV3() {
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, "http://example.com/v3/transactions/6ae3312c-23cf-4225-9a81-4f218ba41b00", `{ "note": "2" }`)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
+}
+
+// TestTransactionsV3Update verifies that transaction updates are successful.
+func (suite *TestSuiteStandard) TestTransactionsV3Update() {
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
+	transaction := suite.createTestTransactionV3(models.TransactionCreate{
+		Amount:               decimal.NewFromFloat(23.14),
+		Note:                 "Test note for transaction",
+		BudgetID:             suite.createTestBudget(models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
+		SourceAccountID:      suite.createTestAccount(models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: suite.createTestAccount(models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
+		EnvelopeID:           &envelope.Data.ID,
+	})
+
+	tests := []struct {
+		name string // Name for the test
+		body any    // Body to send to the PATCH endpoint
+	}{
+		{
+			"Source Equals Destination",
+			map[string]any{
+				"note": "",
+			},
+		},
+		{
+			"No Envelope",
+			`{ "envelopeId": null }`,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPatch, transaction.Data.Links.Self, tt.body)
+			assertHTTPStatus(t, &r, http.StatusOK)
 		})
 	}
 }

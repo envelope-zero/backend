@@ -340,7 +340,7 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.MonthConfigCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.MonthConfigCreate{})
 	if err != nil {
 		return
 	}

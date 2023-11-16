@@ -153,6 +153,21 @@ func TestErrorInvalidMonth(t *testing.T) {
 	assert.Contains(t, test.DecodeError(t, w.Body.Bytes()), "did you use YYYY-MM format?")
 }
 
+// TestGenericDBError verifies that the GenericDBError reuturns a HTTP 404 if a resource does not exist.
+func TestGenericDBError(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		err := httperrors.GenericDBError[models.Account](models.Account{}, c, gorm.ErrRecordNotFound)
+		assert.False(t, err.Nil())
+		assert.Equal(t, http.StatusNotFound, err.Status)
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, c.Request)
+}
+
 func TestDatabaseErrorMessages(t *testing.T) {
 	tests := []struct {
 		code int

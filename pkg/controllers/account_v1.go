@@ -308,7 +308,7 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.AccountCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.AccountCreate{})
 	if err != nil {
 		return
 	}

@@ -334,7 +334,7 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.EnvelopeCreate{})
+	updateFields, err := httputil.GetBodyFieldsHandleErrors(c, models.EnvelopeCreate{})
 	if err != nil {
 		return
 	}

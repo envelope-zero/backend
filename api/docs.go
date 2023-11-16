@@ -2823,6 +2823,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Get transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2865,6 +2866,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Delete transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2904,6 +2906,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2949,6 +2952,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Update transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3951,13 +3955,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
+                            "$ref": "#/definitions/controllers.TransactionListResponseV3"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httperrors.HTTPError"
+                            "$ref": "#/definitions/controllers.TransactionListResponseV3"
                         }
                     }
                 }
@@ -4054,6 +4058,45 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
+                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a transaction",
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Delete transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
                         }
                     },
@@ -4106,6 +4149,63 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates an existing transaction. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Update transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Transaction",
+                        "name": "transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.TransactionCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TransactionResponseV3"
                         }
                     }
                 }
