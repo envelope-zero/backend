@@ -17,19 +17,19 @@ import (
 )
 
 type TransactionListResponseV3 struct {
-	Data       []TransactionV3 `json:"data"`       // List of transactions
-	Error      *string         `json:"error"`      // The error, if any occurred
-	Pagination *Pagination     `json:"pagination"` // Pagination information
+	Data       []TransactionV3 `json:"data"`                                                          // List of transactions
+	Error      *string         `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
+	Pagination *Pagination     `json:"pagination"`                                                    // Pagination information
 }
 
 type TransactionCreateResponseV3 struct {
-	Error *string                 `json:"error"` // The error, if any occurred
-	Data  []TransactionResponseV3 `json:"data"`  // List of created transactions
+	Error *string                 `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
+	Data  []TransactionResponseV3 `json:"data"`                                                          // List of created transactions
 }
 
 type TransactionResponseV3 struct {
-	Error *string        `json:"error"` // The error, if any occurred for this transaction
-	Data  *TransactionV3 `json:"data"`  // The transaction data, if creation was successful
+	Error *string        `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this transaction
+	Data  *TransactionV3 `json:"data"`                                                          // The transaction data, if creation was successful
 }
 
 // TransactionV3 is the representation of a Transaction in API v3.
