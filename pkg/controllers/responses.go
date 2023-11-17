@@ -15,8 +15,8 @@ type ResponseMatchRule struct {
 
 // Pagination contains information about the pagination for collection endpoint responses.
 type Pagination struct {
-	Count  int   `json:"count"`  // The amount of records returned in this response
-	Offset uint  `json:"offset"` // The offset for the first record returned
-	Limit  int   `json:"limit"`  // The maximum amount of resources to return for this request
-	Total  int64 `json:"total"`  // The total number of resources matching the query
+	Count  int   `json:"count" example:"25"`  // The amount of records returned in this response
+	Offset uint  `json:"offset" example:"50"` // The offset for the first record returned
+	Limit  int   `json:"limit" example:"25"`  // The maximum amount of resources to return for this request
+	Total  int64 `json:"total" example:"827"` // The total number of resources matching the query
 }

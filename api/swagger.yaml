@@ -535,15 +535,19 @@ definitions:
     properties:
       count:
         description: The amount of records returned in this response
+        example: 25
         type: integer
       limit:
         description: The maximum amount of resources to return for this request
+        example: 25
         type: integer
       offset:
         description: The offset for the first record returned
+        example: 50
         type: integer
       total:
         description: The total number of resources matching the query
+        example: 827
         type: integer
     type: object
   controllers.RenameRuleListResponse:
@@ -679,6 +683,7 @@ definitions:
         type: array
       error:
         description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
         type: string
     type: object
   controllers.TransactionListResponse:
@@ -698,6 +703,7 @@ definitions:
         type: array
       error:
         description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
         type: string
       pagination:
         allOf:
@@ -719,6 +725,7 @@ definitions:
         description: The transaction data, if creation was successful
       error:
         description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
         type: string
     type: object
   controllers.TransactionV2:

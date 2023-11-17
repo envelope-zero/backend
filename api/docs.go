@@ -4972,19 +4972,23 @@ const docTemplate = `{
             "properties": {
                 "count": {
                     "description": "The amount of records returned in this response",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 25
                 },
                 "limit": {
                     "description": "The maximum amount of resources to return for this request",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 25
                 },
                 "offset": {
                     "description": "The offset for the first record returned",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 50
                 },
                 "total": {
                     "description": "The total number of resources matching the query",
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 827
                 }
             }
         },
@@ -5163,7 +5167,8 @@ const docTemplate = `{
                 },
                 "error": {
                     "description": "The error, if any occurred",
-                    "type": "string"
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
                 }
             }
         },
@@ -5191,7 +5196,8 @@ const docTemplate = `{
                 },
                 "error": {
                     "description": "The error, if any occurred",
-                    "type": "string"
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
                 },
                 "pagination": {
                     "description": "Pagination information",
@@ -5229,7 +5235,8 @@ const docTemplate = `{
                 },
                 "error": {
                     "description": "The error, if any occurred for this transaction",
-                    "type": "string"
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
                 }
             }
         },
