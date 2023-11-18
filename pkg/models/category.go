@@ -27,7 +27,7 @@ func (c Category) Self() string {
 func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 	if tx.Statement.Changed("Hidden") && !c.Hidden {
 		var envelopes []Envelope
-		err = tx.Model(&Envelope{EnvelopeCreate: EnvelopeCreate{
+		err = tx.Where(&Envelope{EnvelopeCreate: EnvelopeCreate{
 			CategoryID: c.ID,
 		}}).
 			Find(&envelopes).Error
