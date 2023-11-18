@@ -11,6 +11,8 @@ You will need the following tools:
 
 Once those are installed, run `make setup` to perform the repository setup.
 
+Ensure that you have `~/go/bin` in your `PATH` environment variable since the go tooling will be installed there.
+
 ## Development commands
 
 - `make devserver` will start a development server on port 8080 and and rebuild the project every time the code changes.
