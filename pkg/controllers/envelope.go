@@ -91,11 +91,11 @@ func (co Controller) RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 
 	// Envelope with ID
 	{
-		r.OPTIONS("/:envelopeId", co.OptionsEnvelopeDetail)
-		r.GET("/:envelopeId", co.GetEnvelope)
-		r.GET("/:envelopeId/:month", co.GetEnvelopeMonth)
-		r.PATCH("/:envelopeId", co.UpdateEnvelope)
-		r.DELETE("/:envelopeId", co.DeleteEnvelope)
+		r.OPTIONS("/:id", co.OptionsEnvelopeDetail)
+		r.GET("/:id", co.GetEnvelope)
+		r.GET("/:id/:month", co.GetEnvelopeMonth)
+		r.PATCH("/:id", co.UpdateEnvelope)
+		r.DELETE("/:id", co.DeleteEnvelope)
 	}
 }
 
@@ -116,13 +116,13 @@ func (co Controller) OptionsEnvelopeList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Envelopes
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string	true	"ID formatted as string"
-//	@Router			/v1/envelopes/{envelopeId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/envelopes/{id} [options]
 func (co Controller) OptionsEnvelopeDetail(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -236,14 +236,14 @@ func (co Controller) GetEnvelopes(c *gin.Context) {
 //	@Description	Returns a specific envelope
 //	@Tags			Envelopes
 //	@Produce		json
-//	@Success		200			{object}	EnvelopeResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string	true	"ID formatted as string"
-//	@Router			/v1/envelopes/{envelopeId} [get]
+//	@Success		200	{object}	EnvelopeResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/envelopes/{id} [get]
 func (co Controller) GetEnvelope(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -268,16 +268,16 @@ func (co Controller) GetEnvelope(c *gin.Context) {
 //	@Description	Returns data about an envelope for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Envelopes
 //	@Produce		json
-//	@Success		200			{object}	EnvelopeMonthResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string	true	"ID formatted as string"
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Router			/v1/envelopes/{envelopeId}/{month} [get]
+//	@Success		200		{object}	EnvelopeMonthResponse
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string	true	"ID formatted as string"
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/envelopes/{id}/{month} [get]
 //	@Deprecated		true
 func (co Controller) GetEnvelopeMonth(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -319,11 +319,11 @@ func (co Controller) GetEnvelopeMonth(c *gin.Context) {
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string					true	"ID formatted as string"
+//	@Param			id			path		string					true	"ID formatted as string"
 //	@Param			envelope	body		models.EnvelopeCreate	true	"Envelope"
-//	@Router			/v1/envelopes/{envelopeId} [patch]
+//	@Router			/v1/envelopes/{id} [patch]
 func (co Controller) UpdateEnvelope(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -362,13 +362,13 @@ func (co Controller) UpdateEnvelope(c *gin.Context) {
 //	@Description	Deletes an envelope
 //	@Tags			Envelopes
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string	true	"ID formatted as string"
-//	@Router			/v1/envelopes/{envelopeId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/envelopes/{id} [delete]
 func (co Controller) DeleteEnvelope(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("envelopeId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

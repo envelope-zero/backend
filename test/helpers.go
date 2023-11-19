@@ -50,7 +50,9 @@ func Request(co controllers.Controller, t *testing.T, method, reqURL string, bod
 		assert.FailNow(t, "environment variable API_URL must be a valid URL")
 	}
 
-	r, err := router.Config(baseURL)
+	r, teardown, err := router.Config(baseURL)
+	defer teardown()
+
 	if err != nil {
 		assert.FailNow(t, "Router could not be initialized")
 	}

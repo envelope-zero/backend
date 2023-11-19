@@ -29,7 +29,9 @@ func TestGinMode(t *testing.T) {
 	os.Setenv("GIN_MODE", "debug")
 	url, _ := url.Parse("http://example.com")
 
-	r, err := router.Config(url)
+	r, teardown, err := router.Config(url)
+	defer teardown()
+
 	assert.Nil(t, err, "Error on router initialization")
 
 	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
@@ -43,11 +45,13 @@ func TestGinMode(t *testing.T) {
 	os.Unsetenv("GIN_MODE")
 }
 
-func TetsPprofOff(t *testing.T) {
+func TestPprofOff(t *testing.T) {
 	os.Setenv("ENABLE_PPROF", "false")
 	url, _ := url.Parse("http://example.com")
 
-	r, err := router.Config(url)
+	r, teardown, err := router.Config(url)
+	defer teardown()
+
 	assert.Nil(t, err, "Error on router initialization")
 
 	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
@@ -68,7 +72,8 @@ func TestCorsSetting(t *testing.T) {
 	os.Setenv("CORS_ALLOW_ORIGINS", "http://localhost:3000 https://example.com")
 	url, _ := url.Parse("http://example.com")
 
-	_, err := router.Config(url)
+	_, teardown, err := router.Config(url)
+	defer teardown()
 
 	assert.Nil(t, err)
 	os.Unsetenv("CORS_ALLOW_ORIGINS")
@@ -90,6 +95,7 @@ func TestGetRoot(t *testing.T) {
 			Docs:    "/docs/index.html",
 			Healthz: "/healthz",
 			Version: "/version",
+			Metrics: "/metrics",
 			V1:      "/v1",
 			V2:      "/v2",
 			V3:      "/v3",

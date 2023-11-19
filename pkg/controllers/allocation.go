@@ -85,10 +85,10 @@ func (co Controller) RegisterAllocationRoutes(r *gin.RouterGroup) {
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:allocationId", co.OptionsAllocationDetail)
-		r.GET("/:allocationId", co.GetAllocation)
-		r.PATCH("/:allocationId", co.UpdateAllocation)
-		r.DELETE("/:allocationId", co.DeleteAllocation)
+		r.OPTIONS("/:id", co.OptionsAllocationDetail)
+		r.GET("/:id", co.GetAllocation)
+		r.PATCH("/:id", co.UpdateAllocation)
+		r.DELETE("/:id", co.DeleteAllocation)
 	}
 }
 
@@ -109,13 +109,13 @@ func (co Controller) OptionsAllocationList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Allocations
 //	@Success		204
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			allocationId	path		string	true	"ID formatted as string"
-//	@Router			/v1/allocations/{allocationId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/allocations/{id} [options]
 func (co Controller) OptionsAllocationDetail(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -224,14 +224,14 @@ func (co Controller) GetAllocations(c *gin.Context) {
 //	@Description	Returns a specific allocation
 //	@Tags			Allocations
 //	@Produce		json
-//	@Success		200				{object}	AllocationResponse
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			allocationId	path		string	true	"ID formatted as string"
-//	@Router			/v1/allocations/{allocationId} [get]
+//	@Success		200	{object}	AllocationResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/allocations/{id} [get]
 func (co Controller) GetAllocation(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -257,15 +257,15 @@ func (co Controller) GetAllocation(c *gin.Context) {
 //	@Tags			Allocations
 //	@Accept			json
 //	@Produce		json
-//	@Success		200				{object}	AllocationResponse
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			allocationId	path		string					true	"ID formatted as string"
-//	@Param			allocation		body		models.AllocationCreate	true	"Allocation"
-//	@Router			/v1/allocations/{allocationId} [patch]
+//	@Success		200			{object}	AllocationResponse
+//	@Failure		400			{object}	httperrors.HTTPError
+//	@Failure		404			{object}	httperrors.HTTPError
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			id			path		string					true	"ID formatted as string"
+//	@Param			allocation	body		models.AllocationCreate	true	"Allocation"
+//	@Router			/v1/allocations/{id} [patch]
 func (co Controller) UpdateAllocation(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -304,13 +304,13 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 //	@Description	Deletes an allocation
 //	@Tags			Allocations
 //	@Success		204
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			allocationId	path		string	true	"ID formatted as string"
-//	@Router			/v1/allocations/{allocationId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/allocations/{id} [delete]
 func (co Controller) DeleteAllocation(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("allocationId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

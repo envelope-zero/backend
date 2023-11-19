@@ -77,7 +77,9 @@ func main() {
 	ctx = context.WithValue(ctx, database.ContextURL, url)
 	controller := controllers.Controller{DB: db.WithContext(ctx)}
 
-	r, err := router.Config(url)
+	r, teardown, err := router.Config(url)
+	defer teardown()
+
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}

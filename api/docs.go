@@ -262,7 +262,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/accounts/{accountId}": {
+        "/v1/accounts/{id}": {
             "get": {
                 "description": "Returns a specific account",
                 "produces": [
@@ -276,7 +276,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "accountId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -321,7 +321,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "accountId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -360,7 +360,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "accountId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -402,7 +402,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "accountId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -555,7 +555,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/allocations/{allocationId}": {
+        "/v1/allocations/{id}": {
             "get": {
                 "description": "Returns a specific allocation",
                 "produces": [
@@ -569,7 +569,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "allocationId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -611,7 +611,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "allocationId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -650,7 +650,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "allocationId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -695,7 +695,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "allocationId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -845,7 +845,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}": {
+        "/v1/budgets/{id}": {
             "get": {
                 "description": "Returns a specific budget",
                 "produces": [
@@ -859,7 +859,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -901,7 +901,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -940,7 +940,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -985,7 +985,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1027,7 +1027,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/{month}": {
+        "/v1/budgets/{id}/{month}": {
             "get": {
                 "description": "Returns data about a budget for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**",
                 "produces": [
@@ -1042,7 +1042,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1092,7 +1092,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1129,7 +1129,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/budgets/{budgetId}/{month}/allocations": {
+        "/v1/budgets/{id}/{month}/allocations": {
             "post": {
                 "description": "Sets allocations for a month for all envelopes that do not have an allocation yet. **Deprecated. Use POST /month endpoint with month and budgetId query parameters instead.**",
                 "tags": [
@@ -1148,7 +1148,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Budget ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1204,7 +1204,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Budget ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1238,7 +1238,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "budgetId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1398,7 +1398,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/categories/{categoryId}": {
+        "/v1/categories/{id}": {
             "get": {
                 "description": "Returns a specific category",
                 "produces": [
@@ -1412,7 +1412,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "categoryId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1454,7 +1454,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "categoryId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1493,7 +1493,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "categoryId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1538,7 +1538,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "categoryId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1703,7 +1703,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/envelopes/{envelopeId}": {
+        "/v1/envelopes/{id}": {
             "get": {
                 "description": "Returns a specific envelope",
                 "produces": [
@@ -1717,7 +1717,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1759,7 +1759,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1798,7 +1798,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1843,7 +1843,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1885,7 +1885,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/envelopes/{envelopeId}/{month}": {
+        "/v1/envelopes/{id}/{month}": {
             "get": {
                 "description": "Returns data about an envelope for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**",
                 "produces": [
@@ -1900,7 +1900,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2189,7 +2189,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/month-configs/{envelopeId}/{month}": {
+        "/v1/month-configs/{id}/{month}": {
             "get": {
                 "description": "Returns configuration for a specific month",
                 "produces": [
@@ -2203,7 +2203,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID of the Envelope",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2255,7 +2255,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID of the Envelope",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2316,7 +2316,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID of the Envelope",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2362,7 +2362,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID of the Envelope",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2411,7 +2411,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID of the Envelope",
-                        "name": "envelopeId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2813,7 +2813,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/transactions/{transactionId}": {
+        "/v1/transactions/{id}": {
             "get": {
                 "description": "Returns a specific transaction",
                 "produces": [
@@ -2828,7 +2828,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -2871,7 +2871,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -2911,7 +2911,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -2957,7 +2957,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -3242,7 +3242,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v2/match-rules/{matchRuleId}": {
+        "/v2/match-rules/{id}": {
             "get": {
                 "description": "Returns a specific matchRule",
                 "produces": [
@@ -3256,7 +3256,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "matchRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3298,7 +3298,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "matchRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3337,7 +3337,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "matchRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3382,7 +3382,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "matchRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -3550,7 +3550,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v2/rename-rules/{renameRuleId}": {
+        "/v2/rename-rules/{id}": {
             "get": {
                 "description": "Returns a specific renameRule",
                 "produces": [
@@ -3565,7 +3565,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "renameRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3608,7 +3608,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "renameRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3648,7 +3648,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "renameRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3694,7 +3694,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "renameRuleId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -4029,7 +4029,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v3/transactions/{transactionId}": {
+        "/v3/transactions/{id}": {
             "get": {
                 "description": "Returns a specific transaction",
                 "produces": [
@@ -4043,7 +4043,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -4085,7 +4085,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -4124,7 +4124,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -4169,7 +4169,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID formatted as string",
-                        "name": "transactionId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -6108,6 +6108,11 @@ const docTemplate = `{
                     "description": "Healthz endpoint",
                     "type": "string",
                     "example": "https://example.com/api/healtzh"
+                },
+                "metrics": {
+                    "description": "Endpoint returning Prometheus metrics",
+                    "type": "string",
+                    "example": "https://example.com/api/metrics"
                 },
                 "v1": {
                     "description": "List endpoint for all v1 endpoints",

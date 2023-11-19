@@ -109,15 +109,15 @@ func (co Controller) RegisterBudgetRoutes(r *gin.RouterGroup) {
 
 	// Budget with ID
 	{
-		r.OPTIONS("/:budgetId", co.OptionsBudgetDetail)
-		r.GET("/:budgetId", co.GetBudget)
-		r.OPTIONS("/:budgetId/:month", co.OptionsBudgetMonth)
-		r.GET("/:budgetId/:month", co.GetBudgetMonth)
-		r.OPTIONS("/:budgetId/:month/allocations", co.OptionsBudgetMonthAllocations)
-		r.POST("/:budgetId/:month/allocations", co.SetAllocationsMonth)
-		r.DELETE("/:budgetId/:month/allocations", co.DeleteAllocationsMonth)
-		r.PATCH("/:budgetId", co.UpdateBudget)
-		r.DELETE("/:budgetId", co.DeleteBudget)
+		r.OPTIONS("/:id", co.OptionsBudgetDetail)
+		r.GET("/:id", co.GetBudget)
+		r.OPTIONS("/:id/:month", co.OptionsBudgetMonth)
+		r.GET("/:id/:month", co.GetBudgetMonth)
+		r.OPTIONS("/:id/:month/allocations", co.OptionsBudgetMonthAllocations)
+		r.POST("/:id/:month/allocations", co.SetAllocationsMonth)
+		r.DELETE("/:id/:month/allocations", co.DeleteAllocationsMonth)
+		r.PATCH("/:id", co.UpdateBudget)
+		r.DELETE("/:id", co.DeleteBudget)
 	}
 }
 
@@ -138,13 +138,13 @@ func (co Controller) OptionsBudgetList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Budgets
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			budgetId	path		string	true	"ID formatted as string"
-//	@Router			/v1/budgets/{budgetId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/budgets/{id} [options]
 func (co Controller) OptionsBudgetDetail(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -163,15 +163,15 @@ func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			budgetId	path		string	true	"ID formatted as string"
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Router			/v1/budgets/{budgetId}/{month} [options]
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string	true	"ID formatted as string"
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/budgets/{id}/{month} [options]
 //	@Deprecated		true
 func (co Controller) OptionsBudgetMonth(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -196,15 +196,15 @@ func (co Controller) OptionsBudgetMonth(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs. **Use OPTIONS /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			budgetId	path		string	true	"ID formatted as string"
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Router			/v1/budgets/{budgetId}/{month}/allocations [options]
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string	true	"ID formatted as string"
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/budgets/{id}/{month}/allocations [options]
 //	@Deprecated		true
 func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -314,14 +314,14 @@ func (co Controller) GetBudgets(c *gin.Context) {
 //	@Description	Returns a specific budget
 //	@Tags			Budgets
 //	@Produce		json
-//	@Success		200			{object}	BudgetResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			budgetId	path		string	true	"ID formatted as string"
-//	@Router			/v1/budgets/{budgetId} [get]
+//	@Success		200	{object}	BudgetResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/budgets/{id} [get]
 func (co Controller) GetBudget(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -346,16 +346,16 @@ func (co Controller) GetBudget(c *gin.Context) {
 //	@Description	Returns data about a budget for a for a specific month. **Use GET /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
 //	@Produce		json
-//	@Success		200			{object}	BudgetMonthResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			budgetId	path		string	true	"ID formatted as string"
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Router			/v1/budgets/{budgetId}/{month} [get]
+//	@Success		200		{object}	BudgetMonthResponse
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string	true	"ID formatted as string"
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/budgets/{id}/{month} [get]
 //	@Deprecated		true
 func (co Controller) GetBudgetMonth(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -474,15 +474,15 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 //	@Tags			Budgets
 //	@Accept			json
 //	@Produce		json
-//	@Success		200			{object}	BudgetResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			budgetId	path		string				true	"ID formatted as string"
-//	@Param			budget		body		models.BudgetCreate	true	"Budget"
-//	@Router			/v1/budgets/{budgetId} [patch]
+//	@Success		200		{object}	BudgetResponse
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string				true	"ID formatted as string"
+//	@Param			budget	body		models.BudgetCreate	true	"Budget"
+//	@Router			/v1/budgets/{id} [patch]
 func (co Controller) UpdateBudget(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -521,13 +521,13 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 //	@Description	Deletes a budget
 //	@Tags			Budgets
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			budgetId	path		string	true	"ID formatted as string"
-//	@Router			/v1/budgets/{budgetId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/budgets/{id} [delete]
 func (co Controller) DeleteBudget(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -551,14 +551,14 @@ func (co Controller) DeleteBudget(c *gin.Context) {
 //	@Description	Deletes all allocation for the specified month. **Use DELETE /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Param			budgetId	path		string	true	"Budget ID formatted as string"
-//	@Router			/v1/budgets/{budgetId}/{month}/allocations [delete]
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Param			id		path		string	true	"Budget ID formatted as string"
+//	@Router			/v1/budgets/{id}/{month}/allocations [delete]
 //	@Deprecated		true
 func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -604,16 +604,16 @@ func (co Controller) DeleteAllocationsMonth(c *gin.Context) {
 //	@Description	Sets allocations for a month for all envelopes that do not have an allocation yet. **Deprecated. Use POST /month endpoint with month and budgetId query parameters instead.**
 //	@Tags			Budgets
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			month		path		string					true	"The month in YYYY-MM format"
-//	@Param			budgetId	path		string					true	"Budget ID formatted as string"
-//	@Param			mode		body		BudgetAllocationMode	true	"Budget"
-//	@Router			/v1/budgets/{budgetId}/{month}/allocations [post]
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			month	path		string					true	"The month in YYYY-MM format"
+//	@Param			id		path		string					true	"Budget ID formatted as string"
+//	@Param			mode	body		BudgetAllocationMode	true	"Budget"
+//	@Router			/v1/budgets/{id}/{month}/allocations [post]
 //	@Deprecated		true
 func (co Controller) SetAllocationsMonth(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("budgetId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

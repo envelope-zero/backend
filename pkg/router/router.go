@@ -16,6 +16,7 @@ import (
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -26,7 +27,14 @@ import (
 // This is set at build time, see Makefile.
 var version = "0.0.0"
 
-func Config(url *url.URL) (*gin.Engine, error) {
+// Config sets up the router, returns a teardown function
+// and an error.
+func Config(url *url.URL) (*gin.Engine, func(), error) {
+	// Set up prometheus metrics
+	if err := registerPrometheusMetrics(); err != nil {
+		return gin.New(), func() {}, err
+	}
+
 	// Set up the router and middlewares
 	r := gin.New()
 
@@ -41,6 +49,7 @@ func Config(url *url.URL) (*gin.Engine, error) {
 	r.Use(gin.Recovery())
 	r.Use(requestid.New())
 	r.Use(URLMiddleware(url))
+	r.Use(MetricsMiddleware())
 	r.NoMethod(func(c *gin.Context) {
 		httperrors.New(c, http.StatusMethodNotAllowed, "This HTTP method is not allowed for the endpoint you called")
 	})
@@ -88,7 +97,7 @@ func Config(url *url.URL) (*gin.Engine, error) {
 	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Description = "The backend for Envelope Zero, a zero based envelope budgeting solution. Check out the source code at https://github.com/envelope-zero/backend."
 
-	return r, nil
+	return r, func() { unregisterPrometheusMetrics() }, nil
 }
 
 // AttachRoutes attaches the API routes to the router group that is passed in
@@ -99,6 +108,9 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	group.OPTIONS("", OptionsRoot)
 	group.GET("/version", GetVersion)
 	group.OPTIONS("/version", OptionsVersion)
+
+	// Register metrics
+	group.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// pprof performance profiles
 	enablePprof, ok := os.LookupEnv("ENABLE_PPROF")
@@ -157,6 +169,7 @@ type RootLinks struct {
 	Docs    string `json:"docs" example:"https://example.com/api/docs/index.html"` // Swagger API documentation
 	Healthz string `json:"healthz" example:"https://example.com/api/healtzh"`      // Healthz endpoint
 	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
+	Metrics string `json:"metrics" example:"https://example.com/api/metrics"`      // Endpoint returning Prometheus metrics
 	V1      string `json:"v1" example:"https://example.com/api/v1"`                // List endpoint for all v1 endpoints
 	V2      string `json:"v2" example:"https://example.com/api/v2"`                // List endpoint for all v2 endpoints
 	V3      string `json:"v3" example:"https://example.com/api/v3"`                // List endpoint for all v3 endpoints
@@ -175,6 +188,7 @@ func GetRoot(c *gin.Context) {
 			Docs:    c.GetString(string(database.ContextURL)) + "/docs/index.html",
 			Healthz: c.GetString(string(database.ContextURL)) + "/healthz",
 			Version: c.GetString(string(database.ContextURL)) + "/version",
+			Metrics: c.GetString(string(database.ContextURL)) + "/metrics",
 			V1:      c.GetString(string(database.ContextURL)) + "/v1",
 			V2:      c.GetString(string(database.ContextURL)) + "/v2",
 			V3:      c.GetString(string(database.ContextURL)) + "/v3",
