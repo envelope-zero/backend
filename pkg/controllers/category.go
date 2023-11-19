@@ -99,10 +99,10 @@ func (co Controller) RegisterCategoryRoutes(r *gin.RouterGroup) {
 
 	// Category with ID
 	{
-		r.OPTIONS("/:categoryId", co.OptionsCategoryDetail)
-		r.GET("/:categoryId", co.GetCategory)
-		r.PATCH("/:categoryId", co.UpdateCategory)
-		r.DELETE("/:categoryId", co.DeleteCategory)
+		r.OPTIONS("/:id", co.OptionsCategoryDetail)
+		r.GET("/:id", co.GetCategory)
+		r.PATCH("/:id", co.UpdateCategory)
+		r.DELETE("/:id", co.DeleteCategory)
 	}
 }
 
@@ -123,13 +123,13 @@ func (co Controller) OptionsCategoryList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Categories
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			categoryId	path		string	true	"ID formatted as string"
-//	@Router			/v1/categories/{categoryId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/categories/{id} [options]
 func (co Controller) OptionsCategoryDetail(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -241,14 +241,14 @@ func (co Controller) GetCategories(c *gin.Context) {
 //	@Description	Returns a specific category
 //	@Tags			Categories
 //	@Produce		json
-//	@Success		200			{object}	CategoryResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			categoryId	path		string	true	"ID formatted as string"
-//	@Router			/v1/categories/{categoryId} [get]
+//	@Success		200	{object}	CategoryResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/categories/{id} [get]
 func (co Controller) GetCategory(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -273,11 +273,11 @@ func (co Controller) GetCategory(c *gin.Context) {
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			categoryId	path		string					true	"ID formatted as string"
+//	@Param			id			path		string					true	"ID formatted as string"
 //	@Param			category	body		models.CategoryCreate	true	"Category"
-//	@Router			/v1/categories/{categoryId} [patch]
+//	@Router			/v1/categories/{id} [patch]
 func (co Controller) UpdateCategory(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -315,13 +315,13 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 //	@Description	Deletes a category
 //	@Tags			Categories
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			categoryId	path		string	true	"ID formatted as string"
-//	@Router			/v1/categories/{categoryId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/categories/{id} [delete]
 func (co Controller) DeleteCategory(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("categoryId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

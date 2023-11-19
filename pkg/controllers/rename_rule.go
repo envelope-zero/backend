@@ -56,10 +56,10 @@ func (co Controller) RegisterRenameRuleRoutes(r *gin.RouterGroup) {
 
 	// RenameRule with ID
 	{
-		r.OPTIONS("/:renameRuleId", co.OptionsRenameRuleDetail)
-		r.GET("/:renameRuleId", co.GetRenameRule)
-		r.PATCH("/:renameRuleId", co.UpdateRenameRule)
-		r.DELETE("/:renameRuleId", co.DeleteRenameRule)
+		r.OPTIONS("/:id", co.OptionsRenameRuleDetail)
+		r.GET("/:id", co.GetRenameRule)
+		r.PATCH("/:id", co.UpdateRenameRule)
+		r.DELETE("/:id", co.DeleteRenameRule)
 	}
 }
 
@@ -81,14 +81,14 @@ func (co Controller) OptionsRenameRuleList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			RenameRules
 //	@Success		204
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			renameRuleId	path		string	true	"ID formatted as string"
-//	@Router			/v2/rename-rules/{renameRuleId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v2/rename-rules/{id} [options]
 //	@Deprecated		true
 func (co Controller) OptionsRenameRuleDetail(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("renameRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -204,15 +204,15 @@ func (co Controller) GetRenameRules(c *gin.Context) {
 //	@Description	Returns a specific renameRule
 //	@Tags			RenameRules
 //	@Produce		json
-//	@Success		200				{object}	RenameRuleResponse
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			renameRuleId	path		string	true	"ID formatted as string"
-//	@Router			/v2/rename-rules/{renameRuleId} [get]
+//	@Success		200	{object}	RenameRuleResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v2/rename-rules/{id} [get]
 //	@Deprecated		true
 func (co Controller) GetRenameRule(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("renameRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -236,13 +236,13 @@ func (co Controller) GetRenameRule(c *gin.Context) {
 //	@Success		200	{object}	RenameRuleResponse
 //	@Failure		400	{object}	httperrors.HTTPError
 //	@Failure		404
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			renameRuleId	path		string					true	"ID formatted as string"
-//	@Param			renameRule		body		models.MatchRuleCreate	true	"RenameRule"
-//	@Router			/v2/rename-rules/{renameRuleId} [patch]
+//	@Failure		500			{object}	httperrors.HTTPError
+//	@Param			id			path		string					true	"ID formatted as string"
+//	@Param			renameRule	body		models.MatchRuleCreate	true	"RenameRule"
+//	@Router			/v2/rename-rules/{id} [patch]
 //	@Deprecated		true
 func (co Controller) UpdateRenameRule(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("renameRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -276,14 +276,14 @@ func (co Controller) UpdateRenameRule(c *gin.Context) {
 //	@Description	Deletes an renameRule
 //	@Tags			RenameRules
 //	@Success		204
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			renameRuleId	path		string	true	"ID formatted as string"
-//	@Router			/v2/rename-rules/{renameRuleId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v2/rename-rules/{id} [delete]
 //	@Deprecated		true
 func (co Controller) DeleteRenameRule(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("renameRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

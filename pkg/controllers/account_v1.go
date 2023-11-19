@@ -111,10 +111,10 @@ func (co Controller) RegisterAccountRoutes(r *gin.RouterGroup) {
 
 	// Account with ID
 	{
-		r.OPTIONS("/:accountId", co.OptionsAccountDetail)
-		r.GET("/:accountId", co.GetAccount)
-		r.PATCH("/:accountId", co.UpdateAccount)
-		r.DELETE("/:accountId", co.DeleteAccount)
+		r.OPTIONS("/:id", co.OptionsAccountDetail)
+		r.GET("/:id", co.GetAccount)
+		r.PATCH("/:id", co.UpdateAccount)
+		r.DELETE("/:id", co.DeleteAccount)
 	}
 }
 
@@ -135,13 +135,13 @@ func (co Controller) OptionsAccountList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Accounts
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			accountId	path		string	true	"ID formatted as string"
-//	@Router			/v1/accounts/{accountId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/accounts/{id} [options]
 func (co Controller) OptionsAccountDetail(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -262,14 +262,14 @@ func (co Controller) GetAccounts(c *gin.Context) {
 //	@Description	Returns a specific account
 //	@Tags			Accounts
 //	@Produce		json
-//	@Success		200			{object}	AccountResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			accountId	path		string	true	"ID formatted as string"
-//	@Router			/v1/accounts/{accountId} [get]
+//	@Success		200	{object}	AccountResponse
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/accounts/{id} [get]
 func (co Controller) GetAccount(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -289,15 +289,15 @@ func (co Controller) GetAccount(c *gin.Context) {
 //	@Description	Updates an account. Only values to be updated need to be specified.
 //	@Tags			Accounts
 //	@Produce		json
-//	@Success		200			{object}	AccountResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			accountId	path		string					true	"ID formatted as string"
-//	@Param			account		body		models.AccountCreate	true	"Account"
-//	@Router			/v1/accounts/{accountId} [patch]
+//	@Success		200		{object}	AccountResponse
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string					true	"ID formatted as string"
+//	@Param			account	body		models.AccountCreate	true	"Account"
+//	@Router			/v1/accounts/{id} [patch]
 func (co Controller) UpdateAccount(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -336,13 +336,13 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 //	@Tags			Accounts
 //	@Produce		json
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			accountId	path		string	true	"ID formatted as string"
-//	@Router			/v1/accounts/{accountId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v1/accounts/{id} [delete]
 func (co Controller) DeleteAccount(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("accountId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

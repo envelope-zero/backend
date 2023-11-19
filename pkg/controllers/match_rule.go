@@ -75,10 +75,10 @@ func (co Controller) RegisterMatchRuleRoutes(r *gin.RouterGroup) {
 
 	// MatchRule with ID
 	{
-		r.OPTIONS("/:matchRuleId", co.OptionsMatchRuleDetail)
-		r.GET("/:matchRuleId", co.GetMatchRule)
-		r.PATCH("/:matchRuleId", co.UpdateMatchRule)
-		r.DELETE("/:matchRuleId", co.DeleteMatchRule)
+		r.OPTIONS("/:id", co.OptionsMatchRuleDetail)
+		r.GET("/:id", co.GetMatchRule)
+		r.PATCH("/:id", co.UpdateMatchRule)
+		r.DELETE("/:id", co.DeleteMatchRule)
 	}
 }
 
@@ -99,13 +99,13 @@ func (co Controller) OptionsMatchRuleList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			MatchRules
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			matchRuleId	path		string	true	"ID formatted as string"
-//	@Router			/v2/match-rules/{matchRuleId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v2/match-rules/{id} [options]
 func (co Controller) OptionsMatchRuleDetail(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("matchRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -219,14 +219,14 @@ func (co Controller) GetMatchRules(c *gin.Context) {
 //	@Description	Returns a specific matchRule
 //	@Tags			MatchRules
 //	@Produce		json
-//	@Success		200			{object}	models.MatchRule
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			matchRuleId	path		string	true	"ID formatted as string"
-//	@Router			/v2/match-rules/{matchRuleId} [get]
+//	@Success		200	{object}	models.MatchRule
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v2/match-rules/{id} [get]
 func (co Controller) GetMatchRule(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("matchRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -251,11 +251,11 @@ func (co Controller) GetMatchRule(c *gin.Context) {
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			matchRuleId	path		string					true	"ID formatted as string"
+//	@Param			id			path		string					true	"ID formatted as string"
 //	@Param			matchRule	body		models.MatchRuleCreate	true	"MatchRule"
-//	@Router			/v2/match-rules/{matchRuleId} [patch]
+//	@Router			/v2/match-rules/{id} [patch]
 func (co Controller) UpdateMatchRule(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("matchRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -289,13 +289,13 @@ func (co Controller) UpdateMatchRule(c *gin.Context) {
 //	@Description	Deletes an matchRule
 //	@Tags			MatchRules
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			matchRuleId	path		string	true	"ID formatted as string"
-//	@Router			/v2/match-rules/{matchRuleId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v2/match-rules/{id} [delete]
 func (co Controller) DeleteMatchRule(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("matchRuleId"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

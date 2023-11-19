@@ -110,11 +110,11 @@ func (co Controller) RegisterMonthConfigRoutes(r *gin.RouterGroup) {
 	r.OPTIONS("", co.OptionsMonthConfigList)
 	r.GET("", co.GetMonthConfigs)
 
-	r.OPTIONS("/:envelopeId/:month", co.OptionsMonthConfigDetail)
-	r.GET("/:envelopeId/:month", co.GetMonthConfig)
-	r.POST("/:envelopeId/:month", co.CreateMonthConfig)
-	r.PATCH("/:envelopeId/:month", co.UpdateMonthConfig)
-	r.DELETE("/:envelopeId/:month", co.DeleteMonthConfig)
+	r.OPTIONS("/:id/:month", co.OptionsMonthConfigDetail)
+	r.GET("/:id/:month", co.GetMonthConfig)
+	r.POST("/:id/:month", co.CreateMonthConfig)
+	r.PATCH("/:id/:month", co.UpdateMonthConfig)
+	r.DELETE("/:id/:month", co.DeleteMonthConfig)
 }
 
 // OptionsMonthConfigList returns the allowed HTTP methods
@@ -134,14 +134,14 @@ func (co Controller) OptionsMonthConfigList(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			MonthConfigs
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string	true	"ID of the Envelope"
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Router			/v1/month-configs/{envelopeId}/{month} [options]
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string	true	"ID of the Envelope"
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/month-configs/{id}/{month} [options]
 func (co Controller) OptionsMonthConfigDetail(c *gin.Context) {
-	_, err := uuid.Parse(c.Param("envelopeId"))
+	_, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -162,15 +162,15 @@ func (co Controller) OptionsMonthConfigDetail(c *gin.Context) {
 //	@Description	Returns configuration for a specific month
 //	@Tags			MonthConfigs
 //	@Produce		json
-//	@Success		200			{object}	MonthConfigResponse
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string	true	"ID of the Envelope"
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Router			/v1/month-configs/{envelopeId}/{month} [get]
+//	@Success		200		{object}	MonthConfigResponse
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string	true	"ID of the Envelope"
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/month-configs/{id}/{month} [get]
 func (co Controller) GetMonthConfig(c *gin.Context) {
-	envelopeID, err := uuid.Parse(c.Param("envelopeId"))
+	envelopeID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -253,12 +253,12 @@ func (co Controller) GetMonthConfigs(c *gin.Context) {
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string						true	"ID of the Envelope"
+//	@Param			id			path		string						true	"ID of the Envelope"
 //	@Param			month		path		string						true	"The month in YYYY-MM format"
 //	@Param			monthConfig	body		models.MonthConfigCreate	true	"MonthConfig"
-//	@Router			/v1/month-configs/{envelopeId}/{month} [post]
+//	@Router			/v1/month-configs/{id}/{month} [post]
 func (co Controller) CreateMonthConfig(c *gin.Context) {
-	envelopeID, err := uuid.Parse(c.Param("envelopeId"))
+	envelopeID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -313,12 +313,12 @@ func (co Controller) CreateMonthConfig(c *gin.Context) {
 //	@Failure		400			{object}	httperrors.HTTPError
 //	@Failure		404			{object}	httperrors.HTTPError
 //	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string						true	"ID of the Envelope"
+//	@Param			id			path		string						true	"ID of the Envelope"
 //	@Param			month		path		string						true	"The month in YYYY-MM format"
 //	@Param			monthConfig	body		models.MonthConfigCreate	true	"MonthConfig"
-//	@Router			/v1/month-configs/{envelopeId}/{month} [patch]
+//	@Router			/v1/month-configs/{id}/{month} [patch]
 func (co Controller) UpdateMonthConfig(c *gin.Context) {
-	envelopeID, err := uuid.Parse(c.Param("envelopeId"))
+	envelopeID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return
@@ -369,14 +369,14 @@ func (co Controller) UpdateMonthConfig(c *gin.Context) {
 //	@Tags			MonthConfigs
 //	@Produce		json
 //	@Success		204
-//	@Failure		400			{object}	httperrors.HTTPError
-//	@Failure		404			{object}	httperrors.HTTPError
-//	@Failure		500			{object}	httperrors.HTTPError
-//	@Param			envelopeId	path		string	true	"ID of the Envelope"
-//	@Param			month		path		string	true	"The month in YYYY-MM format"
-//	@Router			/v1/month-configs/{envelopeId}/{month} [delete]
+//	@Failure		400		{object}	httperrors.HTTPError
+//	@Failure		404		{object}	httperrors.HTTPError
+//	@Failure		500		{object}	httperrors.HTTPError
+//	@Param			id		path		string	true	"ID of the Envelope"
+//	@Param			month	path		string	true	"The month in YYYY-MM format"
+//	@Router			/v1/month-configs/{id}/{month} [delete]
 func (co Controller) DeleteMonthConfig(c *gin.Context) {
-	envelopeID, err := uuid.Parse(c.Param("envelopeId"))
+	envelopeID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httperrors.InvalidUUID(c)
 		return

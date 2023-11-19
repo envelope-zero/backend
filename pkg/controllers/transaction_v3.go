@@ -91,10 +91,10 @@ func (co Controller) RegisterTransactionRoutesV3(r *gin.RouterGroup) {
 
 	// Transaction with ID
 	{
-		r.OPTIONS("/:transactionId", co.OptionsTransactionDetailV3)
-		r.GET("/:transactionId", co.GetTransactionV3)
-		r.PATCH("/:transactionId", co.UpdateTransactionV3)
-		r.DELETE("/:transactionId", co.DeleteTransactionV3)
+		r.OPTIONS("/:id", co.OptionsTransactionDetailV3)
+		r.GET("/:id", co.GetTransactionV3)
+		r.PATCH("/:id", co.UpdateTransactionV3)
+		r.DELETE("/:id", co.DeleteTransactionV3)
 	}
 }
 
@@ -115,13 +115,13 @@ func (co Controller) OptionsTransactionsV3(c *gin.Context) {
 //	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 //	@Tags			Transactions
 //	@Success		204
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			transactionId	path		string	true	"ID formatted as string"
-//	@Router			/v3/transactions/{transactionId} [options]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v3/transactions/{id} [options]
 func (co Controller) OptionsTransactionDetailV3(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -147,14 +147,14 @@ func (co Controller) OptionsTransactionDetailV3(c *gin.Context) {
 //	@Description	Returns a specific transaction
 //	@Tags			Transactions
 //	@Produce		json
-//	@Success		200				{object}	TransactionResponseV3
-//	@Failure		400				{object}	TransactionResponseV3
-//	@Failure		404				{object}	TransactionResponseV3
-//	@Failure		500				{object}	TransactionResponseV3
-//	@Param			transactionId	path		string	true	"ID formatted as string"
-//	@Router			/v3/transactions/{transactionId} [get]
+//	@Success		200	{object}	TransactionResponseV3
+//	@Failure		400	{object}	TransactionResponseV3
+//	@Failure		404	{object}	TransactionResponseV3
+//	@Failure		500	{object}	TransactionResponseV3
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v3/transactions/{id} [get]
 func (co Controller) GetTransactionV3(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponseV3{
@@ -410,16 +410,16 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 //	@Tags			Transactions
 //	@Accept			json
 //	@Produce		json
-//	@Success		200				{object}	TransactionResponseV3
-//	@Failure		400				{object}	TransactionResponseV3
-//	@Failure		404				{object}	TransactionResponseV3
-//	@Failure		500				{object}	TransactionResponseV3
-//	@Param			transactionId	path		string						true	"ID formatted as string"
-//	@Param			transaction		body		models.TransactionCreate	true	"Transaction"
-//	@Router			/v3/transactions/{transactionId} [patch]
+//	@Success		200			{object}	TransactionResponseV3
+//	@Failure		400			{object}	TransactionResponseV3
+//	@Failure		404			{object}	TransactionResponseV3
+//	@Failure		500			{object}	TransactionResponseV3
+//	@Param			id			path		string						true	"ID formatted as string"
+//	@Param			transaction	body		models.TransactionCreate	true	"Transaction"
+//	@Router			/v3/transactions/{id} [patch]
 func (co Controller) UpdateTransactionV3(c *gin.Context) {
 	// Get the resource ID
-	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponseV3{
@@ -530,13 +530,13 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 //	@Description	Deletes a transaction
 //	@Tags			Transactions
 //	@Success		204
-//	@Failure		400				{object}	httperrors.HTTPError
-//	@Failure		404				{object}	httperrors.HTTPError
-//	@Failure		500				{object}	httperrors.HTTPError
-//	@Param			transactionId	path		string	true	"ID formatted as string"
-//	@Router			/v3/transactions/{transactionId} [delete]
+//	@Failure		400	{object}	httperrors.HTTPError
+//	@Failure		404	{object}	httperrors.HTTPError
+//	@Failure		500	{object}	httperrors.HTTPError
+//	@Param			id	path		string	true	"ID formatted as string"
+//	@Router			/v3/transactions/{id} [delete]
 func (co Controller) DeleteTransactionV3(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("transactionId"))
+	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
