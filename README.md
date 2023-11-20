@@ -103,8 +103,8 @@ This project is versioned using [Semantic Versioning 2.0.0](https://semver.org/s
 
 The public API is defined as:
 
-- The API endpoints, meaning the routes, parameters, HTTP respone codes and response body format (for a function, we'd just say “the function signature“) that the HTTP server built from the code in this repository provides
-- The behavior of the API endpoints no matter the signature of the endpoint is
+- The API endpoints, meaning the routes, parameters, HTTP response codes, and request and response body format
+- The behavior of the API endpoints no matter the signature of the endpoint is.
 
 Not part of the public API is:
 
