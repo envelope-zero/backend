@@ -464,6 +464,84 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.MatchRuleCreateResponseV3:
+    properties:
+      data:
+        description: List of created Match Rules
+        items:
+          $ref: '#/definitions/controllers.MatchRuleResponseV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.MatchRuleListResponseV3:
+    properties:
+      data:
+        description: List of Match Rules
+        items:
+          $ref: '#/definitions/controllers.MatchRuleV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/controllers.Pagination'
+        description: Pagination information
+    type: object
+  controllers.MatchRuleResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.MatchRuleV3'
+        description: The Match Rule data, if creation was successful
+      error:
+        description: The error, if any occurred for this Match Rule
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.MatchRuleV3:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          self:
+            description: The match rule itself
+            example: https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21
+            type: string
+        type: object
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.MonthConfig:
     properties:
       createdAt:
@@ -1529,8 +1607,12 @@ definitions:
     type: object
   router.V3Links:
     properties:
+      matchRules:
+        description: URL of Match Rule collection endpoint
+        example: https://example.com/api/v3/match-rules
+        type: string
       transactions:
-        description: URL of transaction collection endpoint
+        description: URL of Transaction collection endpoint
         example: https://example.com/api/v3/transactions
         type: string
     type: object
@@ -3669,6 +3751,7 @@ paths:
       - Accounts
   /v2/match-rules:
     get:
+      deprecated: true
       description: Returns a list of matchRules
       parameters:
       - description: Filter by priority
@@ -3704,6 +3787,7 @@ paths:
       tags:
       - MatchRules
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3713,6 +3797,7 @@ paths:
       tags:
       - MatchRules
     post:
+      deprecated: true
       description: Creates matchRules from the list of submitted matchRule data. The
         response code is the highest response code number that a single matchRule
         creation would have caused. If it is not equal to 201, at least one matchRule
@@ -3756,6 +3841,7 @@ paths:
       - MatchRules
   /v2/match-rules/{id}:
     delete:
+      deprecated: true
       description: Deletes an matchRule
       parameters:
       - description: ID formatted as string
@@ -3782,6 +3868,7 @@ paths:
       tags:
       - MatchRules
     get:
+      deprecated: true
       description: Returns a specific matchRule
       parameters:
       - description: ID formatted as string
@@ -3812,6 +3899,7 @@ paths:
       tags:
       - MatchRules
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3841,6 +3929,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update an matchRule. Only values to be updated need to be specified.
       parameters:
       - description: ID formatted as string
@@ -4162,6 +4251,215 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - v3
+  /v3/match-rules:
+    get:
+      description: Returns a list of matchRules
+      parameters:
+      - description: Filter by priority
+        in: query
+        name: priority
+        type: integer
+      - description: Filter by match
+        in: query
+        name: match
+        type: string
+      - description: Filter by account ID
+        in: query
+        name: account
+        type: string
+      - description: The offset of the first Match Rule returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Match Rules to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleListResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleListResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleListResponseV3'
+      summary: Get matchRules
+      tags:
+      - MatchRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - MatchRules
+    post:
+      description: Creates matchRules from the list of submitted matchRule data. The
+        response code is the highest response code number that a single matchRule
+        creation would have caused. If it is not equal to 201, at least one matchRule
+        has an error.
+      parameters:
+      - description: MatchRules
+        in: body
+        name: matchRules
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.MatchRuleCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+      summary: Create matchRules
+      tags:
+      - MatchRules
+  /v3/match-rules/{id}:
+    delete:
+      description: Deletes an matchRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete matchRule
+      tags:
+      - MatchRules
+    get:
+      description: Returns a specific matchRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+      summary: Get matchRule
+      tags:
+      - MatchRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - MatchRules
+    patch:
+      consumes:
+      - application/json
+      description: Update a matchRule. Only values to be updated need to be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: MatchRule
+        in: body
+        name: matchRule
+        required: true
+        schema:
+          $ref: '#/definitions/models.MatchRuleCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+      summary: Update matchRule
+      tags:
+      - MatchRules
   /v3/transactions:
     get:
       description: Returns a list of transactions
