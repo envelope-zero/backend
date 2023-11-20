@@ -11,6 +11,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type ResponseTransactionV2 struct {
+	Error string        `json:"error" example:"A human readable error message"` // This field contains a human readable error message
+	Data  TransactionV2 `json:"data"`                                           // This field contains the Transaction data
+}
+
 type TransactionV2 struct {
 	models.Transaction
 	Links struct {

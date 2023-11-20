@@ -3126,6 +3126,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Get matchRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -3179,6 +3180,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Create matchRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "MatchRules",
@@ -3235,6 +3237,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -3252,6 +3255,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Get matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3294,6 +3298,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Delete matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3333,6 +3338,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3378,6 +3384,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Update matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3833,6 +3840,314 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/match-rules": {
+            "get": {
+                "description": "Returns a list of matchRules",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Get matchRules",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by priority",
+                        "name": "priority",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by match",
+                        "name": "match",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by account ID",
+                        "name": "account",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The offset of the first Match Rule returned. Defaults to 0.",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of Match Rules to return. Defaults to 50.",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleListResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleListResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleListResponseV3"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates matchRules from the list of submitted matchRule data. The response code is the highest response code number that a single matchRule creation would have caused. If it is not equal to 201, at least one matchRule has an error.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Create matchRules",
+                "parameters": [
+                    {
+                        "description": "MatchRules",
+                        "name": "matchRules",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.MatchRuleCreate"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/match-rules/{id}": {
+            "get": {
+                "description": "Returns a specific matchRule",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Get matchRule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an matchRule",
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Delete matchRule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a matchRule. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MatchRules"
+                ],
+                "summary": "Update matchRule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "MatchRule",
+                        "name": "matchRule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MatchRuleCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                        }
                     }
                 }
             }
@@ -4849,6 +5164,116 @@ const docTemplate = `{
                             "description": "The match rule itself",
                             "type": "string",
                             "example": "https://example.com/api/v2/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
+                        }
+                    }
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.MatchRuleCreateResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created Match Rules",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.MatchRuleListResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of Match Rules",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.MatchRuleV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "controllers.MatchRuleResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "The Match Rule data, if creation was successful",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.MatchRuleV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred for this Match Rule",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.MatchRuleV3": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The match rule itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
                         }
                     }
                 },
@@ -6248,8 +6673,13 @@ const docTemplate = `{
         "router.V3Links": {
             "type": "object",
             "properties": {
+                "matchRules": {
+                    "description": "URL of Match Rule collection endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/match-rules"
+                },
                 "transactions": {
-                    "description": "URL of transaction collection endpoint",
+                    "description": "URL of Transaction collection endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v3/transactions"
                 }
