@@ -529,3 +529,59 @@ func (suite *TestSuiteStandard) TestMatchRulesV3Delete() {
 		})
 	}
 }
+
+// TestMatchRulesV3GetSorted verifies that Match Rules are sorted as expected.
+func (suite *TestSuiteStandard) TestMatchRulesV3GetSorted() {
+	b := suite.createTestBudget(models.BudgetCreate{})
+	a := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
+
+	m1 := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
+		Priority:  1,
+		Match:     "Testing A Match*",
+		AccountID: a.Data.ID,
+	})
+
+	m2 := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
+		Priority:  2,
+		Match:     "*Match the Second Account",
+		AccountID: a.Data.ID,
+	})
+
+	m3 := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
+		Priority:  1,
+		Match:     "Exact match",
+		AccountID: a.Data.ID,
+	})
+
+	m4 := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
+		Priority:  3,
+		Match:     "Coffee Shop*",
+		AccountID: a.Data.ID,
+	})
+
+	m5 := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
+		Priority:  3,
+		Match:     "Coffee Shop",
+		AccountID: a.Data.ID,
+	})
+
+	var re controllers.MatchRuleListResponseV3
+	r := test.Request(suite.controller, suite.T(), http.MethodGet, "/v3/match-rules", "")
+	assertHTTPStatus(suite.T(), &r, http.StatusOK)
+	suite.decodeResponse(&r, &re)
+
+	// Lowest priority, alphabetically first
+	assert.Equal(suite.T(), *m3.Data, re.Data[0])
+
+	// Lowest priority, alphabetically second
+	assert.Equal(suite.T(), *m1.Data, re.Data[1])
+
+	// Higher priority
+	assert.Equal(suite.T(), *m2.Data, re.Data[2])
+
+	// Highest priority, alphabetically first
+	assert.Equal(suite.T(), *m5.Data, re.Data[3])
+
+	// Highest priority, alphabetically second
+	assert.Equal(suite.T(), *m4.Data, re.Data[4])
+}

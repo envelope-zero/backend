@@ -228,7 +228,7 @@ func (co Controller) GetMatchRulesV3(c *gin.Context) {
 		return
 	}
 
-	q := co.DB.Where(&models.MatchRule{
+	q := co.DB.Order("priority ASC, match ASC").Where(&models.MatchRule{
 		MatchRuleCreate: create,
 	}, queryFields...)
 
