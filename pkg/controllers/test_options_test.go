@@ -35,6 +35,7 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 		{"http://example.com/v3/import/ynab-import-preview", "OPTIONS, POST"},
 		{"http://example.com/v3/import/ynab4", "OPTIONS, POST"},
 		{"http://example.com/v3/match-rules", "OPTIONS, GET, POST"},
+		{"http://example.com/v3/months", "OPTIONS, GET, POST, DELETE"},
 		{"http://example.com/v3/transactions", "OPTIONS, GET, POST"},
 	}
 

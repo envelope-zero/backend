@@ -166,6 +166,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	co.RegisterImportRoutesV3(v3.Group("/import"))
 	co.RegisterMatchRuleRoutesV3(v3.Group("/match-rules"))
 	co.RegisterMonthConfigRoutesV3(v3.Group("/envelopes"))
+	co.RegisterMonthRoutesV3(v3.Group("/months"))
 	co.RegisterTransactionRoutesV3(v3.Group("/transactions"))
 }
 
@@ -270,6 +271,7 @@ type V1Links struct {
 //	@Tags			v1
 //	@Success		200	{object}	V1Response
 //	@Router			/v1 [get]
+//	@Deprecated		true
 func GetV1(c *gin.Context) {
 	c.JSON(http.StatusOK, V1Response{
 		Links: V1Links{
@@ -292,6 +294,7 @@ func GetV1(c *gin.Context) {
 //	@Tags			v1
 //	@Success		204
 //	@Router			/v1 [options]
+//	@Deprecated		true
 func OptionsV1(c *gin.Context) {
 	httputil.OptionsGetDelete(c)
 }
@@ -349,6 +352,7 @@ type V3Links struct {
 	Envelopes    string `json:"envelopes" example:"https://example.com/api/v3/envelopes"`       // URL of Envelope collection endpoint
 	Import       string `json:"import" example:"https://example.com/api/v3/import"`             // URL of import list endpoint
 	MatchRules   string `json:"matchRules" example:"https://example.com/api/v3/match-rules"`    // URL of Match Rule collection endpoint
+	Months       string `json:"months" example:"https://example.com/api/v3/months"`             // URL of Month endpoint
 	Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions"` // URL of Transaction collection endpoint
 }
 
@@ -370,6 +374,7 @@ func GetV3(c *gin.Context) {
 			Envelopes:    url + "/v3/envelopes",
 			Import:       url + "/v3/import",
 			MatchRules:   url + "/v3/match-rules",
+			Months:       url + "/v3/months",
 			Transactions: url + "/v3/transactions",
 		},
 	})

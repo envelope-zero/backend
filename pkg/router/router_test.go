@@ -195,6 +195,7 @@ func TestGetV3(t *testing.T) {
 			Envelopes:    "/v3/envelopes",
 			Import:       "/v3/import",
 			MatchRules:   "/v3/match-rules",
+			Months:       "/v3/months",
 			Transactions: "/v3/transactions",
 		},
 	}

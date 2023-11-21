@@ -16,6 +16,7 @@ import (
 //	@Success		204
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Router			/v1 [delete]
+//	@Deprecated		true
 func (co Controller) DeleteAll(c *gin.Context) {
 	err := co.DB.Unscoped().Where("true").Delete(&models.Transaction{}).Error
 	if err != nil {

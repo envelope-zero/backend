@@ -572,6 +572,64 @@ definitions:
         example: the specified resource ID is not a valid UUID
         type: string
     type: object
+  controllers.CategoryEnvelopesV3:
+    properties:
+      allocation:
+        description: Sum of allocations for the envelopes
+        example: 90
+        type: number
+      archived:
+        default: false
+        description: Is the Category archived?
+        example: true
+        type: boolean
+      balance:
+        description: Sum of the balances of the envelopes
+        example: -10.13
+        type: number
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopes:
+        description: Slice of all envelopes
+        items:
+          $ref: '#/definitions/controllers.EnvelopeMonthV3'
+        type: array
+      hidden:
+        default: false
+        description: Is the category hidden?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+      spent:
+        description: Sum spent for all envelopes
+        example: 100.13
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.CategoryListResponse:
     properties:
       data:
@@ -774,6 +832,59 @@ definitions:
         - $ref: '#/definitions/models.EnvelopeMonth'
         description: Data for the month for the envelope
     type: object
+  controllers.EnvelopeMonthV3:
+    properties:
+      allocation:
+        description: The amount of money allocated
+        example: 85.44
+        type: number
+      archived:
+        default: false
+        description: Is the Envelope archived?
+        example: true
+        type: boolean
+      balance:
+        description: The balance at the end of the monht
+        example: 12.32
+        type: number
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      hidden:
+        default: false
+        description: Is the envelope hidden?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      spent:
+        description: The amount spent over the whole month
+        example: 73.12
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
   controllers.EnvelopeResponse:
     properties:
       data:
@@ -823,7 +934,7 @@ definitions:
         properties:
           month:
             description: The MonthConfig for the envelope
-            example: https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
+            example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
             type: string
           self:
             description: The envelope itself
@@ -1154,6 +1265,57 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.Month'
         description: Data for the month
+    type: object
+  controllers.MonthResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.MonthV3'
+        description: Data for the month
+      error:
+        description: The error, if any occurred
+        type: string
+    type: object
+  controllers.MonthV3:
+    properties:
+      allocation:
+        description: The sum of all allocations for this month
+        example: 1200.5
+        type: number
+      available:
+        description: The amount available to budget
+        example: 217.34
+        type: number
+      balance:
+        description: The sum of all envelope balances
+        example: 5231.37
+        type: number
+      categories:
+        description: A list of envelope month calculations grouped by category
+        items:
+          $ref: '#/definitions/controllers.CategoryEnvelopesV3'
+        type: array
+      id:
+        description: The ID of the Budget
+        example: 1e777d24-3f5b-4c43-8000-04f65f895578
+        type: string
+      income:
+        description: The total income for the month (sum of all incoming transactions
+          without an Envelope)
+        example: 2317.34
+        type: number
+      month:
+        description: The month
+        example: "2006-05-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: The name of the Budget
+        example: Zero budget
+        type: string
+      spent:
+        description: The amount of money spent in this month
+        example: 133.7
+        type: number
     type: object
   controllers.Pagination:
     properties:
@@ -2211,6 +2373,10 @@ definitions:
         description: URL of Match Rule collection endpoint
         example: https://example.com/api/v3/match-rules
         type: string
+      months:
+        description: URL of Month endpoint
+        example: https://example.com/api/v3/months
+        type: string
       transactions:
         description: URL of Transaction collection endpoint
         example: https://example.com/api/v3/transactions
@@ -2286,6 +2452,7 @@ paths:
       - General
   /v1:
     delete:
+      deprecated: true
       description: Permanently deletes all resources
       responses:
         "204":
@@ -2298,6 +2465,7 @@ paths:
       tags:
       - v1
     get:
+      deprecated: true
       description: Returns general information about the v1 API
       responses:
         "200":
@@ -2308,6 +2476,7 @@ paths:
       tags:
       - v1
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3947,6 +4116,7 @@ paths:
       - MonthConfigs
   /v1/months:
     delete:
+      deprecated: true
       description: Deletes all allocation for the specified month
       parameters:
       - description: ID formatted as string
@@ -3978,6 +4148,7 @@ paths:
       tags:
       - Months
     get:
+      deprecated: true
       description: Returns data about a specific month.
       parameters:
       - description: ID formatted as string
@@ -4013,6 +4184,7 @@ paths:
       tags:
       - Months
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs.
       responses:
@@ -4022,6 +4194,7 @@ paths:
       tags:
       - Months
     post:
+      deprecated: true
       description: Sets allocations for a month for all envelopes that do not have
         an allocation yet
       parameters:
@@ -6196,6 +6369,120 @@ paths:
       summary: Update matchRule
       tags:
       - MatchRules
+  /v3/months:
+    delete:
+      description: Deletes all allocation for the specified month
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete allocations for a month
+      tags:
+      - Months
+    get:
+      description: Returns data about a specific month.
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MonthResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.MonthResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.MonthResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.MonthResponseV3'
+      summary: Get data about a month
+      tags:
+      - Months
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs.
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Months
+    post:
+      description: Sets allocations for a month for all envelopes that do not have
+        an allocation yet
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      - description: Budget
+        in: body
+        name: mode
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.BudgetAllocationMode'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Set allocations for a month
+      tags:
+      - Months
   /v3/transactions:
     get:
       description: Returns a list of transactions

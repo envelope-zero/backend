@@ -13,29 +13,31 @@ import (
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
 var (
-	ErrInvalidQueryString            = errors.New("the query string contains unparseable data. Please check the values")
-	ErrInvalidBody                   = errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
-	ErrInvalidUUID                   = errors.New("the specified resource ID is not a valid UUID")
-	ErrNoResource                    = errors.New("there is no resource for the ID you specified")
-	ErrDatabaseClosed                = errors.New("there is a problem with the database connection, please try again later")
-	ErrDatabaseReadOnly              = errors.New("the database is currently in read-only mode, please try again later")
-	ErrRequestBodyEmpty              = errors.New("the request body must not be empty")
-	ErrInvalidMonth                  = errors.New("could not parse the specified month, did you use YYYY-MM format?")
+	ErrAccountIDParameter            = errors.New("the accountId parameter must be set")
 	ErrAccountNameNotUnique          = errors.New("the account name must be unique for the budget")
 	ErrCategoryNameNotUnique         = errors.New("the category name must be unique for the budget")
-	ErrEnvelopeNameNotUniqe          = errors.New("the envelope name must be unique for the category")
-	ErrMultipleAllocations           = errors.New("you can not create multiple allocations for the same month")
-	ErrSourceEqualsDestination       = errors.New("source and destination accounts for a transaction must be different")
-	ErrReferenceResourceDoesNotExist = errors.New("a resource you are referencing in another resource does not exist")
-	ErrNoFilePost                    = errors.New("you must send a file to this endpoint")
-	ErrFileEmpty                     = errors.New("the file you uploaded is empty or invalid")
-	ErrAccountIDParameter            = errors.New("the accountId parameter must be set")
 	ErrCleanupConfirmation           = errors.New("the confirmation for the cleanup API call was incorrect")
+	ErrDatabaseClosed                = errors.New("there is a problem with the database connection, please try again later")
+	ErrDatabaseReadOnly              = errors.New("the database is currently in read-only mode, please try again later")
+	ErrEnvelopeNameNotUniqe          = errors.New("the envelope name must be unique for the category")
+	ErrFileEmpty                     = errors.New("the file you uploaded is empty or invalid")
+	ErrInvalidBody                   = errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
+	ErrInvalidMonth                  = errors.New("could not parse the specified month, did you use YYYY-MM format?")
+	ErrInvalidQueryString            = errors.New("the query string contains unparseable data. Please check the values")
+	ErrInvalidUUID                   = errors.New("the specified resource ID is not a valid UUID")
+	ErrMonthNotSetInQuery            = errors.New("the month query parameter must be set")
+	ErrMultipleAllocations           = errors.New("you can not create multiple allocations for the same month")
+	ErrNoFilePost                    = errors.New("you must send a file to this endpoint")
+	ErrNoResource                    = errors.New("there is no resource for the ID you specified")
+	ErrReferenceResourceDoesNotExist = errors.New("a resource you are referencing in another resource does not exist")
+	ErrRequestBodyEmpty              = errors.New("the request body must not be empty")
+	ErrSourceEqualsDestination       = errors.New("source and destination accounts for a transaction must be different")
 )
 
 // Generate a struct containing the HTTP error on the fly.
@@ -189,6 +191,11 @@ func Parse(c *gin.Context, err error) Error {
 	// End of file reached when reading
 	if errors.Is(io.EOF, err) {
 		return Error{Status: http.StatusBadRequest, Err: ErrRequestBodyEmpty}
+	}
+
+	// UUID is invalid length
+	if uuid.IsInvalidLengthError(err) {
+		return Error{Status: http.StatusBadRequest, Err: ErrInvalidUUID}
 	}
 
 	// Time could not be parsed. Return the error string as lets the user

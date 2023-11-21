@@ -86,6 +86,7 @@ const docTemplate = `{
                     "v1"
                 ],
                 "summary": "v1 API",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -101,6 +102,7 @@ const docTemplate = `{
                     "v1"
                 ],
                 "summary": "Delete everything",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -119,6 +121,7 @@ const docTemplate = `{
                     "v1"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2515,6 +2518,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Get data about a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2564,6 +2568,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Set allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2619,6 +2624,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Delete allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2665,6 +2671,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -5815,6 +5822,173 @@ const docTemplate = `{
                 }
             }
         },
+        "/v3/months": {
+            "get": {
+                "description": "Returns data about a specific month.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Get data about a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budget",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Sets allocations for a month for all envelopes that do not have an allocation yet",
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Set allocations for a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budget",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Budget",
+                        "name": "mode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetAllocationMode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes all allocation for the specified month",
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Delete allocations for a month",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "budget",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs.",
+                "tags": [
+                    "Months"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/v3/transactions": {
             "get": {
                 "description": "Returns a list of transactions",
@@ -6984,6 +7158,80 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.CategoryEnvelopesV3": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "Sum of allocations for the envelopes",
+                    "type": "number",
+                    "example": 90
+                },
+                "archived": {
+                    "description": "Is the Category archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "balance": {
+                    "description": "Sum of the balances of the envelopes",
+                    "type": "number",
+                    "example": -10.13
+                },
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopes": {
+                    "description": "Slice of all envelopes",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.EnvelopeMonthV3"
+                    }
+                },
+                "hidden": {
+                    "description": "Is the category hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                },
+                "spent": {
+                    "description": "Sum spent for all envelopes",
+                    "type": "number",
+                    "example": 100.13
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.CategoryListResponse": {
             "type": "object",
             "properties": {
@@ -7269,6 +7517,73 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.EnvelopeMonthV3": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The amount of money allocated",
+                    "type": "number",
+                    "example": 85.44
+                },
+                "archived": {
+                    "description": "Is the Envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "balance": {
+                    "description": "The balance at the end of the monht",
+                    "type": "number",
+                    "example": 12.32
+                },
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "hidden": {
+                    "description": "Is the envelope hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
+                "spent": {
+                    "description": "The amount spent over the whole month",
+                    "type": "number",
+                    "example": 73.12
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
         "controllers.EnvelopeResponse": {
             "type": "object",
             "properties": {
@@ -7340,7 +7655,7 @@ const docTemplate = `{
                         "month": {
                             "description": "The MonthConfig for the envelope",
                             "type": "string",
-                            "example": "https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
+                            "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
                         },
                         "self": {
                             "description": "The envelope itself",
@@ -7789,6 +8104,75 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Month"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.MonthResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the month",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.MonthV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.MonthV3": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The sum of all allocations for this month",
+                    "type": "number",
+                    "example": 1200.5
+                },
+                "available": {
+                    "description": "The amount available to budget",
+                    "type": "number",
+                    "example": 217.34
+                },
+                "balance": {
+                    "description": "The sum of all envelope balances",
+                    "type": "number",
+                    "example": 5231.37
+                },
+                "categories": {
+                    "description": "A list of envelope month calculations grouped by category",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.CategoryEnvelopesV3"
+                    }
+                },
+                "id": {
+                    "description": "The ID of the Budget",
+                    "type": "string",
+                    "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
+                },
+                "income": {
+                    "description": "The total income for the month (sum of all incoming transactions without an Envelope)",
+                    "type": "number",
+                    "example": 2317.34
+                },
+                "month": {
+                    "description": "The month",
+                    "type": "string",
+                    "example": "2006-05-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "The name of the Budget",
+                    "type": "string",
+                    "example": "Zero budget"
+                },
+                "spent": {
+                    "description": "The amount of money spent in this month",
+                    "type": "number",
+                    "example": 133.7
                 }
             }
         },
@@ -9148,6 +9532,11 @@ const docTemplate = `{
                     "description": "URL of Match Rule collection endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v3/match-rules"
+                },
+                "months": {
+                    "description": "URL of Month endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/months"
                 },
                 "transactions": {
                     "description": "URL of Transaction collection endpoint",
