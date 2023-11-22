@@ -5840,10 +5840,8 @@ const docTemplate = `{
                     "example": "Lunch"
                 },
                 "reconciled": {
-                    "description": "DEPRECATED. Do not use, this field does not work as intended. See https://github.com/envelope-zero/backend/issues/528. Use reconciledSource and reconciledDestination instead. This field will be removed in 4.0.0",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "description": "Remove the reconciled field",
+                    "type": "boolean"
                 },
                 "reconciledDestination": {
                     "description": "Is the transaction reconciled in the destination account?",
