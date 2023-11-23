@@ -32,6 +32,9 @@ var (
 	ErrMultipleAllocations           = errors.New("you can not create multiple allocations for the same month")
 	ErrSourceEqualsDestination       = errors.New("source and destination accounts for a transaction must be different")
 	ErrReferenceResourceDoesNotExist = errors.New("a resource you are referencing in another resource does not exist")
+	ErrNoFilePost                    = errors.New("you must send a file to this endpoint")
+	ErrFileEmpty                     = errors.New("the file you uploaded is empty or invalid")
+	ErrAccountIDParameter            = errors.New("the accountId parameter must be set")
 )
 
 // Generate a struct containing the HTTP error on the fly.
@@ -184,6 +187,11 @@ func Parse(c *gin.Context, err error) Error {
 	// know the exact issue
 	if reflect.TypeOf(err) == reflect.TypeOf(&time.ParseError{}) {
 		return Error{Status: http.StatusBadRequest, Err: err}
+	}
+
+	// File is empty or otherwise not complete
+	if err.Error() == "unexpected EOF" {
+		return Error{Status: http.StatusBadRequest, Err: ErrFileEmpty}
 	}
 
 	log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())

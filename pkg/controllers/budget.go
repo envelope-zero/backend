@@ -74,6 +74,11 @@ type BudgetResponse struct {
 	Data Budget `json:"data"` // Data for the budget
 }
 
+type BudgetResponseV3 struct {
+	Data  *Budget `json:"data"`                                                          // Data for the budget
+	Error *string `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
+}
+
 type BudgetMonthResponse struct {
 	Data models.BudgetMonth `json:"data"` // Data for the budget's month
 }
