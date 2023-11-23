@@ -114,12 +114,12 @@ func (suite *TestSuiteStandard) TestTransactionsV3DatabaseError() {
 // not correctly sorted when multiple transactions occurred on a day. In that case, the
 // oldest transaction would be at the bottom and not at the top.
 func (suite *TestSuiteStandard) TestTransactionsV3Get() {
-	t1 := suite.createTestTransaction(models.TransactionCreate{
+	t1 := suite.createTestTransactionV3(models.TransactionCreate{
 		Amount: decimal.NewFromFloat(17.23),
 		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(models.TransactionCreate{
 		Amount: decimal.NewFromFloat(23.42),
 		Date:   time.Date(2023, 11, 10, 11, 12, 13, 0, time.UTC),
 	})
@@ -127,7 +127,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Get() {
 	// Need to sleep 1 second because SQLite datetime only has second precision
 	time.Sleep(1 * time.Second)
 
-	t3 := suite.createTestTransaction(models.TransactionCreate{
+	t3 := suite.createTestTransactionV3(models.TransactionCreate{
 		Amount: decimal.NewFromFloat(44.05),
 		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
 	})
@@ -164,7 +164,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 	e1ID := &e1.Data.ID
 	e2ID := &e2.Data.ID
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(models.TransactionCreate{
 		Date:                  time.Date(2018, 9, 5, 17, 13, 29, 45256, time.UTC),
 		Amount:                decimal.NewFromFloat(2.718),
 		Note:                  "This was an important expense",
@@ -177,7 +177,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		ReconciledDestination: false,
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(models.TransactionCreate{
 		Date:                  time.Date(2016, 5, 1, 14, 13, 25, 584575, time.UTC),
 		Amount:                decimal.NewFromFloat(11235.813),
 		Note:                  "Not important",
@@ -190,7 +190,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		ReconciledDestination: true,
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(models.TransactionCreate{
 		Date:                  time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC),
 		Amount:                decimal.NewFromFloat(2.718),
 		Note:                  "",
