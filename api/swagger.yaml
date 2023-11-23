@@ -271,6 +271,17 @@ definitions:
         - $ref: '#/definitions/controllers.Budget'
         description: Data for the budget
     type: object
+  controllers.BudgetResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.Budget'
+        description: Data for the budget
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
   controllers.Category:
     properties:
       budgetId:
@@ -424,6 +435,36 @@ definitions:
         items:
           $ref: '#/definitions/importer.TransactionPreview'
         type: array
+    type: object
+  controllers.ImportPreviewListV3:
+    properties:
+      data:
+        description: List of transaction previews
+        items:
+          $ref: '#/definitions/importer.TransactionPreview'
+        type: array
+      error:
+        description: The error, if any occurred for this Match Rule
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.ImportV3Links:
+    properties:
+      matchRules:
+        description: URL of YNAB Import preview endpoint
+        example: https://example.com/api/v3/import/ynab-import-preview
+        type: string
+      transactions:
+        description: URL of YNAB4 import endpoint
+        example: https://example.com/api/v3/import/ynab4
+        type: string
+    type: object
+  controllers.ImportV3Response:
+    properties:
+      links:
+        allOf:
+        - $ref: '#/definitions/controllers.ImportV3Links'
+        description: Links for the v3 API
     type: object
   controllers.MatchRule:
     properties:
@@ -1603,6 +1644,10 @@ definitions:
     type: object
   router.V3Links:
     properties:
+      import:
+        description: URL of import list endpoint
+        example: https://example.com/api/v3/import
+        type: string
       matchRules:
         description: URL of Match Rule collection endpoint
         example: https://example.com/api/v3/match-rules
@@ -2987,6 +3032,7 @@ paths:
       - Import
   /v1/import/ynab-import-preview:
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -2998,6 +3044,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Returns a preview of transactions to be imported after parsing
         a YNAB Import format csv file
       parameters:
@@ -3034,6 +3081,7 @@ paths:
       - Import
   /v1/import/ynab4:
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3045,6 +3093,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Imports budgets from YNAB 4
       parameters:
       - description: File to import
@@ -4247,6 +4296,115 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - v3
+  /v3/import:
+    get:
+      description: Returns general information about the v3 API
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ImportV3Response'
+      summary: Import API overview
+      tags:
+      - Import
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs.
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+  /v3/import/ynab-import-preview:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+    post:
+      consumes:
+      - multipart/form-data
+      description: Returns a preview of transactions to be imported after parsing
+        a YNAB Import format csv file
+      parameters:
+      - description: File to import
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: ID of the account to import transactions for
+        in: query
+        name: accountId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ImportPreviewListV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ImportPreviewListV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ImportPreviewListV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ImportPreviewListV3'
+      summary: Transaction Import Preview
+      tags:
+      - Import
+  /v3/import/ynab4:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+    post:
+      consumes:
+      - multipart/form-data
+      description: Imports budgets from YNAB 4
+      parameters:
+      - description: File to import
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Name of the Budget to create
+        in: query
+        name: budgetName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+      summary: Import YNAB 4 budget
+      tags:
+      - Import
   /v3/match-rules:
     get:
       description: Returns a list of matchRules

@@ -29,6 +29,9 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 		{"http://example.com/v2/accounts", "OPTIONS, GET"},
 		{"http://example.com/v3/transactions", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/match-rules", "OPTIONS, GET, POST"},
+		{"http://example.com/v3/import", "OPTIONS, GET"},
+		{"http://example.com/v3/import/ynab-import-preview", "OPTIONS, POST"},
+		{"http://example.com/v3/import/ynab4", "OPTIONS, POST"},
 	}
 
 	for _, tt := range optionsHeaderTests {

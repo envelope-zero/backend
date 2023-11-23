@@ -160,6 +160,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 
 	co.RegisterTransactionRoutesV3(v3.Group("/transactions"))
 	co.RegisterMatchRuleRoutesV3(v3.Group("/match-rules"))
+	co.RegisterImportRoutesV3(v3.Group("/import"))
 }
 
 type RootResponse struct {
@@ -336,6 +337,7 @@ type V3Response struct {
 type V3Links struct {
 	Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions"` // URL of Transaction collection endpoint
 	MatchRules   string `json:"matchRules" example:"https://example.com/api/v3/match-rules"`    // URL of Match Rule collection endpoint
+	Import       string `json:"import" example:"https://example.com/api/v3/import"`             // URL of import list endpoint
 }
 
 // GetV3 returns the link list for v3
@@ -350,6 +352,7 @@ func GetV3(c *gin.Context) {
 		Links: V3Links{
 			Transactions: c.GetString(string(database.ContextURL)) + "/v3/transactions",
 			MatchRules:   c.GetString(string(database.ContextURL)) + "/v3/match-rules",
+			Import:       c.GetString(string(database.ContextURL)) + "/v3/import",
 		},
 	})
 }

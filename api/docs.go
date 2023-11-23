@@ -2014,6 +2014,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Transaction Import Preview",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "file",
@@ -2062,6 +2063,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2082,6 +2084,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Import YNAB 4 budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "file",
@@ -2124,6 +2127,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -3844,6 +3848,165 @@ const docTemplate = `{
                 }
             }
         },
+        "/v3/import": {
+            "get": {
+                "description": "Returns general information about the v3 API",
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Import API overview",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ImportV3Response"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs.",
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/import/ynab-import-preview": {
+            "post": {
+                "description": "Returns a preview of transactions to be imported after parsing a YNAB Import format csv file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Transaction Import Preview",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to import",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of the account to import transactions for",
+                        "name": "accountId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/import/ynab4": {
+            "post": {
+                "description": "Imports budgets from YNAB 4",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Import YNAB 4 budget",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to import",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of the Budget to create",
+                        "name": "budgetName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/v3/match-rules": {
             "get": {
                 "description": "Returns a list of matchRules",
@@ -4919,6 +5082,24 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.BudgetResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the budget",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.Budget"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
         "controllers.Category": {
             "type": "object",
             "properties": {
@@ -5131,6 +5312,51 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/importer.TransactionPreview"
                     }
+                }
+            }
+        },
+        "controllers.ImportPreviewListV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of transaction previews",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/importer.TransactionPreview"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred for this Match Rule",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.ImportV3Links": {
+            "type": "object",
+            "properties": {
+                "matchRules": {
+                    "description": "URL of YNAB Import preview endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/import/ynab-import-preview"
+                },
+                "transactions": {
+                    "description": "URL of YNAB4 import endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/import/ynab4"
+                }
+            }
+        },
+        "controllers.ImportV3Response": {
+            "type": "object",
+            "properties": {
+                "links": {
+                    "description": "Links for the v3 API",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.ImportV3Links"
+                        }
+                    ]
                 }
             }
         },
@@ -6671,6 +6897,11 @@ const docTemplate = `{
         "router.V3Links": {
             "type": "object",
             "properties": {
+                "import": {
+                    "description": "URL of import list endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/import"
+                },
                 "matchRules": {
                     "description": "URL of Match Rule collection endpoint",
                     "type": "string",
