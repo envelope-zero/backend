@@ -13,28 +13,32 @@ import (
 )
 
 // createTransaction creates a single transaction after verifying it is a valid transaction.
-func (co Controller) createTransaction(c *gin.Context, t models.Transaction) (models.Transaction, httperrors.Error) {
+func (co Controller) createTransaction(c *gin.Context, create models.TransactionCreate) (models.Transaction, httperrors.Error) {
+	t := models.Transaction{
+		TransactionCreate: create,
+	}
+
 	_, err := getResourceByID[models.Budget](c, co, t.BudgetID)
 	if !err.Nil() {
-		return t, err
+		return models.Transaction{}, err
 	}
 
 	// Check the source account
 	sourceAccount, err := getResourceByID[models.Account](c, co, t.SourceAccountID)
 	if !err.Nil() {
-		return t, err
+		return models.Transaction{}, err
 	}
 
 	// Check the destination account
 	destinationAccount, err := getResourceByID[models.Account](c, co, t.DestinationAccountID)
 	if !err.Nil() {
-		return t, err
+		return models.Transaction{}, err
 	}
 
 	// Check the transaction
 	err = co.checkTransaction(c, t, sourceAccount, destinationAccount)
 	if !err.Nil() {
-		return t, err
+		return models.Transaction{}, err
 	}
 
 	dbErr := co.DB.Create(&t).Error

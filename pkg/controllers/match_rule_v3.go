@@ -245,7 +245,7 @@ func (co Controller) GetMatchRulesV3(c *gin.Context) {
 	// Default to 50 Match Rules and set the limit
 	limit := 50
 	if slices.Contains(setFields, "Limit") {
-		limit = int(filter.Limit)
+		limit = filter.Limit
 	}
 	q = q.Limit(limit)
 

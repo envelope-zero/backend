@@ -280,8 +280,12 @@ func (co Controller) ImportYnab4V3(c *gin.Context) {
 		return
 	}
 
-	r, ok := co.getBudget(c, budget.ID)
-	if !ok {
+	r, e := co.getBudgetV3(c, budget.ID)
+	if !e.Nil() {
+		s := e.Error()
+		c.JSON(e.Status, BudgetResponseV3{
+			Error: &s,
+		})
 		return
 	}
 

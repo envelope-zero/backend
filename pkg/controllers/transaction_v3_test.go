@@ -150,7 +150,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Get() {
 
 // TestTransactionsV3GetFilter verifies that filtering transactions works as expected.
 func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
-	b := suite.createTestBudget(models.BudgetCreate{})
+	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 1"})
 	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 2"})
@@ -305,7 +305,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3CreateInvalidBody() {
 
 // TestTransactionsV3Create verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestTransactionsV3Create() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create Internal"})
 	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create External"})
 
@@ -533,7 +533,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Update() {
 	transaction := suite.createTestTransactionV3(models.TransactionCreate{
 		Amount:               decimal.NewFromFloat(23.14),
 		Note:                 "Test note for transaction",
-		BudgetID:             suite.createTestBudget(models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
+		BudgetID:             suite.createTestBudgetV3(suite.T(), models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
 		SourceAccountID:      suite.createTestAccount(models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
 		DestinationAccountID: suite.createTestAccount(models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
 		EnvelopeID:           &envelope.Data.ID,

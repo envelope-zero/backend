@@ -179,7 +179,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3DatabaseError() {
 
 // TestMatchRulesV3GetFilter verifies that filtering Match Rules works as expected.
 func (suite *TestSuiteStandard) TestMatchRulesV3GetFilter() {
-	b := suite.createTestBudget(models.BudgetCreate{})
+	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
 	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 2"})
@@ -231,7 +231,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3GetFilter() {
 
 // TestMatchRulesV3GetFilterErrors verifies that filtering Match Rules returns errors as expected.
 func (suite *TestSuiteStandard) TestMatchRulesV3GetFilterErrors() {
-	b := suite.createTestBudget(models.BudgetCreate{})
+	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
 	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 2"})
@@ -288,7 +288,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3CreateInvalidBody() {
 
 // TestMatchRulesV3Create verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestMatchRulesV3Create() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestMatchRulesV3Create Internal"})
 
 	tests := []struct {
@@ -532,7 +532,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3Delete() {
 
 // TestMatchRulesV3GetSorted verifies that Match Rules are sorted as expected.
 func (suite *TestSuiteStandard) TestMatchRulesV3GetSorted() {
-	b := suite.createTestBudget(models.BudgetCreate{})
+	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	a := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
 
 	m1 := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
