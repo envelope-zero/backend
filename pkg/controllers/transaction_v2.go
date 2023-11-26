@@ -92,7 +92,7 @@ func (co Controller) CreateTransactionsV2(c *gin.Context) {
 	status := http.StatusCreated
 
 	for _, t := range transactions {
-		t, err := co.createTransaction(c, t)
+		t, err := co.createTransaction(c, t.TransactionCreate)
 
 		// Append the error or the successfully created transaction to the response list
 		if !err.Nil() {

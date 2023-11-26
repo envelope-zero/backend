@@ -70,7 +70,7 @@ func (suite *TestSuiteStandard) TestImportYnab4V3Fails() {
 		{"Wrong file name", "same", "this endpoint only supports .yfull files", http.StatusBadRequest, "importer/wrong-name.json", func() {}},
 		{"Empty file", "same", "not a valid YNAB4 Budget.yfull file: unexpected end of JSON input", http.StatusBadRequest, "importer/EmptyFile.yfull", func() {}},
 		{"Duplicate budget name", "Import Test", "This budget name is already in use", http.StatusBadRequest, "", func() {
-			_ = suite.createTestBudget(models.BudgetCreate{Name: "Import Test"})
+			_ = suite.createTestBudgetV3(suite.T(), models.BudgetCreate{Name: "Import Test"})
 		}},
 		{"Database error. This test must be the last one.", "Nope. DB is closed.", "there is a problem with the database connection", http.StatusInternalServerError, "", func() {
 			suite.CloseDB()
@@ -181,7 +181,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3AvailableFrom() {
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3FindAccounts() {
 	// Create a budget and two existing accounts to use
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	edeka := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
 
 	// Create an account named "Edeka" in another budget to ensure it is not found. If it were found, the tests for the non-archived
@@ -241,7 +241,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3FindAccounts() {
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3Match() {
 	// Create a budget and two existing accounts to use
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	edeka := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
 	bahn := suite.createTestAccount(models.AccountCreate{BudgetID: budget.Data.ID, Name: "Deutsche Bahn", External: true})
 

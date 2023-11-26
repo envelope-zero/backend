@@ -3848,6 +3848,296 @@ const docTemplate = `{
                 }
             }
         },
+        "/v3/budgets": {
+            "get": {
+                "description": "Returns a list of budgets",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "List budgets",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by currency",
+                        "name": "currency",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetListResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetListResponseV3"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new budget",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Create budget",
+                "parameters": [
+                    {
+                        "description": "Budget",
+                        "name": "budget",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BudgetCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetCreateResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetCreateResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetCreateResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/budgets/{id}": {
+            "get": {
+                "description": "Returns a specific budget",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Get budget",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a budget",
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Delete budget",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing budget. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Update budget",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Budget",
+                        "name": "budget",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BudgetCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                        }
+                    }
+                }
+            }
+        },
         "/v3/import": {
             "get": {
                 "description": "Returns general information about the v3 API",
@@ -5044,6 +5334,23 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.BudgetCreateResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created Budgets",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.BudgetResponseV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
         "controllers.BudgetListResponse": {
             "type": "object",
             "properties": {
@@ -5053,6 +5360,31 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/controllers.Budget"
                     }
+                }
+            }
+        },
+        "controllers.BudgetListResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of budgets",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.BudgetV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.Pagination"
+                        }
+                    ]
                 }
             }
         },
@@ -5089,7 +5421,7 @@ const docTemplate = `{
                     "description": "Data for the budget",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/controllers.Budget"
+                            "$ref": "#/definitions/controllers.BudgetV3"
                         }
                     ]
                 },
@@ -5097,6 +5429,81 @@ const docTemplate = `{
                     "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.BudgetV3": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "currency": {
+                    "description": "The currency for the budget",
+                    "type": "string",
+                    "example": "€"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "accounts": {
+                            "description": "Accounts for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "categories": {
+                            "description": "Categories for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "envelopes": {
+                            "description": "Envelopes for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "month": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                        },
+                        "self": {
+                            "description": "The budget itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "transactions": {
+                            "description": "Transactions for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the budget",
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "description": "A longer description of the budget",
+                    "type": "string",
+                    "example": "My personal expenses"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -5810,7 +6217,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "description": "List of created transactions",
+                    "description": "List of created Transactions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controllers.TransactionResponseV3"
@@ -5877,7 +6284,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "description": "The transaction data, if creation was successful",
+                    "description": "The Transaction data, if creation was successful",
                     "allOf": [
                         {
                             "$ref": "#/definitions/controllers.TransactionV3"
@@ -6897,6 +7304,11 @@ const docTemplate = `{
         "router.V3Links": {
             "type": "object",
             "properties": {
+                "budgets": {
+                    "description": "URL of Budget collection endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/budgets"
+                },
                 "import": {
                     "description": "URL of import list endpoint",
                     "type": "string",

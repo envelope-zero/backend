@@ -24,12 +24,12 @@ type TransactionListResponseV3 struct {
 
 type TransactionCreateResponseV3 struct {
 	Error *string                 `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Data  []TransactionResponseV3 `json:"data"`                                                          // List of created transactions
+	Data  []TransactionResponseV3 `json:"data"`                                                          // List of created Transactions
 }
 
 type TransactionResponseV3 struct {
 	Error *string        `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this transaction
-	Data  *TransactionV3 `json:"data"`                                                          // The transaction data, if creation was successful
+	Data  *TransactionV3 `json:"data"`                                                          // The Transaction data, if creation was successful
 }
 
 // TransactionV3 is the representation of a Transaction in API v3.
@@ -295,7 +295,7 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 	// Default to 50 transactions and set the limit
 	limit := 50
 	if slices.Contains(setFields, "Limit") {
-		limit = int(filter.Limit)
+		limit = filter.Limit
 	}
 	q = q.Limit(limit)
 
@@ -357,7 +357,7 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 //	@Param			transactions	body		[]models.TransactionCreate	true	"Transactions"
 //	@Router			/v3/transactions [post]
 func (co Controller) CreateTransactionsV3(c *gin.Context) {
-	var transactions []models.Transaction
+	var transactions []models.TransactionCreate
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &transactions)
@@ -373,8 +373,8 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 	status := http.StatusCreated
 	r := TransactionCreateResponseV3{}
 
-	for _, t := range transactions {
-		t, err := co.createTransaction(c, t)
+	for _, create := range transactions {
+		t, err := co.createTransaction(c, create)
 
 		// Append the error
 		if !err.Nil() {

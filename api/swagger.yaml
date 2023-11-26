@@ -249,6 +249,18 @@ definitions:
         description: Mode to allocate budget with
         example: ALLOCATE_LAST_MONTH_SPEND
     type: object
+  controllers.BudgetCreateResponseV3:
+    properties:
+      data:
+        description: List of created Budgets
+        items:
+          $ref: '#/definitions/controllers.BudgetResponseV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
   controllers.BudgetListResponse:
     properties:
       data:
@@ -256,6 +268,22 @@ definitions:
         items:
           $ref: '#/definitions/controllers.Budget'
         type: array
+    type: object
+  controllers.BudgetListResponseV3:
+    properties:
+      data:
+        description: List of budgets
+        items:
+          $ref: '#/definitions/controllers.BudgetV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/controllers.Pagination'
+        description: Pagination information
     type: object
   controllers.BudgetMonthResponse:
     properties:
@@ -275,11 +303,70 @@ definitions:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/controllers.Budget'
+        - $ref: '#/definitions/controllers.BudgetV3'
         description: Data for the budget
       error:
         description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.BudgetV3:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          accounts:
+            description: Accounts for this budget
+            example: https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          categories:
+            description: Categories for this budget
+            example: https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          envelopes:
+            description: Envelopes for this budget
+            example: https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          month:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+            type: string
+          self:
+            description: The budget itself
+            example: https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          transactions:
+            description: Transactions for this budget
+            example: https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+        type: object
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   controllers.Category:
@@ -796,7 +883,7 @@ definitions:
   controllers.TransactionCreateResponseV3:
     properties:
       data:
-        description: List of created transactions
+        description: List of created Transactions
         items:
           $ref: '#/definitions/controllers.TransactionResponseV3'
         type: array
@@ -841,7 +928,7 @@ definitions:
       data:
         allOf:
         - $ref: '#/definitions/controllers.TransactionV3'
-        description: The transaction data, if creation was successful
+        description: The Transaction data, if creation was successful
       error:
         description: The error, if any occurred for this transaction
         example: the specified resource ID is not a valid UUID
@@ -1644,6 +1731,10 @@ definitions:
     type: object
   router.V3Links:
     properties:
+      budgets:
+        description: URL of Budget collection endpoint
+        example: https://example.com/api/v3/budgets
+        type: string
       import:
         description: URL of import list endpoint
         example: https://example.com/api/v3/import
@@ -4296,6 +4387,201 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - v3
+  /v3/budgets:
+    get:
+      description: Returns a list of budgets
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by currency
+        in: query
+        name: currency
+        type: string
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.BudgetListResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.BudgetListResponseV3'
+      summary: List budgets
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    post:
+      consumes:
+      - application/json
+      description: Creates a new budget
+      parameters:
+      - description: Budget
+        in: body
+        name: budget
+        required: true
+        schema:
+          $ref: '#/definitions/models.BudgetCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.BudgetCreateResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BudgetCreateResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.BudgetCreateResponseV3'
+      summary: Create budget
+      tags:
+      - Budgets
+  /v3/budgets/{id}:
+    delete:
+      description: Deletes a budget
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete budget
+      tags:
+      - Budgets
+    get:
+      description: Returns a specific budget
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+      summary: Get budget
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing budget. Only values to be updated need to be
+        specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Budget
+        in: body
+        name: budget
+        required: true
+        schema:
+          $ref: '#/definitions/models.BudgetCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.BudgetResponseV3'
+      summary: Update budget
+      tags:
+      - Budgets
   /v3/import:
     get:
       description: Returns general information about the v3 API

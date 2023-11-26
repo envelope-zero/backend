@@ -152,11 +152,7 @@ func (co Controller) CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction := models.Transaction{
-		TransactionCreate: transactionCreate,
-	}
-
-	transaction, err := co.createTransaction(c, transaction)
+	transaction, err := co.createTransaction(c, transactionCreate)
 	if !err.Nil() {
 		c.JSON(err.Status, gin.H{"error": err.Error()})
 		return

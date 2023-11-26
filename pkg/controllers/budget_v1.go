@@ -14,6 +14,13 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type BudgetQueryFilter struct {
+	Name     string `form:"name" filterField:"false"`   // By name
+	Note     string `form:"note" filterField:"false"`   // By note
+	Currency string `form:"currency"`                   // By currency
+	Search   string `form:"search" filterField:"false"` // By string in name or note
+}
+
 // Budget is the API v1 representation of a Budget.
 type Budget struct {
 	models.Budget
@@ -74,32 +81,8 @@ type BudgetResponse struct {
 	Data Budget `json:"data"` // Data for the budget
 }
 
-type BudgetResponseV3 struct {
-	Data  *Budget `json:"data"`                                                          // Data for the budget
-	Error *string `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-}
-
 type BudgetMonthResponse struct {
 	Data models.BudgetMonth `json:"data"` // Data for the budget's month
-}
-
-type BudgetQueryFilter struct {
-	Name     string `form:"name" filterField:"false"`   // By name
-	Note     string `form:"note" filterField:"false"`   // By note
-	Currency string `form:"currency"`                   // By currency
-	Search   string `form:"search" filterField:"false"` // By string in name or note
-}
-
-// swagger:enum AllocationMode
-type AllocationMode string
-
-const (
-	AllocateLastMonthBudget AllocationMode = "ALLOCATE_LAST_MONTH_BUDGET"
-	AllocateLastMonthSpend  AllocationMode = "ALLOCATE_LAST_MONTH_SPEND"
-)
-
-type BudgetAllocationMode struct {
-	Mode AllocationMode `json:"mode" example:"ALLOCATE_LAST_MONTH_SPEND"` // Mode to allocate budget with
 }
 
 // RegisterBudgetRoutes registers the routes for budgets with
