@@ -4375,6 +4375,27 @@ paths:
       tags:
       - Transactions
   /v3:
+    delete:
+      description: Permanently deletes all resources
+      parameters:
+      - description: Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'
+        in: query
+        name: confirm
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete everything
+      tags:
+      - v3
     get:
       description: Returns general information about the v3 API
       responses:

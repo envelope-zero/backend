@@ -35,6 +35,7 @@ var (
 	ErrNoFilePost                    = errors.New("you must send a file to this endpoint")
 	ErrFileEmpty                     = errors.New("the file you uploaded is empty or invalid")
 	ErrAccountIDParameter            = errors.New("the accountId parameter must be set")
+	ErrCleanupConfirmation           = errors.New("the confirmation for the cleanup API call was incorrect")
 )
 
 // Generate a struct containing the HTTP error on the fly.
