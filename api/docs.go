@@ -747,6 +747,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "List budgets",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -800,6 +801,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Create budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Budget",
@@ -838,6 +840,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -855,6 +858,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Get budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -897,6 +901,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Delete budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -936,6 +941,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -981,6 +987,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Update budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",

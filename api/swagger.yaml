@@ -2260,6 +2260,7 @@ paths:
       - Allocations
   /v1/budgets:
     get:
+      deprecated: true
       description: Returns a list of budgets
       parameters:
       - description: Filter by name
@@ -2293,6 +2294,7 @@ paths:
       tags:
       - Budgets
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -2304,6 +2306,7 @@ paths:
     post:
       consumes:
       - application/json
+      deprecated: true
       description: Creates a new budget
       parameters:
       - description: Budget
@@ -2332,6 +2335,7 @@ paths:
       - Budgets
   /v1/budgets/{id}:
     delete:
+      deprecated: true
       description: Deletes a budget
       parameters:
       - description: ID formatted as string
@@ -2358,6 +2362,7 @@ paths:
       tags:
       - Budgets
     get:
+      deprecated: true
       description: Returns a specific budget
       parameters:
       - description: ID formatted as string
@@ -2388,6 +2393,7 @@ paths:
       tags:
       - Budgets
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -2417,6 +2423,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update an existing budget. Only values to be updated need to be
         specified.
       parameters:
