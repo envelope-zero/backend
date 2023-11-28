@@ -116,6 +116,7 @@ func (co Controller) RegisterBudgetRoutes(r *gin.RouterGroup) {
 //	@Tags			Budgets
 //	@Success		204
 //	@Router			/v1/budgets [options]
+//	@Deprecated		true
 func (co Controller) OptionsBudgetList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -131,6 +132,7 @@ func (co Controller) OptionsBudgetList(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/budgets/{id} [options]
+//	@Deprecated		true
 func (co Controller) OptionsBudgetDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -223,6 +225,7 @@ func (co Controller) OptionsBudgetMonthAllocations(c *gin.Context) {
 //	@Failure		500		{object}	httperrors.HTTPError
 //	@Param			budget	body		models.BudgetCreate	true	"Budget"
 //	@Router			/v1/budgets [post]
+//	@Deprecated		true
 func (co Controller) CreateBudget(c *gin.Context) {
 	var bCreate models.BudgetCreate
 
@@ -259,6 +262,7 @@ func (co Controller) CreateBudget(c *gin.Context) {
 //	@Param			note		query	string	false	"Filter by note"
 //	@Param			currency	query	string	false	"Filter by currency"
 //	@Param			search		query	string	false	"Search for this text in name and note"
+//	@Deprecated		true
 func (co Controller) GetBudgets(c *gin.Context) {
 	var filter BudgetQueryFilter
 
@@ -308,6 +312,7 @@ func (co Controller) GetBudgets(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/budgets/{id} [get]
+//	@Deprecated		true
 func (co Controller) GetBudget(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -469,6 +474,7 @@ func (co Controller) GetBudgetMonth(c *gin.Context) {
 //	@Param			id		path		string				true	"ID formatted as string"
 //	@Param			budget	body		models.BudgetCreate	true	"Budget"
 //	@Router			/v1/budgets/{id} [patch]
+//	@Deprecated		true
 func (co Controller) UpdateBudget(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -514,6 +520,7 @@ func (co Controller) UpdateBudget(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/budgets/{id} [delete]
+//	@Deprecated		true
 func (co Controller) DeleteBudget(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
