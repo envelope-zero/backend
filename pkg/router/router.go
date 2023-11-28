@@ -155,6 +155,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	v3 := group.Group("/v3")
 	{
 		v3.GET("", GetV3)
+		v3.DELETE("", co.CleanupV3)
 		v3.OPTIONS("", OptionsV3)
 	}
 
@@ -368,5 +369,5 @@ func GetV3(c *gin.Context) {
 //	@Success		204
 //	@Router			/v3 [options]
 func OptionsV3(c *gin.Context) {
-	httputil.OptionsGet(c)
+	httputil.OptionsGetDelete(c)
 }

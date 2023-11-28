@@ -3831,6 +3831,38 @@
                     }
                 }
             },
+            "delete": {
+                "description": "Permanently deletes all resources",
+                "tags": [
+                    "v3"
+                ],
+                "summary": "Delete everything",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'",
+                        "name": "confirm",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
             "options": {
                 "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
                 "tags": [

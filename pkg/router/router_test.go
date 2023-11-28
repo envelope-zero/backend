@@ -243,7 +243,7 @@ func TestOptions(t *testing.T) {
 		{"/version", router.OptionsVersion, "OPTIONS, GET"},
 		{"/v1", router.OptionsV1, "OPTIONS, GET, DELETE"},
 		{"/v2", router.OptionsV2, "OPTIONS, GET"},
-		{"/v3", router.OptionsV3, "OPTIONS, GET"},
+		{"/v3", router.OptionsV3, "OPTIONS, GET, DELETE"},
 	}
 
 	for _, tt := range tests {
