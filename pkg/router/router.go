@@ -311,6 +311,7 @@ type V2Links struct {
 //	@Tags			v2
 //	@Success		200	{object}	V2Response
 //	@Router			/v2 [get]
+//	@Deprecated		true
 func GetV2(c *gin.Context) {
 	c.JSON(http.StatusOK, V2Response{
 		Links: V2Links{
@@ -329,6 +330,7 @@ func GetV2(c *gin.Context) {
 //	@Tags			v2
 //	@Success		204
 //	@Router			/v2 [options]
+//	@Deprecated		true
 func OptionsV2(c *gin.Context) {
 	httputil.OptionsGet(c)
 }

@@ -3023,6 +3023,7 @@ const docTemplate = `{
                     "v2"
                 ],
                 "summary": "v2 API",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3038,6 +3039,7 @@ const docTemplate = `{
                     "v2"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"

@@ -3973,6 +3973,7 @@ paths:
       - Transactions
   /v2:
     get:
+      deprecated: true
       description: Returns general information about the v2 API
       responses:
         "200":
@@ -3983,6 +3984,7 @@ paths:
       tags:
       - v2
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
