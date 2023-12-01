@@ -6263,7 +6263,7 @@
                     "description": "List of transaction previews",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/importer.TransactionPreview"
+                        "$ref": "#/definitions/importer.TransactionPreviewV3"
                     }
                 },
                 "error": {
@@ -7065,6 +7065,36 @@
                 },
                 "renameRuleId": {
                     "description": "ID of the match rule that was applied to this transaction preview. This is kept for backwards compatibility and will be removed with API version 3",
+                    "type": "string",
+                    "example": "042d101d-f1de-4403-9295-59dc0ea58677"
+                },
+                "sourceAccountName": {
+                    "description": "Name of the source account from the CSV file",
+                    "type": "string",
+                    "example": "Employer"
+                },
+                "transaction": {
+                    "$ref": "#/definitions/models.TransactionCreate"
+                }
+            }
+        },
+        "importer.TransactionPreviewV3": {
+            "type": "object",
+            "properties": {
+                "destinationAccountName": {
+                    "description": "Name of the destination account from the CSV file",
+                    "type": "string",
+                    "example": "Deutsche Bahn"
+                },
+                "duplicateTransactionIds": {
+                    "description": "IDs of transactions that this transaction duplicates",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "matchRuleId": {
+                    "description": "ID of the match rule that was applied to this transaction preview",
                     "type": "string",
                     "example": "042d101d-f1de-4403-9295-59dc0ea58677"
                 },

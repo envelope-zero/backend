@@ -28,6 +28,9 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 	headerRow, err := reader.Read()
 	if err == io.EOF {
 		return []importer.TransactionPreview{}, nil
+	} else if err != nil {
+		// csv reading always returns usable error messages
+		return []importer.TransactionPreview{}, err
 	}
 
 	// Build map for header keys
@@ -42,7 +45,8 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 			break
 		}
 		if err != nil {
-			return csvReadError(reader, fmt.Errorf("could not read line in CSV: %w", err))
+			// csv reading always returns usable error messages
+			return []importer.TransactionPreview{}, err
 		}
 
 		date, err := time.Parse("01/02/2006", record[headers["Date"]])

@@ -654,7 +654,7 @@ definitions:
       data:
         description: List of transaction previews
         items:
-          $ref: '#/definitions/importer.TransactionPreview'
+          $ref: '#/definitions/importer.TransactionPreviewV3'
         type: array
       error:
         description: The error, if any occurred for this Match Rule
@@ -1255,6 +1255,28 @@ definitions:
         description: ID of the match rule that was applied to this transaction preview.
           This is kept for backwards compatibility and will be removed with API version
           3
+        example: 042d101d-f1de-4403-9295-59dc0ea58677
+        type: string
+      sourceAccountName:
+        description: Name of the source account from the CSV file
+        example: Employer
+        type: string
+      transaction:
+        $ref: '#/definitions/models.TransactionCreate'
+    type: object
+  importer.TransactionPreviewV3:
+    properties:
+      destinationAccountName:
+        description: Name of the destination account from the CSV file
+        example: Deutsche Bahn
+        type: string
+      duplicateTransactionIds:
+        description: IDs of transactions that this transaction duplicates
+        items:
+          type: string
+        type: array
+      matchRuleId:
+        description: ID of the match rule that was applied to this transaction preview
         example: 042d101d-f1de-4403-9295-59dc0ea58677
         type: string
       sourceAccountName:
