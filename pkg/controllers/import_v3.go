@@ -17,8 +17,8 @@ import (
 )
 
 type ImportPreviewListV3 struct {
-	Data  []importer.TransactionPreview `json:"data"`                                                          // List of transaction previews
-	Error *string                       `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this Match Rule
+	Data  []importer.TransactionPreviewV3 `json:"data"`                                                          // List of transaction previews
+	Error *string                         `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this Match Rule
 }
 
 // RegisterImportRoutes registers the routes for imports.
@@ -211,7 +211,13 @@ func (co Controller) ImportYnabImportPreviewV3(c *gin.Context) {
 		transactions[i] = transaction
 	}
 
-	c.JSON(http.StatusOK, ImportPreviewListV3{Data: transactions})
+	// We need to transform the responses for v3
+	v3Transactions := make([]importer.TransactionPreviewV3, 0, len(transactions))
+	for _, t := range transactions {
+		v3Transactions = append(v3Transactions, t.TransformV3())
+	}
+
+	c.JSON(http.StatusOK, ImportPreviewListV3{Data: v3Transactions})
 }
 
 // ImportYnab4 imports a YNAB 4 budget

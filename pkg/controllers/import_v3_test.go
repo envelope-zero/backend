@@ -310,11 +310,9 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3Match() {
 					assert.Equal(t, tt.destinationAccountIDs[i], transaction.Transaction.DestinationAccountID, "destinationAccountID does not match in line %d", line)
 				}
 
-				assert.Equal(t, matchRuleIDs[i], transaction.MatchRuleID, "Expected match rule has match '%s', actual match rule has match '%s'", matchRuleIDs[i], transaction.MatchRuleID)
-
-				// This is kept for backwards compatibility and will be removed with API version 3
-				// https://github.com/envelope-zero/backend/issues/763
-				assert.Equal(t, matchRuleIDs[i], transaction.RenameRuleID, "Expected rename rule has match '%s', actual rename rule has match '%s'", matchRuleIDs[i], transaction.MatchRuleID)
+				if matchRuleIDs[i] != uuid.Nil {
+					assert.Equal(t, matchRuleIDs[i], *transaction.MatchRuleID, "Expected match rule has match '%s', actual match rule has match '%s'", matchRuleIDs[i], transaction.MatchRuleID)
+				}
 
 				assert.Equal(t, tt.envelopeIDs[i], transaction.Transaction.EnvelopeID, "proposed envelope ID does not match in line %d", line)
 			}

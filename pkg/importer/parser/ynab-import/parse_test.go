@@ -66,6 +66,7 @@ func TestErrors(t *testing.T) {
 		{"error-decimal-outflow.csv", "error in line 2 of the CSV: outflow could not be parsed to a decimal"},
 		{"error-missing-amount.csv", "error in line 3 of the CSV: no amount is set for the transaction"},
 		{"error-outflow-and-inflow.csv", "error in line 2 of the CSV: both outflow and inflow are set for the transaction"},
+		{"unparsed-file.csv", "parse error on line 2, column 28: extraneous or missing \" in quoted-field"},
 	}
 
 	for _, tt := range tests {
