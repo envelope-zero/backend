@@ -244,25 +244,23 @@ func (co Controller) CreateAccountsV3(c *gin.Context) {
 	c.JSON(status, r)
 }
 
-// GetAccounts returns a list of all accounts matching the filter parameters
-//
-//	@Summary		List accounts
-//	@Description	Returns a list of accounts
-//	@Tags			Accounts
-//	@Produce		json
-//	@Success		200	{object}	AccountListResponseV3
-//	@Failure		400	{object}	AccountListResponseV3
-//	@Failure		500	{object}	AccountListResponseV3
-//	@Router			/v3/accounts [get]
-//	@Param			name		query	string	false	"Filter by name"
-//	@Param			note		query	string	false	"Filter by note"
-//	@Param			budget		query	string	false	"Filter by budget ID"
-//	@Param			onBudget	query	bool	false	"Is the account on-budget?"
-//	@Param			external	query	bool	false	"Is the account external?"
-//	@Param			hidden		query	bool	false	"Is the account hidden?"
-//	@Param			search		query	string	false	"Search for this text in name and note"
-//	@Param			offset		query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
-//	@Param			limit		query	int		false	"Maximum number of transactions to return. Defaults to 50."
+// @Summary		List accounts
+// @Description	Returns a list of accounts
+// @Tags			Accounts
+// @Produce		json
+// @Success		200	{object}	AccountListResponseV3
+// @Failure		400	{object}	AccountListResponseV3
+// @Failure		500	{object}	AccountListResponseV3
+// @Router			/v3/accounts [get]
+// @Param			name		query	string	false	"Filter by name"
+// @Param			note		query	string	false	"Filter by note"
+// @Param			budget		query	string	false	"Filter by budget ID"
+// @Param			onBudget	query	bool	false	"Is the account on-budget?"
+// @Param			external	query	bool	false	"Is the account external?"
+// @Param			hidden		query	bool	false	"Is the account hidden?"
+// @Param			search		query	string	false	"Search for this text in name and note"
+// @Param			offset		query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
+// @Param			limit		query	int		false	"Maximum number of transactions to return. Defaults to 50."
 func (co Controller) GetAccountsV3(c *gin.Context) {
 	var filter AccountQueryFilterV3
 	if err := c.Bind(&filter); err != nil {
@@ -348,18 +346,16 @@ func (co Controller) GetAccountsV3(c *gin.Context) {
 	})
 }
 
-// GetAccount returns data for a specific account
-//
-//	@Summary		Get account
-//	@Description	Returns a specific account
-//	@Tags			Accounts
-//	@Produce		json
-//	@Success		200	{object}	AccountResponseV3
-//	@Failure		400	{object}	AccountResponseV3
-//	@Failure		404	{object}	AccountResponseV3
-//	@Failure		500	{object}	AccountResponseV3
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/accounts/{id} [get]
+// @Summary		Get account
+// @Description	Returns a specific account
+// @Tags			Accounts
+// @Produce		json
+// @Success		200	{object}	AccountResponseV3
+// @Failure		400	{object}	AccountResponseV3
+// @Failure		404	{object}	AccountResponseV3
+// @Failure		500	{object}	AccountResponseV3
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/accounts/{id} [get]
 func (co Controller) GetAccountV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -382,19 +378,17 @@ func (co Controller) GetAccountV3(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountResponseV3{Data: &accountObject})
 }
 
-// UpdateAccount updates data for a specific account
-//
-//	@Summary		Update account
-//	@Description	Updates an account. Only values to be updated need to be specified.
-//	@Tags			Accounts
-//	@Produce		json
-//	@Success		200		{object}	AccountResponseV3
-//	@Failure		400		{object}	AccountResponseV3
-//	@Failure		404		{object}	AccountResponseV3
-//	@Failure		500		{object}	AccountResponseV3
-//	@Param			id		path		string					true	"ID formatted as string"
-//	@Param			account	body		models.AccountCreate	true	"Account"
-//	@Router			/v3/accounts/{id} [patch]
+// @Summary		Update account
+// @Description	Updates an account. Only values to be updated need to be specified.
+// @Tags			Accounts
+// @Produce		json
+// @Success		200		{object}	AccountResponseV3
+// @Failure		400		{object}	AccountResponseV3
+// @Failure		404		{object}	AccountResponseV3
+// @Failure		500		{object}	AccountResponseV3
+// @Param			id		path		string					true	"ID formatted as string"
+// @Param			account	body		models.AccountCreate	true	"Account"
+// @Router			/v3/accounts/{id} [patch]
 func (co Controller) UpdateAccountV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -454,18 +448,16 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountResponseV3{Data: &accountObject})
 }
 
-// DeleteAccount deletes an account
-//
-//	@Summary		Delete account
-//	@Description	Deletes an account
-//	@Tags			Accounts
-//	@Produce		json
-//	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/accounts/{id} [delete]
+// @Summary		Delete account
+// @Description	Deletes an account
+// @Tags			Accounts
+// @Produce		json
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/accounts/{id} [delete]
 func (co Controller) DeleteAccountV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

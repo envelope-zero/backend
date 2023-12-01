@@ -8,16 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CleanupV3 permanently deletes all resources in the database
-//
-//	@Summary		Delete everything
-//	@Description	Permanently deletes all resources
-//	@Tags			v3
-//	@Success		204
-//	@Failure		400		{object}	httperrors.HTTPError
-//	@Failure		500		{object}	httperrors.HTTPError
-//	@Param			confirm	query		string	false	"Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'"
-//	@Router			/v3 [delete]
+// @Summary		Delete everything
+// @Description	Permanently deletes all resources
+// @Tags			v3
+// @Success		204
+// @Failure		400		{object}	httperrors.HTTPError
+// @Failure		500		{object}	httperrors.HTTPError
+// @Param			confirm	query		string	false	"Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'"
+// @Router			/v3 [delete]
 func (co Controller) CleanupV3(c *gin.Context) {
 	var params struct {
 		Confirm string `form:"confirm"`

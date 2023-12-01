@@ -98,28 +98,24 @@ func (co Controller) RegisterMatchRuleRoutesV3(r *gin.RouterGroup) {
 	}
 }
 
-// OptionsMatchRuleListV3 returns the allowed HTTP verbs
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			MatchRules
-//	@Success		204
-//	@Router			/v3/match-rules [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			MatchRules
+// @Success		204
+// @Router			/v3/match-rules [options]
 func (co Controller) OptionsMatchRuleListV3(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
-// OptionsMatchRuleDetaiV3 returns the allowed HTTP verbs
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			MatchRules
-//	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/match-rules/{id} [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			MatchRules
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/match-rules/{id} [options]
 func (co Controller) OptionsMatchRuleDetailV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -135,18 +131,16 @@ func (co Controller) OptionsMatchRuleDetailV3(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// CreateMatchRulesV3 creates matchRules
-//
-//	@Summary		Create matchRules
-//	@Description	Creates matchRules from the list of submitted matchRule data. The response code is the highest response code number that a single matchRule creation would have caused. If it is not equal to 201, at least one matchRule has an error.
-//	@Tags			MatchRules
-//	@Produce		json
-//	@Success		201			{object}	MatchRuleCreateResponseV3
-//	@Failure		400			{object}	MatchRuleCreateResponseV3
-//	@Failure		404			{object}	MatchRuleCreateResponseV3
-//	@Failure		500			{object}	MatchRuleCreateResponseV3
-//	@Param			matchRules	body		[]models.MatchRuleCreate	true	"MatchRules"
-//	@Router			/v3/match-rules [post]
+// @Summary		Create matchRules
+// @Description	Creates matchRules from the list of submitted matchRule data. The response code is the highest response code number that a single matchRule creation would have caused. If it is not equal to 201, at least one matchRule has an error.
+// @Tags			MatchRules
+// @Produce		json
+// @Success		201			{object}	MatchRuleCreateResponseV3
+// @Failure		400			{object}	MatchRuleCreateResponseV3
+// @Failure		404			{object}	MatchRuleCreateResponseV3
+// @Failure		500			{object}	MatchRuleCreateResponseV3
+// @Param			matchRules	body		[]models.MatchRuleCreate	true	"MatchRules"
+// @Router			/v3/match-rules [post]
 func (co Controller) CreateMatchRulesV3(c *gin.Context) {
 	var matchRules []models.MatchRuleCreate
 
@@ -192,21 +186,19 @@ func (co Controller) CreateMatchRulesV3(c *gin.Context) {
 	c.JSON(status, r)
 }
 
-// GetMatchRules returns a list of matchRules matching the search parameters
-//
-//	@Summary		Get matchRules
-//	@Description	Returns a list of matchRules
-//	@Tags			MatchRules
-//	@Produce		json
-//	@Success		200			{object}	MatchRuleListResponseV3
-//	@Failure		400			{object}	MatchRuleListResponseV3
-//	@Failure		500			{object}	MatchRuleListResponseV3
-//	@Param			priority	query		uint	false	"Filter by priority"
-//	@Param			match		query		string	false	"Filter by match"
-//	@Param			account		query		string	false	"Filter by account ID"
-//	@Param			offset		query		uint	false	"The offset of the first Match Rule returned. Defaults to 0."
-//	@Param			limit		query		int		false	"Maximum number of Match Rules to return. Defaults to 50.".
-//	@Router			/v3/match-rules [get]
+// @Summary		Get matchRules
+// @Description	Returns a list of matchRules
+// @Tags			MatchRules
+// @Produce		json
+// @Success		200			{object}	MatchRuleListResponseV3
+// @Failure		400			{object}	MatchRuleListResponseV3
+// @Failure		500			{object}	MatchRuleListResponseV3
+// @Param			priority	query		uint	false	"Filter by priority"
+// @Param			match		query		string	false	"Filter by match"
+// @Param			account		query		string	false	"Filter by account ID"
+// @Param			offset		query		uint	false	"The offset of the first Match Rule returned. Defaults to 0."
+// @Param			limit		query		int		false	"Maximum number of Match Rules to return. Defaults to 50.".
+// @Router			/v3/match-rules [get]
 func (co Controller) GetMatchRulesV3(c *gin.Context) {
 	var filter MatchRuleQueryFilterV3
 	if err := c.Bind(&filter); err != nil {
@@ -294,18 +286,16 @@ func (co Controller) GetMatchRulesV3(c *gin.Context) {
 	})
 }
 
-// GetMatchRule returns data about a specific matchRule
-//
-//	@Summary		Get matchRule
-//	@Description	Returns a specific matchRule
-//	@Tags			MatchRules
-//	@Produce		json
-//	@Success		200	{object}	MatchRuleResponseV3
-//	@Failure		400	{object}	MatchRuleResponseV3
-//	@Failure		404	{object}	MatchRuleResponseV3
-//	@Failure		500	{object}	MatchRuleResponseV3
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/match-rules/{id} [get]
+// @Summary		Get matchRule
+// @Description	Returns a specific matchRule
+// @Tags			MatchRules
+// @Produce		json
+// @Success		200	{object}	MatchRuleResponseV3
+// @Failure		400	{object}	MatchRuleResponseV3
+// @Failure		404	{object}	MatchRuleResponseV3
+// @Failure		500	{object}	MatchRuleResponseV3
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/match-rules/{id} [get]
 func (co Controller) GetMatchRuleV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -330,20 +320,18 @@ func (co Controller) GetMatchRuleV3(c *gin.Context) {
 	})
 }
 
-// UpdateMatchRule updates matchRule data
-//
-//	@Summary		Update matchRule
-//	@Description	Update a matchRule. Only values to be updated need to be specified.
-//	@Tags			MatchRules
-//	@Accept			json
-//	@Produce		json
-//	@Success		200			{object}	MatchRuleResponseV3
-//	@Failure		400			{object}	MatchRuleResponseV3
-//	@Failure		404			{object}	MatchRuleResponseV3
-//	@Failure		500			{object}	MatchRuleResponseV3
-//	@Param			id			path		string					true	"ID formatted as string"
-//	@Param			matchRule	body		models.MatchRuleCreate	true	"MatchRule"
-//	@Router			/v3/match-rules/{id} [patch]
+// @Summary		Update matchRule
+// @Description	Update a matchRule. Only values to be updated need to be specified.
+// @Tags			MatchRules
+// @Accept			json
+// @Produce		json
+// @Success		200			{object}	MatchRuleResponseV3
+// @Failure		400			{object}	MatchRuleResponseV3
+// @Failure		404			{object}	MatchRuleResponseV3
+// @Failure		500			{object}	MatchRuleResponseV3
+// @Param			id			path		string					true	"ID formatted as string"
+// @Param			matchRule	body		models.MatchRuleCreate	true	"MatchRule"
+// @Router			/v3/match-rules/{id} [patch]
 func (co Controller) UpdateMatchRuleV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -417,17 +405,15 @@ func (co Controller) UpdateMatchRuleV3(c *gin.Context) {
 	})
 }
 
-// DeleteMatchRule deletes an matchRule
-//
-//	@Summary		Delete matchRule
-//	@Description	Deletes an matchRule
-//	@Tags			MatchRules
-//	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/match-rules/{id} [delete]
+// @Summary		Delete matchRule
+// @Description	Deletes an matchRule
+// @Tags			MatchRules
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/match-rules/{id} [delete]
 func (co Controller) DeleteMatchRuleV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

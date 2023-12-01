@@ -36,13 +36,11 @@ func (co Controller) RegisterImportRoutesV3(r *gin.RouterGroup) {
 	}
 }
 
-// OptionsImport returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs.
-//	@Tags			Import
-//	@Success		204
-//	@Router			/v3/import [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs.
+// @Tags			Import
+// @Success		204
+// @Router			/v3/import [options]
 func (co Controller) OptionsImportV3(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
@@ -56,13 +54,11 @@ type ImportV3Links struct {
 	YnabImportPreview string `json:"matchRules" example:"https://example.com/api/v3/import/ynab-import-preview"` // URL of YNAB Import preview endpoint
 }
 
-// GetImportV3 returns the link list for v3 Import API
-//
-//	@Summary		Import API overview
-//	@Description	Returns general information about the v3 API
-//	@Tags			Import
-//	@Success		200	{object}	ImportV3Response
-//	@Router			/v3/import [get]
+// @Summary		Import API overview
+// @Description	Returns general information about the v3 API
+// @Tags			Import
+// @Success		200	{object}	ImportV3Response
+// @Router			/v3/import [get]
 func (Controller) GetImportV3(c *gin.Context) {
 	c.JSON(http.StatusOK, ImportV3Response{
 		Links: ImportV3Links{
@@ -72,43 +68,36 @@ func (Controller) GetImportV3(c *gin.Context) {
 	})
 }
 
-// OptionsImportYnab4 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			Import
-//	@Success		204
-//	@Router			/v3/import/ynab4 [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			Import
+// @Success		204
+// @Router			/v3/import/ynab4 [options]
 func (co Controller) OptionsImportYnab4V3(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
 
-// OptionsImportYnab4 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			Import
-//	@Success		204
-//	@Router			/v3/import/ynab-import-preview [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			Import
+// @Success		204
+// @Router			/v3/import/ynab-import-preview [options]
 func (co Controller) OptionsImportYnabImportPreviewV3(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
 
-// ImportYnabImportPreview parses a YNAB import format CSV and returns a preview of transactions
-// to be imported into Envelope Zero.
-//
-//	@Summary		Transaction Import Preview
-//	@Description	Returns a preview of transactions to be imported after parsing a YNAB Import format csv file
-//	@Tags			Import
-//	@Accept			multipart/form-data
-//	@Produce		json
-//	@Success		200			{object}	ImportPreviewListV3
-//	@Failure		400			{object}	ImportPreviewListV3
-//	@Failure		404			{object}	ImportPreviewListV3
-//	@Failure		500			{object}	ImportPreviewListV3
-//	@Param			file		formData	file	true	"File to import"
-//	@Param			accountId	query		string	false	"ID of the account to import transactions for"
-//	@Router			/v3/import/ynab-import-preview [post]
+// @Summary		Transaction Import Preview
+// @Description	Returns a preview of transactions to be imported after parsing a YNAB Import format csv file
+// @Tags			Import
+// @Accept			multipart/form-data
+// @Produce		json
+// @Success		200			{object}	ImportPreviewListV3
+// @Failure		400			{object}	ImportPreviewListV3
+// @Failure		404			{object}	ImportPreviewListV3
+// @Failure		500			{object}	ImportPreviewListV3
+// @Param			file		formData	file	true	"File to import"
+// @Param			accountId	query		string	false	"ID of the account to import transactions for"
+// @Router			/v3/import/ynab-import-preview [post]
 func (co Controller) ImportYnabImportPreviewV3(c *gin.Context) {
 	var query ImportPreviewQuery
 	err := c.BindQuery(&query)
@@ -220,19 +209,17 @@ func (co Controller) ImportYnabImportPreviewV3(c *gin.Context) {
 	c.JSON(http.StatusOK, ImportPreviewListV3{Data: v3Transactions})
 }
 
-// ImportYnab4 imports a YNAB 4 budget
-//
-//	@Summary		Import YNAB 4 budget
-//	@Description	Imports budgets from YNAB 4
-//	@Tags			Import
-//	@Accept			multipart/form-data
-//	@Produce		json
-//	@Success		201			{object}	BudgetResponseV3
-//	@Failure		400			{object}	BudgetResponseV3
-//	@Failure		500			{object}	BudgetResponseV3
-//	@Param			file		formData	file	true	"File to import"
-//	@Param			budgetName	query		string	false	"Name of the Budget to create"
-//	@Router			/v3/import/ynab4 [post]
+// @Summary		Import YNAB 4 budget
+// @Description	Imports budgets from YNAB 4
+// @Tags			Import
+// @Accept			multipart/form-data
+// @Produce		json
+// @Success		201			{object}	BudgetResponseV3
+// @Failure		400			{object}	BudgetResponseV3
+// @Failure		500			{object}	BudgetResponseV3
+// @Param			file		formData	file	true	"File to import"
+// @Param			budgetName	query		string	false	"Name of the Budget to create"
+// @Router			/v3/import/ynab4 [post]
 func (co Controller) ImportYnab4V3(c *gin.Context) {
 	var query ImportQuery
 	if err := c.BindQuery(&query); err != nil {

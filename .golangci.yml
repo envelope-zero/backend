@@ -22,7 +22,6 @@ issues:
 linters:
   enable:
     - gocyclo
-    - godot
     - gofumpt
     - goimports
     - govet
@@ -35,7 +34,3 @@ linters-settings:
     extra-rules: true
   gocyclo:
     min-complexity: 20
-
-  godot:
-    exclude:
-      - "^\t+@[A-Za-z]+\t+"

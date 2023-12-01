@@ -99,28 +99,24 @@ func (co Controller) RegisterTransactionRoutesV3(r *gin.RouterGroup) {
 	}
 }
 
-// OptionsTransactionsV3 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			Transactions
-//	@Success		204
-//	@Router			/v3/transactions [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			Transactions
+// @Success		204
+// @Router			/v3/transactions [options]
 func (co Controller) OptionsTransactionsV3(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
-// OptionsTransactionDetailV3 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			Transactions
-//	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/transactions/{id} [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			Transactions
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/transactions/{id} [options]
 func (co Controller) OptionsTransactionDetailV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -142,18 +138,16 @@ func (co Controller) OptionsTransactionDetailV3(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// GetTransactionV3 returns a specific transaction
-//
-//	@Summary		Get transaction
-//	@Description	Returns a specific transaction
-//	@Tags			Transactions
-//	@Produce		json
-//	@Success		200	{object}	TransactionResponseV3
-//	@Failure		400	{object}	TransactionResponseV3
-//	@Failure		404	{object}	TransactionResponseV3
-//	@Failure		500	{object}	TransactionResponseV3
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/transactions/{id} [get]
+// @Summary		Get transaction
+// @Description	Returns a specific transaction
+// @Tags			Transactions
+// @Produce		json
+// @Success		200	{object}	TransactionResponseV3
+// @Failure		400	{object}	TransactionResponseV3
+// @Failure		404	{object}	TransactionResponseV3
+// @Failure		500	{object}	TransactionResponseV3
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/transactions/{id} [get]
 func (co Controller) GetTransactionV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -186,32 +180,30 @@ func (co Controller) GetTransactionV3(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponseV3{Data: &tObject})
 }
 
-// GetTransactions returns transactions filtered by the query parameters
-//
-//	@Summary		Get transactions
-//	@Description	Returns a list of transactions
-//	@Tags			Transactions
-//	@Produce		json
-//	@Success		200	{object}	TransactionListResponseV3
-//	@Failure		400	{object}	TransactionListResponseV3
-//	@Failure		500	{object}	TransactionListResponseV3
-//	@Router			/v3/transactions [get]
-//	@Param			date					query	string	false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
-//	@Param			fromDate				query	string	false	"Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
-//	@Param			untilDate				query	string	false	"Transactions before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
-//	@Param			amount					query	string	false	"Filter by amount"
-//	@Param			amountLessOrEqual		query	string	false	"Amount less than or equal to this"
-//	@Param			amountMoreOrEqual		query	string	false	"Amount more than or equal to this"
-//	@Param			note					query	string	false	"Filter by note"
-//	@Param			budget					query	string	false	"Filter by budget ID"
-//	@Param			account					query	string	false	"Filter by ID of associated account, regardeless of source or destination"
-//	@Param			source					query	string	false	"Filter by source account ID"
-//	@Param			destination				query	string	false	"Filter by destination account ID"
-//	@Param			envelope				query	string	false	"Filter by envelope ID"
-//	@Param			reconciledSource		query	bool	false	"Reconcilication state in source account"
-//	@Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
-//	@Param			offset					query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
-//	@Param			limit					query	int		false	"Maximum number of transactions to return. Defaults to 50."
+// @Summary		Get transactions
+// @Description	Returns a list of transactions
+// @Tags			Transactions
+// @Produce		json
+// @Success		200	{object}	TransactionListResponseV3
+// @Failure		400	{object}	TransactionListResponseV3
+// @Failure		500	{object}	TransactionListResponseV3
+// @Router			/v3/transactions [get]
+// @Param			date					query	string	false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			fromDate				query	string	false	"Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			untilDate				query	string	false	"Transactions before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			amount					query	string	false	"Filter by amount"
+// @Param			amountLessOrEqual		query	string	false	"Amount less than or equal to this"
+// @Param			amountMoreOrEqual		query	string	false	"Amount more than or equal to this"
+// @Param			note					query	string	false	"Filter by note"
+// @Param			budget					query	string	false	"Filter by budget ID"
+// @Param			account					query	string	false	"Filter by ID of associated account, regardeless of source or destination"
+// @Param			source					query	string	false	"Filter by source account ID"
+// @Param			destination				query	string	false	"Filter by destination account ID"
+// @Param			envelope				query	string	false	"Filter by envelope ID"
+// @Param			reconciledSource		query	bool	false	"Reconcilication state in source account"
+// @Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
+// @Param			offset					query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
+// @Param			limit					query	int		false	"Maximum number of transactions to return. Defaults to 50."
 func (co Controller) GetTransactionsV3(c *gin.Context) {
 	var filter TransactionQueryFilterV3
 	if err := c.Bind(&filter); err != nil {
@@ -344,18 +336,16 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 	})
 }
 
-// CreateTransactionsV3 creates transactions
-//
-//	@Summary		Create transactions
-//	@Description	Creates transactions from the list of submitted transaction data. The response code is the highest response code number that a single transaction creation would have caused. If it is not equal to 201, at least one transaction has an error.
-//	@Tags			Transactions
-//	@Produce		json
-//	@Success		201				{object}	TransactionCreateResponseV3
-//	@Failure		400				{object}	TransactionCreateResponseV3
-//	@Failure		404				{object}	TransactionCreateResponseV3
-//	@Failure		500				{object}	TransactionCreateResponseV3
-//	@Param			transactions	body		[]models.TransactionCreate	true	"Transactions"
-//	@Router			/v3/transactions [post]
+// @Summary		Create transactions
+// @Description	Creates transactions from the list of submitted transaction data. The response code is the highest response code number that a single transaction creation would have caused. If it is not equal to 201, at least one transaction has an error.
+// @Tags			Transactions
+// @Produce		json
+// @Success		201				{object}	TransactionCreateResponseV3
+// @Failure		400				{object}	TransactionCreateResponseV3
+// @Failure		404				{object}	TransactionCreateResponseV3
+// @Failure		500				{object}	TransactionCreateResponseV3
+// @Param			transactions	body		[]models.TransactionCreate	true	"Transactions"
+// @Router			/v3/transactions [post]
 func (co Controller) CreateTransactionsV3(c *gin.Context) {
 	var transactions []models.TransactionCreate
 
@@ -404,20 +394,18 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 	c.JSON(status, r)
 }
 
-// UpdateTransactionV3 updates a specific transaction
-//
-//	@Summary		Update transaction
-//	@Description	Updates an existing transaction. Only values to be updated need to be specified.
-//	@Tags			Transactions
-//	@Accept			json
-//	@Produce		json
-//	@Success		200			{object}	TransactionResponseV3
-//	@Failure		400			{object}	TransactionResponseV3
-//	@Failure		404			{object}	TransactionResponseV3
-//	@Failure		500			{object}	TransactionResponseV3
-//	@Param			id			path		string						true	"ID formatted as string"
-//	@Param			transaction	body		models.TransactionCreate	true	"Transaction"
-//	@Router			/v3/transactions/{id} [patch]
+// @Summary		Update transaction
+// @Description	Updates an existing transaction. Only values to be updated need to be specified.
+// @Tags			Transactions
+// @Accept			json
+// @Produce		json
+// @Success		200			{object}	TransactionResponseV3
+// @Failure		400			{object}	TransactionResponseV3
+// @Failure		404			{object}	TransactionResponseV3
+// @Failure		500			{object}	TransactionResponseV3
+// @Param			id			path		string						true	"ID formatted as string"
+// @Param			transaction	body		models.TransactionCreate	true	"Transaction"
+// @Router			/v3/transactions/{id} [patch]
 func (co Controller) UpdateTransactionV3(c *gin.Context) {
 	// Get the resource ID
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -525,17 +513,15 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 	c.JSON(http.StatusOK, TransactionResponseV3{Data: &transactionObject})
 }
 
-// DeleteTransactionV3 deletes a specific transaction
-//
-//	@Summary		Delete transaction
-//	@Description	Deletes a transaction
-//	@Tags			Transactions
-//	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/transactions/{id} [delete]
+// @Summary		Delete transaction
+// @Description	Deletes a transaction
+// @Tags			Transactions
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/transactions/{id} [delete]
 func (co Controller) DeleteTransactionV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

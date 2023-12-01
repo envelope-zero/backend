@@ -103,28 +103,24 @@ func (co Controller) RegisterBudgetRoutesV3(r *gin.RouterGroup) {
 	}
 }
 
-// OptionsBudgetListV3 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			Budgets
-//	@Success		204
-//	@Router			/v3/budgets [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			Budgets
+// @Success		204
+// @Router			/v3/budgets [options]
 func (co Controller) OptionsBudgetListV3(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
 
-// OptionsBudgetDetailV3 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			Budgets
-//	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/budgets/{id} [options]
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			Budgets
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/budgets/{id} [options]
 func (co Controller) OptionsBudgetDetailV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -145,18 +141,16 @@ func (co Controller) OptionsBudgetDetailV3(c *gin.Context) {
 	httputil.OptionsGetPatchDelete(c)
 }
 
-// CreateBudgetV3 creates a new budget
-//
-//	@Summary		Create budget
-//	@Description	Creates a new budget
-//	@Tags			Budgets
-//	@Accept			json
-//	@Produce		json
-//	@Success		201		{object}	BudgetCreateResponseV3
-//	@Failure		400		{object}	BudgetCreateResponseV3
-//	@Failure		500		{object}	BudgetCreateResponseV3
-//	@Param			budget	body		models.BudgetCreate	true	"Budget"
-//	@Router			/v3/budgets [post]
+// @Summary		Create budget
+// @Description	Creates a new budget
+// @Tags			Budgets
+// @Accept			json
+// @Produce		json
+// @Success		201		{object}	BudgetCreateResponseV3
+// @Failure		400		{object}	BudgetCreateResponseV3
+// @Failure		500		{object}	BudgetCreateResponseV3
+// @Param			budget	body		models.BudgetCreate	true	"Budget"
+// @Router			/v3/budgets [post]
 func (co Controller) CreateBudgetsV3(c *gin.Context) {
 	var budgets []models.BudgetCreate
 
@@ -217,19 +211,17 @@ func (co Controller) CreateBudgetsV3(c *gin.Context) {
 	c.JSON(status, r)
 }
 
-// GetBudgetsV3 returns data for all budgets filtered by the query parameters
-//
-//	@Summary		List budgets
-//	@Description	Returns a list of budgets
-//	@Tags			Budgets
-//	@Produce		json
-//	@Success		200	{object}	BudgetListResponseV3
-//	@Failure		500	{object}	BudgetListResponseV3
-//	@Router			/v3/budgets [get]
-//	@Param			name		query	string	false	"Filter by name"
-//	@Param			note		query	string	false	"Filter by note"
-//	@Param			currency	query	string	false	"Filter by currency"
-//	@Param			search		query	string	false	"Search for this text in name and note"
+// @Summary		List budgets
+// @Description	Returns a list of budgets
+// @Tags			Budgets
+// @Produce		json
+// @Success		200	{object}	BudgetListResponseV3
+// @Failure		500	{object}	BudgetListResponseV3
+// @Router			/v3/budgets [get]
+// @Param			name		query	string	false	"Filter by name"
+// @Param			note		query	string	false	"Filter by note"
+// @Param			currency	query	string	false	"Filter by currency"
+// @Param			search		query	string	false	"Search for this text in name and note"
 func (co Controller) GetBudgetsV3(c *gin.Context) {
 	var filter BudgetQueryFilterV3
 
@@ -308,18 +300,16 @@ func (co Controller) GetBudgetsV3(c *gin.Context) {
 	})
 }
 
-// GetBudgetV3 returns data for a single budget
-//
-//	@Summary		Get budget
-//	@Description	Returns a specific budget
-//	@Tags			Budgets
-//	@Produce		json
-//	@Success		200	{object}	BudgetResponseV3
-//	@Failure		400	{object}	BudgetResponseV3
-//	@Failure		404	{object}	BudgetResponseV3
-//	@Failure		500	{object}	BudgetResponseV3
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/budgets/{id} [get]
+// @Summary		Get budget
+// @Description	Returns a specific budget
+// @Tags			Budgets
+// @Produce		json
+// @Success		200	{object}	BudgetResponseV3
+// @Failure		400	{object}	BudgetResponseV3
+// @Failure		404	{object}	BudgetResponseV3
+// @Failure		500	{object}	BudgetResponseV3
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/budgets/{id} [get]
 func (co Controller) GetBudgetV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -351,20 +341,18 @@ func (co Controller) GetBudgetV3(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetResponseV3{Data: &r})
 }
 
-// UpdateBudgetV3 updates data for a budget
-//
-//	@Summary		Update budget
-//	@Description	Update an existing budget. Only values to be updated need to be specified.
-//	@Tags			Budgets
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	BudgetResponseV3
-//	@Failure		400		{object}	BudgetResponseV3
-//	@Failure		404		{object}	BudgetResponseV3
-//	@Failure		500		{object}	BudgetResponseV3
-//	@Param			id		path		string				true	"ID formatted as string"
-//	@Param			budget	body		models.BudgetCreate	true	"Budget"
-//	@Router			/v3/budgets/{id} [patch]
+// @Summary		Update budget
+// @Description	Update an existing budget. Only values to be updated need to be specified.
+// @Tags			Budgets
+// @Accept			json
+// @Produce		json
+// @Success		200		{object}	BudgetResponseV3
+// @Failure		400		{object}	BudgetResponseV3
+// @Failure		404		{object}	BudgetResponseV3
+// @Failure		500		{object}	BudgetResponseV3
+// @Param			id		path		string				true	"ID formatted as string"
+// @Param			budget	body		models.BudgetCreate	true	"Budget"
+// @Router			/v3/budgets/{id} [patch]
 func (co Controller) UpdateBudgetV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -424,17 +412,15 @@ func (co Controller) UpdateBudgetV3(c *gin.Context) {
 	c.JSON(http.StatusOK, BudgetResponseV3{Data: &r})
 }
 
-// DeleteBudgetV3 deletes a budget
-//
-//	@Summary		Delete budget
-//	@Description	Deletes a budget
-//	@Tags			Budgets
-//	@Success		204
-//	@Failure		400	{object}	httperrors.HTTPError
-//	@Failure		404	{object}	httperrors.HTTPError
-//	@Failure		500	{object}	httperrors.HTTPError
-//	@Param			id	path		string	true	"ID formatted as string"
-//	@Router			/v3/budgets/{id} [delete]
+// @Summary		Delete budget
+// @Description	Deletes a budget
+// @Tags			Budgets
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/budgets/{id} [delete]
 func (co Controller) DeleteBudgetV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
