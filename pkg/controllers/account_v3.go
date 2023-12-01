@@ -229,7 +229,6 @@ func (co Controller) CreateAccountsV3(c *gin.Context) {
 			continue
 		}
 
-		// Append the transaction
 		aObject, err := co.getAccountV3(c, a.ID)
 		if !err.Nil() {
 			e := err.Error()

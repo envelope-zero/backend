@@ -17,7 +17,7 @@ func (suite *TestSuiteStandard) TestCleanupV3() {
 	_ = suite.createTestBudget(models.BudgetCreate{})
 	account := suite.createTestAccountV3(suite.T(), models.AccountCreate{Name: "TestCleanup"})
 	_ = suite.createTestCategory(models.CategoryCreate{})
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
 	_ = suite.createTestAllocation(models.AllocationCreate{})
 	_ = suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
 	_ = suite.createTestMonthConfig(envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})

@@ -619,6 +619,18 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.EnvelopeCreateResponseV3:
+    properties:
+      data:
+        description: Data for the Envelope
+        items:
+          $ref: '#/definitions/controllers.EnvelopeResponseV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
   controllers.EnvelopeListResponse:
     properties:
       data:
@@ -626,6 +638,22 @@ definitions:
         items:
           $ref: '#/definitions/controllers.Envelope'
         type: array
+    type: object
+  controllers.EnvelopeListResponseV3:
+    properties:
+      data:
+        description: List of Envelopes
+        items:
+          $ref: '#/definitions/controllers.EnvelopeV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/controllers.Pagination'
+        description: Pagination information
     type: object
   controllers.EnvelopeMonthResponse:
     properties:
@@ -640,6 +668,65 @@ definitions:
         allOf:
         - $ref: '#/definitions/controllers.Envelope'
         description: Data for the Envelope
+    type: object
+  controllers.EnvelopeResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.EnvelopeV3'
+        description: Data for the Envelope
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.EnvelopeV3:
+    properties:
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      hidden:
+        default: false
+        description: Is the envelope hidden?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        description: Links to related resources
+        properties:
+          self:
+            description: The envelope itself
+            example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
+            type: string
+          transactions:
+            description: The envelope's transactions
+            example: https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
+            type: string
+        type: object
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   controllers.ImportPreviewList:
     properties:
@@ -1887,6 +1974,10 @@ definitions:
         description: URL of Budget collection endpoint
         example: https://example.com/api/v3/budgets
         type: string
+      envelopes:
+        description: URL of Envelope collection endpoint
+        example: https://example.com/api/v3/envelopes
+        type: string
       import:
         description: URL of import list endpoint
         example: https://example.com/api/v3/import
@@ -3001,6 +3092,7 @@ paths:
       - Categories
   /v1/envelopes:
     get:
+      deprecated: true
       description: Returns a list of envelopes
       parameters:
       - description: Filter by name
@@ -3042,6 +3134,7 @@ paths:
       tags:
       - Envelopes
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3051,6 +3144,7 @@ paths:
       tags:
       - Envelopes
     post:
+      deprecated: true
       description: Creates a new envelope
       parameters:
       - description: Envelope
@@ -3083,6 +3177,7 @@ paths:
       - Envelopes
   /v1/envelopes/{id}:
     delete:
+      deprecated: true
       description: Deletes an envelope
       parameters:
       - description: ID formatted as string
@@ -3109,6 +3204,7 @@ paths:
       tags:
       - Envelopes
     get:
+      deprecated: true
       description: Returns a specific envelope
       parameters:
       - description: ID formatted as string
@@ -3139,6 +3235,7 @@ paths:
       tags:
       - Envelopes
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3168,6 +3265,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Updates an existing envelope. Only values to be updated need to
         be specified.
       parameters:
@@ -4994,6 +5092,221 @@ paths:
       summary: Update budget
       tags:
       - Budgets
+  /v3/envelopes:
+    get:
+      description: Returns a list of envelopes
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category
+        type: string
+      - description: Is the envelope archived?
+        in: query
+        name: archived
+        type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Transaction returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of transactions to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeListResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeListResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeListResponseV3'
+      summary: Get envelopes
+      tags:
+      - Envelopes
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+    post:
+      description: Creates a new envelope
+      parameters:
+      - description: Envelopes
+        in: body
+        name: envelope
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.EnvelopeCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+      summary: Create envelope
+      tags:
+      - Envelopes
+  /v3/envelopes/{id}:
+    delete:
+      description: Deletes an envelope
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete envelope
+      tags:
+      - Envelopes
+    get:
+      description: Returns a specific Envelope
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+      summary: Get Envelope
+      tags:
+      - Envelopes
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing envelope. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Envelope
+        in: body
+        name: envelope
+        required: true
+        schema:
+          $ref: '#/definitions/models.EnvelopeCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+      summary: Update envelope
+      tags:
+      - Envelopes
   /v3/import:
     get:
       description: Returns general information about the v3 API

@@ -162,8 +162,8 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 
 	c := suite.createTestCategory(models.CategoryCreate{BudgetID: b.Data.ID})
 
-	e1 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: c.Data.ID})
-	e2 := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: c.Data.ID})
+	e1 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})
+	e2 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})
 
 	e1ID := &e1.Data.ID
 	e2ID := &e2.Data.ID
@@ -533,7 +533,7 @@ func (suite *TestSuiteStandard) TestUpdateNonExistingTransactionV3() {
 
 // TestTransactionsV3Update verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestTransactionsV3Update() {
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
 	transaction := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Amount:               decimal.NewFromFloat(23.14),
 		Note:                 "Test note for transaction",

@@ -83,7 +83,7 @@ func (suite *TestSuiteStandard) TestBudgetV3Options() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			path := fmt.Sprintf("%s/%s", "http://example.com/v3/budgets", tt.id)
-			r := test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
+			r := test.Request(suite.controller, t, http.MethodOptions, path, "")
 			assertHTTPStatus(t, &r, tt.status)
 
 			if tt.status == http.StatusNoContent {
