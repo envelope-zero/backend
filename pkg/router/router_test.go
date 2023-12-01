@@ -189,6 +189,7 @@ func TestGetV3(t *testing.T) {
 	// this only tests the path, not the host
 	l := router.V3Response{
 		Links: router.V3Links{
+			Accounts:     "/v3/accounts",
 			Budgets:      "/v3/budgets",
 			Transactions: "/v3/transactions",
 			MatchRules:   "/v3/match-rules",

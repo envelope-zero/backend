@@ -200,6 +200,7 @@
                     "Accounts"
                 ],
                 "summary": "Create account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Account",
@@ -244,6 +245,7 @@
                     "Accounts"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -261,6 +263,7 @@
                     "Accounts"
                 ],
                 "summary": "Get account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -306,6 +309,7 @@
                     "Accounts"
                 ],
                 "summary": "Delete account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -345,6 +349,7 @@
                     "Accounts"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -387,6 +392,7 @@
                     "Accounts"
                 ],
                 "summary": "Update account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3038,6 +3044,7 @@
                     "Accounts"
                 ],
                 "summary": "List accounts",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -3109,6 +3116,7 @@
                     "Accounts"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -3872,6 +3880,338 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/accounts": {
+            "get": {
+                "description": "Returns a list of accounts",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "List accounts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by budget ID",
+                        "name": "budget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the account on-budget?",
+                        "name": "onBudget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the account external?",
+                        "name": "external",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the account hidden?",
+                        "name": "hidden",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The offset of the first Transaction returned. Defaults to 0.",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of transactions to return. Defaults to 50.",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountListResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountListResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountListResponseV3"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates new accounts",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Creates accounts",
+                "parameters": [
+                    {
+                        "description": "Accounts",
+                        "name": "accounts",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AccountCreate"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/accounts/{id}": {
+            "get": {
+                "description": "Returns a specific account",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Get account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an account",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Delete account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates an account. Only values to be updated need to be specified.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Update account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Account",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AccountCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                        }
                     }
                 }
             }
@@ -4736,7 +5076,7 @@
                     },
                     {
                         "type": "integer",
-                        "description": " Maximum number of transactions to return. Defaults to 50.",
+                        "description": "Maximum number of transactions to return. Defaults to 50.",
                         "name": "limit",
                         "in": "query"
                     }
@@ -5144,6 +5484,23 @@
                 }
             }
         },
+        "controllers.AccountCreateResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created Accounts",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.AccountResponseV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
         "controllers.AccountListResponse": {
             "type": "object",
             "properties": {
@@ -5153,6 +5510,31 @@
                     "items": {
                         "$ref": "#/definitions/controllers.Account"
                     }
+                }
+            }
+        },
+        "controllers.AccountListResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of accounts",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.AccountV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.Pagination"
+                        }
+                    ]
                 }
             }
         },
@@ -5166,6 +5548,130 @@
                             "$ref": "#/definitions/controllers.Account"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.AccountResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the account",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.AccountV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred for this transaction",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.AccountV3": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "Balance of the account, including all transactions referencing it",
+                    "type": "number",
+                    "example": 2735.17
+                },
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "hidden": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The account itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        },
+                        "transactions": {
+                            "description": "Transactions referencing the account",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "recentEnvelopes": {
+                    "description": "Envelopes recently used with this account",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reconciledBalance": {
+                    "description": "Balance of the account, including all reconciled transactions referencing it",
+                    "type": "number",
+                    "example": 2539.57
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -7332,6 +7838,11 @@
         "router.V3Links": {
             "type": "object",
             "properties": {
+                "accounts": {
+                    "description": "URL of Account collection endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/accounts"
+                },
                 "budgets": {
                     "description": "URL of Budget collection endpoint",
                     "type": "string",

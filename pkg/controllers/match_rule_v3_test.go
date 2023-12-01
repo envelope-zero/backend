@@ -32,7 +32,7 @@ func (suite *TestSuiteStandard) createTestMatchRuleV3(t *testing.T, c models.Mat
 }
 
 func (suite *TestSuiteStandard) TestMatchRuleV3Create() {
-	a := suite.createTestAccount(models.AccountCreate{Name: "TestMatchRuleCreate"})
+	a := suite.createTestAccountV3(suite.T(), models.AccountCreate{Name: "TestMatchRuleCreate"})
 
 	tests := []struct {
 		name           string
@@ -127,7 +127,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3Options() {
 			"",
 			func(t *testing.T) string {
 				return suite.createTestMatchRuleV3(t, models.MatchRuleCreate{
-					AccountID: suite.createTestAccount(models.AccountCreate{}).Data.ID,
+					AccountID: suite.createTestAccountV3(t, models.AccountCreate{}).Data.ID,
 					Match:     "TestMatch*",
 				}).Data.Links.Self
 			},
@@ -145,6 +145,10 @@ func (suite *TestSuiteStandard) TestMatchRulesV3Options() {
 
 			r := test.Request(suite.controller, t, http.MethodOptions, p, "")
 			assertHTTPStatus(t, &r, tt.status)
+
+			if tt.status == http.StatusNoContent {
+				assert.Equal(t, "OPTIONS, GET, PATCH, DELETE", r.Header().Get("allow"))
+			}
 		})
 	}
 }
@@ -181,8 +185,8 @@ func (suite *TestSuiteStandard) TestMatchRulesV3DatabaseError() {
 func (suite *TestSuiteStandard) TestMatchRulesV3GetFilter() {
 	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
-	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
-	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 2"})
+	a1 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
+	a2 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 2"})
 
 	_ = suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
 		Priority:  1,
@@ -233,8 +237,8 @@ func (suite *TestSuiteStandard) TestMatchRulesV3GetFilter() {
 func (suite *TestSuiteStandard) TestMatchRulesV3GetFilterErrors() {
 	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
-	a1 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
-	a2 := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 2"})
+	a1 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
+	a2 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 2"})
 
 	_ = suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
 		Priority:  1,
@@ -289,7 +293,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3CreateInvalidBody() {
 // TestMatchRulesV3Create verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestMatchRulesV3Create() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestMatchRulesV3Create Internal"})
+	internalAccount := suite.createTestAccountV3(suite.T(), models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestMatchRulesV3Create Internal"})
 
 	tests := []struct {
 		name           string
@@ -370,7 +374,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3GetSingle() {
 			http.StatusOK,
 			"",
 			func(t *testing.T) string {
-				return suite.createTestMatchRuleV3(t, models.MatchRuleCreate{AccountID: suite.createTestAccount(models.AccountCreate{}).Data.ID}).Data.Links.Self
+				return suite.createTestMatchRuleV3(t, models.MatchRuleCreate{AccountID: suite.createTestAccountV3(t, models.AccountCreate{}).Data.ID}).Data.Links.Self
 			},
 		},
 		{
@@ -399,7 +403,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3GetSingle() {
 // TestMatchRulesV3UpdateFail verifies that transaction updates fail where they should.
 func (suite *TestSuiteStandard) TestMatchRulesV3UpdateFail() {
 	m := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
-		AccountID: suite.createTestAccount(models.AccountCreate{}).Data.ID,
+		AccountID: suite.createTestAccountV3(suite.T(), models.AccountCreate{}).Data.ID,
 		Match:     "Some match*",
 	})
 
@@ -448,11 +452,11 @@ func (suite *TestSuiteStandard) TestMatchRulesV3UpdateFail() {
 // TestMatchRulesV3Update verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestMatchRulesV3Update() {
 	m := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
-		AccountID: suite.createTestAccount(models.AccountCreate{}).Data.ID,
+		AccountID: suite.createTestAccountV3(suite.T(), models.AccountCreate{}).Data.ID,
 		Match:     "Some match*",
 	})
 
-	newAccount := suite.createTestAccount(models.AccountCreate{})
+	newAccount := suite.createTestAccountV3(suite.T(), models.AccountCreate{})
 
 	tests := []struct {
 		name string // Name for the test
@@ -499,7 +503,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3Delete() {
 			"Standard deletion",
 			http.StatusNoContent,
 			suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
-				AccountID: suite.createTestAccount(models.AccountCreate{}).Data.ID,
+				AccountID: suite.createTestAccountV3(suite.T(), models.AccountCreate{}).Data.ID,
 				Match:     "Some match*",
 			}).Data.ID.String(),
 		},
@@ -533,7 +537,7 @@ func (suite *TestSuiteStandard) TestMatchRulesV3Delete() {
 // TestMatchRulesV3GetSorted verifies that Match Rules are sorted as expected.
 func (suite *TestSuiteStandard) TestMatchRulesV3GetSorted() {
 	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	a := suite.createTestAccount(models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
+	a := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestMatchRulesV3GetFilter 1"})
 
 	m1 := suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{
 		Priority:  1,

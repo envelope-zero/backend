@@ -27,6 +27,7 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 		{"http://example.com/v2/transactions", "OPTIONS, POST"},
 		{"http://example.com/v2/match-rules", "OPTIONS, GET, POST"},
 		{"http://example.com/v2/accounts", "OPTIONS, GET"},
+		{"http://example.com/v3/accounts", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/budgets", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/transactions", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/match-rules", "OPTIONS, GET, POST"},

@@ -125,6 +125,7 @@ func (co Controller) RegisterAccountRoutes(r *gin.RouterGroup) {
 //	@Tags			Accounts
 //	@Success		204
 //	@Router			/v1/accounts [options]
+//	@Deprecated		true
 func (co Controller) OptionsAccountList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -140,6 +141,7 @@ func (co Controller) OptionsAccountList(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{id} [options]
+//	@Deprecated		true
 func (co Controller) OptionsAccountDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -166,6 +168,7 @@ func (co Controller) OptionsAccountDetail(c *gin.Context) {
 //	@Failure		500		{object}	httperrors.HTTPError
 //	@Param			account	body		models.AccountCreate	true	"Account"
 //	@Router			/v1/accounts [post]
+//	@Deprecated		true
 func (co Controller) CreateAccount(c *gin.Context) {
 	var accountCreate models.AccountCreate
 
@@ -268,6 +271,7 @@ func (co Controller) GetAccounts(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{id} [get]
+//	@Deprecated		true
 func (co Controller) GetAccount(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -296,6 +300,7 @@ func (co Controller) GetAccount(c *gin.Context) {
 //	@Param			id		path		string					true	"ID formatted as string"
 //	@Param			account	body		models.AccountCreate	true	"Account"
 //	@Router			/v1/accounts/{id} [patch]
+//	@Deprecated		true
 func (co Controller) UpdateAccount(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -341,6 +346,7 @@ func (co Controller) UpdateAccount(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/accounts/{id} [delete]
+//	@Deprecated		true
 func (co Controller) DeleteAccount(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
