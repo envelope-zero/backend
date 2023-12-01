@@ -93,6 +93,7 @@ func (co Controller) RegisterAccountRoutesV2(r *gin.RouterGroup) {
 //	@Tags			Accounts
 //	@Success		204
 //	@Router			/v2/accounts [options]
+//	@Deprecated		true
 func (co Controller) OptionsAccountListV2(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
@@ -114,6 +115,7 @@ func (co Controller) OptionsAccountListV2(c *gin.Context) {
 //	@Param			external	query	bool	false	"Is the account external?"
 //	@Param			hidden		query	bool	false	"Is the account hidden?"
 //	@Param			search		query	string	false	"Search for this text in name and note"
+//	@Deprecated		true
 func (co Controller) GetAccountsV2(c *gin.Context) {
 	var filter AccountQueryFilter
 	if err := c.Bind(&filter); err != nil {

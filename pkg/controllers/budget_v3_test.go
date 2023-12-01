@@ -24,7 +24,7 @@ func (suite *TestSuiteStandard) createTestBudgetV3(t *testing.T, c models.Budget
 	}
 
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/budgets", body)
-	assertHTTPStatus(suite.T(), &r, expectedStatus...)
+	assertHTTPStatus(t, &r, expectedStatus...)
 
 	var a controllers.BudgetCreateResponseV3
 	suite.decodeResponse(&r, &a)
@@ -85,6 +85,10 @@ func (suite *TestSuiteStandard) TestBudgetV3Options() {
 			path := fmt.Sprintf("%s/%s", "http://example.com/v3/budgets", tt.id)
 			r := test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
 			assertHTTPStatus(t, &r, tt.status)
+
+			if tt.status == http.StatusNoContent {
+				assert.Equal(t, "OPTIONS, GET, PATCH, DELETE", r.Header().Get("allow"))
+			}
 		})
 	}
 }
@@ -259,12 +263,8 @@ func (suite *TestSuiteStandard) TestBudgetsV3Delete() {
 
 			if tt.id == "" {
 				// Create test budget
-				recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v3/budgets", `[{ "name": "New Budget", "note": "More tests something something" }]`)
-				assertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
-
-				var budget controllers.BudgetCreateResponseV3
-				suite.decodeResponse(&recorder, &budget)
-				tt.id = budget.Data[0].Data.ID.String()
+				b := suite.createTestBudgetV3(t, models.BudgetCreate{})
+				tt.id = b.Data.ID.String()
 			}
 
 			// Update budget

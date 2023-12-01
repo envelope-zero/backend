@@ -159,6 +159,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 		v3.OPTIONS("", OptionsV3)
 	}
 
+	co.RegisterAccountRoutesV3(v3.Group("/accounts"))
 	co.RegisterBudgetRoutesV3(v3.Group("/budgets"))
 	co.RegisterTransactionRoutesV3(v3.Group("/transactions"))
 	co.RegisterMatchRuleRoutesV3(v3.Group("/match-rules"))
@@ -337,6 +338,7 @@ type V3Response struct {
 }
 
 type V3Links struct {
+	Accounts     string `json:"accounts" example:"https://example.com/api/v3/accounts"`         // URL of Account collection endpoint
 	Budgets      string `json:"budgets" example:"https://example.com/api/v3/budgets"`           // URL of Budget collection endpoint
 	Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions"` // URL of Transaction collection endpoint
 	MatchRules   string `json:"matchRules" example:"https://example.com/api/v3/match-rules"`    // URL of Match Rule collection endpoint
@@ -351,12 +353,15 @@ type V3Links struct {
 //	@Success		200	{object}	V3Response
 //	@Router			/v3 [get]
 func GetV3(c *gin.Context) {
+	url := c.GetString(string(database.ContextURL))
+
 	c.JSON(http.StatusOK, V3Response{
 		Links: V3Links{
-			Budgets:      c.GetString(string(database.ContextURL)) + "/v3/budgets",
-			Transactions: c.GetString(string(database.ContextURL)) + "/v3/transactions",
-			MatchRules:   c.GetString(string(database.ContextURL)) + "/v3/match-rules",
-			Import:       c.GetString(string(database.ContextURL)) + "/v3/import",
+			Accounts:     url + "/v3/accounts",
+			Budgets:      url + "/v3/budgets",
+			Transactions: url + "/v3/transactions",
+			MatchRules:   url + "/v3/match-rules",
+			Import:       url + "/v3/import",
 		},
 	})
 }

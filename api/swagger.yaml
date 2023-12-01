@@ -86,6 +86,18 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.AccountCreateResponseV3:
+    properties:
+      data:
+        description: List of created Accounts
+        items:
+          $ref: '#/definitions/controllers.AccountResponseV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
   controllers.AccountListResponse:
     properties:
       data:
@@ -94,12 +106,126 @@ definitions:
           $ref: '#/definitions/controllers.Account'
         type: array
     type: object
+  controllers.AccountListResponseV3:
+    properties:
+      data:
+        description: List of accounts
+        items:
+          $ref: '#/definitions/controllers.AccountV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/controllers.Pagination'
+        description: Pagination information
+    type: object
   controllers.AccountResponse:
     properties:
       data:
         allOf:
         - $ref: '#/definitions/controllers.Account'
         description: Data for the account
+    type: object
+  controllers.AccountResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.AccountV3'
+        description: Data for the account
+      error:
+        description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.AccountV3:
+    properties:
+      balance:
+        description: Balance of the account, including all transactions referencing
+          it
+        example: 2735.17
+        type: number
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      hidden:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      links:
+        properties:
+          self:
+            description: The account itself
+            example: https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+          transactions:
+            description: Transactions referencing the account
+            example: https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+            type: string
+        type: object
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+      recentEnvelopes:
+        description: Envelopes recently used with this account
+        items:
+          type: string
+        type: array
+      reconciledBalance:
+        description: Balance of the account, including all reconciled transactions
+          referencing it
+        example: 2539.57
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   controllers.Allocation:
     properties:
@@ -1731,6 +1857,10 @@ definitions:
     type: object
   router.V3Links:
     properties:
+      accounts:
+        description: URL of Account collection endpoint
+        example: https://example.com/api/v3/accounts
+        type: string
       budgets:
         description: URL of Budget collection endpoint
         example: https://example.com/api/v3/budgets
@@ -1900,6 +2030,7 @@ paths:
       tags:
       - Accounts
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -1909,6 +2040,7 @@ paths:
       tags:
       - Accounts
     post:
+      deprecated: true
       description: Creates a new account
       parameters:
       - description: Account
@@ -1941,6 +2073,7 @@ paths:
       - Accounts
   /v1/accounts/{id}:
     delete:
+      deprecated: true
       description: Deletes an account
       parameters:
       - description: ID formatted as string
@@ -1969,6 +2102,7 @@ paths:
       tags:
       - Accounts
     get:
+      deprecated: true
       description: Returns a specific account
       parameters:
       - description: ID formatted as string
@@ -1999,6 +2133,7 @@ paths:
       tags:
       - Accounts
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -2026,6 +2161,7 @@ paths:
       tags:
       - Accounts
     patch:
+      deprecated: true
       description: Updates an account. Only values to be updated need to be specified.
       parameters:
       - description: ID formatted as string
@@ -3835,6 +3971,7 @@ paths:
       - v2
   /v2/accounts:
     get:
+      deprecated: true
       description: Returns a list of accounts
       parameters:
       - description: Filter by name
@@ -3884,6 +4021,7 @@ paths:
       tags:
       - Accounts
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -4415,6 +4553,228 @@ paths:
       summary: Allowed HTTP verbs
       tags:
       - v3
+  /v3/accounts:
+    get:
+      description: Returns a list of accounts
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Is the account on-budget?
+        in: query
+        name: onBudget
+        type: boolean
+      - description: Is the account external?
+        in: query
+        name: external
+        type: boolean
+      - description: Is the account hidden?
+        in: query
+        name: hidden
+        type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Transaction returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of transactions to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountListResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.AccountListResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.AccountListResponseV3'
+      summary: List accounts
+      tags:
+      - Accounts
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+    post:
+      description: Creates new accounts
+      parameters:
+      - description: Accounts
+        in: body
+        name: accounts
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.AccountCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+      summary: Creates accounts
+      tags:
+      - Accounts
+  /v3/accounts/{id}:
+    delete:
+      description: Deletes an account
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete account
+      tags:
+      - Accounts
+    get:
+      description: Returns a specific account
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+      summary: Get account
+      tags:
+      - Accounts
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+    patch:
+      description: Updates an account. Only values to be updated need to be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.AccountResponseV3'
+      summary: Update account
+      tags:
+      - Accounts
   /v3/budgets:
     get:
       description: Returns a list of budgets
@@ -4996,7 +5356,7 @@ paths:
         in: query
         name: offset
         type: integer
-      - description: ' Maximum number of transactions to return. Defaults to 50.'
+      - description: Maximum number of transactions to return. Defaults to 50.
         in: query
         name: limit
         type: integer
