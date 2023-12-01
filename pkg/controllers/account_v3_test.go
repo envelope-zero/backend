@@ -90,7 +90,7 @@ func (suite *TestSuiteStandard) TestAccountsV3Options() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			path := fmt.Sprintf("%s/%s", "http://example.com/v3/accounts", tt.id)
-			r := test.Request(suite.controller, suite.T(), http.MethodOptions, path, "")
+			r := test.Request(suite.controller, t, http.MethodOptions, path, "")
 			assertHTTPStatus(t, &r, tt.status)
 
 			if tt.status == http.StatusNoContent {
@@ -129,8 +129,8 @@ func (suite *TestSuiteStandard) TestAccountsV3GetSingle() {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			r := test.Request(suite.controller, t, tt.method, fmt.Sprintf("http://example.com/v3/accounts/%s", tt.id), "")
 
-			var budget controllers.AccountResponseV3
-			suite.decodeResponse(&r, &budget)
+			var account controllers.AccountResponseV3
+			suite.decodeResponse(&r, &account)
 			assertHTTPStatus(t, &r, tt.status)
 		})
 	}
@@ -287,13 +287,12 @@ func (suite *TestSuiteStandard) TestAccountsV3UpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				// Create test Account
-				budget := suite.createTestAccountV3(suite.T(), models.AccountCreate{
+				account := suite.createTestAccountV3(suite.T(), models.AccountCreate{
 					Name: "New Budget",
 					Note: "More tests something something",
 				})
 
-				tt.id = budget.Data.ID.String()
+				tt.id = account.Data.ID.String()
 			}
 
 			// Update Account

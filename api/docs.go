@@ -1603,6 +1603,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Get envelopes",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1665,6 +1666,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Create envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Envelope",
@@ -1709,6 +1711,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1726,6 +1729,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Get envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1768,6 +1772,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Delete envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1807,6 +1812,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1852,6 +1858,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Update envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -4519,6 +4526,326 @@ const docTemplate = `{
                 }
             }
         },
+        "/v3/envelopes": {
+            "get": {
+                "description": "Returns a list of envelopes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Get envelopes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by category ID",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the envelope archived?",
+                        "name": "archived",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The offset of the first Transaction returned. Defaults to 0.",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of transactions to return. Defaults to 50.",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeListResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeListResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeListResponseV3"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new envelope",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Create envelope",
+                "parameters": [
+                    {
+                        "description": "Envelopes",
+                        "name": "envelope",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.EnvelopeCreate"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/envelopes/{id}": {
+            "get": {
+                "description": "Returns a specific Envelope",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Get Envelope",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an envelope",
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Delete envelope",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates an existing envelope. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Update envelope",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Envelope",
+                        "name": "envelope",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.EnvelopeCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                        }
+                    }
+                }
+            }
+        },
         "/v3/import": {
             "get": {
                 "description": "Returns general information about the v3 API",
@@ -6219,6 +6546,23 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.EnvelopeCreateResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Envelope",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
         "controllers.EnvelopeListResponse": {
             "type": "object",
             "properties": {
@@ -6228,6 +6572,31 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/controllers.Envelope"
                     }
+                }
+            }
+        },
+        "controllers.EnvelopeListResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of Envelopes",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.EnvelopeV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.Pagination"
+                        }
+                    ]
                 }
             }
         },
@@ -6254,6 +6623,86 @@ const docTemplate = `{
                             "$ref": "#/definitions/controllers.Envelope"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.EnvelopeResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Envelope",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.EnvelopeV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.EnvelopeV3": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "hidden": {
+                    "description": "Is the envelope hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "description": "Links to related resources",
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The envelope itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        },
+                        "transactions": {
+                            "description": "The envelope's transactions",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -7890,6 +8339,11 @@ const docTemplate = `{
                     "description": "URL of Budget collection endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v3/budgets"
+                },
+                "envelopes": {
+                    "description": "URL of Envelope collection endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes"
                 },
                 "import": {
                     "description": "URL of import list endpoint",

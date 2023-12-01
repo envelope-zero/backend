@@ -161,9 +161,10 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 
 	co.RegisterAccountRoutesV3(v3.Group("/accounts"))
 	co.RegisterBudgetRoutesV3(v3.Group("/budgets"))
-	co.RegisterTransactionRoutesV3(v3.Group("/transactions"))
-	co.RegisterMatchRuleRoutesV3(v3.Group("/match-rules"))
+	co.RegisterEnvelopeRoutesV3(v3.Group("/envelopes"))
 	co.RegisterImportRoutesV3(v3.Group("/import"))
+	co.RegisterMatchRuleRoutesV3(v3.Group("/match-rules"))
+	co.RegisterTransactionRoutesV3(v3.Group("/transactions"))
 }
 
 type RootResponse struct {
@@ -342,9 +343,10 @@ type V3Response struct {
 type V3Links struct {
 	Accounts     string `json:"accounts" example:"https://example.com/api/v3/accounts"`         // URL of Account collection endpoint
 	Budgets      string `json:"budgets" example:"https://example.com/api/v3/budgets"`           // URL of Budget collection endpoint
-	Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions"` // URL of Transaction collection endpoint
-	MatchRules   string `json:"matchRules" example:"https://example.com/api/v3/match-rules"`    // URL of Match Rule collection endpoint
+	Envelopes    string `json:"envelopes" example:"https://example.com/api/v3/envelopes"`       // URL of Envelope collection endpoint
 	Import       string `json:"import" example:"https://example.com/api/v3/import"`             // URL of import list endpoint
+	MatchRules   string `json:"matchRules" example:"https://example.com/api/v3/match-rules"`    // URL of Match Rule collection endpoint
+	Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions"` // URL of Transaction collection endpoint
 }
 
 // GetV3 returns the link list for v3
@@ -361,9 +363,10 @@ func GetV3(c *gin.Context) {
 		Links: V3Links{
 			Accounts:     url + "/v3/accounts",
 			Budgets:      url + "/v3/budgets",
-			Transactions: url + "/v3/transactions",
-			MatchRules:   url + "/v3/match-rules",
+			Envelopes:    url + "/v3/envelopes",
 			Import:       url + "/v3/import",
+			MatchRules:   url + "/v3/match-rules",
+			Transactions: url + "/v3/transactions",
 		},
 	})
 }
