@@ -145,13 +145,13 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3DuplicateDetection(
 	// Get the import hash of the first transaction and create one with the same import hash
 	preview := suite.parseCsvV3(suite.T(), account.Data.ID, "comdirect-ynap.csv")
 
-	transaction := suite.createTestTransactionV3(models.TransactionCreate{
+	transaction := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		SourceAccountID: account.Data.ID,
 		ImportHash:      preview.Data[0].Transaction.ImportHash,
 		Amount:          decimal.NewFromFloat(1.13),
 	})
 
-	_ = suite.createTestTransactionV3(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		SourceAccountID: suite.createTestAccountV3(suite.T(), models.AccountCreate{Note: "This account is in a different Budget, but has the same ImportHash", Name: "TestYnabImportPreviewDuplicateDetection Different Budget"}).Data.ID,
 		ImportHash:      preview.Data[0].Transaction.ImportHash,
 		Amount:          decimal.NewFromFloat(42.23),
@@ -194,7 +194,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3FindAccounts() {
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
-	_ = suite.createTestTransactionV3(models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
 	tests := []struct {
 		name                    string       // Name of the test
@@ -251,7 +251,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3Match() {
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: suite.createTestCategory(models.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
-	_ = suite.createTestTransactionV3(models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
 	tests := []struct {
 		name                  string                        // Name of the test
