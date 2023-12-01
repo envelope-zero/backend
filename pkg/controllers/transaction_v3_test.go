@@ -16,7 +16,7 @@ import (
 )
 
 // createTestTransactionV3 creates a test transactions via the v3 API.
-func (suite *TestSuiteStandard) createTestTransactionV3(c models.TransactionCreate, expectedStatus ...int) controllers.TransactionResponseV3 {
+func (suite *TestSuiteStandard) createTestTransactionV3(t *testing.T, c models.TransactionCreate, expectedStatus ...int) controllers.TransactionResponseV3 {
 	c = suite.defaultTransactionCreate(c)
 
 	// Default to 201 Created as expected status
@@ -26,8 +26,8 @@ func (suite *TestSuiteStandard) createTestTransactionV3(c models.TransactionCrea
 
 	reqBody := []models.TransactionCreate{c}
 
-	r := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v3/transactions", reqBody)
-	assertHTTPStatus(suite.T(), &r, expectedStatus...)
+	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/transactions", reqBody)
+	assertHTTPStatus(t, &r, expectedStatus...)
 
 	var tr controllers.TransactionCreateResponseV3
 	suite.decodeResponse(&r, &tr)
@@ -60,7 +60,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Options() {
 			http.StatusNoContent,
 			"",
 			func() string {
-				return suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
+				return suite.createTestTransactionV3(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
 			},
 		},
 	}
@@ -118,12 +118,12 @@ func (suite *TestSuiteStandard) TestTransactionsV3DatabaseError() {
 // not correctly sorted when multiple transactions occurred on a day. In that case, the
 // oldest transaction would be at the bottom and not at the top.
 func (suite *TestSuiteStandard) TestTransactionsV3Get() {
-	t1 := suite.createTestTransactionV3(models.TransactionCreate{
+	t1 := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Amount: decimal.NewFromFloat(17.23),
 		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
 	})
 
-	_ = suite.createTestTransactionV3(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Amount: decimal.NewFromFloat(23.42),
 		Date:   time.Date(2023, 11, 10, 11, 12, 13, 0, time.UTC),
 	})
@@ -131,7 +131,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Get() {
 	// Need to sleep 1 second because SQLite datetime only has second precision
 	time.Sleep(1 * time.Second)
 
-	t3 := suite.createTestTransactionV3(models.TransactionCreate{
+	t3 := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Amount: decimal.NewFromFloat(44.05),
 		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
 	})
@@ -168,7 +168,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 	e1ID := &e1.Data.ID
 	e2ID := &e2.Data.ID
 
-	_ = suite.createTestTransactionV3(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Date:                  time.Date(2018, 9, 5, 17, 13, 29, 45256, time.UTC),
 		Amount:                decimal.NewFromFloat(2.718),
 		Note:                  "This was an important expense",
@@ -181,7 +181,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		ReconciledDestination: false,
 	})
 
-	_ = suite.createTestTransactionV3(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Date:                  time.Date(2016, 5, 1, 14, 13, 25, 584575, time.UTC),
 		Amount:                decimal.NewFromFloat(11235.813),
 		Note:                  "Not important",
@@ -194,7 +194,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		ReconciledDestination: true,
 	})
 
-	_ = suite.createTestTransactionV3(models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Date:                  time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC),
 		Amount:                decimal.NewFromFloat(2.718),
 		Note:                  "",
@@ -401,7 +401,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetSingle() {
 			http.StatusOK,
 			"",
 			func() string {
-				return suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(13.71)}).Data.Links.Self
+				return suite.createTestTransactionV3(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(13.71)}).Data.Links.Self
 			},
 		},
 		{
@@ -438,7 +438,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Delete() {
 		{
 			"Standard deletion",
 			http.StatusNoContent,
-			suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(123.12)}).Data.ID.String(),
+			suite.createTestTransactionV3(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(123.12)}).Data.ID.String(),
 		},
 		{
 			"Does not exist",
@@ -464,7 +464,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Delete() {
 
 // TestTransactionsV3UpdateFail verifies that transaction updates fail where they should.
 func (suite *TestSuiteStandard) TestTransactionsV3UpdateFail() {
-	transaction := suite.createTestTransactionV3(models.TransactionCreate{Amount: decimal.NewFromFloat(584.42), Note: "Test note for transaction"})
+	transaction := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(584.42), Note: "Test note for transaction"})
 
 	tests := []struct {
 		name   string // Name for the test
@@ -534,7 +534,7 @@ func (suite *TestSuiteStandard) TestUpdateNonExistingTransactionV3() {
 // TestTransactionsV3Update verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestTransactionsV3Update() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{})
-	transaction := suite.createTestTransactionV3(models.TransactionCreate{
+	transaction := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Amount:               decimal.NewFromFloat(23.14),
 		Note:                 "Test note for transaction",
 		BudgetID:             suite.createTestBudgetV3(suite.T(), models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
