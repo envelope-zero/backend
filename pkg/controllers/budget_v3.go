@@ -19,7 +19,7 @@ type BudgetQueryFilterV3 struct {
 	Currency string `form:"currency"`                   // By currency
 	Search   string `form:"search" filterField:"false"` // By string in name or note
 	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Transaction returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of transactions to return. Defaults to -1 for all.
+	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of transactions to return. Defaults to 50.
 }
 
 // Budget is the API v3 representation of a Budget.
@@ -259,7 +259,7 @@ func (co Controller) GetBudgetsV3(c *gin.Context) {
 	q = q.Offset(int(filter.Offset))
 
 	// Default to all Budgets and set the limit
-	limit := -1
+	limit := 50
 	if slices.Contains(setFields, "Limit") {
 		limit = filter.Limit
 	}
