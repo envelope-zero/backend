@@ -70,8 +70,8 @@ type EnvelopeQueryFilterV3 struct {
 	Note       string `form:"note" filterField:"false"`     // By the note
 	Archived   bool   `form:"archived" filterField:"false"` // Is the envelope archived?
 	Search     string `form:"search" filterField:"false"`   // By string in name or note
-	Offset     uint   `form:"offset" filterField:"false"`   // The offset of the first Transaction returned. Defaults to 0.
-	Limit      int    `form:"limit" filterField:"false"`    // Maximum number of transactions to return. Defaults to 50.
+	Offset     uint   `form:"offset" filterField:"false"`   // The offset of the first Envelope returned. Defaults to 0.
+	Limit      int    `form:"limit" filterField:"false"`    // Maximum number of Envelopes to return. Defaults to 50.
 }
 
 func (f EnvelopeQueryFilterV3) ToCreate() (models.EnvelopeCreate, httperrors.Error) {
@@ -225,8 +225,8 @@ func (co Controller) CreateEnvelopesV3(c *gin.Context) {
 // @Param			category	query	string	false	"Filter by category ID"
 // @Param			archived	query	bool	false	"Is the envelope archived?"
 // @Param			search		query	string	false	"Search for this text in name and note"
-// @Param			offset		query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
-// @Param			limit		query	int		false	"Maximum number of transactions to return. Defaults to 50."
+// @Param			offset		query	uint	false	"The offset of the first Envelope returned. Defaults to 0."
+// @Param			limit		query	int		false	"Maximum number of Envelopes to return. Defaults to 50."
 func (co Controller) GetEnvelopesV3(c *gin.Context) {
 	var filter EnvelopeQueryFilterV3
 

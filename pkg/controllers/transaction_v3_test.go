@@ -160,7 +160,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 	a2 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 2"})
 	a3 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 3"})
 
-	c := suite.createTestCategory(models.CategoryCreate{BudgetID: b.Data.ID})
+	c := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: b.Data.ID})
 
 	e1 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})
 	e2 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})

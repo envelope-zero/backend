@@ -191,6 +191,7 @@ func TestGetV3(t *testing.T) {
 		Links: router.V3Links{
 			Accounts:     "/v3/accounts",
 			Budgets:      "/v3/budgets",
+			Categories:   "/v3/categories",
 			Envelopes:    "/v3/envelopes",
 			Import:       "/v3/import",
 			MatchRules:   "/v3/match-rules",
