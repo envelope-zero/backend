@@ -3947,8 +3947,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "description": "Is the account hidden?",
-                        "name": "hidden",
+                        "description": "Is the account archived?",
+                        "name": "archived",
                         "in": "query"
                     },
                     {

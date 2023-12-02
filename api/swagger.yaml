@@ -4699,9 +4699,9 @@ paths:
         in: query
         name: external
         type: boolean
-      - description: Is the account hidden?
+      - description: Is the account archived?
         in: query
-        name: hidden
+        name: archived
         type: boolean
       - description: Search for this text in name and note
         in: query
