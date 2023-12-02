@@ -170,6 +170,13 @@ func Parse(c *gin.Context, err error) Error {
 		}
 	}
 
+	if reflect.TypeOf(err) == reflect.TypeOf(&time.ParseError{}) {
+		return Error{
+			Status: http.StatusBadRequest,
+			Err:    fmt.Errorf("could not parse: %w", err),
+		}
+	}
+
 	// Database connection has not been opened or has been closed already
 	if strings.Contains(err.Error(), "sql: database is closed") {
 		log.Error().Msgf("Database connection is closed: %#v", err)

@@ -165,6 +165,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	co.RegisterEnvelopeRoutesV3(v3.Group("/envelopes"))
 	co.RegisterImportRoutesV3(v3.Group("/import"))
 	co.RegisterMatchRuleRoutesV3(v3.Group("/match-rules"))
+	co.RegisterMonthConfigRoutesV3(v3.Group("/envelopes"))
 	co.RegisterTransactionRoutesV3(v3.Group("/transactions"))
 }
 

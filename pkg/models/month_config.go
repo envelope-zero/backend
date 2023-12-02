@@ -21,7 +21,7 @@ type MonthConfig struct {
 }
 
 type MonthConfigCreate struct {
-	OverspendMode OverspendMode `json:"overspendMode" example:"AFFECT_ENVELOPE" default:"AFFECT_AVAILABLE"`                 // The overspend handling mode to use
+	OverspendMode OverspendMode `json:"overspendMode" example:"AFFECT_ENVELOPE" default:"AFFECT_AVAILABLE"`                 // The overspend handling mode to use. Deprecated, will be removed with 4.0.0 release and is not used in API v3 anymore
 	Note          string        `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""` // A note for the month config
 }
 
