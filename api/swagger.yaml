@@ -797,6 +797,10 @@ definitions:
       links:
         description: Links to related resources
         properties:
+          month:
+            description: The MonthConfig for the envelope
+            example: https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
+            type: string
           self:
             description: The envelope itself
             example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
@@ -1012,7 +1016,8 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.OverspendMode'
         default: AFFECT_AVAILABLE
-        description: The overspend handling mode to use
+        description: The overspend handling mode to use. Deprecated, will be removed
+          with 4.0.0 release and is not used in API v3 anymore
         example: AFFECT_ENVELOPE
       updatedAt:
         description: Last time the resource was updated
@@ -1033,6 +1038,60 @@ definitions:
         allOf:
         - $ref: '#/definitions/controllers.MonthConfig'
         description: Data for the month
+    type: object
+  controllers.MonthConfigResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.MonthConfigV3'
+        description: Config for the month
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.MonthConfigV3:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      links:
+        properties:
+          envelope:
+            description: The Envelope this config belongs to
+            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
+            type: string
+          self:
+            description: The Month Config itself
+            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
+            type: string
+        type: object
+      month:
+        description: The month. This is always set to 00:00 UTC on the first of the
+          month.
+        example: "1969-06-01T00:00:00.000000Z"
+        type: string
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+      overspendMode:
+        description: Ignore this. It is here to override the OverspendMode from models.MonthConfigCreate
+          and will be removed with 4.0.0
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   controllers.MonthResponse:
     properties:
@@ -1875,7 +1934,8 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.OverspendMode'
         default: AFFECT_AVAILABLE
-        description: The overspend handling mode to use
+        description: The overspend handling mode to use. Deprecated, will be removed
+          with 4.0.0 release and is not used in API v3 anymore
         example: AFFECT_ENVELOPE
     type: object
   models.OverspendMode:
@@ -3581,6 +3641,7 @@ paths:
       - Import
   /v1/month-configs:
     get:
+      deprecated: true
       description: Returns a list of MonthConfigs
       parameters:
       - description: Filter by name
@@ -3610,6 +3671,7 @@ paths:
       tags:
       - MonthConfigs
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs.
       responses:
@@ -3620,6 +3682,7 @@ paths:
       - MonthConfigs
   /v1/month-configs/{id}/{month}:
     delete:
+      deprecated: true
       description: Deletes configuration settings for a specific month
       parameters:
       - description: ID of the Envelope
@@ -3653,6 +3716,7 @@ paths:
       tags:
       - MonthConfigs
     get:
+      deprecated: true
       description: Returns configuration for a specific month
       parameters:
       - description: ID of the Envelope
@@ -3688,6 +3752,7 @@ paths:
       tags:
       - MonthConfigs
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3720,6 +3785,7 @@ paths:
       tags:
       - MonthConfigs
     patch:
+      deprecated: true
       description: Changes settings of an existing MonthConfig
       parameters:
       - description: ID of the Envelope
@@ -3761,6 +3827,7 @@ paths:
       tags:
       - MonthConfigs
     post:
+      deprecated: true
       description: Creates a new MonthConfig
       parameters:
       - description: ID of the Envelope
@@ -5622,6 +5689,108 @@ paths:
           schema:
             $ref: '#/definitions/controllers.EnvelopeResponseV3'
       summary: Update envelope
+      tags:
+      - Envelopes
+  /v3/envelopes/{id}/{month}:
+    get:
+      description: Returns configuration for a specific month
+      parameters:
+      - description: ID of the Envelope
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+      summary: Get MonthConfig
+      tags:
+      - Envelopes
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the Envelope
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+    patch:
+      description: Changes configuration for a Month. If there is no configuration
+        for the month yet, this endpoint transparently creates a configuration resource.
+      parameters:
+      - description: ID of the Envelope
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      - description: MonthConfig
+        in: body
+        name: monthConfig
+        required: true
+        schema:
+          $ref: '#/definitions/models.MonthConfigCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+      summary: Update MonthConfig
       tags:
       - Envelopes
   /v3/import:

@@ -2161,6 +2161,7 @@
                     "MonthConfigs"
                 ],
                 "summary": "List MonthConfigs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2202,6 +2203,7 @@
                     "MonthConfigs"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2219,6 +2221,7 @@
                     "MonthConfigs"
                 ],
                 "summary": "Get MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2271,6 +2274,7 @@
                     "MonthConfigs"
                 ],
                 "summary": "Create MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2332,6 +2336,7 @@
                     "MonthConfigs"
                 ],
                 "summary": "Delete MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2378,6 +2383,7 @@
                     "MonthConfigs"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2427,6 +2433,7 @@
                     "MonthConfigs"
                 ],
                 "summary": "Update MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -5162,6 +5169,155 @@
                 }
             }
         },
+        "/v3/envelopes/{id}/{month}": {
+            "get": {
+                "description": "Returns configuration for a specific month",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Get MonthConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Changes configuration for a Month. If there is no configuration for the month yet, this endpoint transparently creates a configuration resource.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Envelopes"
+                ],
+                "summary": "Update MonthConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the Envelope",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "MonthConfig",
+                        "name": "monthConfig",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MonthConfigCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                        }
+                    }
+                }
+            }
+        },
         "/v3/import": {
             "get": {
                 "description": "Returns general information about the v3 API",
@@ -7121,6 +7277,11 @@
                     "description": "Links to related resources",
                     "type": "object",
                     "properties": {
+                        "month": {
+                            "description": "The MonthConfig for the envelope",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
+                        },
                         "self": {
                             "description": "The envelope itself",
                             "type": "string",
@@ -7411,7 +7572,7 @@
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
                 },
                 "overspendMode": {
-                    "description": "The overspend handling mode to use",
+                    "description": "The overspend handling mode to use. Deprecated, will be removed with 4.0.0 release and is not used in API v3 anymore",
                     "default": "AFFECT_AVAILABLE",
                     "allOf": [
                         {
@@ -7449,6 +7610,78 @@
                             "$ref": "#/definitions/controllers.MonthConfig"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.MonthConfigResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Config for the month",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.MonthConfigV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.MonthConfigV3": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelope": {
+                            "description": "The Envelope this config belongs to",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
+                        },
+                        "self": {
+                            "description": "The Month Config itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
+                        }
+                    }
+                },
+                "month": {
+                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
+                },
+                "note": {
+                    "description": "A note for the month config",
+                    "type": "string",
+                    "example": "Added 200€ here because we replaced Tim's expensive vase"
+                },
+                "overspendMode": {
+                    "description": "Ignore this. It is here to override the OverspendMode from models.MonthConfigCreate and will be removed with 4.0.0",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -8529,7 +8762,7 @@
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
                 },
                 "overspendMode": {
-                    "description": "The overspend handling mode to use",
+                    "description": "The overspend handling mode to use. Deprecated, will be removed with 4.0.0 release and is not used in API v3 anymore",
                     "default": "AFFECT_AVAILABLE",
                     "allOf": [
                         {
