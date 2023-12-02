@@ -52,15 +52,15 @@ func (a *AccountV3) links(c *gin.Context) {
 }
 
 type AccountQueryFilterV3 struct {
-	Name     string `form:"name" filterField:"false"`   // Fuzzy filter for the account name
-	Note     string `form:"note" filterField:"false"`   // Fuzzy filter for the note
-	BudgetID string `form:"budget"`                     // By budget ID
-	OnBudget bool   `form:"onBudget"`                   // Is the account on-budget?
-	External bool   `form:"external"`                   // Is the account external?
-	Hidden   bool   `form:"hidden"`                     // Is the account hidden?
-	Search   string `form:"search" filterField:"false"` // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Transaction returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of transactions to return. Defaults to 50.
+	Name     string `form:"name" filterField:"false"`     // Fuzzy filter for the account name
+	Note     string `form:"note" filterField:"false"`     // Fuzzy filter for the note
+	BudgetID string `form:"budget"`                       // By budget ID
+	OnBudget bool   `form:"onBudget"`                     // Is the account on-budget?
+	External bool   `form:"external"`                     // Is the account external?
+	Archived bool   `form:"archived" filterField:"false"` // Is the account hidden?
+	Search   string `form:"search" filterField:"false"`   // By string in name or note
+	Offset   uint   `form:"offset" filterField:"false"`   // The offset of the first Transaction returned. Defaults to 0.
+	Limit    int    `form:"limit" filterField:"false"`    // Maximum number of transactions to return. Defaults to 50.
 }
 
 func (f AccountQueryFilterV3) ToCreate() (models.AccountCreate, httperrors.Error) {
@@ -73,7 +73,7 @@ func (f AccountQueryFilterV3) ToCreate() (models.AccountCreate, httperrors.Error
 		BudgetID: budgetID,
 		OnBudget: f.OnBudget,
 		External: f.External,
-		Hidden:   f.Hidden,
+		Hidden:   f.Archived,
 	}, httperrors.Error{}
 }
 
@@ -256,7 +256,7 @@ func (co Controller) CreateAccountsV3(c *gin.Context) {
 // @Param			budget		query	string	false	"Filter by budget ID"
 // @Param			onBudget	query	bool	false	"Is the account on-budget?"
 // @Param			external	query	bool	false	"Is the account external?"
-// @Param			hidden		query	bool	false	"Is the account hidden?"
+// @Param			archived	query	bool	false	"Is the account archived?"
 // @Param			search		query	string	false	"Search for this text in name and note"
 // @Param			offset		query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
 // @Param			limit		query	int		false	"Maximum number of transactions to return. Defaults to 50."
@@ -269,6 +269,13 @@ func (co Controller) GetAccountsV3(c *gin.Context) {
 
 	// Get the set parameters in the query string
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
+
+	// If the archived parameter is set, add "Hidden" to the query fields
+	// This is done since in v3, we're using the name "Archived", but the
+	// field is not yet updated in the database, which will happen later
+	if slices.Contains(setFields, "Archived") {
+		queryFields = append(queryFields, "Hidden")
+	}
 
 	// Convert the QueryFilter to a Create struct
 	create, err := filter.ToCreate()
