@@ -1287,6 +1287,7 @@
                     "Categories"
                 ],
                 "summary": "Get categories",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1349,6 +1350,7 @@
                     "Categories"
                 ],
                 "summary": "Create category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Category",
@@ -1393,6 +1395,7 @@
                     "Categories"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1410,6 +1413,7 @@
                     "Categories"
                 ],
                 "summary": "Get category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1452,6 +1456,7 @@
                     "Categories"
                 ],
                 "summary": "Delete category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1491,6 +1496,7 @@
                     "Categories"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1536,6 +1542,7 @@
                     "Categories"
                 ],
                 "summary": "Update category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -4515,6 +4522,326 @@
                 }
             }
         },
+        "/v3/categories": {
+            "get": {
+                "description": "Returns a list of categories",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get categories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by budget ID",
+                        "name": "budget",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the category hidden?",
+                        "name": "hidden",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The offset of the first Category returned. Defaults to 0.",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of Categories to return. Defaults to 50.",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryListResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryListResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryListResponseV3"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new category",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Create category",
+                "parameters": [
+                    {
+                        "description": "Categories",
+                        "name": "categories",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CategoryCreate"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/categories/{id}": {
+            "get": {
+                "description": "Returns a specific category",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a category",
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Delete category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update an existing category. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Update category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Category",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CategoryCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                        }
+                    }
+                }
+            }
+        },
         "/v3/envelopes": {
             "get": {
                 "description": "Returns a list of envelopes",
@@ -4558,13 +4885,13 @@
                     },
                     {
                         "type": "integer",
-                        "description": "The offset of the first Transaction returned. Defaults to 0.",
+                        "description": "The offset of the first Envelope returned. Defaults to 0.",
                         "name": "offset",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Maximum number of transactions to return. Defaults to 50.",
+                        "description": "Maximum number of Envelopes to return. Defaults to 50.",
                         "name": "limit",
                         "in": "query"
                     }
@@ -6438,6 +6765,23 @@
                 }
             }
         },
+        "controllers.CategoryCreateResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of the created Categories or their respective error",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.CategoryResponseV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
         "controllers.CategoryListResponse": {
             "type": "object",
             "properties": {
@@ -6447,6 +6791,31 @@
                     "items": {
                         "$ref": "#/definitions/controllers.Category"
                     }
+                }
+            }
+        },
+        "controllers.CategoryListResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of Categories",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.CategoryV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.Pagination"
+                        }
+                    ]
                 }
             }
         },
@@ -6460,6 +6829,92 @@
                             "$ref": "#/definitions/controllers.Category"
                         }
                     ]
+                }
+            }
+        },
+        "controllers.CategoryResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Category",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.CategoryV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.CategoryV3": {
+            "type": "object",
+            "properties": {
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopes": {
+                    "description": "Envelopes for the category",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.EnvelopeV3"
+                    }
+                },
+                "hidden": {
+                    "description": "Is the category hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelopes": {
+                            "description": "Envelopes for this category",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                        },
+                        "self": {
+                            "description": "The category itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -8328,6 +8783,11 @@
                     "description": "URL of Budget collection endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v3/budgets"
+                },
+                "categories": {
+                    "description": "URL of Category collection endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/categories"
                 },
                 "envelopes": {
                     "description": "URL of Envelope collection endpoint",

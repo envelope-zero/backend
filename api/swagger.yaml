@@ -547,6 +547,18 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.CategoryCreateResponseV3:
+    properties:
+      data:
+        description: List of the created Categories or their respective error
+        items:
+          $ref: '#/definitions/controllers.CategoryResponseV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
   controllers.CategoryListResponse:
     properties:
       data:
@@ -555,12 +567,91 @@ definitions:
           $ref: '#/definitions/controllers.Category'
         type: array
     type: object
+  controllers.CategoryListResponseV3:
+    properties:
+      data:
+        description: List of Categories
+        items:
+          $ref: '#/definitions/controllers.CategoryV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/controllers.Pagination'
+        description: Pagination information
+    type: object
   controllers.CategoryResponse:
     properties:
       data:
         allOf:
         - $ref: '#/definitions/controllers.Category'
         description: Data for the category
+    type: object
+  controllers.CategoryResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.CategoryV3'
+        description: Data for the Category
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.CategoryV3:
+    properties:
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopes:
+        description: Envelopes for the category
+        items:
+          $ref: '#/definitions/controllers.EnvelopeV3'
+        type: array
+      hidden:
+        default: false
+        description: Is the category hidden?
+        example: true
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          envelopes:
+            description: Envelopes for this category
+            example: https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+          self:
+            description: The category itself
+            example: https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+        type: object
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   controllers.Envelope:
     properties:
@@ -1974,6 +2065,10 @@ definitions:
         description: URL of Budget collection endpoint
         example: https://example.com/api/v3/budgets
         type: string
+      categories:
+        description: URL of Category collection endpoint
+        example: https://example.com/api/v3/categories
+        type: string
       envelopes:
         description: URL of Envelope collection endpoint
         example: https://example.com/api/v3/envelopes
@@ -2887,6 +2982,7 @@ paths:
       - Budgets
   /v1/categories:
     get:
+      deprecated: true
       description: Returns a list of categories
       parameters:
       - description: Filter by name
@@ -2928,6 +3024,7 @@ paths:
       tags:
       - Categories
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -2937,6 +3034,7 @@ paths:
       tags:
       - Categories
     post:
+      deprecated: true
       description: Creates a new category
       parameters:
       - description: Category
@@ -2969,6 +3067,7 @@ paths:
       - Categories
   /v1/categories/{id}:
     delete:
+      deprecated: true
       description: Deletes a category
       parameters:
       - description: ID formatted as string
@@ -2995,6 +3094,7 @@ paths:
       tags:
       - Categories
     get:
+      deprecated: true
       description: Returns a specific category
       parameters:
       - description: ID formatted as string
@@ -3025,6 +3125,7 @@ paths:
       tags:
       - Categories
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3054,6 +3155,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update an existing category. Only values to be updated need to
         be specified.
       parameters:
@@ -5092,6 +5194,221 @@ paths:
       summary: Update budget
       tags:
       - Budgets
+  /v3/categories:
+    get:
+      description: Returns a list of categories
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Is the category hidden?
+        in: query
+        name: hidden
+        type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Category returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Categories to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CategoryListResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.CategoryListResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.CategoryListResponseV3'
+      summary: Get categories
+      tags:
+      - Categories
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Categories
+    post:
+      description: Creates a new category
+      parameters:
+      - description: Categories
+        in: body
+        name: categories
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.CategoryCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+      summary: Create category
+      tags:
+      - Categories
+  /v3/categories/{id}:
+    delete:
+      description: Deletes a category
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete category
+      tags:
+      - Categories
+    get:
+      description: Returns a specific category
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+      summary: Get category
+      tags:
+      - Categories
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Categories
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing category. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.CategoryCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.CategoryResponseV3'
+      summary: Update category
+      tags:
+      - Categories
   /v3/envelopes:
     get:
       description: Returns a list of envelopes
@@ -5116,11 +5433,11 @@ paths:
         in: query
         name: search
         type: string
-      - description: The offset of the first Transaction returned. Defaults to 0.
+      - description: The offset of the first Envelope returned. Defaults to 0.
         in: query
         name: offset
         type: integer
-      - description: Maximum number of transactions to return. Defaults to 50.
+      - description: Maximum number of Envelopes to return. Defaults to 50.
         in: query
         name: limit
         type: integer

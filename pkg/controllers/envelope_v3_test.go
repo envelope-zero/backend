@@ -15,7 +15,7 @@ import (
 
 func (suite *TestSuiteStandard) createTestEnvelopeV3(t *testing.T, c models.EnvelopeCreate, expectedStatus ...int) controllers.EnvelopeResponseV3 {
 	if c.CategoryID == uuid.Nil {
-		c.CategoryID = suite.createTestCategory(models.CategoryCreate{}).Data.ID
+		c.CategoryID = suite.createTestCategoryV3(suite.T(), models.CategoryCreate{}).Data.ID
 	}
 
 	if c.Name == "" {
@@ -45,7 +45,7 @@ func (suite *TestSuiteStandard) createTestEnvelopeV3(t *testing.T, c models.Enve
 // TestEnvelopesV3DBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestEnvelopesV3DBClosed() {
-	b := suite.createTestCategory(models.CategoryCreate{})
+	b := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -138,8 +138,8 @@ func (suite *TestSuiteStandard) TestEnvelopesV3GetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopesV3GetFilter() {
-	c1 := suite.createTestCategory(models.CategoryCreate{})
-	c2 := suite.createTestCategory(models.CategoryCreate{})
+	c1 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
+	c2 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
 
 	_ = suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
 		Name:       "Groceries",
@@ -246,7 +246,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Update() {
 	})
 	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
 
-	var updatedEnvelope controllers.EnvelopeResponse
+	var updatedEnvelope controllers.EnvelopeResponseV3
 	suite.decodeResponse(&recorder, &updatedEnvelope)
 
 	assert.Equal(suite.T(), "", updatedEnvelope.Data.Note)
@@ -262,7 +262,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3UpdateFails() {
 	}{
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
-		{"Non-existing account", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
+		{"Non-existing Envelope", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
 		{"Set Category to uuid.Nil", "", models.EnvelopeCreate{}, http.StatusBadRequest},
 	}
 
@@ -279,7 +279,6 @@ func (suite *TestSuiteStandard) TestEnvelopesV3UpdateFails() {
 				tt.id = envelope.Data.ID.String()
 			}
 
-			// Update Account
 			recorder = test.Request(suite.controller, t, http.MethodPatch, fmt.Sprintf("http://example.com/v3/envelopes/%s", tt.id), tt.body)
 			assertHTTPStatus(t, &recorder, tt.status)
 		})

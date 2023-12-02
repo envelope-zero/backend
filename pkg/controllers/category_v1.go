@@ -113,6 +113,7 @@ func (co Controller) RegisterCategoryRoutes(r *gin.RouterGroup) {
 //	@Tags			Categories
 //	@Success		204
 //	@Router			/v1/categories [options]
+//	@Deprecated		true
 func (co Controller) OptionsCategoryList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -128,6 +129,7 @@ func (co Controller) OptionsCategoryList(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{id} [options]
+//	@Deprecated		true
 func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -154,6 +156,7 @@ func (co Controller) OptionsCategoryDetail(c *gin.Context) {
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			category	body		models.CategoryCreate	true	"Category"
 //	@Router			/v1/categories [post]
+//	@Deprecated		true
 func (co Controller) CreateCategory(c *gin.Context) {
 	var create models.CategoryCreate
 
@@ -197,6 +200,7 @@ func (co Controller) CreateCategory(c *gin.Context) {
 //	@Param			budget	query	string	false	"Filter by budget ID"
 //	@Param			hidden	query	bool	false	"Is the category hidden?"
 //	@Param			search	query	string	false	"Search for this text in name and note"
+//	@Deprecated		true
 func (co Controller) GetCategories(c *gin.Context) {
 	var filter CategoryQueryFilter
 
@@ -247,6 +251,7 @@ func (co Controller) GetCategories(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{id} [get]
+//	@Deprecated		true
 func (co Controller) GetCategory(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -276,6 +281,7 @@ func (co Controller) GetCategory(c *gin.Context) {
 //	@Param			id			path		string					true	"ID formatted as string"
 //	@Param			category	body		models.CategoryCreate	true	"Category"
 //	@Router			/v1/categories/{id} [patch]
+//	@Deprecated		true
 func (co Controller) UpdateCategory(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -320,6 +326,7 @@ func (co Controller) UpdateCategory(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/categories/{id} [delete]
+//	@Deprecated		true
 func (co Controller) DeleteCategory(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
