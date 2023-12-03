@@ -203,7 +203,7 @@ func (co Controller) GetTransactionV3(c *gin.Context) {
 // @Param			reconciledSource		query	bool	false	"Reconcilication state in source account"
 // @Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
 // @Param			offset					query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
-// @Param			limit					query	int		false	"Maximum number of transactions to return. Defaults to 50."
+// @Param			limit					query	int		false	"Maximum number of Transactions to return. Defaults to 50."
 func (co Controller) GetTransactionsV3(c *gin.Context) {
 	var filter TransactionQueryFilterV3
 	if err := c.Bind(&filter); err != nil {

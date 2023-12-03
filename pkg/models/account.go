@@ -28,11 +28,19 @@ type AccountCreate struct {
 type Account struct {
 	DefaultModel
 	AccountCreate
-	Budget Budget `json:"-"`
+	Budget   Budget `json:"-"`
+	Archived bool   `json:"archived" example:"true" default:"false" gorm:"-"` // Is the account archived?
 }
 
 func (Account) Self() string {
 	return "Account"
+}
+
+func (a *Account) AfterFind(_ *gorm.DB) (err error) {
+	// Set the Archived field to the value of Hidden
+	a.Archived = a.Hidden
+
+	return nil
 }
 
 // BeforeUpdate verifies the state of the account before

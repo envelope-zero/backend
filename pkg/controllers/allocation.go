@@ -19,7 +19,7 @@ type Allocation struct {
 	models.Allocation
 	Links struct {
 		Self string `json:"self" example:"https://example.com/api/v1/allocations/902cd93c-3724-4e46-8540-d014131282fc"` // The allocation itself
-	} `json:"links" gorm:"-"`
+	} `json:"links"`
 }
 
 func (a *Allocation) links(c *gin.Context) {

@@ -179,37 +179,46 @@ func (suite *TestSuiteStandard) TestAccountsV3GetFilter() {
 	})
 
 	tests := []struct {
-		name  string
-		query string
-		len   int
+		name      string
+		query     string
+		len       int
+		checkFunc func(t *testing.T, accounts []controllers.AccountV3)
 	}{
-		{"Name single", "name=Exact Account Match", 1},
-		{"Name multiple", "name=External Account Filter", 2},
-		{"Fuzzy name", "name=Account", 3},
-		{"Note", "note=A different note", 1},
-		{"Fuzzy Note", "note=note", 4},
-		{"Empty name with note", "name=&note=specific", 1},
-		{"Empty note with name", "note=&name=Name", 1},
-		{"Empty note and name", "note=&name=&onBudget=false", 0},
-		{"Budget", fmt.Sprintf("budget=%s", b1.Data.ID), 4},
-		{"On budget", "onBudget=true", 1},
-		{"Off budget", "onBudget=false", 4},
-		{"External", "external=true", 2},
-		{"Internal", "external=false", 3},
-		{"Not Archived", "archived=false", 3},
-		{"Archived", "archived=true", 2},
-		{"Search for 'na", "search=na", 3},
-		{"Search for 'fi", "search=fi", 4},
-		{"Offset 2", "offset=2", 3},
-		{"Offset 2, limit 2", "offset=2&limit=2", 2},
-		{"Limit 4", "limit=4", 4},
-		{"Limit 0", "limit=0", 0},
-		{"Limit -1", "limit=-1", 5},
+		{"Name single", "name=Exact Account Match", 1, nil},
+		{"Name multiple", "name=External Account Filter", 2, nil},
+		{"Fuzzy name", "name=Account", 3, nil},
+		{"Note", "note=A different note", 1, nil},
+		{"Fuzzy Note", "note=note", 4, nil},
+		{"Empty name with note", "name=&note=specific", 1, nil},
+		{"Empty note with name", "note=&name=Name", 1, nil},
+		{"Empty note and name", "note=&name=&onBudget=false", 0, nil},
+		{"Budget", fmt.Sprintf("budget=%s", b1.Data.ID), 4, nil},
+		{"On budget", "onBudget=true", 1, nil},
+		{"Off budget", "onBudget=false", 4, nil},
+		{"External", "external=true", 2, nil},
+		{"Internal", "external=false", 3, nil},
+		{"Not Archived", "archived=false", 3, func(t *testing.T, accounts []controllers.AccountV3) {
+			for _, a := range accounts {
+				assert.False(t, a.Archived)
+			}
+		}},
+		{"Archived", "archived=true", 2, func(t *testing.T, accounts []controllers.AccountV3) {
+			for _, a := range accounts {
+				assert.True(t, a.Archived)
+			}
+		}},
+		{"Search for 'na", "search=na", 3, nil},
+		{"Search for 'fi", "search=fi", 4, nil},
+		{"Offset 2", "offset=2", 3, nil},
+		{"Offset 2, limit 2", "offset=2&limit=2", 2, nil},
+		{"Limit 4", "limit=4", 4, nil},
+		{"Limit 0", "limit=0", 0, nil},
+		{"Limit -1", "limit=-1", 5, nil},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			var re controllers.BudgetListResponse
+			var re controllers.AccountListResponseV3
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v3/accounts?%s", tt.query), "")
 			assertHTTPStatus(suite.T(), &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)
@@ -219,6 +228,11 @@ func (suite *TestSuiteStandard) TestAccountsV3GetFilter() {
 				accountNames = append(accountNames, d.Name)
 			}
 			assert.Equal(t, tt.len, len(re.Data), "Existing accounts: %#v, Request-ID: %s", strings.Join(accountNames, ", "), r.Header().Get("x-request-id"))
+
+			// Run the custom checks
+			if tt.checkFunc != nil {
+				tt.checkFunc(t, re.Data)
+			}
 		})
 	}
 }
@@ -261,7 +275,7 @@ func (suite *TestSuiteStandard) TestAccountsV3Update() {
 	})
 	assertHTTPStatus(suite.T(), &r, http.StatusOK)
 
-	var u controllers.AccountResponse
+	var u controllers.AccountResponseV3
 	suite.decodeResponse(&r, &u)
 
 	assert.Equal(suite.T(), "Updated new account for testing", u.Data.Name)

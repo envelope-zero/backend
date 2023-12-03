@@ -161,32 +161,41 @@ func (suite *TestSuiteStandard) TestEnvelopesV3GetFilter() {
 	})
 
 	tests := []struct {
-		name  string
-		query string
-		len   int
+		name      string
+		query     string
+		len       int
+		checkFunc func(t *testing.T, envelopes []controllers.EnvelopeV3)
 	}{
-		{"Category 2", fmt.Sprintf("category=%s", c2.Data.ID), 2},
-		{"Category Not Existing", "category=e0f9ff7a-9f07-463c-bbd2-0d72d09d3cc6", 0},
-		{"Empty Note", "note=", 0},
-		{"Empty Name", "name=", 0},
-		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1},
-		{"Fuzzy name", "name=es", 2},
-		{"Fuzzy note", "note=Because", 2},
-		{"Not archived", "archived=false", 2},
-		{"Archived", "archived=true", 1},
-		{"Search for 'hair'", "search=hair", 2},
-		{"Search for 'st'", "search=st", 2},
-		{"Search for 'STUFF'", "search=STUFF", 1},
-		{"Offset 2", "offset=2", 1},
-		{"Offset 0, limit 2", "offset=0&limit=2", 2},
-		{"Limit 4", "limit=4", 3},
-		{"Limit 0", "limit=0", 0},
-		{"Limit -1", "limit=-1", 3},
+		{"Category 2", fmt.Sprintf("category=%s", c2.Data.ID), 2, nil},
+		{"Category Not Existing", "category=e0f9ff7a-9f07-463c-bbd2-0d72d09d3cc6", 0, nil},
+		{"Empty Note", "note=", 0, nil},
+		{"Empty Name", "name=", 0, nil},
+		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1, nil},
+		{"Fuzzy name", "name=es", 2, nil},
+		{"Fuzzy note", "note=Because", 2, nil},
+		{"Not archived", "archived=false", 2, func(t *testing.T, envelopes []controllers.EnvelopeV3) {
+			for _, e := range envelopes {
+				assert.False(t, e.Archived)
+			}
+		}},
+		{"Archived", "archived=true", 1, func(t *testing.T, envelopes []controllers.EnvelopeV3) {
+			for _, e := range envelopes {
+				assert.True(t, e.Archived)
+			}
+		}},
+		{"Search for 'hair'", "search=hair", 2, nil},
+		{"Search for 'st'", "search=st", 2, nil},
+		{"Search for 'STUFF'", "search=STUFF", 1, nil},
+		{"Offset 2", "offset=2", 1, nil},
+		{"Offset 0, limit 2", "offset=0&limit=2", 2, nil},
+		{"Limit 4", "limit=4", 3, nil},
+		{"Limit 0", "limit=0", 0, nil},
+		{"Limit -1", "limit=-1", 3, nil},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			var re controllers.EnvelopeListResponse
+			var re controllers.EnvelopeListResponseV3
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v3/envelopes?%s", tt.query), "")
 			assertHTTPStatus(suite.T(), &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)

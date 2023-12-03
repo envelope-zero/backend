@@ -1,6 +1,11 @@
 definitions:
   controllers.Account:
     properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
       balance:
         description: Balance of the account, including all transactions referencing
           it
@@ -142,6 +147,11 @@ definitions:
     type: object
   controllers.AccountV3:
     properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
       balance:
         description: Balance of the account, including all transactions referencing
           it
@@ -165,9 +175,7 @@ definitions:
         example: false
         type: boolean
       hidden:
-        default: false
-        description: Is the account archived?
-        example: true
+        description: Remove the hidden field
         type: boolean
       id:
         description: UUID for the resource
@@ -497,6 +505,11 @@ definitions:
     type: object
   controllers.Category:
     properties:
+      archived:
+        default: false
+        description: Is the Category archived?
+        example: true
+        type: boolean
       budgetId:
         description: ID of the budget the category belongs to
         example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
@@ -603,6 +616,11 @@ definitions:
     type: object
   controllers.CategoryV3:
     properties:
+      archived:
+        default: false
+        description: Is the Category archived?
+        example: true
+        type: boolean
       budgetId:
         description: ID of the budget the category belongs to
         example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
@@ -621,9 +639,7 @@ definitions:
           $ref: '#/definitions/controllers.EnvelopeV3'
         type: array
       hidden:
-        default: false
-        description: Is the category hidden?
-        example: true
+        description: Remove the hidden field
         type: boolean
       id:
         description: UUID for the resource
@@ -655,6 +671,11 @@ definitions:
     type: object
   controllers.Envelope:
     properties:
+      archived:
+        default: false
+        description: Is the Envelope archived?
+        example: true
+        type: boolean
       categoryId:
         description: ID of the category the envelope belongs to
         example: 878c831f-af99-4a71-b3ca-80deb7d793c1
@@ -773,6 +794,11 @@ definitions:
     type: object
   controllers.EnvelopeV3:
     properties:
+      archived:
+        default: false
+        description: Is the Envelope archived?
+        example: true
+        type: boolean
       categoryId:
         description: ID of the category the envelope belongs to
         example: 878c831f-af99-4a71-b3ca-80deb7d793c1
@@ -786,9 +812,7 @@ definitions:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       hidden:
-        default: false
-        description: Is the envelope hidden?
-        example: true
+        description: Remove the hidden field
         type: boolean
       id:
         description: UUID for the resource
@@ -1663,6 +1687,11 @@ definitions:
         description: Sum of allocations for the envelopes
         example: 90
         type: number
+      archived:
+        default: false
+        description: Is the Category archived?
+        example: true
+        type: boolean
       balance:
         description: Sum of the balances of the envelopes
         example: -10.13
@@ -1712,6 +1741,11 @@ definitions:
     type: object
   models.Envelope:
     properties:
+      archived:
+        default: false
+        description: Is the Envelope archived?
+        example: true
+        type: boolean
       categoryId:
         description: ID of the category the envelope belongs to
         example: 878c831f-af99-4a71-b3ca-80deb7d793c1
@@ -1772,6 +1806,11 @@ definitions:
         description: The amount of money allocated
         example: 85.44
         type: number
+      archived:
+        default: false
+        description: Is the Envelope archived?
+        example: true
+        type: boolean
       balance:
         description: The balance at the end of the monht
         example: 12.32
@@ -4876,11 +4915,11 @@ paths:
         in: query
         name: search
         type: string
-      - description: The offset of the first Transaction returned. Defaults to 0.
+      - description: The offset of the first Account returned. Defaults to 0.
         in: query
         name: offset
         type: integer
-      - description: Maximum number of transactions to return. Defaults to 50.
+      - description: Maximum number of Accounts to return. Defaults to 50.
         in: query
         name: limit
         type: integer
@@ -5086,6 +5125,14 @@ paths:
         in: query
         name: search
         type: string
+      - description: The offset of the first Budget returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Budgets to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -6179,7 +6226,7 @@ paths:
         in: query
         name: offset
         type: integer
-      - description: Maximum number of transactions to return. Defaults to 50.
+      - description: Maximum number of Transactions to return. Defaults to 50.
         in: query
         name: limit
         type: integer

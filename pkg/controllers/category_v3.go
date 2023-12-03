@@ -15,8 +15,10 @@ import (
 
 type CategoryV3 struct {
 	models.Category
-	Envelopes []EnvelopeV3 `json:"envelopes"` // Envelopes for the category
-	Links     struct {
+	Envelopes []EnvelopeV3 `json:"envelopes"`        // Envelopes for the category
+	Hidden    bool         `json:"hidden,omitempty"` // Remove the hidden field
+
+	Links struct {
 		Self      string `json:"self" example:"https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`              // The category itself
 		Envelopes string `json:"envelopes" example:"https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"` // Envelopes for this category
 	} `json:"links"`
@@ -236,7 +238,6 @@ func (co Controller) CreateCategoriesV3(c *gin.Context) {
 // @Param			budget	query	string	false	"Filter by budget ID"
 // @Param			hidden	query	bool	false	"Is the category hidden?"
 // @Param			search	query	string	false	"Search for this text in name and note"
-//
 // @Param			offset	query	uint	false	"The offset of the first Category returned. Defaults to 0."
 // @Param			limit	query	int		false	"Maximum number of Categories to return. Defaults to 50."
 func (co Controller) GetCategoriesV3(c *gin.Context) {

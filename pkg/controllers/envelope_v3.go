@@ -15,6 +15,8 @@ import (
 
 type EnvelopeV3 struct {
 	models.Envelope
+	Hidden bool `json:"hidden,omitempty"` // Remove the hidden field
+
 	Links struct {
 		Self         string `json:"self" example:"https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                      // The envelope itself
 		Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`  // The envelope's transactions

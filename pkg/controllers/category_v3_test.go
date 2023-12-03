@@ -161,33 +161,42 @@ func (suite *TestSuiteStandard) TestCategoriesV3GetFilter() {
 	})
 
 	tests := []struct {
-		name  string
-		query string
-		len   int
+		name      string
+		query     string
+		len       int
+		checkFunc func(t *testing.T, accounts []controllers.CategoryV3)
 	}{
-		{"Budget 1", fmt.Sprintf("budget=%s", b1.Data.ID), 1},
-		{"Budget Not Existing", "budget=c9e4ee7a-e702-4f92-b168-11a95b22c7aa", 0},
-		{"Empty Note", "note=", 0},
-		{"Empty Name", "name=", 0},
-		{"Name & Note", "name=Category Name&note=A note for this category", 1},
-		{"Fuzzy name, no note", "name=Category&note=", 0},
-		{"Fuzzy name", "name=t", 2},
-		{"Fuzzy note, no name", "name=&note=Groceries", 0},
-		{"Fuzzy note", "note=Groceries", 2},
-		{"Not archived", "archived=false", 2},
-		{"Archived", "archived=true", 1},
-		{"Search for 'groceries'", "search=groceries", 2},
-		{"Search for 'FOR'", "search=FOR", 2},
-		{"Offset 2", "offset=2", 1},
-		{"Offset 0, limit 2", "offset=0&limit=2", 2},
-		{"Limit 4", "limit=4", 3},
-		{"Limit 0", "limit=0", 0},
-		{"Limit -1", "limit=-1", 3},
+		{"Budget 1", fmt.Sprintf("budget=%s", b1.Data.ID), 1, nil},
+		{"Budget Not Existing", "budget=c9e4ee7a-e702-4f92-b168-11a95b22c7aa", 0, nil},
+		{"Empty Note", "note=", 0, nil},
+		{"Empty Name", "name=", 0, nil},
+		{"Name & Note", "name=Category Name&note=A note for this category", 1, nil},
+		{"Fuzzy name, no note", "name=Category&note=", 0, nil},
+		{"Fuzzy name", "name=t", 2, nil},
+		{"Fuzzy note, no name", "name=&note=Groceries", 0, nil},
+		{"Fuzzy note", "note=Groceries", 2, nil},
+		{"Not archived", "archived=false", 2, func(t *testing.T, categories []controllers.CategoryV3) {
+			for _, c := range categories {
+				assert.False(t, c.Archived)
+			}
+		}},
+		{"Archived", "archived=true", 1, func(t *testing.T, categories []controllers.CategoryV3) {
+			for _, c := range categories {
+				assert.True(t, c.Archived)
+			}
+		}},
+		{"Search for 'groceries'", "search=groceries", 2, nil},
+		{"Search for 'FOR'", "search=FOR", 2, nil},
+		{"Offset 2", "offset=2", 1, nil},
+		{"Offset 0, limit 2", "offset=0&limit=2", 2, nil},
+		{"Limit 4", "limit=4", 3, nil},
+		{"Limit 0", "limit=0", 0, nil},
+		{"Limit -1", "limit=-1", 3, nil},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			var re controllers.CategoryListResponse
+			var re controllers.CategoryListResponseV3
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v3/categories?%s", tt.query), "")
 			assertHTTPStatus(suite.T(), &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)
