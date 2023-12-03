@@ -3973,13 +3973,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "The offset of the first Transaction returned. Defaults to 0.",
+                        "description": "The offset of the first Account returned. Defaults to 0.",
                         "name": "offset",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Maximum number of transactions to return. Defaults to 50.",
+                        "description": "Maximum number of Accounts to return. Defaults to 50.",
                         "name": "limit",
                         "in": "query"
                     }
@@ -4283,6 +4283,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Search for this text in name and note",
                         "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The offset of the first Budget returned. Defaults to 0.",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of Budgets to return. Defaults to 50.",
+                        "name": "limit",
                         "in": "query"
                     }
                 ],
@@ -5899,7 +5911,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Maximum number of transactions to return. Defaults to 50.",
+                        "description": "Maximum number of Transactions to return. Defaults to 50.",
                         "name": "limit",
                         "in": "query"
                     }
@@ -6204,6 +6216,12 @@ const docTemplate = `{
         "controllers.Account": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "balance": {
                     "description": "Balance of the account, including all transactions referencing it",
                     "type": "number",
@@ -6395,6 +6413,12 @@ const docTemplate = `{
         "controllers.AccountV3": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "balance": {
                     "description": "Balance of the account, including all transactions referencing it",
                     "type": "number",
@@ -6422,10 +6446,8 @@ const docTemplate = `{
                     "example": false
                 },
                 "hidden": {
-                    "description": "Is the account archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "description": "Remove the hidden field",
+                    "type": "boolean"
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -6867,6 +6889,12 @@ const docTemplate = `{
         "controllers.Category": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "description": "Is the Category archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "budgetId": {
                     "description": "ID of the budget the category belongs to",
                     "type": "string",
@@ -7020,6 +7048,12 @@ const docTemplate = `{
         "controllers.CategoryV3": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "description": "Is the Category archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "budgetId": {
                     "description": "ID of the budget the category belongs to",
                     "type": "string",
@@ -7043,10 +7077,8 @@ const docTemplate = `{
                     }
                 },
                 "hidden": {
-                    "description": "Is the category hidden?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "description": "Remove the hidden field",
+                    "type": "boolean"
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -7088,6 +7120,12 @@ const docTemplate = `{
         "controllers.Envelope": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "description": "Is the Envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "categoryId": {
                     "description": "ID of the category the envelope belongs to",
                     "type": "string",
@@ -7258,6 +7296,12 @@ const docTemplate = `{
         "controllers.EnvelopeV3": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "description": "Is the Envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "categoryId": {
                     "description": "ID of the category the envelope belongs to",
                     "type": "string",
@@ -7274,10 +7318,8 @@ const docTemplate = `{
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "hidden": {
-                    "description": "Is the envelope hidden?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "description": "Remove the hidden field",
+                    "type": "boolean"
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -8431,6 +8473,12 @@ const docTemplate = `{
                     "type": "number",
                     "example": 90
                 },
+                "archived": {
+                    "description": "Is the Category archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "balance": {
                     "description": "Sum of the balances of the envelopes",
                     "type": "number",
@@ -8494,6 +8542,12 @@ const docTemplate = `{
         "models.Envelope": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "description": "Is the Envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
                 "categoryId": {
                     "description": "ID of the category the envelope belongs to",
                     "type": "string",
@@ -8570,6 +8624,12 @@ const docTemplate = `{
                     "description": "The amount of money allocated",
                     "type": "number",
                     "example": 85.44
+                },
+                "archived": {
+                    "description": "Is the Envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
                 },
                 "balance": {
                     "description": "The balance at the end of the monht",

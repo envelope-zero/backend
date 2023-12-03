@@ -15,6 +15,7 @@ type Envelope struct {
 	DefaultModel
 	EnvelopeCreate
 	Category Category `json:"-"`
+	Archived bool     `json:"archived" example:"true" default:"false" gorm:"-"` // Is the Envelope archived?
 }
 
 type EnvelopeCreate struct {
@@ -26,6 +27,13 @@ type EnvelopeCreate struct {
 
 func (e Envelope) Self() string {
 	return "Envelope"
+}
+
+func (e *Envelope) AfterFind(_ *gorm.DB) (err error) {
+	// Set the Archived field to the value of Hidden
+	e.Archived = e.Hidden
+
+	return nil
 }
 
 // BeforeUpdate verifies the state of the envelope before

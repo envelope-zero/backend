@@ -260,7 +260,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			var re controllers.TransactionListResponse
+			var re controllers.TransactionListResponseV3
 			r := test.Request(suite.controller, t, http.MethodGet, fmt.Sprintf("/v3/transactions?%s", tt.query), "")
 			assertHTTPStatus(t, &r, http.StatusOK)
 			suite.decodeResponse(&r, &re)

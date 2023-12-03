@@ -9,7 +9,8 @@ import (
 type Category struct {
 	DefaultModel
 	CategoryCreate
-	Budget Budget `json:"-"` // The budget the category belongs to
+	Budget   Budget `json:"-"`
+	Archived bool   `json:"archived" example:"true" default:"false" gorm:"-"` // Is the Category archived?
 }
 
 type CategoryCreate struct {
@@ -21,6 +22,13 @@ type CategoryCreate struct {
 
 func (c Category) Self() string {
 	return "Category"
+}
+
+func (c *Category) AfterFind(_ *gorm.DB) (err error) {
+	// Set the Archived field to the value of Hidden
+	c.Archived = c.Hidden
+
+	return nil
 }
 
 // BeforeUpdate archives all envelopes when the category is archived.

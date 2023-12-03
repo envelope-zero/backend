@@ -18,8 +18,8 @@ type BudgetQueryFilterV3 struct {
 	Note     string `form:"note" filterField:"false"`   // By note
 	Currency string `form:"currency"`                   // By currency
 	Search   string `form:"search" filterField:"false"` // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Transaction returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of transactions to return. Defaults to 50.
+	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Budget returned. Defaults to 0.
+	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Budgets to return. Defaults to 50.
 }
 
 // Budget is the API v3 representation of a Budget.
@@ -32,7 +32,7 @@ type BudgetV3 struct {
 		Envelopes    string `json:"envelopes" example:"https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`        // Envelopes for this budget
 		Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`  // Transactions for this budget
 		Month        string `json:"month" example:"https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
-	} `json:"links" gorm:"-"`
+	} `json:"links"`
 }
 
 // links sets all links for the Budget.
@@ -222,6 +222,8 @@ func (co Controller) CreateBudgetsV3(c *gin.Context) {
 // @Param			note		query	string	false	"Filter by note"
 // @Param			currency	query	string	false	"Filter by currency"
 // @Param			search		query	string	false	"Search for this text in name and note"
+// @Param			offset		query	uint	false	"The offset of the first Budget returned. Defaults to 0."
+// @Param			limit		query	int		false	"Maximum number of Budgets to return. Defaults to 50."
 func (co Controller) GetBudgetsV3(c *gin.Context) {
 	var filter BudgetQueryFilterV3
 
