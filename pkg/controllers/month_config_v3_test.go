@@ -11,6 +11,7 @@ import (
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -120,7 +121,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsV3UpdateFails() {
 		{"Invalid month", envelope.Data.ID.String(), "September Seventy Seven", "", http.StatusBadRequest},
 		{"No envelope", uuid.NewString(), month.String(), "", http.StatusNotFound},
 		{"No month config", envelope.Data.ID.String(), "1137-12", `{"note": "This implicitly creates a Month Config"}`, http.StatusOK},
-		{"Broken values", envelope.Data.ID.String(), month.String(), `{"overspendMode": 2 }`, http.StatusBadRequest},
+		{"Broken values", envelope.Data.ID.String(), month.String(), `{"note": 2 }`, http.StatusBadRequest},
 	}
 
 	for _, tt := range tests {
@@ -131,4 +132,32 @@ func (suite *TestSuiteStandard) TestMonthConfigsV3UpdateFails() {
 			assertHTTPStatus(t, &recorder, tt.status)
 		})
 	}
+}
+
+func (suite *TestSuiteStandard) TestMonthConfigsV3UpdateAllocationCreatesResource() {
+	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	month := types.NewMonth(time.Now().Year(), time.Now().Month())
+
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, fmt.Sprintf("http://example.com/v3/envelopes/%s/%s", envelope.Data.ID, month), controllers.MonthConfigCreateV3{
+		Note:       "This is the updated note",
+		Allocation: decimal.NewFromFloat(17.32),
+	})
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+
+	var updatedMonthConfig controllers.MonthConfigResponseV3
+	suite.decodeResponse(&recorder, &updatedMonthConfig)
+	assert.Equal(suite.T(), "This is the updated note", updatedMonthConfig.Data.Note)
+	assert.Equal(suite.T(), decimal.NewFromFloat(17.32), updatedMonthConfig.Data.Allocation)
+
+	// Verify that the allocation is set to the correct value
+	a := models.Allocation{
+		AllocationCreate: models.AllocationCreate{
+			Month:      month,
+			EnvelopeID: envelope.Data.ID,
+		},
+	}
+
+	err := suite.controller.DB.First(&a).Error
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), decimal.NewFromFloat(17.32), a.Amount)
 }

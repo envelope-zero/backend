@@ -99,6 +99,7 @@ func (co Controller) RegisterAllocationRoutes(r *gin.RouterGroup) {
 //	@Tags			Allocations
 //	@Success		204
 //	@Router			/v1/allocations [options]
+//	@Deprecated		true
 func (co Controller) OptionsAllocationList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -114,6 +115,7 @@ func (co Controller) OptionsAllocationList(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{id} [options]
+//	@Deprecated		true
 func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -140,6 +142,7 @@ func (co Controller) OptionsAllocationDetail(c *gin.Context) {
 //	@Failure		500			{object}	httperrors.HTTPError
 //	@Param			allocation	body		models.AllocationCreate	true	"Allocation"
 //	@Router			/v1/allocations [post]
+//	@Deprecated		true
 func (co Controller) CreateAllocation(c *gin.Context) {
 	var create models.AllocationCreate
 
@@ -182,6 +185,7 @@ func (co Controller) CreateAllocation(c *gin.Context) {
 //	@Param			month		query	string	false	"Filter by month"
 //	@Param			amount		query	string	false	"Filter by amount"
 //	@Param			envelope	query	string	false	"Filter by envelope ID"
+//	@Deprecated		true
 func (co Controller) GetAllocations(c *gin.Context) {
 	var filter AllocationQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -230,6 +234,7 @@ func (co Controller) GetAllocations(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{id} [get]
+//	@Deprecated		true
 func (co Controller) GetAllocation(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -264,6 +269,7 @@ func (co Controller) GetAllocation(c *gin.Context) {
 //	@Param			id			path		string					true	"ID formatted as string"
 //	@Param			allocation	body		models.AllocationCreate	true	"Allocation"
 //	@Router			/v1/allocations/{id} [patch]
+//	@Deprecated		true
 func (co Controller) UpdateAllocation(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -309,6 +315,7 @@ func (co Controller) UpdateAllocation(c *gin.Context) {
 //	@Failure		500	{object}	httperrors.HTTPError
 //	@Param			id	path		string	true	"ID formatted as string"
 //	@Router			/v1/allocations/{id} [delete]
+//	@Deprecated		true
 func (co Controller) DeleteAllocation(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {

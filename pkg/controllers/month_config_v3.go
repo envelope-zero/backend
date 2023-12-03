@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/envelope-zero/backend/v3/pkg/database"
@@ -12,6 +13,7 @@ import (
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type MonthConfigV3 struct {
@@ -68,30 +70,6 @@ type MonthConfigListResponseV3 struct {
 	Data       []MonthConfigV3 `json:"data"`                                                          // List of Month Configs
 	Error      *string         `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 	Pagination *Pagination     `json:"pagination"`                                                    // Pagination information
-}
-
-type MonthConfigQueryFilterV3 struct {
-	EnvelopeID string `form:"envelope"`                   // By ID of the envelope
-	Month      string `form:"month"`                      // By month
-	Offset     uint   `form:"offset" filterField:"false"` // The offset of the first Month Config returned. Defaults to 0.
-	Limit      int    `form:"limit" filterField:"false"`  // Maximum number of Month Configs to return. Defaults to 50.
-}
-
-func (m MonthConfigQueryFilterV3) Parse(c *gin.Context) (MonthConfigFilter, httperrors.Error) {
-	envelopeID, err := httputil.UUIDFromString(m.EnvelopeID)
-	if !err.Nil() {
-		return MonthConfigFilter{}, err
-	}
-
-	var month QueryMonth
-	if err := c.Bind(&month); err != nil {
-		return MonthConfigFilter{}, httperrors.Parse(c, err)
-	}
-
-	return MonthConfigFilter{
-		EnvelopeID: envelopeID,
-		Month:      types.MonthOf(month.Month),
-	}, httperrors.Error{}
 }
 
 // RegisterMonthConfigRoutesV3 registers the routes for transactions with
@@ -196,6 +174,18 @@ func (co Controller) GetMonthConfigV3(c *gin.Context) {
 	c.JSON(http.StatusOK, MonthConfigResponseV3{Data: &mConfig})
 }
 
+// MonthConfigCreateV3 contains the fields relevant for MonthConfigs in APIv3.
+type MonthConfigCreateV3 struct {
+	Note       string          `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""`                               // A note for the month config
+	Allocation decimal.Decimal `json:"allocation" gorm:"-" example:"22.01" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
+}
+
+// ToCreate is used to transform the API representation into the model representation
+func (m MonthConfigCreateV3) ToCreate() (create models.MonthConfigCreate) {
+	create.Note = m.Note
+	return create
+}
+
 // @Summary		Update MonthConfig
 // @Description	Changes configuration for a Month. If there is no configuration for the month yet, this endpoint transparently creates a configuration resource.
 // @Tags			Envelopes
@@ -204,9 +194,9 @@ func (co Controller) GetMonthConfigV3(c *gin.Context) {
 // @Failure		400			{object}	MonthConfigResponseV3
 // @Failure		404			{object}	MonthConfigResponseV3
 // @Failure		500			{object}	MonthConfigResponseV3
-// @Param			id			path		string						true	"ID of the Envelope"
-// @Param			month		path		string						true	"The month in YYYY-MM format"
-// @Param			monthConfig	body		models.MonthConfigCreate	true	"MonthConfig"
+// @Param			id			path		string				true	"ID of the Envelope"
+// @Param			month		path		string				true	"The month in YYYY-MM format"
+// @Param			monthConfig	body		MonthConfigCreateV3	true	"MonthConfig"
 // @Router			/v3/envelopes/{id}/{month} [patch]
 func (co Controller) UpdateMonthConfigV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -272,7 +262,7 @@ func (co Controller) UpdateMonthConfigV3(c *gin.Context) {
 		}
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.MonthConfigCreate{})
+	updateFields, err := httputil.GetBodyFields(c, MonthConfigCreateV3{})
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, MonthConfigResponseV3{
@@ -281,8 +271,8 @@ func (co Controller) UpdateMonthConfigV3(c *gin.Context) {
 		return
 	}
 
-	var data models.MonthConfig
-	err = httputil.BindData(c, &data.MonthConfigCreate)
+	var data MonthConfigCreateV3
+	err = httputil.BindData(c, &data)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, MonthConfigResponseV3{
@@ -291,7 +281,30 @@ func (co Controller) UpdateMonthConfigV3(c *gin.Context) {
 		return
 	}
 
-	err = query(c, co.DB.Model(&m).Select("", updateFields...).Updates(data))
+	// The Allocation field does not yet exist on the MonthConfig model in the database, create
+	// or update the corresponding allocation resource in the meantime
+	if slices.Contains(updateFields, "Allocation") && data.Allocation != decimal.Zero {
+		var allocation models.Allocation
+		e := co.DB.Where(models.Allocation{AllocationCreate: models.AllocationCreate{
+			Month:      types.MonthOf(month.Month),
+			EnvelopeID: id,
+		}}).Assign(models.Allocation{AllocationCreate: models.AllocationCreate{
+			Amount: data.Allocation,
+		}}).FirstOrCreate(&allocation).Error
+
+		if e != nil {
+			err = httperrors.Parse(c, err)
+			s := err.Error()
+			c.JSON(err.Status, MonthConfigResponseV3{
+				Error: &s,
+			})
+			return
+		}
+	}
+
+	create := data.ToCreate()
+
+	err = query(c, co.DB.Model(&m).Select("", updateFields...).Updates(create))
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, MonthConfigResponseV3{
