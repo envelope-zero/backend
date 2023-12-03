@@ -460,6 +460,7 @@ const docTemplate = `{
                     "Allocations"
                 ],
                 "summary": "Get allocations",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -510,6 +511,7 @@ const docTemplate = `{
                     "Allocations"
                 ],
                 "summary": "Create allocations",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Allocation",
@@ -554,6 +556,7 @@ const docTemplate = `{
                     "Allocations"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -571,6 +574,7 @@ const docTemplate = `{
                     "Allocations"
                 ],
                 "summary": "Get allocation",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -613,6 +617,7 @@ const docTemplate = `{
                     "Allocations"
                 ],
                 "summary": "Delete allocation",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -652,6 +657,7 @@ const docTemplate = `{
                     "Allocations"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -697,6 +703,7 @@ const docTemplate = `{
                     "Allocations"
                 ],
                 "summary": "Update allocation",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -5309,7 +5316,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.MonthConfigCreate"
+                            "$ref": "#/definitions/controllers.MonthConfigCreateV3"
                         }
                     }
                 ],
@@ -7584,6 +7591,14 @@ const docTemplate = `{
         "controllers.MonthConfig": {
             "type": "object",
             "properties": {
+                "allocation": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
+                },
                 "createdAt": {
                     "description": "Time the resource was created",
                     "type": "string",
@@ -7641,6 +7656,24 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.MonthConfigCreateV3": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
+                },
+                "note": {
+                    "description": "A note for the month config",
+                    "type": "string",
+                    "example": "Added 200€ here because we replaced Tim's expensive vase"
+                }
+            }
+        },
         "controllers.MonthConfigListResponse": {
             "type": "object",
             "properties": {
@@ -7687,6 +7720,14 @@ const docTemplate = `{
         "controllers.MonthConfigV3": {
             "type": "object",
             "properties": {
+                "allocation": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
+                },
                 "createdAt": {
                     "description": "Time the resource was created",
                     "type": "string",

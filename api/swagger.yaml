@@ -1004,6 +1004,14 @@ definitions:
     type: object
   controllers.MonthConfig:
     properties:
+      allocation:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
       createdAt:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
@@ -1048,6 +1056,21 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.MonthConfigCreateV3:
+    properties:
+      allocation:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+    type: object
   controllers.MonthConfigListResponse:
     properties:
       data:
@@ -1076,6 +1099,14 @@ definitions:
     type: object
   controllers.MonthConfigV3:
     properties:
+      allocation:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
       createdAt:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
@@ -2506,6 +2537,7 @@ paths:
       - Accounts
   /v1/allocations:
     get:
+      deprecated: true
       description: Returns a list of allocations
       parameters:
       - description: Filter by month
@@ -2539,6 +2571,7 @@ paths:
       tags:
       - Allocations
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -2548,6 +2581,7 @@ paths:
       tags:
       - Allocations
     post:
+      deprecated: true
       description: Create a new allocation of funds to an envelope for a specific
         month
       parameters:
@@ -2581,6 +2615,7 @@ paths:
       - Allocations
   /v1/allocations/{id}:
     delete:
+      deprecated: true
       description: Deletes an allocation
       parameters:
       - description: ID formatted as string
@@ -2607,6 +2642,7 @@ paths:
       tags:
       - Allocations
     get:
+      deprecated: true
       description: Returns a specific allocation
       parameters:
       - description: ID formatted as string
@@ -2637,6 +2673,7 @@ paths:
       tags:
       - Allocations
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -2666,6 +2703,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update an allocation. Only values to be updated need to be specified.
       parameters:
       - description: ID formatted as string
@@ -5817,7 +5855,7 @@ paths:
         name: monthConfig
         required: true
         schema:
-          $ref: '#/definitions/models.MonthConfigCreate'
+          $ref: '#/definitions/controllers.MonthConfigCreateV3'
       produces:
       - application/json
       responses:
