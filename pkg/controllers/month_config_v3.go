@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type MonthConfigV3 struct {
@@ -159,6 +160,31 @@ func (co Controller) GetMonthConfigV3(c *gin.Context) {
 				},
 			}
 			mConfig.links(c)
+
+			// Check if there is an allocation for this MonthConfig. If yes, set the value.
+			var a models.Allocation
+			err := co.DB.First(&a, models.Allocation{
+				AllocationCreate: models.AllocationCreate{
+					Month:      types.MonthOf(month.Month),
+					EnvelopeID: id,
+				},
+			}).Error
+
+			// If there is a database error, return it
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				e := httperrors.Parse(c, err)
+				s := e.Error()
+				c.JSON(e.Status, MonthConfigResponseV3{
+					Error: &s,
+				})
+				return
+			}
+
+			// Set the amount if there is an allocation. If not,
+			// the amount is 0, which is the zero value of decimal.Decimal
+			if err == nil {
+				mConfig.Allocation = a.Amount
+			}
 
 			c.JSON(http.StatusOK, MonthConfigResponseV3{Data: &mConfig})
 			return

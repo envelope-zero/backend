@@ -18,9 +18,9 @@ type EnvelopeV3 struct {
 	Hidden bool `json:"hidden,omitempty"` // Remove the hidden field
 
 	Links struct {
-		Self         string `json:"self" example:"https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                      // The envelope itself
-		Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"`  // The envelope's transactions
-		Month        string `json:"month" example:"https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"` // The MonthConfig for the envelope
+		Self         string `json:"self" example:"https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                     // The envelope itself
+		Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // The envelope's transactions
+		Month        string `json:"month" example:"https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // The MonthConfig for the envelope
 	} `json:"links"` // Links to related resources
 }
 
@@ -30,7 +30,7 @@ func (e *EnvelopeV3) links(c *gin.Context) {
 
 	e.Links.Self = self
 	e.Links.Transactions = fmt.Sprintf("%s/v3/transactions?envelope=%s", url, e.ID)
-	e.Links.Month = fmt.Sprintf("%s/v3/transactions?envelope=%s/YYYY-MM", url, e.ID)
+	e.Links.Month = fmt.Sprintf("%s/v3/envelopes/%s/YYYY-MM", url, e.ID)
 }
 
 func (co Controller) getEnvelopeV3(c *gin.Context, id uuid.UUID) (EnvelopeV3, httperrors.Error) {

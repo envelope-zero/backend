@@ -91,11 +91,11 @@ func (suite *TestSuiteStandard) TestMonthInvalidRequest() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.GroupedMonth, "YYYY-MM", "0001-01", 1), "")
 	assertHTTPStatus(suite.T(), &r, http.StatusBadRequest)
-	suite.Assert().Equal("The month query parameter must be set", test.DecodeError(suite.T(), r.Body.Bytes()))
+	suite.Assert().Equal("the month query parameter must be set", test.DecodeError(suite.T(), r.Body.Bytes()))
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, "http://example.com/v1/months?budget=6a463cc8-1938-474a-8aeb-0482b82ffb6f&month=2000-12", "")
 	assertHTTPStatus(suite.T(), &r, http.StatusNotFound)
-	suite.Assert().Equal("No Budget found for the specified ID", test.DecodeError(suite.T(), r.Body.Bytes()))
+	suite.Assert().Equal("there is no Budget with this ID", test.DecodeError(suite.T(), r.Body.Bytes()))
 }
 
 func (suite *TestSuiteStandard) TestMonthDBFail() {
