@@ -433,6 +433,13 @@ func (co Controller) UpdateCategoryV3(c *gin.Context) {
 		CategoryCreate: data.ToCreate(),
 	}
 
+	// If the archived parameter is set, add "Hidden" to the update fields
+	// This is done since in v3, we're using the name "Archived", but the
+	// field is not yet updated in the database, which will happen later
+	if slices.Contains(updateFields, "Archived") {
+		updateFields = append(updateFields, "Hidden")
+	}
+
 	err = query(c, co.DB.Model(&category).Select("", updateFields...).Updates(cat))
 	if !err.Nil() {
 		s := err.Error()

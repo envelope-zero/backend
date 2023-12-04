@@ -245,20 +245,50 @@ func (suite *TestSuiteStandard) TestEnvelopesV3CreateFails() {
 	}
 }
 
+// Verify that updating envelopes works as desired
 func (suite *TestSuiteStandard) TestEnvelopesV3Update() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{Name: "New envelope", Note: "Keks is a cuddly cat"})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, map[string]any{
-		"name": "Updated new envelope for testing",
-		"note": "",
-	})
-	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+	tests := []struct {
+		name     string                                               // name of the test
+		envelope map[string]any                                       // the updates to perform. This is not a struct because that would set all fields on the request
+		testFunc func(t *testing.T, a controllers.EnvelopeResponseV3) // tests to perform against the updated category resource
+	}{
+		{
+			"Name, Note",
+			map[string]any{
+				"name": "Another name",
+				"note": "New note!",
+			},
+			func(t *testing.T, a controllers.EnvelopeResponseV3) {
+				assert.Equal(t, "New note!", a.Data.Note)
+				assert.Equal(t, "Another name", a.Data.Name)
+			},
+		},
+		{
+			"Archived",
+			map[string]any{
+				"archived": true,
+			},
+			func(t *testing.T, a controllers.EnvelopeResponseV3) {
+				assert.True(t, a.Data.Archived)
+			},
+		},
+	}
 
-	var updatedEnvelope controllers.EnvelopeResponseV3
-	suite.decodeResponse(&recorder, &updatedEnvelope)
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPatch, envelope.Data.Links.Self, tt.envelope)
+			assertHTTPStatus(t, &r, http.StatusOK)
 
-	assert.Equal(suite.T(), "", updatedEnvelope.Data.Note)
-	assert.Equal(suite.T(), "Updated new envelope for testing", updatedEnvelope.Data.Name)
+			var e controllers.EnvelopeResponseV3
+			suite.decodeResponse(&r, &e)
+
+			if tt.testFunc != nil {
+				tt.testFunc(t, e)
+			}
+		})
+	}
 }
 
 func (suite *TestSuiteStandard) TestEnvelopesV3UpdateFails() {

@@ -468,6 +468,13 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		AccountCreate: data.ToCreate(),
 	}
 
+	// If the archived parameter is set, add "Hidden" to the update fields
+	// This is done since in v3, we're using the name "Archived", but the
+	// field is not yet updated in the database, which will happen later
+	if slices.Contains(updateFields, "Archived") {
+		updateFields = append(updateFields, "Hidden")
+	}
+
 	err = query(c, co.DB.Model(&account).Select("", updateFields...).Updates(a))
 	if !err.Nil() {
 		s := err.Error()

@@ -1,6 +1,7 @@
 package httputil
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -39,6 +40,14 @@ func BindData(c *gin.Context, data interface{}) httperrors.Error {
 			return httperrors.Error{
 				Status: http.StatusBadRequest,
 				Err:    httperrors.ErrRequestBodyEmpty,
+			}
+		}
+
+		var jsonUnmarshalTypeError *json.UnmarshalTypeError
+		if errors.As(err, &jsonUnmarshalTypeError) {
+			return httperrors.Error{
+				Status: http.StatusBadRequest,
+				Err:    err,
 			}
 		}
 

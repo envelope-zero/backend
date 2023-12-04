@@ -11,6 +11,7 @@ import (
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -265,22 +266,64 @@ func (suite *TestSuiteStandard) TestAccountsV3CreateFails() {
 	}
 }
 
+// Verify that updating accounts works as desired
 func (suite *TestSuiteStandard) TestAccountsV3Update() {
-	a := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "Original name", OnBudget: true})
+	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
+	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "Original name", BudgetID: budget.Data.ID})
 
-	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
-		"name":     "Updated new account for testing",
-		"note":     "",
-		"onBudget": false,
-	})
-	assertHTTPStatus(suite.T(), &r, http.StatusOK)
+	tests := []struct {
+		name     string                                              // name of the test
+		account  map[string]any                                      // the updates to perform. This is not a struct because that would set all fields on the request
+		testFunc func(t *testing.T, a controllers.AccountResponseV3) // tests to perform against the updated account resource
+	}{
+		{
+			"Name, On Budget, Note",
+			map[string]any{
+				"name":     "Another name",
+				"onBudget": true,
+				"note":     "New note!",
+			},
+			func(t *testing.T, a controllers.AccountResponseV3) {
+				assert.True(t, a.Data.OnBudget)
+				assert.Equal(t, "New note!", a.Data.Note)
+				assert.Equal(t, "Another name", a.Data.Name)
+			},
+		},
+		{
+			"Archived, External",
+			map[string]any{
+				"archived": true,
+				"external": true,
+			},
+			func(t *testing.T, a controllers.AccountResponseV3) {
+				assert.True(t, a.Data.Archived)
+				assert.True(t, a.Data.External)
+			},
+		},
+		{
+			"Initial Balance",
+			map[string]any{
+				"initialBalance": "203.21",
+			},
+			func(t *testing.T, a controllers.AccountResponseV3) {
+				assert.True(t, a.Data.InitialBalance.Equal(decimal.NewFromFloat(203.21)))
+			},
+		},
+	}
 
-	var u controllers.AccountResponseV3
-	suite.decodeResponse(&r, &u)
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPatch, account.Data.Links.Self, tt.account)
+			assertHTTPStatus(t, &r, http.StatusOK)
 
-	assert.Equal(suite.T(), "Updated new account for testing", u.Data.Name)
-	assert.Equal(suite.T(), "", u.Data.Note)
-	assert.Equal(suite.T(), false, u.Data.OnBudget)
+			var a controllers.AccountResponseV3
+			suite.decodeResponse(&r, &a)
+
+			if tt.testFunc != nil {
+				tt.testFunc(t, a)
+			}
+		})
+	}
 }
 
 func (suite *TestSuiteStandard) TestAccountsV3UpdateFails() {
