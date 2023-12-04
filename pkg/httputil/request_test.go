@@ -123,68 +123,92 @@ func TestBindDataEmptyBody(t *testing.T) {
 	r.ServeHTTP(w, c.Request)
 }
 
+// TestBindDataJsonUnmarshalTypeError verifies that BindData returns the correct error on a type error
+func TestBindDataJsonUnmarshalTypeError(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, r := gin.CreateTestContext(w)
+
+	r.GET("/", func(ctx *gin.Context) {
+		var o struct {
+			Name string `json:"name"`
+		}
+
+		err := httputil.BindData(c, &o)
+		assert.Equal(t, "json: cannot unmarshal number into Go struct field .name of type string", err.Error())
+	})
+
+	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/", bytes.NewBuffer([]byte(`{ "name": 2 }`)))
+	r.ServeHTTP(w, c.Request)
+}
+
+func TestUUIDFromStringHandleErrors(t *testing.T) {
+	tests := []struct {
+		name   string
+		url    string
+		status int // the expected http status
+	}{
+		{"Success", "https://example.com/?id=4e743e94-6a4b-44d6-aba5-d77c82103fa7", http.StatusOK},
+		{"Invalid UUID", "https://example.com/?id=not-a-valid-uuid", http.StatusBadRequest},
+		{"Empty UUID", "https://example.com/?id=", http.StatusOK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			c, r := gin.CreateTestContext(w)
+
+			r.GET("/", func(ctx *gin.Context) {
+				var o struct {
+					UUID string `form:"id"`
+				}
+
+				_ = c.Bind(&o)
+				_, ok := httputil.UUIDFromStringHandleErrors(c, o.UUID)
+				if !ok {
+					c.AbortWithStatus(http.StatusBadRequest)
+				}
+				c.Status(http.StatusOK)
+			})
+
+			c.Request, _ = http.NewRequest(http.MethodGet, tt.url, bytes.NewBuffer([]byte("")))
+			r.ServeHTTP(w, c.Request)
+			assert.Equal(t, tt.status, w.Code)
+		})
+	}
+}
+
 func TestUUIDFromString(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
+	tests := []struct {
+		name   string
+		url    string
+		status int // the expected http status
+	}{
+		{"Success", "https://example.com/?id=4e743e94-6a4b-44d6-aba5-d77c82103fa7", http.StatusOK},
+		{"Invalid UUID", "https://example.com/?id=not-a-valid-uuid", http.StatusBadRequest},
+		{"Empty UUID", "https://example.com/?id=", http.StatusOK},
+	}
 
-	r.GET("/", func(ctx *gin.Context) {
-		var o struct {
-			UUID string `form:"id"`
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			c, r := gin.CreateTestContext(w)
 
-		_ = c.Bind(&o)
-		_, ok := httputil.UUIDFromStringHandleErrors(c, o.UUID)
-		if !ok {
-			c.AbortWithStatus(http.StatusBadRequest)
-		}
-		c.Status(http.StatusOK)
-	})
+			r.GET("/", func(ctx *gin.Context) {
+				var o struct {
+					UUID string `form:"id"`
+				}
 
-	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/?id=4e743e94-6a4b-44d6-aba5-d77c82103fa7", bytes.NewBuffer([]byte("")))
-	r.ServeHTTP(w, c.Request)
-	assert.Equal(t, http.StatusOK, w.Code)
-}
+				_ = c.Bind(&o)
+				_, err := httputil.UUIDFromString(o.UUID)
+				if !err.Nil() {
+					c.AbortWithStatus(http.StatusBadRequest)
+				}
+				c.Status(http.StatusOK)
+			})
 
-func TestUUIDFromStringInvalid(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-
-	r.GET("/", func(ctx *gin.Context) {
-		var o struct {
-			UUID string `form:"id"`
-		}
-
-		_ = c.Bind(&o)
-		_, ok := httputil.UUIDFromStringHandleErrors(c, o.UUID)
-		if !ok {
-			c.AbortWithStatus(http.StatusBadRequest)
-		}
-		c.Status(http.StatusOK)
-	})
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/?id=not-a-valid-uuid", bytes.NewBuffer([]byte("")))
-	r.ServeHTTP(w, c.Request)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-}
-
-func TestUUIDFromStringEmpty(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-
-	r.GET("/", func(ctx *gin.Context) {
-		var o struct {
-			UUID string `form:"id"`
-		}
-
-		_ = c.Bind(&o)
-		_, ok := httputil.UUIDFromStringHandleErrors(c, o.UUID)
-		if !ok {
-			c.AbortWithStatus(http.StatusBadRequest)
-		}
-		c.Status(http.StatusOK)
-	})
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/?id=", bytes.NewBuffer([]byte("")))
-	r.ServeHTTP(w, c.Request)
-	assert.Equal(t, http.StatusOK, w.Code)
+			c.Request, _ = http.NewRequest(http.MethodGet, tt.url, bytes.NewBuffer([]byte("")))
+			r.ServeHTTP(w, c.Request)
+			assert.Equal(t, tt.status, w.Code)
+		})
+	}
 }
