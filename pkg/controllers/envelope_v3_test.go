@@ -7,15 +7,14 @@ import (
 	"testing"
 
 	"github.com/envelope-zero/backend/v3/pkg/controllers"
-	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestEnvelopeV3(t *testing.T, c models.EnvelopeCreate, expectedStatus ...int) controllers.EnvelopeResponseV3 {
+func (suite *TestSuiteStandard) createTestEnvelopeV3(t *testing.T, c controllers.EnvelopeCreateV3, expectedStatus ...int) controllers.EnvelopeResponseV3 {
 	if c.CategoryID == uuid.Nil {
-		c.CategoryID = suite.createTestCategoryV3(suite.T(), models.CategoryCreate{}).Data.ID
+		c.CategoryID = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{}).Data.ID
 	}
 
 	if c.Name == "" {
@@ -27,7 +26,7 @@ func (suite *TestSuiteStandard) createTestEnvelopeV3(t *testing.T, c models.Enve
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	body := []models.EnvelopeCreate{c}
+	body := []controllers.EnvelopeCreateV3{c}
 
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/envelopes", body)
 	assertHTTPStatus(t, &r, expectedStatus...)
@@ -45,7 +44,7 @@ func (suite *TestSuiteStandard) createTestEnvelopeV3(t *testing.T, c models.Enve
 // TestEnvelopesV3DBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestEnvelopesV3DBClosed() {
-	b := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
+	b := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -54,7 +53,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3DBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestEnvelopeV3(t, models.EnvelopeCreate{CategoryID: b.Data.ID}, http.StatusInternalServerError)
+				suite.createTestEnvelopeV3(t, controllers.EnvelopeCreateV3{CategoryID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -85,7 +84,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Options() {
 	}{
 		{"No Envelope with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Envelope exists", suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{}).Data.ID.String(), http.StatusNoContent},
+		{"Envelope exists", suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -104,7 +103,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Options() {
 // TestEnvelopesV3GetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestEnvelopesV3GetSingle() {
-	e := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	e := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 
 	tests := []struct {
 		name   string
@@ -138,23 +137,23 @@ func (suite *TestSuiteStandard) TestEnvelopesV3GetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopesV3GetFilter() {
-	c1 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
-	c2 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
+	c1 := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{})
+	c2 := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{})
 
-	_ = suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	_ = suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name:       "Groceries",
 		Note:       "For the stuff bought in supermarkets",
 		CategoryID: c1.Data.ID,
 	})
 
-	_ = suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	_ = suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name:       "Hairdresser",
 		Note:       "Because… Hair!",
 		CategoryID: c2.Data.ID,
-		Hidden:     true,
+		Archived:   true,
 	})
 
-	_ = suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	_ = suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name:       "Stamps",
 		Note:       "Because each stamp needs to go on an envelope. Hopefully it's not hairy",
 		CategoryID: c2.Data.ID,
@@ -207,7 +206,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3GetFilter() {
 
 func (suite *TestSuiteStandard) TestEnvelopesV3CreateFails() {
 	// Test envelope for uniqueness
-	e := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	e := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name: "Unique Envelope Name for Category",
 	})
 
@@ -230,7 +229,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3CreateFails() {
 		},
 		{
 			"Duplicate name in Category",
-			models.EnvelopeCreate{
+			controllers.EnvelopeCreateV3{
 				CategoryID: e.Data.CategoryID,
 				Name:       e.Data.Name,
 			},
@@ -247,7 +246,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3CreateFails() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopesV3Update() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{Name: "New envelope", Note: "Keks is a cuddly cat"})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{Name: "New envelope", Note: "Keks is a cuddly cat"})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, map[string]any{
 		"name": "Updated new envelope for testing",
@@ -272,7 +271,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3UpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing Envelope", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set Category to uuid.Nil", "", models.EnvelopeCreate{}, http.StatusBadRequest},
+		{"Set Category to uuid.Nil", "", controllers.EnvelopeCreateV3{}, http.StatusBadRequest},
 	}
 
 	for _, tt := range tests {
@@ -280,7 +279,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3UpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+				envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 					Name: "New Envelope",
 					Note: "Auto-created for test",
 				})
@@ -311,7 +310,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Delete() {
 
 			if tt.id == "" {
 				// Create test Account
-				e := suite.createTestEnvelopeV3(t, models.EnvelopeCreate{})
+				e := suite.createTestEnvelopeV3(t, controllers.EnvelopeCreateV3{})
 				tt.id = e.Data.ID.String()
 			}
 
@@ -324,19 +323,19 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Delete() {
 
 // TestEnvelopesV3GetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestEnvelopesV3GetSorted() {
-	e1 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	e1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name: "Alphabetically first",
 	})
 
-	e2 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	e2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name: "Second in creation, third in list",
 	})
 
-	e3 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	e3 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name: "First is alphabetically second",
 	})
 
-	e4 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{
+	e4 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{
 		Name: "Zulu is the last one",
 	})
 
@@ -358,7 +357,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3GetSorted() {
 
 func (suite *TestSuiteStandard) TestEnvelopesV3Pagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{Name: fmt.Sprint(i)})
+		suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

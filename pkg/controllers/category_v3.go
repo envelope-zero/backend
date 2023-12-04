@@ -13,6 +13,24 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// CategoryCreateV3 represents all user configurable parameters
+type CategoryCreateV3 struct {
+	Name     string    `json:"name" gorm:"uniqueIndex:category_budget_name" example:"Saving" default:""`                        // Name of the category
+	BudgetID uuid.UUID `json:"budgetId" gorm:"uniqueIndex:category_budget_name" example:"52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"` // ID of the budget the category belongs to
+	Note     string    `json:"note" example:"All envelopes for long-term saving" default:""`                                    // Notes about the category
+	Archived bool      `json:"archived" example:"true" default:"false"`                                                         // Is the category hidden?
+}
+
+// ToCreate transforms the API representation into the model representation
+func (c CategoryCreateV3) ToCreate() models.CategoryCreate {
+	return models.CategoryCreate{
+		Name:     c.Name,
+		BudgetID: c.BudgetID,
+		Note:     c.Note,
+		Hidden:   c.Archived,
+	}
+}
+
 type CategoryV3 struct {
 	models.Category
 	Envelopes []EnvelopeV3 `json:"envelopes"`        // Envelopes for the category
@@ -164,10 +182,10 @@ func (co Controller) OptionsCategoryDetailV3(c *gin.Context) {
 // @Failure		400			{object}	CategoryCreateResponseV3
 // @Failure		404			{object}	CategoryCreateResponseV3
 // @Failure		500			{object}	CategoryCreateResponseV3
-// @Param			categories	body		[]models.CategoryCreate	true	"Categories"
+// @Param			categories	body		[]CategoryCreateV3	true	"Categories"
 // @Router			/v3/categories [post]
 func (co Controller) CreateCategoriesV3(c *gin.Context) {
-	var categories []models.CategoryCreate
+	var categories []CategoryCreateV3
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &categories)
@@ -185,7 +203,7 @@ func (co Controller) CreateCategoriesV3(c *gin.Context) {
 
 	for _, create := range categories {
 		category := models.Category{
-			CategoryCreate: create,
+			CategoryCreate: create.ToCreate(),
 		}
 
 		dbErr := co.DB.Create(&category).Error
@@ -369,8 +387,8 @@ func (co Controller) GetCategoryV3(c *gin.Context) {
 // @Failure		400			{object}	CategoryResponseV3
 // @Failure		404			{object}	CategoryResponseV3
 // @Failure		500			{object}	CategoryResponseV3
-// @Param			id			path		string					true	"ID formatted as string"
-// @Param			category	body		models.CategoryCreate	true	"Category"
+// @Param			id			path		string				true	"ID formatted as string"
+// @Param			category	body		CategoryCreateV3	true	"Category"
 // @Router			/v3/categories/{id} [patch]
 func (co Controller) UpdateCategoryV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -391,7 +409,7 @@ func (co Controller) UpdateCategoryV3(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.CategoryCreate{})
+	updateFields, err := httputil.GetBodyFields(c, CategoryCreateV3{})
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, CategoryResponseV3{
@@ -400,8 +418,8 @@ func (co Controller) UpdateCategoryV3(c *gin.Context) {
 		return
 	}
 
-	var data models.Category
-	err = httputil.BindData(c, &data.CategoryCreate)
+	var data CategoryCreateV3
+	err = httputil.BindData(c, &data)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, CategoryResponseV3{
@@ -410,7 +428,12 @@ func (co Controller) UpdateCategoryV3(c *gin.Context) {
 		return
 	}
 
-	err = query(c, co.DB.Model(&category).Select("", updateFields...).Updates(data))
+	// Transform the API representation to the model representation
+	cat := models.Category{
+		CategoryCreate: data.ToCreate(),
+	}
+
+	err = query(c, co.DB.Model(&category).Select("", updateFields...).Updates(cat))
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, CategoryResponseV3{

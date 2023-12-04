@@ -16,7 +16,7 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestMonthConfigsV3GetSingle() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 	someMonth := types.NewMonth(2020, 3)
 
 	suite.controller.DB.Create(&models.MonthConfig{
@@ -62,7 +62,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsV3GetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsV3Options() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 
 	tests := []struct {
 		name     string
@@ -92,7 +92,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsV3Options() {
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsV3Update() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 	month := types.NewMonth(time.Now().Year(), time.Now().Month())
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, fmt.Sprintf("http://example.com/v3/envelopes/%s/%s", envelope.Data.ID, month), models.MonthConfigCreate{
@@ -106,7 +106,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsV3Update() {
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsV3UpdateFails() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 	month := types.NewMonth(2022, 3)
 
 	tests := []struct {
@@ -135,7 +135,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsV3UpdateFails() {
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsV3UpdateAllocationCreatesResource() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 	month := types.NewMonth(time.Now().Year(), time.Now().Month())
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, fmt.Sprintf("http://example.com/v3/envelopes/%s/%s", envelope.Data.ID, month), controllers.MonthConfigCreateV3{

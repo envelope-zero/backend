@@ -4037,7 +4037,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.AccountCreate"
+                                "$ref": "#/definitions/controllers.AccountCreateV3"
                             }
                         }
                     }
@@ -4232,7 +4232,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AccountCreate"
+                            "$ref": "#/definitions/controllers.AccountCreateV3"
                         }
                     }
                 ],
@@ -4659,7 +4659,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.CategoryCreate"
+                                "$ref": "#/definitions/controllers.CategoryCreateV3"
                             }
                         }
                     }
@@ -4854,7 +4854,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CategoryCreate"
+                            "$ref": "#/definitions/controllers.CategoryCreateV3"
                         }
                     }
                 ],
@@ -4979,7 +4979,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.EnvelopeCreate"
+                                "$ref": "#/definitions/controllers.EnvelopeCreateV3"
                             }
                         }
                     }
@@ -5174,7 +5174,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.EnvelopeCreate"
+                            "$ref": "#/definitions/controllers.EnvelopeCreateV3"
                         }
                     }
                 ],
@@ -6523,6 +6523,60 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.AccountCreateV3": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                }
+            }
+        },
         "controllers.AccountListResponse": {
             "type": "object",
             "properties": {
@@ -7158,6 +7212,32 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.CategoryCreateV3": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the category hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                }
+            }
+        },
         "controllers.CategoryEnvelopesV3": {
             "type": "object",
             "properties": {
@@ -7464,6 +7544,32 @@ const docTemplate = `{
                     "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.EnvelopeCreateV3": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the envelope hidden?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
                 }
             }
         },

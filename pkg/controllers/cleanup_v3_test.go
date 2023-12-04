@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v3/pkg/controllers"
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/envelope-zero/backend/v3/test"
 	"github.com/shopspring/decimal"
@@ -15,9 +16,9 @@ import (
 
 func (suite *TestSuiteStandard) TestCleanupV3() {
 	_ = suite.createTestBudget(models.BudgetCreate{})
-	account := suite.createTestAccountV3(suite.T(), models.AccountCreate{Name: "TestCleanup"})
-	_ = suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "TestCleanup"})
+	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 	_ = suite.createTestAllocation(models.AllocationCreate{})
 	_ = suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
 	_ = suite.createTestMonthConfig(envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
