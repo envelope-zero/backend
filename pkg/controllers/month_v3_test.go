@@ -23,7 +23,7 @@ func (suite *TestSuiteStandard) TestMonthsV3Get() {
 	assertHTTPStatus(suite.T(), &r, http.StatusOK)
 }
 
-func (suite *TestSuiteStandard) TestMonthGetV3EnvelopeAllocationLink() {
+func (suite *TestSuiteStandard) TestMonthsGetV3EnvelopeAllocationLink() {
 	var month controllers.MonthResponseV3
 
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
@@ -38,7 +38,7 @@ func (suite *TestSuiteStandard) TestMonthGetV3EnvelopeAllocationLink() {
 	suite.Assert().True(month.Data.Categories[0].Allocation.Equal(decimal.NewFromFloat(10)))
 }
 
-func (suite *TestSuiteStandard) TestMonthGetV3NotNil() {
+func (suite *TestSuiteStandard) TestMonthsGetV3NotNil() {
 	var month controllers.MonthResponseV3
 
 	// Verify that the categories list is empty, not nil
@@ -62,7 +62,7 @@ func (suite *TestSuiteStandard) TestMonthGetV3NotNil() {
 	suite.Assert().Empty(month.Data.Categories[0].Envelopes)
 }
 
-func (suite *TestSuiteStandard) TestMonthGetV3InvalidRequest() {
+func (suite *TestSuiteStandard) TestMonthsGetV3InvalidRequest() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	tests := []struct {
@@ -93,7 +93,7 @@ func (suite *TestSuiteStandard) TestMonthGetV3InvalidRequest() {
 	}
 }
 
-func (suite *TestSuiteStandard) TestMonthGetV3DBFail() {
+func (suite *TestSuiteStandard) TestMonthsGetV3DBFail() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	suite.CloseDB()
@@ -102,7 +102,7 @@ func (suite *TestSuiteStandard) TestMonthGetV3DBFail() {
 	assertHTTPStatus(suite.T(), &r, http.StatusInternalServerError)
 }
 
-func (suite *TestSuiteStandard) TestMonthGetV3Delete() {
+func (suite *TestSuiteStandard) TestMonthsGetV3Delete() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
@@ -132,7 +132,7 @@ func (suite *TestSuiteStandard) TestMonthGetV3Delete() {
 	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
-func (suite *TestSuiteStandard) TestMonthV3DeleteFail() {
+func (suite *TestSuiteStandard) TestMonthsV3DeleteFail() {
 	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	// Bad Request for invalid UUID
@@ -148,7 +148,7 @@ func (suite *TestSuiteStandard) TestMonthV3DeleteFail() {
 	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
 }
 
-func (suite *TestSuiteStandard) TestMonthV3AllocateBudgeted() {
+func (suite *TestSuiteStandard) TestMonthsV3AllocateBudgeted() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
@@ -212,7 +212,7 @@ func (suite *TestSuiteStandard) TestMonthV3AllocateBudgeted() {
 	suite.Assert().True(archivedEnvelopeMonth.Data.Allocation.IsZero(), "Expected: 0, got %s, Request ID: %s", archivedEnvelopeMonth.Data.Allocation, recorder.Header().Get("x-request-id"))
 }
 
-func (suite *TestSuiteStandard) TestMonthV3AllocateSpend() {
+func (suite *TestSuiteStandard) TestMonthsV3AllocateSpend() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	cashAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
 	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: true, Name: "TestSetMonthSpend External"})

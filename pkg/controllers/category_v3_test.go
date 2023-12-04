@@ -247,20 +247,51 @@ func (suite *TestSuiteStandard) TestCategoriesV3CreateFails() {
 	}
 }
 
+// Verify that updating categories works as desired
 func (suite *TestSuiteStandard) TestCategoriesV3Update() {
-	envelope := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{Name: "New Category", Note: "Keks is a cuddly cat"})
+	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
+	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{Name: "Name of the category", BudgetID: budget.Data.ID})
 
-	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, map[string]any{
-		"name": "Updated new Category for testing",
-		"note": "",
-	})
-	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+	tests := []struct {
+		name     string                                               // name of the test
+		category map[string]any                                       // the updates to perform. This is not a struct because that would set all fields on the request
+		testFunc func(t *testing.T, a controllers.CategoryResponseV3) // tests to perform against the updated category resource
+	}{
+		{
+			"Name, Note",
+			map[string]any{
+				"name": "Another name",
+				"note": "New note!",
+			},
+			func(t *testing.T, a controllers.CategoryResponseV3) {
+				assert.Equal(t, "New note!", a.Data.Note)
+				assert.Equal(t, "Another name", a.Data.Name)
+			},
+		},
+		{
+			"Archived",
+			map[string]any{
+				"archived": true,
+			},
+			func(t *testing.T, a controllers.CategoryResponseV3) {
+				assert.True(t, a.Data.Archived)
+			},
+		},
+	}
 
-	var updatedCategory controllers.CategoryResponseV3
-	suite.decodeResponse(&recorder, &updatedCategory)
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			r := test.Request(suite.controller, t, http.MethodPatch, category.Data.Links.Self, tt.category)
+			assertHTTPStatus(t, &r, http.StatusOK)
 
-	assert.Equal(suite.T(), "", updatedCategory.Data.Note)
-	assert.Equal(suite.T(), "Updated new Category for testing", updatedCategory.Data.Name)
+			var c controllers.CategoryResponseV3
+			suite.decodeResponse(&r, &c)
+
+			if tt.testFunc != nil {
+				tt.testFunc(t, c)
+			}
+		})
+	}
 }
 
 func (suite *TestSuiteStandard) TestCategoriesV3UpdateFails() {
