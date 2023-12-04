@@ -156,14 +156,14 @@ func (suite *TestSuiteStandard) TestTransactionsV3Get() {
 func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 	b := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
-	a1 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 1"})
-	a2 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 2"})
-	a3 := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 3"})
+	a1 := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 1"})
+	a2 := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 2"})
+	a3 := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: b.Data.ID, Name: "TestTransactionsV3GetFilter 3"})
 
-	c := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: b.Data.ID})
+	c := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: b.Data.ID})
 
-	e1 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})
-	e2 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: c.Data.ID})
+	e1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: c.Data.ID})
+	e2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: c.Data.ID})
 
 	e1ID := &e1.Data.ID
 	e2ID := &e2.Data.ID
@@ -310,8 +310,8 @@ func (suite *TestSuiteStandard) TestTransactionsV3CreateInvalidBody() {
 // TestTransactionsV3Create verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestTransactionsV3Create() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	internalAccount := suite.createTestAccountV3(suite.T(), models.AccountCreate{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create Internal"})
-	externalAccount := suite.createTestAccountV3(suite.T(), models.AccountCreate{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create External"})
+	internalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create Internal"})
+	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsV3Create External"})
 
 	tests := []struct {
 		name           string
@@ -533,13 +533,13 @@ func (suite *TestSuiteStandard) TestUpdateNonExistingTransactionV3() {
 
 // TestTransactionsV3Update verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestTransactionsV3Update() {
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
 	transaction := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
 		Amount:               decimal.NewFromFloat(23.14),
 		Note:                 "Test note for transaction",
 		BudgetID:             suite.createTestBudgetV3(suite.T(), models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
-		SourceAccountID:      suite.createTestAccountV3(suite.T(), models.AccountCreate{Name: "Internal Source Account", External: false}).Data.ID,
-		DestinationAccountID: suite.createTestAccountV3(suite.T(), models.AccountCreate{Name: "External destination account", External: true}).Data.ID,
+		SourceAccountID:      suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "External destination account", External: true}).Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
 	})
 

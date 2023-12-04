@@ -14,12 +14,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestAccountV3(t *testing.T, c models.AccountCreate, expectedStatus ...int) controllers.AccountResponseV3 {
+func (suite *TestSuiteStandard) createTestAccountV3(t *testing.T, c controllers.AccountCreateV3, expectedStatus ...int) controllers.AccountResponseV3 {
 	if c.BudgetID == uuid.Nil {
 		c.BudgetID = suite.createTestBudgetV3(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}
 
-	body := []models.AccountCreate{
+	body := []controllers.AccountCreateV3{
 		c,
 	}
 
@@ -53,7 +53,7 @@ func (suite *TestSuiteStandard) TestAccountsV3DBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestAccountV3(t, models.AccountCreate{BudgetID: b.Data.ID}, http.StatusInternalServerError)
+				suite.createTestAccountV3(t, controllers.AccountCreateV3{BudgetID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -84,7 +84,7 @@ func (suite *TestSuiteStandard) TestAccountsV3Options() {
 	}{
 		{"No account with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Account exists", suite.createTestAccountV3(suite.T(), models.AccountCreate{}).Data.ID.String(), http.StatusNoContent},
+		{"Account exists", suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -103,7 +103,7 @@ func (suite *TestSuiteStandard) TestAccountsV3Options() {
 // TestAccountV3GetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestAccountsV3GetSingle() {
-	a := suite.createTestAccountV3(suite.T(), models.AccountCreate{})
+	a := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{})
 
 	tests := []struct {
 		name   string
@@ -140,7 +140,7 @@ func (suite *TestSuiteStandard) TestAccountsV3GetFilter() {
 	b1 := suite.createTestBudget(models.BudgetCreate{})
 	b2 := suite.createTestBudget(models.BudgetCreate{})
 
-	_ = suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	_ = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name:     "Exact Account Match",
 		Note:     "This is a specific note",
 		BudgetID: b1.Data.ID,
@@ -148,7 +148,7 @@ func (suite *TestSuiteStandard) TestAccountsV3GetFilter() {
 		External: false,
 	})
 
-	_ = suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	_ = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name:     "External Account Filter",
 		Note:     "This is a specific note",
 		BudgetID: b2.Data.ID,
@@ -156,26 +156,26 @@ func (suite *TestSuiteStandard) TestAccountsV3GetFilter() {
 		External: true,
 	})
 
-	_ = suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	_ = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name:     "External Account Filter",
 		Note:     "A different note",
 		BudgetID: b1.Data.ID,
 		OnBudget: false,
 		External: true,
-		Hidden:   true,
+		Archived: true,
 	})
 
-	_ = suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	_ = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name:     "",
 		Note:     "specific note",
 		BudgetID: b1.Data.ID,
 	})
 
-	_ = suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	_ = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name:     "Name only",
 		Note:     "",
 		BudgetID: b1.Data.ID,
-		Hidden:   true,
+		Archived: true,
 	})
 
 	tests := []struct {
@@ -266,7 +266,7 @@ func (suite *TestSuiteStandard) TestAccountsV3CreateFails() {
 }
 
 func (suite *TestSuiteStandard) TestAccountsV3Update() {
-	a := suite.createTestAccountV3(suite.T(), models.AccountCreate{Name: "Original name", OnBudget: true})
+	a := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "Original name", OnBudget: true})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodPatch, a.Data.Links.Self, map[string]any{
 		"name":     "Updated new account for testing",
@@ -293,7 +293,7 @@ func (suite *TestSuiteStandard) TestAccountsV3UpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing account", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set budget to uuid.Nil", "", models.AccountCreate{}, http.StatusBadRequest},
+		{"Set budget to uuid.Nil", "", controllers.AccountCreateV3{}, http.StatusBadRequest},
 	}
 
 	for _, tt := range tests {
@@ -301,7 +301,7 @@ func (suite *TestSuiteStandard) TestAccountsV3UpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				account := suite.createTestAccountV3(suite.T(), models.AccountCreate{
+				account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 					Name: "New Budget",
 					Note: "More tests something something",
 				})
@@ -333,7 +333,7 @@ func (suite *TestSuiteStandard) TestAccountsV3Delete() {
 
 			if tt.id == "" {
 				// Create test Account
-				a := suite.createTestAccountV3(t, models.AccountCreate{})
+				a := suite.createTestAccountV3(t, controllers.AccountCreateV3{})
 				tt.id = a.Data.ID.String()
 			}
 
@@ -346,19 +346,19 @@ func (suite *TestSuiteStandard) TestAccountsV3Delete() {
 
 // TestAccountsV3GetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestAccountsV3GetSorted() {
-	a1 := suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	a1 := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name: "Alphabetically first",
 	})
 
-	a2 := suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	a2 := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name: "Second in creation, third in list",
 	})
 
-	a3 := suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	a3 := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name: "First is alphabetically second",
 	})
 
-	a4 := suite.createTestAccountV3(suite.T(), models.AccountCreate{
+	a4 := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name: "Zulu is the last one",
 	})
 
@@ -380,7 +380,7 @@ func (suite *TestSuiteStandard) TestAccountsV3GetSorted() {
 
 func (suite *TestSuiteStandard) TestAccountsV3Pagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestAccountV3(suite.T(), models.AccountCreate{Name: fmt.Sprint(i)})
+		suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

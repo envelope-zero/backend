@@ -13,6 +13,24 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// EnvelopeCreateV3 represents all user configurable parameters
+type EnvelopeCreateV3 struct {
+	Name       string    `json:"name" gorm:"uniqueIndex:envelope_category_name" example:"Groceries" default:""`                       // Name of the envelope
+	CategoryID uuid.UUID `json:"categoryId" gorm:"uniqueIndex:envelope_category_name" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"` // ID of the category the envelope belongs to
+	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`                           // Notes about the envelope
+	Archived   bool      `json:"archived" example:"true" default:"false"`                                                             // Is the envelope hidden?
+}
+
+// ToCreate transforms the API representation into the model representation
+func (e EnvelopeCreateV3) ToCreate() models.EnvelopeCreate {
+	return models.EnvelopeCreate{
+		Name:       e.Name,
+		CategoryID: e.CategoryID,
+		Note:       e.Note,
+		Hidden:     e.Archived,
+	}
+}
+
 type EnvelopeV3 struct {
 	models.Envelope
 	Hidden bool `json:"hidden,omitempty"` // Remove the hidden field
@@ -155,10 +173,10 @@ func (co Controller) OptionsEnvelopeDetailV3(c *gin.Context) {
 // @Failure		400			{object}	EnvelopeCreateResponseV3
 // @Failure		404			{object}	EnvelopeCreateResponseV3
 // @Failure		500			{object}	EnvelopeCreateResponseV3
-// @Param			envelope	body		[]models.EnvelopeCreate	true	"Envelopes"
+// @Param			envelope	body		[]controllers.EnvelopeCreateV3	true	"Envelopes"
 // @Router			/v3/envelopes [post]
 func (co Controller) CreateEnvelopesV3(c *gin.Context) {
-	var envelopes []models.EnvelopeCreate
+	var envelopes []EnvelopeCreateV3
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &envelopes)
@@ -176,7 +194,7 @@ func (co Controller) CreateEnvelopesV3(c *gin.Context) {
 
 	for _, create := range envelopes {
 		e := models.Envelope{
-			EnvelopeCreate: create,
+			EnvelopeCreate: create.ToCreate(),
 		}
 
 		dbErr := co.DB.Create(&e).Error
@@ -370,8 +388,8 @@ func (co Controller) GetEnvelopeV3(c *gin.Context) {
 // @Failure		400			{object}	EnvelopeResponseV3
 // @Failure		404			{object}	EnvelopeResponseV3
 // @Failure		500			{object}	EnvelopeResponseV3
-// @Param			id			path		string					true	"ID formatted as string"
-// @Param			envelope	body		models.EnvelopeCreate	true	"Envelope"
+// @Param			id			path		string							true	"ID formatted as string"
+// @Param			envelope	body		controllers.EnvelopeCreateV3	true	"Envelope"
 // @Router			/v3/envelopes/{id} [patch]
 func (co Controller) UpdateEnvelopeV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -392,7 +410,7 @@ func (co Controller) UpdateEnvelopeV3(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.EnvelopeCreate{})
+	updateFields, err := httputil.GetBodyFields(c, EnvelopeCreateV3{})
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeResponseV3{
@@ -401,8 +419,8 @@ func (co Controller) UpdateEnvelopeV3(c *gin.Context) {
 		return
 	}
 
-	var data models.Envelope
-	err = httputil.BindData(c, &data.EnvelopeCreate)
+	var data EnvelopeCreateV3
+	err = httputil.BindData(c, &data)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeResponseV3{
@@ -411,7 +429,12 @@ func (co Controller) UpdateEnvelopeV3(c *gin.Context) {
 		return
 	}
 
-	err = query(c, co.DB.Model(&envelope).Select("", updateFields...).Updates(data))
+	// Transform the API representation to the model representation
+	e := models.Envelope{
+		EnvelopeCreate: data.ToCreate(),
+	}
+
+	err = query(c, co.DB.Model(&envelope).Select("", updateFields...).Updates(e))
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeResponseV3{

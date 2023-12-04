@@ -27,8 +27,8 @@ func (suite *TestSuiteStandard) TestMonthGetV3EnvelopeAllocationLink() {
 	var month controllers.MonthResponseV3
 
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	category := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 	_ = suite.createTestAllocation(models.AllocationCreate{Amount: decimal.NewFromFloat(10), EnvelopeID: envelope.Data.ID, Month: types.NewMonth(2022, 1)})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", 1), "")
@@ -53,7 +53,7 @@ func (suite *TestSuiteStandard) TestMonthGetV3NotNil() {
 	suite.Assert().Empty(month.Data.Categories)
 
 	// Verify that the envelopes list is empty, not nil
-	_ = suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
+	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
 
 	r = test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", 1), "")
 	assertHTTPStatus(suite.T(), &r, http.StatusOK)
@@ -104,9 +104,9 @@ func (suite *TestSuiteStandard) TestMonthGetV3DBFail() {
 
 func (suite *TestSuiteStandard) TestMonthGetV3Delete() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	category := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope1 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
-	envelope2 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
+	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
+	envelope2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 
 	allocation1 := suite.createTestAllocation(models.AllocationCreate{
 		Month:      types.NewMonth(2022, 1),
@@ -150,10 +150,10 @@ func (suite *TestSuiteStandard) TestMonthV3DeleteFail() {
 
 func (suite *TestSuiteStandard) TestMonthV3AllocateBudgeted() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	category := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope1 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
-	envelope2 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
-	archivedEnvelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Hidden: true})
+	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
+	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
+	envelope2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
+	archivedEnvelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID, Archived: true})
 
 	e1Amount := decimal.NewFromFloat(30)
 	e2Amount := decimal.NewFromFloat(40)
@@ -214,11 +214,11 @@ func (suite *TestSuiteStandard) TestMonthV3AllocateBudgeted() {
 
 func (suite *TestSuiteStandard) TestMonthV3AllocateSpend() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	cashAccount := suite.createTestAccountV3(suite.T(), models.AccountCreate{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
-	externalAccount := suite.createTestAccountV3(suite.T(), models.AccountCreate{External: true, Name: "TestSetMonthSpend External"})
-	category := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope1 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
-	envelope2 := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID})
+	cashAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
+	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: true, Name: "TestSetMonthSpend External"})
+	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
+	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
+	envelope2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 
 	_ = suite.createTestAllocation(models.AllocationCreate{
 		Month:      types.NewMonth(2022, 1),
@@ -293,10 +293,10 @@ func (suite *TestSuiteStandard) TestMonthsV3PostFails() {
 // TestMonthsV3 verifies that the monthly calculations are correct.
 func (suite *TestSuiteStandard) TestMonthsV3() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	category := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{BudgetID: budget.Data.ID, Name: "Upkeep"})
-	envelope := suite.createTestEnvelopeV3(suite.T(), models.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
-	account := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
-	externalAccount := suite.createTestAccountV3(suite.T(), models.AccountCreate{BudgetID: budget.Data.ID, External: true})
+	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID, Name: "Upkeep"})
+	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID, Name: "Utilities"})
+	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
+	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, External: true})
 
 	// Allocate funds to the months
 	// TODO: Replace this with createTestMonthConfigV3 once Allocations are integrated and not transparently created by API v3

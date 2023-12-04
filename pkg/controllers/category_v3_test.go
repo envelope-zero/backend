@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestCategoryV3(t *testing.T, c models.CategoryCreate, expectedStatus ...int) controllers.CategoryResponseV3 {
+func (suite *TestSuiteStandard) createTestCategoryV3(t *testing.T, c controllers.CategoryCreateV3, expectedStatus ...int) controllers.CategoryResponseV3 {
 	if c.BudgetID == uuid.Nil {
 		c.BudgetID = suite.createTestBudget(models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}
@@ -27,7 +27,7 @@ func (suite *TestSuiteStandard) createTestCategoryV3(t *testing.T, c models.Cate
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	body := []models.CategoryCreate{c}
+	body := []controllers.CategoryCreateV3{c}
 
 	r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/categories", body)
 	assertHTTPStatus(t, &r, expectedStatus...)
@@ -54,7 +54,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3DBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestCategoryV3(t, models.CategoryCreate{BudgetID: b.Data.ID}, http.StatusInternalServerError)
+				suite.createTestCategoryV3(t, controllers.CategoryCreateV3{BudgetID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -85,7 +85,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3Options() {
 	}{
 		{"No Category with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Category exists", suite.createTestCategoryV3(suite.T(), models.CategoryCreate{}).Data.ID.String(), http.StatusNoContent},
+		{"Category exists", suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -104,7 +104,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3Options() {
 // TestCategoriesV3GetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestCategoriesV3GetSingle() {
-	c := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{})
+	c := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{})
 
 	tests := []struct {
 		name   string
@@ -141,20 +141,20 @@ func (suite *TestSuiteStandard) TestCategoriesV3GetFilter() {
 	b1 := suite.createTestBudget(models.BudgetCreate{})
 	b2 := suite.createTestBudget(models.BudgetCreate{})
 
-	_ = suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name:     "Category Name",
 		Note:     "A note for this category",
 		BudgetID: b1.Data.ID,
-		Hidden:   true,
+		Archived: true,
 	})
 
-	_ = suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name:     "Groceries",
 		Note:     "For Groceries",
 		BudgetID: b2.Data.ID,
 	})
 
-	_ = suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name:     "Daily stuff",
 		Note:     "Groceries, Drug Store, …",
 		BudgetID: b2.Data.ID,
@@ -208,7 +208,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3GetFilter() {
 
 func (suite *TestSuiteStandard) TestCategoriesV3CreateFails() {
 	// Test category for uniqueness
-	c := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	c := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name: "Unique Category Name for Budget",
 	})
 
@@ -231,7 +231,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3CreateFails() {
 		},
 		{
 			"Duplicate name in Budget",
-			models.CategoryCreate{
+			controllers.CategoryCreateV3{
 				BudgetID: c.Data.BudgetID,
 				Name:     c.Data.Name,
 			},
@@ -248,7 +248,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3CreateFails() {
 }
 
 func (suite *TestSuiteStandard) TestCategoriesV3Update() {
-	envelope := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{Name: "New Category", Note: "Keks is a cuddly cat"})
+	envelope := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{Name: "New Category", Note: "Keks is a cuddly cat"})
 
 	recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, envelope.Data.Links.Self, map[string]any{
 		"name": "Updated new Category for testing",
@@ -273,7 +273,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3UpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing Category", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set Budget to uuid.Nil", "", models.CategoryCreate{}, http.StatusBadRequest},
+		{"Set Budget to uuid.Nil", "", controllers.CategoryCreateV3{}, http.StatusBadRequest},
 	}
 
 	for _, tt := range tests {
@@ -281,7 +281,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3UpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				envelope := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+				envelope := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 					Name: "New Envelope",
 					Note: "Auto-created for test",
 				})
@@ -312,7 +312,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3Delete() {
 
 			if tt.id == "" {
 				// Create test Account
-				e := suite.createTestCategoryV3(t, models.CategoryCreate{})
+				e := suite.createTestCategoryV3(t, controllers.CategoryCreateV3{})
 				tt.id = e.Data.ID.String()
 			}
 
@@ -325,19 +325,19 @@ func (suite *TestSuiteStandard) TestCategoriesV3Delete() {
 
 // TestCategoriesV3GetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestCategoriesV3GetSorted() {
-	c1 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	c1 := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name: "Alphabetically first",
 	})
 
-	c2 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	c2 := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name: "Second in creation, third in list",
 	})
 
-	c3 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	c3 := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name: "First is alphabetically second",
 	})
 
-	c4 := suite.createTestCategoryV3(suite.T(), models.CategoryCreate{
+	c4 := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name: "Zulu is the last one",
 	})
 
@@ -359,7 +359,7 @@ func (suite *TestSuiteStandard) TestCategoriesV3GetSorted() {
 
 func (suite *TestSuiteStandard) TestCategoriesV3Pagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestCategoryV3(suite.T(), models.CategoryCreate{Name: fmt.Sprint(i)})
+		suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

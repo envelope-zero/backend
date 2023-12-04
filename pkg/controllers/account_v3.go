@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/envelope-zero/backend/v3/pkg/database"
@@ -14,6 +15,34 @@ import (
 	"github.com/shopspring/decimal"
 	"golang.org/x/exp/slices"
 )
+
+// AccountCreateV3 represents all user configurable parameters
+type AccountCreateV3 struct {
+	Name               string          `json:"name" example:"Cash" default:"" gorm:"uniqueIndex:account_name_budget_id"`                          // Name of the account
+	Note               string          `json:"note" example:"Money in my wallet" default:""`                                                      // A longer description for the account
+	BudgetID           uuid.UUID       `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf" gorm:"uniqueIndex:account_name_budget_id"` // ID of the budget this account belongs to
+	OnBudget           bool            `json:"onBudget" example:"true" default:"false"`                                                           // Does the account factor into the available budget? Always false when external: true
+	External           bool            `json:"external" example:"false" default:"false"`                                                          // Does the account belong to the budget owner or not?
+	InitialBalance     decimal.Decimal `json:"initialBalance" example:"173.12" default:"0"`                                                       // Balance of the account before any transactions were recorded
+	InitialBalanceDate *time.Time      `json:"initialBalanceDate" example:"2017-05-12T00:00:00Z"`                                                 // Date of the initial balance
+	Archived           bool            `json:"archived" example:"true" default:"false"`                                                           // Is the account archived?
+	ImportHash         string          `json:"importHash" example:"867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70" default:""`  // The SHA256 hash of a unique combination of values to use in duplicate detection
+}
+
+// ToCreate transforms the API representation into the model representation
+func (a AccountCreateV3) ToCreate() models.AccountCreate {
+	return models.AccountCreate{
+		Name:               a.Name,
+		Note:               a.Note,
+		BudgetID:           a.BudgetID,
+		OnBudget:           a.OnBudget,
+		External:           a.External,
+		InitialBalance:     a.InitialBalance,
+		InitialBalanceDate: a.InitialBalanceDate,
+		Hidden:             a.Archived,
+		ImportHash:         a.ImportHash,
+	}
+}
 
 type AccountListResponseV3 struct {
 	Data       []AccountV3 `json:"data"`                                                          // List of accounts
@@ -184,10 +213,10 @@ func (co Controller) OptionsAccountDetailV3(c *gin.Context) {
 // @Failure		400			{object}	AccountCreateResponseV3
 // @Failure		404			{object}	AccountCreateResponseV3
 // @Failure		500			{object}	AccountCreateResponseV3
-// @Param			accounts	body		[]models.AccountCreate	true	"Accounts"
+// @Param			accounts	body		[]AccountCreateV3	true	"Accounts"
 // @Router			/v3/accounts [post].
 func (co Controller) CreateAccountsV3(c *gin.Context) {
-	var accounts []models.AccountCreate
+	var accounts []AccountCreateV3
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &accounts)
@@ -204,7 +233,7 @@ func (co Controller) CreateAccountsV3(c *gin.Context) {
 
 	for _, create := range accounts {
 		a := models.Account{
-			AccountCreate: create,
+			AccountCreate: create.ToCreate(),
 		}
 
 		dbErr := co.DB.Create(&a).Error
@@ -393,8 +422,8 @@ func (co Controller) GetAccountV3(c *gin.Context) {
 // @Failure		400		{object}	AccountResponseV3
 // @Failure		404		{object}	AccountResponseV3
 // @Failure		500		{object}	AccountResponseV3
-// @Param			id		path		string					true	"ID formatted as string"
-// @Param			account	body		models.AccountCreate	true	"Account"
+// @Param			id		path		string			true	"ID formatted as string"
+// @Param			account	body		AccountCreateV3	true	"Account"
 // @Router			/v3/accounts/{id} [patch]
 func (co Controller) UpdateAccountV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -415,7 +444,7 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.AccountCreate{})
+	updateFields, err := httputil.GetBodyFields(c, AccountCreateV3{})
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponseV3{
@@ -424,8 +453,8 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	var data models.Account
-	err = httputil.BindData(c, &data.AccountCreate)
+	var data AccountCreateV3
+	err = httputil.BindData(c, &data)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponseV3{
@@ -434,7 +463,12 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	err = query(c, co.DB.Model(&account).Select("", updateFields...).Updates(data))
+	// Transform the API representation to the model representation
+	a := models.Account{
+		AccountCreate: data.ToCreate(),
+	}
+
+	err = query(c, co.DB.Model(&account).Select("", updateFields...).Updates(a))
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponseV3{

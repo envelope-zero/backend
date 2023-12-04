@@ -103,6 +103,51 @@ definitions:
         example: the specified resource ID is not a valid UUID
         type: string
     type: object
+  controllers.AccountCreateV3:
+    properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+    type: object
   controllers.AccountListResponse:
     properties:
       data:
@@ -572,6 +617,26 @@ definitions:
         example: the specified resource ID is not a valid UUID
         type: string
     type: object
+  controllers.CategoryCreateV3:
+    properties:
+      archived:
+        default: false
+        description: Is the category hidden?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+    type: object
   controllers.CategoryEnvelopesV3:
     properties:
       allocation:
@@ -799,6 +864,26 @@ definitions:
       error:
         description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.EnvelopeCreateV3:
+    properties:
+      archived:
+        default: false
+        description: Is the envelope hidden?
+        example: true
+        type: boolean
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
         type: string
     type: object
   controllers.EnvelopeListResponse:
@@ -5170,7 +5255,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/models.AccountCreate'
+            $ref: '#/definitions/controllers.AccountCreateV3'
           type: array
       produces:
       - application/json
@@ -5293,7 +5378,7 @@ paths:
         name: account
         required: true
         schema:
-          $ref: '#/definitions/models.AccountCreate'
+          $ref: '#/definitions/controllers.AccountCreateV3'
       produces:
       - application/json
       responses:
@@ -5587,7 +5672,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/models.CategoryCreate'
+            $ref: '#/definitions/controllers.CategoryCreateV3'
           type: array
       produces:
       - application/json
@@ -5711,7 +5796,7 @@ paths:
         name: category
         required: true
         schema:
-          $ref: '#/definitions/models.CategoryCreate'
+          $ref: '#/definitions/controllers.CategoryCreateV3'
       produces:
       - application/json
       responses:
@@ -5802,7 +5887,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/models.EnvelopeCreate'
+            $ref: '#/definitions/controllers.EnvelopeCreateV3'
           type: array
       produces:
       - application/json
@@ -5926,7 +6011,7 @@ paths:
         name: envelope
         required: true
         schema:
-          $ref: '#/definitions/models.EnvelopeCreate'
+          $ref: '#/definitions/controllers.EnvelopeCreateV3'
       produces:
       - application/json
       responses:
