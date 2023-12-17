@@ -90,6 +90,18 @@ type CategoryCreateResponseV3 struct {
 	Error *string              `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 }
 
+func (c *CategoryCreateResponseV3) appendError(err httperrors.Error, status int) int {
+	s := err.Error()
+	c.Data = append(c.Data, CategoryResponseV3{Error: &s})
+
+	// The final status code is the highest HTTP status code number
+	if err.Status > status {
+		status = err.Status
+	}
+
+	return status
+}
+
 type CategoryResponseV3 struct {
 	Data  *CategoryV3 `json:"data"`                                                          // Data for the Category
 	Error *string     `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
@@ -206,36 +218,25 @@ func (co Controller) CreateCategoriesV3(c *gin.Context) {
 			CategoryCreate: create.ToCreate(),
 		}
 
+		// Verify that the budget exists. If not, append the error
+		// and move to the next one.
+		_, err := getResourceByID[models.Budget](c, co, create.BudgetID)
+		if !err.Nil() {
+			status = r.appendError(err, status)
+			continue
+		}
+
 		dbErr := co.DB.Create(&category).Error
 		if dbErr != nil {
 			err := httperrors.GenericDBError[models.Category](category, c, dbErr)
-			s := err.Error()
-			c.JSON(err.Status, CategoryCreateResponseV3{
-				Error: &s,
-			})
-			return
-		}
-
-		// Append the error
-		if !err.Nil() {
-			e := err.Error()
-			r.Data = append(r.Data, CategoryResponseV3{Error: &e})
-
-			// The final status code is the highest HTTP status code number since this also
-			// represents the priority we
-			if err.Status > status {
-				status = err.Status
-			}
+			status = r.appendError(err, status)
 			continue
 		}
 
 		eObject, err := co.getCategoryV3(c, category.ID)
 		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, CategoryCreateResponseV3{
-				Error: &e,
-			})
-			return
+			status = r.appendError(err, status)
+			continue
 		}
 		r.Data = append(r.Data, CategoryResponseV3{Data: &eObject})
 	}

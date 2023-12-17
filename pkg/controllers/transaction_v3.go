@@ -27,6 +27,18 @@ type TransactionCreateResponseV3 struct {
 	Data  []TransactionResponseV3 `json:"data"`                                                          // List of created Transactions
 }
 
+func (t *TransactionCreateResponseV3) appendError(err httperrors.Error, status int) int {
+	s := err.Error()
+	t.Data = append(t.Data, TransactionResponseV3{Error: &s})
+
+	// The final status code is the highest HTTP status code number
+	if err.Status > status {
+		status = err.Status
+	}
+
+	return status
+}
+
 type TransactionResponseV3 struct {
 	Error *string        `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this transaction
 	Data  *TransactionV3 `json:"data"`                                                          // The Transaction data, if creation was successful
@@ -368,25 +380,15 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 
 		// Append the error
 		if !err.Nil() {
-			e := err.Error()
-			r.Data = append(r.Data, TransactionResponseV3{Error: &e})
-
-			// The final status code is the highest HTTP status code number since this also
-			// represents the priority we
-			if err.Status > status {
-				status = err.Status
-			}
+			status = r.appendError(err, status)
 			continue
 		}
 
 		// Append the transaction
 		tObject, err := co.getTransactionV3(c, t.ID)
 		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, TransactionCreateResponseV3{
-				Error: &e,
-			})
-			return
+			status = r.appendError(err, status)
+			continue
 		}
 		r.Data = append(r.Data, TransactionResponseV3{Data: &tObject})
 	}

@@ -47,6 +47,18 @@ type MatchRuleCreateResponseV3 struct {
 	Data  []MatchRuleResponseV3 `json:"data"`                                                          // List of created Match Rules
 }
 
+func (m *MatchRuleCreateResponseV3) appendError(err httperrors.Error, status int) int {
+	s := err.Error()
+	m.Data = append(m.Data, MatchRuleResponseV3{Error: &s})
+
+	// The final status code is the highest HTTP status code number
+	if err.Status > status {
+		status = err.Status
+	}
+
+	return status
+}
+
 type MatchRuleResponseV3 struct {
 	Error *string      `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this Match Rule
 	Data  *MatchRuleV3 `json:"data"`                                                          // The Match Rule data, if creation was successful
@@ -162,25 +174,16 @@ func (co Controller) CreateMatchRulesV3(c *gin.Context) {
 
 		// Append the error or the successfully created transaction to the response list
 		if !err.Nil() {
-			e := err.Error()
-			r.Data = append(r.Data, MatchRuleResponseV3{Error: &e})
-
-			// The final status code is the highest HTTP status code number since this also
-			// represents the priority we
-			if err.Status > status {
-				status = err.Status
-			}
-		} else {
-			o, err := co.getMatchRuleV3(c, m.ID)
-			if !err.Nil() {
-				e := err.Error()
-				c.JSON(err.Status, MatchRuleCreateResponseV3{
-					Error: &e,
-				})
-				return
-			}
-			r.Data = append(r.Data, MatchRuleResponseV3{Data: &o})
+			status = r.appendError(err, status)
+			continue
 		}
+
+		o, err := co.getMatchRuleV3(c, m.ID)
+		if !err.Nil() {
+			status = r.appendError(err, status)
+			continue
+		}
+		r.Data = append(r.Data, MatchRuleResponseV3{Data: &o})
 	}
 
 	c.JSON(status, r)

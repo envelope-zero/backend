@@ -76,6 +76,19 @@ type EnvelopeCreateResponseV3 struct {
 	Error *string              `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 }
 
+// appendError appends an EnvelopeResponseV3 with the error and returns the updated HTTP status
+func (e *EnvelopeCreateResponseV3) appendError(err httperrors.Error, status int) int {
+	s := err.Error()
+	e.Data = append(e.Data, EnvelopeResponseV3{Error: &s})
+
+	// The final status code is the highest HTTP status code number
+	if err.Status > status {
+		status = err.Status
+	}
+
+	return status
+}
+
 type EnvelopeResponseV3 struct {
 	Data  *EnvelopeV3 `json:"data"`                                                          // Data for the Envelope
 	Error *string     `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
@@ -197,37 +210,27 @@ func (co Controller) CreateEnvelopesV3(c *gin.Context) {
 			EnvelopeCreate: create.ToCreate(),
 		}
 
+		// Verify that the category exists. If not, append the error
+		// and move to the next envelope
+		_, err := getResourceByID[models.Category](c, co, create.CategoryID)
+		if !err.Nil() {
+			status = r.appendError(err, status)
+			continue
+		}
+
 		dbErr := co.DB.Create(&e).Error
 		if dbErr != nil {
 			err := httperrors.GenericDBError[models.Envelope](e, c, dbErr)
-			s := err.Error()
-			c.JSON(err.Status, EnvelopeCreateResponseV3{
-				Error: &s,
-			})
-			return
-		}
-
-		// Append the error
-		if !err.Nil() {
-			e := err.Error()
-			r.Data = append(r.Data, EnvelopeResponseV3{Error: &e})
-
-			// The final status code is the highest HTTP status code number since this also
-			// represents the priority we
-			if err.Status > status {
-				status = err.Status
-			}
+			status = r.appendError(err, status)
 			continue
 		}
 
 		eObject, err := co.getEnvelopeV3(c, e.ID)
 		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, EnvelopeCreateResponseV3{
-				Error: &e,
-			})
-			return
+			status = r.appendError(err, status)
+			continue
 		}
+
 		r.Data = append(r.Data, EnvelopeResponseV3{Data: &eObject})
 	}
 

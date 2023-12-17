@@ -239,29 +239,68 @@ func (suite *TestSuiteStandard) TestAccountsV3GetFilter() {
 }
 
 func (suite *TestSuiteStandard) TestAccountsV3CreateFails() {
+	// Test account for uniqueness
+	a := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
+		Name: "Unique Account Name for Budget",
+	})
+
 	tests := []struct {
-		name   string
-		body   any
-		status int // expected HTTP status
+		name     string
+		body     any
+		status   int                                                       // expected HTTP status
+		testFunc func(t *testing.T, a controllers.AccountCreateResponseV3) // tests to perform against the updated account resource
 	}{
-		{"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest},
-		{"No body", "", http.StatusBadRequest},
+		{"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest, func(t *testing.T, a controllers.AccountCreateResponseV3) {
+			assert.Equal(t, "json: cannot unmarshal number into Go struct field AccountCreateV3.note of type string", *a.Error)
+		}},
+		{
+			"No body", "", http.StatusBadRequest,
+			func(t *testing.T, a controllers.AccountCreateResponseV3) {
+				assert.Equal(t, "the request body must not be empty", *a.Error)
+			},
+		},
 		{
 			"No Budget",
 			`[{ "note": "Some text" }]`,
 			http.StatusBadRequest,
+			func(t *testing.T, a controllers.AccountCreateResponseV3) {
+				assert.Equal(t, "no Budget ID specified", *a.Data[0].Error)
+			},
 		},
 		{
 			"Non-existing Budget",
 			`[{ "budgetId": "ea85ad1a-3679-4ced-b83b-89566c12ece9" }]`,
+			http.StatusNotFound,
+			func(t *testing.T, a controllers.AccountCreateResponseV3) {
+				assert.Equal(t, "there is no Budget with this ID", *a.Data[0].Error)
+			},
+		},
+		{
+			"Duplicate name for budget",
+			[]controllers.AccountCreateV3{
+				{
+					Name:     a.Data.Name,
+					BudgetID: a.Data.BudgetID,
+				},
+			},
 			http.StatusBadRequest,
+			func(t *testing.T, a controllers.AccountCreateResponseV3) {
+				assert.Equal(t, "the account name must be unique for the budget", *a.Data[0].Error)
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			recorder := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/accounts", tt.body)
-			assertHTTPStatus(t, &recorder, tt.status)
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/accounts", tt.body)
+			assertHTTPStatus(t, &r, tt.status)
+
+			var a controllers.AccountCreateResponseV3
+			decodeResponse(t, &r, &a)
+
+			if tt.testFunc != nil {
+				tt.testFunc(t, a)
+			}
 		})
 	}
 }

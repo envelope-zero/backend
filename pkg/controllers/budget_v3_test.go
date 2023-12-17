@@ -180,17 +180,29 @@ func (suite *TestSuiteStandard) TestBudgetsV3GetFilter() {
 
 func (suite *TestSuiteStandard) TestBudgetsV3CreateFails() {
 	tests := []struct {
-		name string
-		body string
+		name     string
+		body     string
+		testFunc func(t *testing.T, b controllers.BudgetCreateResponseV3) // tests to perform against the updated budget resource
 	}{
-		{"Broken Body", `{ "note": 2 }`},
-		{"No body", ""},
+		{"Broken Body", `{ "note": 2 }`, func(t *testing.T, b controllers.BudgetCreateResponseV3) {
+			assert.Equal(t, "json: cannot unmarshal object into Go value of type []models.BudgetCreate", *b.Error)
+		}},
+		{"No body", "", func(t *testing.T, b controllers.BudgetCreateResponseV3) {
+			assert.Equal(t, "the request body must not be empty", *b.Error)
+		}},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			recorder := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/budgets", tt.body)
-			assertHTTPStatus(t, &recorder, http.StatusBadRequest)
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/budgets", tt.body)
+			assertHTTPStatus(t, &r, http.StatusBadRequest)
+
+			var b controllers.BudgetCreateResponseV3
+			suite.decodeResponse(&r, &b)
+
+			if tt.testFunc != nil {
+				tt.testFunc(t, b)
+			}
 		})
 	}
 }

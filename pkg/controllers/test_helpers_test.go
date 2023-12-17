@@ -28,3 +28,11 @@ func (suite *TestSuiteStandard) decodeResponse(r *httptest.ResponseRecorder, tar
 		assert.FailNow(suite.T(), "Parsing error", "Unable to parse response from server %q into %v, '%v', Request ID: %s", r.Body, reflect.TypeOf(target), err, r.Result().Header.Get("x-request-id"))
 	}
 }
+
+// decodeResponse decodes an HTTP response into a target struct.
+func decodeResponse(t *testing.T, r *httptest.ResponseRecorder, target interface{}) {
+	err := json.NewDecoder(r.Body).Decode(target)
+	if err != nil {
+		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into %v, '%v', Request ID: %s", r.Body, reflect.TypeOf(target), err, r.Result().Header.Get("x-request-id"))
+	}
+}

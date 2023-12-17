@@ -211,36 +211,60 @@ func (suite *TestSuiteStandard) TestEnvelopesV3CreateFails() {
 	})
 
 	tests := []struct {
-		name   string
-		body   any
-		status int // expected HTTP status
+		name     string
+		body     any
+		status   int                                                        // expected HTTP status
+		testFunc func(t *testing.T, e controllers.EnvelopeCreateResponseV3) // tests to perform against the updated envelope resource
 	}{
-		{"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest},
-		{"No body", "", http.StatusBadRequest},
+		{
+			"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest,
+			func(t *testing.T, e controllers.EnvelopeCreateResponseV3) {
+				assert.Equal(t, "json: cannot unmarshal number into Go struct field EnvelopeCreateV3.note of type string", *e.Error)
+			},
+		},
+		{"No body", "", http.StatusBadRequest, func(t *testing.T, e controllers.EnvelopeCreateResponseV3) {
+			assert.Equal(t, "the request body must not be empty", *e.Error)
+		}},
 		{
 			"No Category",
-			`[{ "note": "Some text" }]`,
-			http.StatusBadRequest,
+			`[{ "note": "Some text" }]`, http.StatusBadRequest,
+			func(t *testing.T, e controllers.EnvelopeCreateResponseV3) {
+				assert.Equal(t, "no Category ID specified", *e.Data[0].Error)
+			},
 		},
 		{
 			"Non-existing Category",
-			`[{ "categoryId": "ea85ad1a-3679-4ced-b83b-89566c12ece9" }]`,
-			http.StatusBadRequest,
+			`[{ "categoryId": "ea85ad1a-3679-4ced-b83b-89566c12ece9" }]`, http.StatusNotFound,
+			func(t *testing.T, e controllers.EnvelopeCreateResponseV3) {
+				assert.Equal(t, "there is no Category with this ID", *e.Data[0].Error)
+			},
 		},
 		{
 			"Duplicate name in Category",
-			controllers.EnvelopeCreateV3{
-				CategoryID: e.Data.CategoryID,
-				Name:       e.Data.Name,
+			[]controllers.EnvelopeCreateV3{
+				{
+					CategoryID: e.Data.CategoryID,
+					Name:       e.Data.Name,
+				},
 			},
 			http.StatusBadRequest,
+			func(t *testing.T, e controllers.EnvelopeCreateResponseV3) {
+				assert.Equal(t, "the envelope name must be unique for the category", *e.Data[0].Error)
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			recorder := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/envelopes", tt.body)
-			assertHTTPStatus(t, &recorder, tt.status)
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/envelopes", tt.body)
+			assertHTTPStatus(t, &r, tt.status)
+
+			var e controllers.EnvelopeCreateResponseV3
+			decodeResponse(t, &r, &e)
+
+			if tt.testFunc != nil {
+				tt.testFunc(t, e)
+			}
 		})
 	}
 }
@@ -252,7 +276,7 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Update() {
 	tests := []struct {
 		name     string                                               // name of the test
 		envelope map[string]any                                       // the updates to perform. This is not a struct because that would set all fields on the request
-		testFunc func(t *testing.T, a controllers.EnvelopeResponseV3) // tests to perform against the updated category resource
+		testFunc func(t *testing.T, e controllers.EnvelopeResponseV3) // tests to perform against the updated envelope resource
 	}{
 		{
 			"Name, Note",
@@ -260,9 +284,9 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Update() {
 				"name": "Another name",
 				"note": "New note!",
 			},
-			func(t *testing.T, a controllers.EnvelopeResponseV3) {
-				assert.Equal(t, "New note!", a.Data.Note)
-				assert.Equal(t, "Another name", a.Data.Name)
+			func(t *testing.T, e controllers.EnvelopeResponseV3) {
+				assert.Equal(t, "New note!", e.Data.Note)
+				assert.Equal(t, "Another name", e.Data.Name)
 			},
 		},
 		{
@@ -270,8 +294,8 @@ func (suite *TestSuiteStandard) TestEnvelopesV3Update() {
 			map[string]any{
 				"archived": true,
 			},
-			func(t *testing.T, a controllers.EnvelopeResponseV3) {
-				assert.True(t, a.Data.Archived)
+			func(t *testing.T, e controllers.EnvelopeResponseV3) {
+				assert.True(t, e.Data.Archived)
 			},
 		},
 	}

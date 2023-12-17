@@ -74,6 +74,18 @@ type BudgetCreateResponseV3 struct {
 	Data  []BudgetResponseV3 `json:"data"`                                                          // List of created Budgets
 }
 
+func (b *BudgetCreateResponseV3) appendError(err httperrors.Error, status int) int {
+	s := err.Error()
+	b.Data = append(b.Data, BudgetResponseV3{Error: &s})
+
+	// The final status code is the highest HTTP status code number
+	if err.Status > status {
+		status = err.Status
+	}
+
+	return status
+}
+
 type BudgetResponseV3 struct {
 	Data  *BudgetV3 `json:"data"`                                                          // Data for the budget
 	Error *string   `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
@@ -176,34 +188,15 @@ func (co Controller) CreateBudgetsV3(c *gin.Context) {
 		dbErr := co.DB.Create(&b).Error
 		if dbErr != nil {
 			err := httperrors.GenericDBError[models.Budget](b, c, dbErr)
-			s := err.Error()
-			c.JSON(err.Status, BudgetCreateResponseV3{
-				Error: &s,
-			})
-			return
-		}
-
-		// Append the error
-		if !err.Nil() {
-			e := err.Error()
-			r.Data = append(r.Data, BudgetResponseV3{Error: &e})
-
-			// The final status code is the highest HTTP status code number since this also
-			// represents the priority we
-			if err.Status > status {
-				status = err.Status
-			}
+			status = r.appendError(err, status)
 			continue
 		}
 
 		// Append the budget
 		bObject, err := co.getBudgetV3(c, b.ID)
 		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, BudgetCreateResponseV3{
-				Error: &e,
-			})
-			return
+			status = r.appendError(err, status)
+			continue
 		}
 		r.Data = append(r.Data, BudgetResponseV3{Data: &bObject})
 	}

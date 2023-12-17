@@ -213,36 +213,65 @@ func (suite *TestSuiteStandard) TestCategoriesV3CreateFails() {
 	})
 
 	tests := []struct {
-		name   string
-		body   any
-		status int // expected HTTP status
+		name     string
+		body     any
+		status   int                                                        // expected HTTP status
+		testFunc func(t *testing.T, c controllers.CategoryCreateResponseV3) // tests to perform against the updated category resource
 	}{
-		{"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest},
-		{"No body", "", http.StatusBadRequest},
+		{
+			"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest,
+			func(t *testing.T, c controllers.CategoryCreateResponseV3) {
+				assert.Equal(t, "json: cannot unmarshal number into Go struct field CategoryCreateV3.note of type string", *c.Error)
+			},
+		},
+		{
+			"No body", "", http.StatusBadRequest,
+			func(t *testing.T, c controllers.CategoryCreateResponseV3) {
+				assert.Equal(t, "the request body must not be empty", *c.Error)
+			},
+		},
 		{
 			"No Budget",
 			`[{ "note": "Some text" }]`,
 			http.StatusBadRequest,
+			func(t *testing.T, c controllers.CategoryCreateResponseV3) {
+				assert.Equal(t, "no Budget ID specified", *c.Data[0].Error)
+			},
 		},
 		{
 			"Non-existing Budget",
 			`[{ "budgetId": "ea85ad1a-3679-4ced-b83b-89566c12ece9" }]`,
-			http.StatusBadRequest,
+			http.StatusNotFound,
+			func(t *testing.T, c controllers.CategoryCreateResponseV3) {
+				assert.Equal(t, "there is no Budget with this ID", *c.Data[0].Error)
+			},
 		},
 		{
 			"Duplicate name in Budget",
-			controllers.CategoryCreateV3{
-				BudgetID: c.Data.BudgetID,
-				Name:     c.Data.Name,
+			[]controllers.CategoryCreateV3{
+				{
+					BudgetID: c.Data.BudgetID,
+					Name:     c.Data.Name,
+				},
 			},
 			http.StatusBadRequest,
+			func(t *testing.T, c controllers.CategoryCreateResponseV3) {
+				assert.Equal(t, "the category name must be unique for the budget", *c.Data[0].Error)
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			recorder := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/categories", tt.body)
-			assertHTTPStatus(t, &recorder, tt.status)
+			r := test.Request(suite.controller, t, http.MethodPost, "http://example.com/v3/categories", tt.body)
+			assertHTTPStatus(t, &r, tt.status)
+
+			var c controllers.CategoryCreateResponseV3
+			decodeResponse(t, &r, &c)
+
+			if tt.testFunc != nil {
+				tt.testFunc(t, c)
+			}
 		})
 	}
 }
