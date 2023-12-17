@@ -55,6 +55,18 @@ type AccountCreateResponseV3 struct {
 	Data  []AccountResponseV3 `json:"data"`                                                          // List of created Accounts
 }
 
+func (a *AccountCreateResponseV3) appendError(err httperrors.Error, status int) int {
+	s := err.Error()
+	a.Data = append(a.Data, AccountResponseV3{Error: &s})
+
+	// The final status code is the highest HTTP status code number
+	if err.Status > status {
+		status = err.Status
+	}
+
+	return status
+}
+
 type AccountResponseV3 struct {
 	Data  *AccountV3 `json:"data"`                                                          // Data for the account
 	Error *string    `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this transaction
@@ -214,7 +226,7 @@ func (co Controller) OptionsAccountDetailV3(c *gin.Context) {
 // @Failure		404			{object}	AccountCreateResponseV3
 // @Failure		500			{object}	AccountCreateResponseV3
 // @Param			accounts	body		[]AccountCreateV3	true	"Accounts"
-// @Router			/v3/accounts [post].
+// @Router			/v3/accounts [post]
 func (co Controller) CreateAccountsV3(c *gin.Context) {
 	var accounts []AccountCreateV3
 
@@ -236,36 +248,25 @@ func (co Controller) CreateAccountsV3(c *gin.Context) {
 			AccountCreate: create.ToCreate(),
 		}
 
+		// Verify that budget exists. If not, append the error
+		// and move to the next account
+		_, err := getResourceByID[models.Budget](c, co, create.BudgetID)
+		if !err.Nil() {
+			status = r.appendError(err, status)
+			continue
+		}
+
 		dbErr := co.DB.Create(&a).Error
 		if dbErr != nil {
 			err := httperrors.GenericDBError[models.Account](a, c, dbErr)
-			s := err.Error()
-			c.JSON(err.Status, AccountCreateResponseV3{
-				Error: &s,
-			})
-			return
-		}
-
-		// Append the error
-		if !err.Nil() {
-			e := err.Error()
-			r.Data = append(r.Data, AccountResponseV3{Error: &e})
-
-			// The final status code is the highest HTTP status code number since this also
-			// represents the priority we
-			if err.Status > status {
-				status = err.Status
-			}
+			status = r.appendError(err, status)
 			continue
 		}
 
 		aObject, err := co.getAccountV3(c, a.ID)
 		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, AccountCreateResponseV3{
-				Error: &e,
-			})
-			return
+			status = r.appendError(err, status)
+			continue
 		}
 		r.Data = append(r.Data, AccountResponseV3{Data: &aObject})
 	}
