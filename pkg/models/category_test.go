@@ -1,9 +1,25 @@
 package models_test
 
 import (
+	"strings"
+
 	"github.com/envelope-zero/backend/v3/pkg/models"
 	"github.com/stretchr/testify/assert"
 )
+
+func (suite *TestSuiteStandard) TestCategoryTrimWhitespace() {
+	name := "\t Whitespace galore!   "
+	note := " Some more whitespace in the notes    "
+
+	category := suite.createTestCategory(models.CategoryCreate{
+		Name:     name,
+		Note:     note,
+		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+	})
+
+	assert.Equal(suite.T(), strings.TrimSpace(name), category.Name)
+	assert.Equal(suite.T(), strings.TrimSpace(note), category.Note)
+}
 
 func (suite *TestSuiteStandard) TestCategoryArchiveArchivesEnvelopes() {
 	category := suite.createTestCategory(models.CategoryCreate{

@@ -11,6 +11,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func (suite *TestSuiteStandard) TestTransactionTrimWhitespace() {
+	note := " Some more whitespace in the notes    "
+	importHash := "  867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70  \t"
+
+	budgetID := suite.createTestBudget(models.BudgetCreate{}).ID
+
+	transaction := suite.createTestTransaction(models.TransactionCreate{
+		Note:                 note,
+		ImportHash:           importHash,
+		BudgetID:             budgetID,
+		SourceAccountID:      suite.createTestAccount(models.AccountCreate{BudgetID: budgetID}).ID,
+		DestinationAccountID: suite.createTestAccount(models.AccountCreate{BudgetID: budgetID}).ID,
+	})
+
+	assert.Equal(suite.T(), strings.TrimSpace(note), transaction.Note)
+	assert.Equal(suite.T(), strings.TrimSpace(importHash), transaction.ImportHash)
+}
+
 func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 

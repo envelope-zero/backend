@@ -140,3 +140,12 @@ func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate
 
 	return transaction
 }
+
+func (suite *TestSuiteStandard) createTestMonthConfig(c models.MonthConfig) models.MonthConfig {
+	err := suite.db.Save(&c).Error
+	if err != nil {
+		suite.Assert().FailNow("MonthConfig could not be saved", "Error: %s, Transaction: %#v", err, c)
+	}
+
+	return c
+}

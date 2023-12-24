@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
@@ -10,6 +11,23 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
+
+func (suite *TestSuiteStandard) TestAccountTrimWhitespace() {
+	name := "\t Whitespace galore!   "
+	note := " Some more whitespace in the notes    "
+	importHash := "  867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70  \t"
+
+	account := suite.createTestAccount(models.AccountCreate{
+		Name:       name,
+		Note:       note,
+		ImportHash: importHash,
+		BudgetID:   suite.createTestBudget(models.BudgetCreate{}).ID,
+	})
+
+	assert.Equal(suite.T(), strings.TrimSpace(name), account.Name)
+	assert.Equal(suite.T(), strings.TrimSpace(note), account.Note)
+	assert.Equal(suite.T(), strings.TrimSpace(importHash), account.ImportHash)
+}
 
 func (suite *TestSuiteStandard) TestAccountCalculations() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
