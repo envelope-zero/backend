@@ -308,7 +308,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		// Sleep for 10 milliseconds because we only save timestamps with 1 millisecond accuracy
 		// This is needed because the test runs so fast that all envelopes are sometimes created
 		// within the same millisecond, making the result non-deterministic
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Millisecond)
 	}
 
 	// Create 15 transactions:
@@ -329,14 +329,24 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		})
 	}
 
-	// Create one income transaction
-	_ = suite.createTestTransaction(models.TransactionCreate{
-		BudgetID:             budget.ID,
-		EnvelopeID:           nil,
-		SourceAccountID:      externalAccount.ID,
-		DestinationAccountID: account.ID,
-		Amount:               decimal.NewFromFloat(1337.42),
-	})
+	// Create three income transactions
+	//
+	// This is a regression test for income always showing at the last
+	// position in the recent envelopes (before the LIMIT) since count(id) for
+	// income was always 0. This is due to the envelope ID for income being NULL
+	// and count() not counting NULL values.
+	//
+	// Creating three income transactions puts "income" as the second most common
+	// envelope, verifying the fix
+	for i := 0; i < 3; i++ {
+		_ = suite.createTestTransaction(models.TransactionCreate{
+			BudgetID:             budget.ID,
+			EnvelopeID:           nil,
+			SourceAccountID:      externalAccount.ID,
+			DestinationAccountID: account.ID,
+			Amount:               decimal.NewFromFloat(1337.42),
+		})
+	}
 
 	ids, err := account.RecentEnvelopes(suite.db)
 	if err != nil {
@@ -351,9 +361,9 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	// has been the most common one
 	suite.Assert().Equal(envelopeIDs[2], ids[0])
 
-	// Order for envelopes with the same frequency is undefined
-
-	// Income is the last one since it only appears once
+	// Income is the second one since it appears three times
 	var nilUUIDPointer *uuid.UUID
-	suite.Assert().Equal(nilUUIDPointer, ids[3])
+	suite.Assert().Equal(nilUUIDPointer, ids[1])
+
+	// Order for envelopes with the same frequency is undefined
 }

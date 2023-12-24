@@ -183,7 +183,7 @@ func (a Account) RecentEnvelopes(db *gorm.DB) ([]*uuid.UUID, error) {
 	latest := db.
 		Model(&Transaction{}).
 		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
-		Select("envelopes.id as id, datetime(envelopes.created_at) as created").
+		Select("envelopes.id as e_id, datetime(envelopes.created_at) as created").
 		Where(&Transaction{
 			TransactionCreate: TransactionCreate{
 				DestinationAccountID: a.ID,
@@ -195,7 +195,8 @@ func (a Account) RecentEnvelopes(db *gorm.DB) ([]*uuid.UUID, error) {
 	// Group by frequency
 	err := db.
 		Table("(?)", latest).
-		Select("id").
+		// Set the nil UUID as ID if the envelope ID is NULL, since count() only counts non-null values
+		Select("IIF(e_id IS NOT NULL, e_id, '00000000-0000-0000-0000-000000000000') as id").
 		Group("id").
 		Order("count(id) DESC").
 		Order("created ASC").
