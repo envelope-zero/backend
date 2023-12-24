@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/google/uuid"
@@ -32,6 +33,12 @@ type MonthConfigCreate struct {
 
 func (m MonthConfig) Self() string {
 	return "Month Config"
+}
+
+func (m *MonthConfig) BeforeSave(_ *gorm.DB) error {
+	m.Note = strings.TrimSpace(m.Note)
+
+	return nil
 }
 
 func (m *MonthConfig) AfterFind(tx *gorm.DB) error {

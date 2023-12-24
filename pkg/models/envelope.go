@@ -2,6 +2,7 @@ package models
 
 import (
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
@@ -27,6 +28,13 @@ type EnvelopeCreate struct {
 
 func (e Envelope) Self() string {
 	return "Envelope"
+}
+
+func (e *Envelope) BeforeSave(_ *gorm.DB) error {
+	e.Name = strings.TrimSpace(e.Name)
+	e.Note = strings.TrimSpace(e.Note)
+
+	return nil
 }
 
 func (e *Envelope) AfterFind(_ *gorm.DB) (err error) {

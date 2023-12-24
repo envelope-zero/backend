@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -22,6 +24,13 @@ type CategoryCreate struct {
 
 func (c Category) Self() string {
 	return "Category"
+}
+
+func (c *Category) BeforeSave(_ *gorm.DB) error {
+	c.Name = strings.TrimSpace(c.Name)
+	c.Note = strings.TrimSpace(c.Note)
+
+	return nil
 }
 
 func (c *Category) AfterFind(_ *gorm.DB) (err error) {

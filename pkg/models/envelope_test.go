@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,6 +11,22 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
+
+func (suite *TestSuiteStandard) TestEnvelopeTrimWhitespace() {
+	name := "\t Whitespace galore!   "
+	note := " Some more whitespace in the notes    "
+
+	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+		Name: name,
+		Note: note,
+		CategoryID: suite.createTestCategory(models.CategoryCreate{
+			BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+		}).ID,
+	})
+
+	assert.Equal(suite.T(), strings.TrimSpace(name), envelope.Name)
+	assert.Equal(suite.T(), strings.TrimSpace(note), envelope.Note)
+}
 
 func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 	budget := suite.createTestBudget(models.BudgetCreate{})

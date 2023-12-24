@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,6 +11,22 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
+
+func (suite *TestSuiteStandard) TestBudgetTrimWhitespace() {
+	name := "\t Whitespace galore!   "
+	note := " Some more whitespace in the notes    "
+	currency := "  €"
+
+	budget := suite.createTestBudget(models.BudgetCreate{
+		Name:     name,
+		Note:     note,
+		Currency: currency,
+	})
+
+	assert.Equal(suite.T(), strings.TrimSpace(name), budget.Name)
+	assert.Equal(suite.T(), strings.TrimSpace(note), budget.Note)
+	assert.Equal(suite.T(), strings.TrimSpace(currency), budget.Currency)
+}
 
 func (suite *TestSuiteStandard) TestBudgetAfterFind() {
 	budget := suite.createTestBudget(models.BudgetCreate{})

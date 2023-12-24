@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
@@ -61,7 +62,11 @@ func (t *Transaction) AfterFind(tx *gorm.DB) (err error) {
 // BeforeSave
 //   - sets the timezone for the Date for UTC
 //   - ensures that ReconciledSource and ReconciledDestination are set to valid values
+//   - trims whitespace from string fields
 func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
+	t.Note = strings.TrimSpace(t.Note)
+	t.ImportHash = strings.TrimSpace(t.ImportHash)
+
 	// Ensure that the Envelope ID is nil and not a pointer to a nil UUID
 	// when it is set
 	if t.EnvelopeID != nil && *t.EnvelopeID == uuid.Nil {

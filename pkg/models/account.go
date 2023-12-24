@@ -72,11 +72,21 @@ func (a Account) BeforeUpdate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-// BeforeSave sets OnBudget to false when External is true.
-func (a *Account) BeforeSave(_ *gorm.DB) (err error) {
+// BeforeSave ensures consistency for the account
+//
+// It enforces OnBudget to be false when the account
+// is external.
+//
+// It trims whitespace from all strings
+func (a *Account) BeforeSave(_ *gorm.DB) error {
 	if a.External {
 		a.OnBudget = false
 	}
+
+	a.Name = strings.TrimSpace(a.Name)
+	a.Note = strings.TrimSpace(a.Note)
+	a.ImportHash = strings.TrimSpace(a.ImportHash)
+
 	return nil
 }
 
