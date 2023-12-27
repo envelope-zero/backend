@@ -29,8 +29,17 @@ func (m Month) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 // The month is expected to be a string in a format accepted by ParseDate.
+// From the parsed string, everything is then ignored except the year and month
 func (m *Month) UnmarshalJSON(data []byte) error {
-	return (*time.Time)(m).UnmarshalJSON(data)
+	var date time.Time
+	err := date.UnmarshalJSON(data)
+	if err != nil {
+		return err
+	}
+
+	month := NewMonth(date.Year(), date.Month())
+	*m = month
+	return nil
 }
 
 // MonthOf returns the Month in which a time occurs in that time's location.
