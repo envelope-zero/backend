@@ -270,7 +270,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 	}
 }
 
-// TestTransactionsV3GetSingleInvalidQuery verifies that invalid filtering queries
+// TestTransactionsV3GetInvalidQuery verifies that invalid filtering queries
 // return a HTTP Bad Request.
 func (suite *TestSuiteStandard) TestTransactionsV3GetInvalidQuery() {
 	tests := []string{
@@ -548,7 +548,7 @@ func (suite *TestSuiteStandard) TestTransactionsV3Update() {
 		body any    // Body to send to the PATCH endpoint
 	}{
 		{
-			"Source Equals Destination",
+			"Empty note",
 			map[string]any{
 				"note": "",
 			},

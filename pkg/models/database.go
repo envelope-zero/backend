@@ -30,7 +30,7 @@ func Migrate(db *gorm.DB) (err error) {
 		}
 	}
 
-	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, MatchRule{})
+	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, MatchRule{}, Goal{})
 	if err != nil {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}

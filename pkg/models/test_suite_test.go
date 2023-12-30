@@ -149,3 +149,12 @@ func (suite *TestSuiteStandard) createTestMonthConfig(c models.MonthConfig) mode
 
 	return c
 }
+
+func (suite *TestSuiteStandard) createTestGoal(goal models.Goal) models.Goal {
+	err := suite.db.Save(&goal).Error
+	if err != nil {
+		suite.Assert().FailNow("Goal could not be saved", "Error: %s, Goal: %#v", err, goal)
+	}
+
+	return goal
+}

@@ -163,6 +163,7 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	co.RegisterBudgetRoutesV3(v3.Group("/budgets"))
 	co.RegisterCategoryRoutesV3(v3.Group("/categories"))
 	co.RegisterEnvelopeRoutesV3(v3.Group("/envelopes"))
+	co.RegisterGoalRoutesV3(v3.Group("/goals"))
 	co.RegisterImportRoutesV3(v3.Group("/import"))
 	co.RegisterMatchRuleRoutesV3(v3.Group("/match-rules"))
 	co.RegisterMonthConfigRoutesV3(v3.Group("/envelopes"))
@@ -350,6 +351,7 @@ type V3Links struct {
 	Budgets      string `json:"budgets" example:"https://example.com/api/v3/budgets"`           // URL of Budget collection endpoint
 	Categories   string `json:"categories" example:"https://example.com/api/v3/categories"`     // URL of Category collection endpoint
 	Envelopes    string `json:"envelopes" example:"https://example.com/api/v3/envelopes"`       // URL of Envelope collection endpoint
+	Goals        string `json:"goals" example:"https://example.com/api/v3/goals"`               // URL of goal collection endpoint
 	Import       string `json:"import" example:"https://example.com/api/v3/import"`             // URL of import list endpoint
 	MatchRules   string `json:"matchRules" example:"https://example.com/api/v3/match-rules"`    // URL of Match Rule collection endpoint
 	Months       string `json:"months" example:"https://example.com/api/v3/months"`             // URL of Month endpoint
@@ -372,6 +374,7 @@ func GetV3(c *gin.Context) {
 			Budgets:      url + "/v3/budgets",
 			Categories:   url + "/v3/categories",
 			Envelopes:    url + "/v3/envelopes",
+			Goals:        url + "/v3/goals",
 			Import:       url + "/v3/import",
 			MatchRules:   url + "/v3/match-rules",
 			Months:       url + "/v3/months",

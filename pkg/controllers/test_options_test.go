@@ -31,6 +31,7 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 		{"http://example.com/v3/budgets", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/categories", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/envelopes", "OPTIONS, GET, POST"},
+		{"http://example.com/v3/goals", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/import", "OPTIONS, GET"},
 		{"http://example.com/v3/import/ynab-import-preview", "OPTIONS, POST"},
 		{"http://example.com/v3/import/ynab4", "OPTIONS, POST"},
