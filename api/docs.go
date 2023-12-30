@@ -8024,6 +8024,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
+                "links": {
+                    "$ref": "#/definitions/controllers.EnvelopeV3Links"
+                },
                 "name": {
                     "description": "Name of the envelope",
                     "type": "string",
@@ -8112,24 +8115,11 @@ const docTemplate = `{
                 },
                 "links": {
                     "description": "Links to related resources",
-                    "type": "object",
-                    "properties": {
-                        "month": {
-                            "description": "The MonthConfig for the envelope",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
-                        },
-                        "self": {
-                            "description": "The envelope itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                        },
-                        "transactions": {
-                            "description": "The envelope's transactions",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.EnvelopeV3Links"
                         }
-                    }
+                    ]
                 },
                 "name": {
                     "description": "Name of the envelope",
@@ -8145,6 +8135,26 @@ const docTemplate = `{
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.EnvelopeV3Links": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "description": "The MonthConfig for the envelope",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
+                },
+                "self": {
+                    "description": "The envelope itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                },
+                "transactions": {
+                    "description": "The envelope's transactions",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
                 }
             }
         },

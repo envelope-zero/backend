@@ -953,6 +953,8 @@ definitions:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
+      links:
+        $ref: '#/definitions/controllers.EnvelopeV3Links'
       name:
         description: Name of the envelope
         example: Groceries
@@ -1015,21 +1017,9 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
+        allOf:
+        - $ref: '#/definitions/controllers.EnvelopeV3Links'
         description: Links to related resources
-        properties:
-          month:
-            description: The MonthConfig for the envelope
-            example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
-            type: string
-          self:
-            description: The envelope itself
-            example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
-            type: string
-          transactions:
-            description: The envelope's transactions
-            example: https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
-            type: string
-        type: object
       name:
         description: Name of the envelope
         example: Groceries
@@ -1041,6 +1031,21 @@ definitions:
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  controllers.EnvelopeV3Links:
+    properties:
+      month:
+        description: The MonthConfig for the envelope
+        example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
+        type: string
+      self:
+        description: The envelope itself
+        example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
+        type: string
+      transactions:
+        description: The envelope's transactions
+        example: https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
         type: string
     type: object
   controllers.GoalCreateResponseV3:

@@ -483,6 +483,9 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 				suite.Assert().FailNow("Response envelope length does not match!", "Envelope list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Categories[0].Envelopes))
 			}
 
+			// Verify the links are set correctly
+			assert.Equal(t, envelope.Data.Links.Month, month.Categories[0].Envelopes[0].Links.Month)
+
 			// Category calculations
 			expectedCategory := tt.result.Categories[0]
 			category := month.Categories[0]
