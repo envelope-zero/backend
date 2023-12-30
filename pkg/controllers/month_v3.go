@@ -45,6 +45,7 @@ type EnvelopeMonthV3 struct {
 	Spent      decimal.Decimal `json:"spent" example:"73.12"`      // The amount spent over the whole month
 	Balance    decimal.Decimal `json:"balance" example:"12.32"`    // The balance at the end of the monht
 	Allocation decimal.Decimal `json:"allocation" example:"85.44"` // The amount of money allocated
+	Links      EnvelopeV3Links `json:"links"`
 }
 
 // RegisterMonthRoutesV3 registers the routes for months with
@@ -160,7 +161,7 @@ func (co Controller) GetMonthV3(c *gin.Context) {
 		}
 
 		for _, envelope := range envelopes {
-			envelopeMonth, err := envelopeMonthV3(co.DB, envelope, result.Month)
+			envelopeMonth, err := envelopeMonthV3(c, co.DB, envelope, result.Month)
 			if err != nil {
 				e := httperrors.Parse(c, err)
 				s := e.Error()
@@ -359,7 +360,7 @@ func (co Controller) SetAllocationsV3(c *gin.Context) {
 }
 
 // envelopeMonthV3 calculates the month specific values for an envelope and returns an EnvelopeMonthV3 with them
-func envelopeMonthV3(db *gorm.DB, e models.Envelope, month types.Month) (EnvelopeMonthV3, error) {
+func envelopeMonthV3(c *gin.Context, db *gorm.DB, e models.Envelope, month types.Month) (EnvelopeMonthV3, error) {
 	spent := e.Spent(db, month)
 
 	envelopeMonth := EnvelopeMonthV3{
@@ -388,5 +389,8 @@ func envelopeMonthV3(db *gorm.DB, e models.Envelope, month types.Month) (Envelop
 	}
 
 	envelopeMonth.Allocation = allocation.Amount
+
+	// Set the links
+	envelopeMonth.Links.links(c, e)
 	return envelopeMonth, nil
 }
