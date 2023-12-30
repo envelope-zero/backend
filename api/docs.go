@@ -5355,6 +5355,362 @@ const docTemplate = `{
                 }
             }
         },
+        "/v3/goals": {
+            "get": {
+                "description": "Returns a list of goals",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Goals"
+                ],
+                "summary": "Get goals",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note",
+                        "name": "note",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search for this text in name and note",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is the goal archived?",
+                        "name": "archived",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by envelope ID",
+                        "name": "envelope",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Month of the goal. Ignores exact time, matches on the month of the RFC3339 timestamp provided.",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Goals for this and later months. Ignores exact time, matches on the month of the RFC3339 timestamp provided.",
+                        "name": "fromMonth",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Goals for this and earlier months. Ignores exact time, matches on the month of the RFC3339 timestamp provided.",
+                        "name": "untilMonth",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by amount",
+                        "name": "amount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Amount less than or equal to this",
+                        "name": "amountLessOrEqual",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Amount more than or equal to this",
+                        "name": "amountMoreOrEqual",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The offset of the first goal returned. Defaults to 0.",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum number of goal to return. Defaults to 50.",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalListResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalListResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalListResponseV3"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates new goals",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Goals"
+                ],
+                "summary": "Create goals",
+                "parameters": [
+                    {
+                        "description": "Goals",
+                        "name": "goals",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.GoalV3Editable"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Goals"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v3/goals/{id}": {
+            "get": {
+                "description": "Returns a specific goal",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Goals"
+                ],
+                "summary": "Get goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a goal",
+                "tags": [
+                    "Goals"
+                ],
+                "summary": "Delete goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Goals"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperrors.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates an existing goal. Only values to be updated need to be specified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Goals"
+                ],
+                "summary": "Update goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Goal",
+                        "name": "goal",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalV3Editable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                        }
+                    }
+                }
+            }
+        },
         "/v3/import": {
             "get": {
                 "description": "Returns general information about the v3 API",
@@ -7792,6 +8148,178 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.GoalCreateResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created resources",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.GoalResponseV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.GoalListResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of resources",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.GoalV3"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "controllers.GoalResponseV3": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "The resource",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controllers.GoalV3"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "controllers.GoalV3": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "How much money should be saved for this goal?",
+                    "type": "number",
+                    "default": 0,
+                    "example": 127
+                },
+                "archived": {
+                    "description": "If this goal is still in use or not",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "description": "The ID of the envelope this goal is for",
+                    "type": "string",
+                    "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "$ref": "#/definitions/controllers.GoalV3Links"
+                },
+                "month": {
+                    "description": "The month the balance of the envelope should be the set amount",
+                    "type": "string",
+                    "example": "2024-07-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "Name of the goal",
+                    "type": "string",
+                    "example": "New TV"
+                },
+                "note": {
+                    "description": "Note about the goal",
+                    "type": "string",
+                    "example": "We want to replace the old CRT TV soon-ish"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.GoalV3Editable": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "How much money should be saved for this goal?",
+                    "type": "number",
+                    "default": 0,
+                    "example": 127
+                },
+                "archived": {
+                    "description": "If this goal is still in use or not",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "envelopeId": {
+                    "description": "The ID of the envelope this goal is for",
+                    "type": "string",
+                    "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
+                },
+                "month": {
+                    "description": "The month the balance of the envelope should be the set amount",
+                    "type": "string",
+                    "example": "2024-07-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "Name of the goal",
+                    "type": "string",
+                    "example": "New TV"
+                },
+                "note": {
+                    "description": "Note about the goal",
+                    "type": "string",
+                    "example": "We want to replace the old CRT TV soon-ish"
+                }
+            }
+        },
+        "controllers.GoalV3Links": {
+            "type": "object",
+            "properties": {
+                "envelope": {
+                    "description": "The Envelope this goal references",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/c1a96ae4-80e3-4827-8ed0-c7656f224fee"
+                },
+                "self": {
+                    "description": "The Goal itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/goals/438cc6c0-9baf-49fd-a75a-d76bd5cab19c"
+                }
+            }
+        },
         "controllers.ImportPreviewList": {
             "type": "object",
             "properties": {
@@ -9628,6 +10156,11 @@ const docTemplate = `{
                     "description": "URL of Envelope collection endpoint",
                     "type": "string",
                     "example": "https://example.com/api/v3/envelopes"
+                },
+                "goals": {
+                    "description": "URL of goal collection endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/goals"
                 },
                 "import": {
                     "description": "URL of import list endpoint",

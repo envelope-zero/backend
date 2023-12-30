@@ -48,9 +48,19 @@ func MonthOf(t time.Time) Month {
 	return Month(time.Date(year, month, 1, 0, 0, 0, 0, time.Time(t).Location()))
 }
 
-// ParseMonth parses a string in RFC3339 full-date format and returns the Month value it represents.
-func ParseMonth(s string) (Month, error) {
+// ParseDateToMonth parses a string in RFC3339 full-date format and returns the Month value it represents.
+func ParseDateToMonth(s string) (Month, error) {
 	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return Month{}, err
+	}
+
+	return MonthOf(t), nil
+}
+
+// ParseMonth parses a "YYYY-MM" string and returns the Month value it represents
+func ParseMonth(s string) (Month, error) {
+	t, err := time.Parse("2006-01", s)
 	if err != nil {
 		return Month{}, err
 	}

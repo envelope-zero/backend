@@ -208,6 +208,7 @@ func TestParse(t *testing.T) {
 		{http.StatusNotFound, httperrors.ErrNoResource.Error(), gorm.ErrRecordNotFound},
 		{http.StatusInternalServerError, "an error occurred on the server during your request", &sqlite.Error{}},
 		{http.StatusBadRequest, models.ErrAllocationZero.Error(), models.ErrAllocationZero},
+		{http.StatusBadRequest, models.ErrGoalAmountNotPositive.Error(), models.ErrGoalAmountNotPositive},
 		{http.StatusInternalServerError, httperrors.ErrDatabaseClosed.Error(), errors.New("sql: database is closed")},
 		{http.StatusBadRequest, httperrors.ErrRequestBodyEmpty.Error(), io.EOF},
 		{http.StatusBadRequest, "Test Message", &time.ParseError{Message: "Test Message"}},

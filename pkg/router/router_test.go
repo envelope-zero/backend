@@ -193,6 +193,7 @@ func TestGetV3(t *testing.T) {
 			Budgets:      "/v3/budgets",
 			Categories:   "/v3/categories",
 			Envelopes:    "/v3/envelopes",
+			Goals:        "/v3/goals",
 			Import:       "/v3/import",
 			MatchRules:   "/v3/match-rules",
 			Months:       "/v3/months",

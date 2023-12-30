@@ -159,9 +159,8 @@ func Parse(c *gin.Context, err error) Error {
 		}
 	}
 
-	// Database error
-	if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
-		return DBError(c, err)
+	if errors.Is(err, models.ErrGoalAmountNotPositive) {
+		return Error{Status: http.StatusBadRequest, Err: err}
 	}
 
 	// Allocation is 0
@@ -170,6 +169,11 @@ func Parse(c *gin.Context, err error) Error {
 			Status: http.StatusBadRequest,
 			Err:    err,
 		}
+	}
+
+	// Database error
+	if reflect.TypeOf(err) == reflect.TypeOf(&sqlite.Error{}) {
+		return DBError(c, err)
 	}
 
 	if reflect.TypeOf(err) == reflect.TypeOf(&time.ParseError{}) {

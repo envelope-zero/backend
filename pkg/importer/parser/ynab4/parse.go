@@ -472,7 +472,7 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 
 func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
 	for _, monthBudget := range monthlyBudgets {
-		month, err := types.ParseMonth(monthBudget.Month)
+		month, err := types.ParseDateToMonth(monthBudget.Month)
 		if err != nil {
 			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
 		}

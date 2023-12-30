@@ -1043,6 +1043,132 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
+  controllers.GoalCreateResponseV3:
+    properties:
+      data:
+        description: List of created resources
+        items:
+          $ref: '#/definitions/controllers.GoalResponseV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.GoalListResponseV3:
+    properties:
+      data:
+        description: List of resources
+        items:
+          $ref: '#/definitions/controllers.GoalV3'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/controllers.Pagination'
+        description: Pagination information
+    type: object
+  controllers.GoalResponseV3:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/controllers.GoalV3'
+        description: The resource
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  controllers.GoalV3:
+    properties:
+      amount:
+        default: 0
+        description: How much money should be saved for this goal?
+        example: 127
+        type: number
+      archived:
+        default: false
+        description: If this goal is still in use or not
+        example: true
+        type: boolean
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        description: The ID of the envelope this goal is for
+        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/controllers.GoalV3Links'
+      month:
+        description: The month the balance of the envelope should be the set amount
+        example: "2024-07-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: Name of the goal
+        example: New TV
+        type: string
+      note:
+        description: Note about the goal
+        example: We want to replace the old CRT TV soon-ish
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  controllers.GoalV3Editable:
+    properties:
+      amount:
+        default: 0
+        description: How much money should be saved for this goal?
+        example: 127
+        type: number
+      archived:
+        default: false
+        description: If this goal is still in use or not
+        example: true
+        type: boolean
+      envelopeId:
+        description: The ID of the envelope this goal is for
+        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
+        type: string
+      month:
+        description: The month the balance of the envelope should be the set amount
+        example: "2024-07-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: Name of the goal
+        example: New TV
+        type: string
+      note:
+        description: Note about the goal
+        example: We want to replace the old CRT TV soon-ish
+        type: string
+    type: object
+  controllers.GoalV3Links:
+    properties:
+      envelope:
+        description: The Envelope this goal references
+        example: https://example.com/api/v3/envelopes/c1a96ae4-80e3-4827-8ed0-c7656f224fee
+        type: string
+      self:
+        description: The Goal itself
+        example: https://example.com/api/v3/goals/438cc6c0-9baf-49fd-a75a-d76bd5cab19c
+        type: string
+    type: object
   controllers.ImportPreviewList:
     properties:
       data:
@@ -2449,6 +2575,10 @@ definitions:
       envelopes:
         description: URL of Envelope collection endpoint
         example: https://example.com/api/v3/envelopes
+        type: string
+      goals:
+        description: URL of goal collection endpoint
+        example: https://example.com/api/v3/goals
         type: string
       import:
         description: URL of import list endpoint
@@ -6136,6 +6266,248 @@ paths:
       summary: Update MonthConfig
       tags:
       - Envelopes
+  /v3/goals:
+    get:
+      description: Returns a list of goals
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: Is the goal archived?
+        in: query
+        name: archived
+        type: boolean
+      - description: Filter by envelope ID
+        in: query
+        name: envelope
+        type: string
+      - description: Month of the goal. Ignores exact time, matches on the month of
+          the RFC3339 timestamp provided.
+        in: query
+        name: month
+        type: string
+      - description: Goals for this and later months. Ignores exact time, matches
+          on the month of the RFC3339 timestamp provided.
+        in: query
+        name: fromMonth
+        type: string
+      - description: Goals for this and earlier months. Ignores exact time, matches
+          on the month of the RFC3339 timestamp provided.
+        in: query
+        name: untilMonth
+        type: string
+      - description: Filter by amount
+        in: query
+        name: amount
+        type: string
+      - description: Amount less than or equal to this
+        in: query
+        name: amountLessOrEqual
+        type: string
+      - description: Amount more than or equal to this
+        in: query
+        name: amountMoreOrEqual
+        type: string
+      - description: The offset of the first goal returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of goal to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GoalListResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.GoalListResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.GoalListResponseV3'
+      summary: Get goals
+      tags:
+      - Goals
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Goals
+    post:
+      description: Creates new goals
+      parameters:
+      - description: Goals
+        in: body
+        name: goals
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/controllers.GoalV3Editable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+      summary: Create goals
+      tags:
+      - Goals
+  /v3/goals/{id}:
+    delete:
+      description: Deletes a goal
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete goal
+      tags:
+      - Goals
+    get:
+      description: Returns a specific goal
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+      summary: Get goal
+      tags:
+      - Goals
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Goals
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing goal. Only values to be updated need to be
+        specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Goal
+        in: body
+        name: goal
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.GoalV3Editable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.GoalResponseV3'
+      summary: Update goal
+      tags:
+      - Goals
   /v3/import:
     get:
       description: Returns general information about the v3 API
