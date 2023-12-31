@@ -67,12 +67,10 @@ type Transaction struct {
 // TransactionPreview is used to preview transactions that will be imported to allow for editing.
 type TransactionPreview struct {
 	Transaction             models.TransactionCreate `json:"transaction"`
-	SourceAccountName       string                   `json:"sourceAccountName" example:"Employer"`                        // Name of the source account from the CSV file
-	DestinationAccountName  string                   `json:"destinationAccountName" example:"Deutsche Bahn"`              // Name of the destination account from the CSV file
-	DuplicateTransactionIDs []uuid.UUID              `json:"duplicateTransactionIds"`                                     // IDs of transactions that this transaction duplicates
-	RenameRuleID            uuid.UUID                `json:"renameRuleId" example:"042d101d-f1de-4403-9295-59dc0ea58677"` // ID of the match rule that was applied to this transaction preview. This is kept for backwards compatibility and will be removed with API version 3
-
-	MatchRuleID uuid.UUID `json:"matchRuleId" example:"042d101d-f1de-4403-9295-59dc0ea58677"` // ID of the match rule that was applied to this transaction preview
+	SourceAccountName       string                   `json:"sourceAccountName" example:"Employer"`                       // Name of the source account from the CSV file
+	DestinationAccountName  string                   `json:"destinationAccountName" example:"Deutsche Bahn"`             // Name of the destination account from the CSV file
+	DuplicateTransactionIDs []uuid.UUID              `json:"duplicateTransactionIds"`                                    // IDs of transactions that this transaction duplicates
+	MatchRuleID             uuid.UUID                `json:"matchRuleId" example:"042d101d-f1de-4403-9295-59dc0ea58677"` // ID of the match rule that was applied to this transaction preview
 }
 
 // transformV3 transforms a TransactionPreview to a TransactionPreviewV3.

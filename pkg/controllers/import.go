@@ -137,18 +137,10 @@ func match(transaction *importer.TransactionPreview, rules []models.MatchRule) {
 
 	if transaction.SourceAccountName != "" {
 		transaction.Transaction.SourceAccountID, transaction.MatchRuleID = replace(transaction.SourceAccountName)
-
-		// This is kept for backwards compatibility and will be removed with API version 3
-		// https://github.com/envelope-zero/backend/issues/763
-		transaction.RenameRuleID = transaction.MatchRuleID
 	}
 
 	if transaction.DestinationAccountName != "" {
 		transaction.Transaction.DestinationAccountID, transaction.MatchRuleID = replace(transaction.DestinationAccountName)
-
-		// This is kept for backwards compatibility and will be removed with API version 3
-		// https://github.com/envelope-zero/backend/issues/763
-		transaction.RenameRuleID = transaction.MatchRuleID
 	}
 }
 

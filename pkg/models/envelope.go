@@ -255,11 +255,10 @@ type EnvelopeMonthLinks struct {
 // EnvelopeMonth contains data about an Envelope for a specific month.
 type EnvelopeMonth struct {
 	Envelope
-	Month      types.Month        `json:"month" example:"1969-06-01T00:00:00.000000Z" hidden:"deprecated"` // This is always set to 00:00 UTC on the first of the month. **This field is deprecated and will be removed in v2**
-	Spent      decimal.Decimal    `json:"spent" example:"73.12"`                                           // The amount spent over the whole month
-	Balance    decimal.Decimal    `json:"balance" example:"12.32"`                                         // The balance at the end of the monht
-	Allocation decimal.Decimal    `json:"allocation" example:"85.44"`                                      // The amount of money allocated
-	Links      EnvelopeMonthLinks `json:"links"`                                                           // Linked resources
+	Spent      decimal.Decimal    `json:"spent" example:"73.12"`      // The amount spent over the whole month
+	Balance    decimal.Decimal    `json:"balance" example:"12.32"`    // The balance at the end of the monht
+	Allocation decimal.Decimal    `json:"allocation" example:"85.44"` // The amount of money allocated
+	Links      EnvelopeMonthLinks `json:"links"`                      // Linked resources
 }
 
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth and allocation ID for them.
@@ -267,7 +266,6 @@ func (e Envelope) Month(db *gorm.DB, month types.Month) (EnvelopeMonth, error) {
 	spent := e.Spent(db, month)
 	envelopeMonth := EnvelopeMonth{
 		Envelope:   e,
-		Month:      month,
 		Spent:      spent,
 		Balance:    decimal.NewFromFloat(0),
 		Allocation: decimal.NewFromFloat(0),
