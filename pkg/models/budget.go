@@ -3,7 +3,7 @@ package models
 import (
 	"strings"
 
-	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v4/internal/types"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )

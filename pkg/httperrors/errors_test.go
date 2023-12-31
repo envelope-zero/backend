@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/models"
-	"github.com/envelope-zero/backend/v3/test"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v4/test"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"
 	"github.com/shopspring/decimal"

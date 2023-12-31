@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v4/internal/types"
 	"github.com/google/uuid"
 )
 
