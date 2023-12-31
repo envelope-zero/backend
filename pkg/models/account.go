@@ -107,8 +107,8 @@ func (a Account) SumReconciled(db *gorm.DB) (balance decimal.Decimal, err error)
 		Preload("DestinationAccount").
 		Preload("SourceAccount").
 		Where(
-			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID, Reconciled: true}}).
-				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID, Reconciled: true}}))).
+			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID, ReconciledDestination: true}}).
+				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID, ReconciledSource: true}}))).
 		Find(&transactions).Error
 
 	if err != nil {

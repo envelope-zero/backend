@@ -176,7 +176,6 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		EnvelopeID:            e1ID,
 		SourceAccountID:       a1.Data.ID,
 		DestinationAccountID:  a2.Data.ID,
-		Reconciled:            false,
 		ReconciledSource:      true,
 		ReconciledDestination: false,
 	})
@@ -189,7 +188,6 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		EnvelopeID:            e2ID,
 		SourceAccountID:       a2.Data.ID,
 		DestinationAccountID:  a1.Data.ID,
-		Reconciled:            false,
 		ReconciledSource:      true,
 		ReconciledDestination: true,
 	})
@@ -202,7 +200,6 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		EnvelopeID:            e1ID,
 		SourceAccountID:       a3.Data.ID,
 		DestinationAccountID:  a2.Data.ID,
-		Reconciled:            true,
 		ReconciledSource:      false,
 		ReconciledDestination: true,
 	})

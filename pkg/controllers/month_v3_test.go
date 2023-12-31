@@ -329,7 +329,6 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
-		Reconciled:           true,
 	})
 
 	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
@@ -340,7 +339,6 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
-		Reconciled:           true,
 	})
 
 	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
@@ -351,7 +349,6 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
-		Reconciled:           true,
 	})
 
 	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{

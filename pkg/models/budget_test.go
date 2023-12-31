@@ -117,7 +117,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		EnvelopeID:           nil,
 		SourceAccountID:      employerAccount.ID,
 		DestinationAccountID: bankAccount.ID,
-		Reconciled:           true,
 		Amount:               decimal.NewFromFloat(1800),
 	})
 
@@ -127,7 +126,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		EnvelopeID:           nil,
 		SourceAccountID:      employerAccount.ID,
 		DestinationAccountID: bankAccount.ID,
-		Reconciled:           true,
 		Amount:               decimal.NewFromFloat(2800),
 	})
 
@@ -137,7 +135,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		EnvelopeID:           nil,
 		SourceAccountID:      employerAccount.ID,
 		DestinationAccountID: bankAccount.ID,
-		Reconciled:           true,
 		Amount:               decimal.NewFromFloat(2800),
 	})
 

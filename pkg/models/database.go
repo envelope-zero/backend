@@ -25,6 +25,15 @@ func Migrate(db *gorm.DB) (err error) {
 		}
 	}
 
+	// https://github.com/envelope-zero/backend/issues/359
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Transaction{}, "Reconciled") {
+		err = db.Migrator().DropColumn(&Transaction{}, "Reconciled")
+		if err != nil {
+			return fmt.Errorf("error when dropping reconciled column for transactions: %w", err)
+		}
+	}
+
 	// https://github.com/envelope-zero/backend/issues/440
 	// Remove with 5.0.0
 	if db.Migrator().HasTable("allocations") {
