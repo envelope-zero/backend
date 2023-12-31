@@ -1,8 +1,15 @@
 # Upgrading
 
-:warning: You cannot skip major versions on upgrades. You have to upgrade to at least one release of each major version.
+:warning: You cannot skip major versions on upgrades. You have to upgrade to the latest release of each major version before updating to the next major version.
 
 If upgrades between versions require manual actions, those are described here.
+
+# to v4.0.0
+
+1. Upgrade to v3.22.1 before upgrading to v4.0.0
+2. Upgrade to v4.0.0
+
+For breaking changes, see the release notes
 
 # to v3.0.0
 
