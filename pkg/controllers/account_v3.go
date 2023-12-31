@@ -39,7 +39,7 @@ func (a AccountCreateV3) ToCreate() models.AccountCreate {
 		External:           a.External,
 		InitialBalance:     a.InitialBalance,
 		InitialBalanceDate: a.InitialBalanceDate,
-		Hidden:             a.Archived,
+		Archived:           a.Archived,
 		ImportHash:         a.ImportHash,
 	}
 }
@@ -78,7 +78,6 @@ type AccountV3 struct {
 	Balance           decimal.Decimal `json:"balance" example:"2735.17"`           // Balance of the account, including all transactions referencing it
 	ReconciledBalance decimal.Decimal `json:"reconciledBalance" example:"2539.57"` // Balance of the account, including all reconciled transactions referencing it
 	RecentEnvelopes   []*uuid.UUID    `json:"recentEnvelopes"`                     // Envelopes recently used with this account
-	Hidden            bool            `json:"hidden,omitempty"`                    // Remove the hidden field
 
 	Links struct {
 		Self         string `json:"self" example:"https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`                     // The account itself
@@ -94,15 +93,15 @@ func (a *AccountV3) links(c *gin.Context) {
 }
 
 type AccountQueryFilterV3 struct {
-	Name     string `form:"name" filterField:"false"`     // Fuzzy filter for the account name
-	Note     string `form:"note" filterField:"false"`     // Fuzzy filter for the note
-	BudgetID string `form:"budget"`                       // By budget ID
-	OnBudget bool   `form:"onBudget"`                     // Is the account on-budget?
-	External bool   `form:"external"`                     // Is the account external?
-	Archived bool   `form:"archived" filterField:"false"` // Is the account hidden?
-	Search   string `form:"search" filterField:"false"`   // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"`   // The offset of the first Account returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`    // Maximum number of Accounts to return. Defaults to 50.
+	Name     string `form:"name" filterField:"false"`   // Fuzzy filter for the account name
+	Note     string `form:"note" filterField:"false"`   // Fuzzy filter for the note
+	BudgetID string `form:"budget"`                     // By budget ID
+	OnBudget bool   `form:"onBudget"`                   // Is the account on-budget?
+	External bool   `form:"external"`                   // Is the account external?
+	Archived bool   `form:"archived"`                   // Is the account archived?
+	Search   string `form:"search" filterField:"false"` // By string in name or note
+	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Account returned. Defaults to 0.
+	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Accounts to return. Defaults to 50.
 }
 
 func (f AccountQueryFilterV3) ToCreate() (models.AccountCreate, httperrors.Error) {
@@ -115,7 +114,7 @@ func (f AccountQueryFilterV3) ToCreate() (models.AccountCreate, httperrors.Error
 		BudgetID: budgetID,
 		OnBudget: f.OnBudget,
 		External: f.External,
-		Hidden:   f.Archived,
+		Archived: f.Archived,
 	}, httperrors.Error{}
 }
 
@@ -301,13 +300,6 @@ func (co Controller) GetAccountsV3(c *gin.Context) {
 	// Get the set parameters in the query string
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
-	// If the archived parameter is set, add "Hidden" to the query fields
-	// This is done since in v3, we're using the name "Archived", but the
-	// field is not yet updated in the database, which will happen later
-	if slices.Contains(setFields, "Archived") {
-		queryFields = append(queryFields, "Hidden")
-	}
-
 	// Convert the QueryFilter to a Create struct
 	create, err := filter.ToCreate()
 	if !err.Nil() {
@@ -467,13 +459,6 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 	// Transform the API representation to the model representation
 	a := models.Account{
 		AccountCreate: data.ToCreate(),
-	}
-
-	// If the archived parameter is set, add "Hidden" to the update fields
-	// This is done since in v3, we're using the name "Archived", but the
-	// field is not yet updated in the database, which will happen later
-	if slices.Contains(updateFields, "Archived") {
-		updateFields = append(updateFields, "Hidden")
 	}
 
 	err = query(c, co.DB.Model(&account).Select("", updateFields...).Updates(a))

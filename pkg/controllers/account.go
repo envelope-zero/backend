@@ -12,7 +12,7 @@ type AccountQueryFilter struct {
 	BudgetID string `form:"budget"`                     // By budget ID
 	OnBudget bool   `form:"onBudget"`                   // Is the account on-budget?
 	External bool   `form:"external"`                   // Is the account external?
-	Hidden   bool   `form:"hidden"`                     // Is the account hidden?
+	Archived bool   `form:"archived"`                   // Is the account archived?
 	Search   string `form:"search" filterField:"false"` // By string in name or note
 }
 
@@ -26,6 +26,6 @@ func (f AccountQueryFilter) ToCreate(c *gin.Context) (models.AccountCreate, bool
 		BudgetID: budgetID,
 		OnBudget: f.OnBudget,
 		External: f.External,
-		Hidden:   f.Hidden,
+		Archived: f.Archived,
 	}, true
 }

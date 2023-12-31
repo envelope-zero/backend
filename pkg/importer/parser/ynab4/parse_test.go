@@ -162,7 +162,7 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 		initialBalance     float32
 		initialBalanceDate time.Time
 		onBudget           bool
-		hidden             bool
+		archived           bool
 		note               string
 	}{
 		{"Checking", 100, time.Date(2022, 10, 15, 0, 0, 0, 0, time.UTC), true, false, ""},
@@ -183,7 +183,7 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 			assert.True(t, a.InitialBalance.Equal(decimal.NewFromFloat32(tt.initialBalance)), "Initial balance does not match, is %s, expected %f", a.InitialBalance, tt.initialBalance)
 			assert.False(t, a.External, "Account is marked external")
 			assert.Equal(t, tt.onBudget, a.OnBudget, "On Budget is wrong")
-			assert.Equal(t, tt.hidden, a.Hidden, "Hidden is wrong")
+			assert.Equal(t, tt.archived, a.Archived, "Archived is wrong")
 			assert.Equal(t, tt.note, a.Note, "Note differs. Should be '%s', but is '%s'", tt.note, a.Note)
 
 			if tt.initialBalance != 0 {
@@ -236,13 +236,13 @@ func testMatchRules(t *testing.T, matchRules []models.MatchRule, accounts []mode
 
 // testCategories tests all the categories for correct import.
 func testCategories(t *testing.T, categories []models.Category) {
-	// 3 categories, 1 (Rainy Day Funds) only has hidden envelopes
+	// 3 categories, 1 (Rainy Day Funds) only has archived envelopes
 	assert.Len(t, categories, 3, "Number of categories is wrong")
 
 	tests := []struct {
-		name   string
-		note   string
-		hidden bool
+		name     string
+		note     string
+		archived bool
 	}{
 		{"Savings Goals", "Money I'm saving for big expenses", false},
 		{"Everyday Expenses", "", false},
@@ -255,6 +255,10 @@ func testCategories(t *testing.T, categories []models.Category) {
 			if !assert.NotEqual(t, -1, idx, "No category with expected name") {
 				return
 			}
+
+			assert.Equal(t, tt.archived, categories[idx].Archived)
+			assert.Equal(t, tt.note, categories[idx].Note)
+			assert.Equal(t, tt.name, categories[idx].Name)
 		})
 	}
 }
@@ -267,7 +271,7 @@ func testEnvelopes(t *testing.T, categories []models.Category, envelopes []model
 		name     string
 		category string
 		note     string
-		hidden   bool
+		archived bool
 	}{
 		{"Groceries", "Everyday Expenses", "", false},
 		{"Transport", "Everyday Expenses", "", false},
@@ -296,7 +300,7 @@ func testEnvelopes(t *testing.T, categories []models.Category, envelopes []model
 			e := envelopes[idx]
 
 			assert.Equal(t, tt.note, e.Note, "Note differs, is '%s', should be '%s'", e.Note, tt.note)
-			assert.Equal(t, tt.hidden, e.Hidden, "Hidden is wrong")
+			assert.Equal(t, tt.archived, e.Archived, "Archived is wrong")
 		})
 	}
 }

@@ -11,6 +11,33 @@ import (
 
 // Migrate migrates all models to the schema defined in the code.
 func Migrate(db *gorm.DB) (err error) {
+	// https://github.com/envelope-zero/backend/issues/871
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Account{}, "Hidden") {
+		err = db.Migrator().RenameColumn(&Account{}, "Hidden", "Archived")
+		if err != nil {
+			return fmt.Errorf("error when renaming Hidden -> Archived for Account: %w", err)
+		}
+	}
+
+	// https://github.com/envelope-zero/backend/issues/871
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Category{}, "Hidden") {
+		err = db.Migrator().RenameColumn(&Category{}, "Hidden", "Archived")
+		if err != nil {
+			return fmt.Errorf("error when renaming Hidden -> Archived for Category: %w", err)
+		}
+	}
+
+	// https://github.com/envelope-zero/backend/issues/871
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Envelope{}, "Hidden") {
+		err = db.Migrator().RenameColumn(&Envelope{}, "Hidden", "Archived")
+		if err != nil {
+			return fmt.Errorf("error when renaming Hidden -> Archived for Envelope: %w", err)
+		}
+	}
+
 	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, MonthConfig{}, MatchRule{}, Goal{})
 	if err != nil {
 		return fmt.Errorf("error during DB migration: %w", err)

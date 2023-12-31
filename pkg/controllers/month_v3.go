@@ -319,7 +319,7 @@ func (co Controller) SetAllocationsV3(c *gin.Context) {
 	// Get all envelope IDs and allocation amounts where there is no allocation
 	// for the request month, but one for the last month
 	err = query(c, co.DB.
-		Joins("JOIN month_configs ON month_configs.envelope_id = envelopes.id AND envelopes.hidden IS FALSE AND month_configs.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
+		Joins("JOIN month_configs ON month_configs.envelope_id = envelopes.id AND envelopes.archived IS FALSE AND month_configs.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
 		Select("envelopes.id, month_configs.allocation").
 		Table("envelopes").
 		Find(&envelopesAmount))

@@ -40,7 +40,7 @@ type Account struct {
 	EntityID string `json:"entityId"`
 	Note     string `json:"note"`
 	OnBudget bool   `json:"onBudget"`
-	Hidden   bool   `json:"hidden"`
+	Archived bool   `json:"hidden"`
 	Name     string `json:"accountName"`
 }
 

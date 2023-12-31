@@ -805,8 +805,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "description": "Is the category hidden?",
-                        "name": "hidden",
+                        "description": "Is the category archived?",
+                        "name": "archived",
                         "in": "query"
                     },
                     {
@@ -3107,10 +3107,6 @@ const docTemplate = `{
                     "default": false,
                     "example": false
                 },
-                "hidden": {
-                    "description": "Remove the hidden field",
-                    "type": "boolean"
-                },
                 "id": {
                     "description": "UUID for the resource",
                     "type": "string",
@@ -3363,7 +3359,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "archived": {
-                    "description": "Is the category hidden?",
+                    "description": "Is the category archived?",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3394,7 +3390,7 @@ const docTemplate = `{
                     "example": 90
                 },
                 "archived": {
-                    "description": "Is the Category archived?",
+                    "description": "Is the category archived?",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3425,12 +3421,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/controllers.EnvelopeMonthV3"
                     }
-                },
-                "hidden": {
-                    "description": "Is the category hidden?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -3506,7 +3496,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "archived": {
-                    "description": "Is the Category archived?",
+                    "description": "Is the category archived?",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3532,10 +3522,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/controllers.EnvelopeV3"
                     }
-                },
-                "hidden": {
-                    "description": "Remove the hidden field",
-                    "type": "boolean"
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -3595,7 +3581,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "archived": {
-                    "description": "Is the envelope hidden?",
+                    "description": "Is the envelope archived?",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3651,7 +3637,7 @@ const docTemplate = `{
                     "example": 85.44
                 },
                 "archived": {
-                    "description": "Is the Envelope archived?",
+                    "description": "Is the envelope archived?",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3675,12 +3661,6 @@ const docTemplate = `{
                     "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "hidden": {
-                    "description": "Is the envelope hidden?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -3734,7 +3714,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "archived": {
-                    "description": "Is the Envelope archived?",
+                    "description": "Is the envelope archived?",
                     "type": "boolean",
                     "default": false,
                     "example": true
@@ -3753,10 +3733,6 @@ const docTemplate = `{
                     "description": "Time the resource was marked as deleted",
                     "type": "string",
                     "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "hidden": {
-                    "description": "Remove the hidden field",
-                    "type": "boolean"
                 },
                 "id": {
                     "description": "UUID for the resource",

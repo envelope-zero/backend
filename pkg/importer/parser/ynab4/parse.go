@@ -71,14 +71,14 @@ func Parse(f io.Reader) (importer.ParsedResources, error) {
 	return resources, nil
 }
 
-func parseHiddenCategoryName(f string) (category, envelope string, err error) {
-	// The format of hidden category strings is shown in the next line. Square brackets denote field names
+func parseArchivedCategoryName(f string) (category, envelope string, err error) {
+	// The format of archived category strings is shown in the next line. Square brackets denote field names
 	// [Master Category Name] ` [Category Name] ` [Archival Number]
 	match := regexp.MustCompile("(.*) ` (.*) `").FindStringSubmatch(f)
 
 	// len needs to be 3 as the whole regex match is in match[0]
 	if len(match) != 3 {
-		return "", "", fmt.Errorf("incorrect hidden category format: match length is %d", len(match))
+		return "", "", fmt.Errorf("incorrect archived category format: match length is %d", len(match))
 	}
 
 	category = match[1]
@@ -97,7 +97,7 @@ func parseAccounts(resources *importer.ParsedResources, accounts []Account) IDTo
 				Name:       account.Name,
 				Note:       account.Note,
 				OnBudget:   account.OnBudget,
-				Hidden:     account.Hidden,
+				Archived:   account.Archived,
 				ImportHash: helpers.Sha256String(account.EntityID),
 			},
 		})
@@ -195,9 +195,9 @@ func parseCategories(resources *importer.ParsedResources, categories []Category)
 				CategoryCreate: models.CategoryCreate{
 					Name: category.Name,
 					Note: category.Note,
-					// we use category.Deleted here since the original data format does not have a hidden field. If the category is not referenced anywhere,
+					// we use category.Deleted here since the original data format does not have an "archived" field. If the category is not referenced anywhere,
 					// it will not be imported anyway
-					Hidden: category.Deleted,
+					Archived: category.Deleted,
 				},
 			},
 			Envelopes: make(map[string]importer.Envelope),
@@ -215,16 +215,16 @@ func parseCategories(resources *importer.ParsedResources, categories []Category)
 				Category: category.Name,
 			}
 
-			// For hidden categories, we need to extract the actual name
-			var hidden bool
+			// For archived categories, we need to extract the actual name
+			var archived bool
 			if category.Name == "Hidden Categories" {
 				var err error
-				mapping.Category, mapping.Envelope, err = parseHiddenCategoryName(mapping.Envelope)
+				mapping.Category, mapping.Envelope, err = parseArchivedCategoryName(mapping.Envelope)
 				if err != nil {
 					return IDToEnvelopes{}, fmt.Errorf("hidden category could not be parsed, your Budget.yfull file seems to be corrupted: %w", err)
 				}
 
-				hidden = true
+				archived = true
 			}
 
 			idToEnvelope[envelope.EntityID] = mapping
@@ -233,9 +233,9 @@ func parseCategories(resources *importer.ParsedResources, categories []Category)
 				importer.Envelope{
 					Model: models.Envelope{
 						EnvelopeCreate: models.EnvelopeCreate{
-							Name:   mapping.Envelope,
-							Note:   envelope.Note,
-							Hidden: hidden,
+							Name:     mapping.Envelope,
+							Note:     envelope.Note,
+							Archived: archived,
 						},
 					},
 				},

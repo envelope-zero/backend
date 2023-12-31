@@ -16,14 +16,13 @@ type Envelope struct {
 	DefaultModel
 	EnvelopeCreate
 	Category Category `json:"-"`
-	Archived bool     `json:"archived" example:"true" default:"false" gorm:"-"` // Is the Envelope archived?
 }
 
 type EnvelopeCreate struct {
 	Name       string    `json:"name" gorm:"uniqueIndex:envelope_category_name" example:"Groceries" default:""`                       // Name of the envelope
 	CategoryID uuid.UUID `json:"categoryId" gorm:"uniqueIndex:envelope_category_name" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"` // ID of the category the envelope belongs to
 	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`                           // Notes about the envelope
-	Hidden     bool      `json:"hidden" example:"true" default:"false"`                                                               // Is the envelope hidden?
+	Archived   bool      `json:"archived" example:"true" default:"false"`                                                             // Is the envelope archived?
 }
 
 func (e Envelope) Self() string {
@@ -37,27 +36,20 @@ func (e *Envelope) BeforeSave(_ *gorm.DB) error {
 	return nil
 }
 
-func (e *Envelope) AfterFind(_ *gorm.DB) (err error) {
-	// Set the Archived field to the value of Hidden
-	e.Archived = e.Hidden
-
-	return nil
-}
-
 // BeforeUpdate verifies the state of the envelope before
 // committing an update to the database.
 func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
 	// If the archival state is updated from archived to unarchived and the category is
 	// archived, unarchive the category, too.
-	if tx.Statement.Changed("Hidden") && e.Hidden {
+	if tx.Statement.Changed("Archived") && e.Archived {
 		var category Category
 		err = tx.First(&category, e.CategoryID).Error
 		if err != nil {
 			return
 		}
 
-		if category.Hidden {
-			tx.Model(&category).Updates(map[string]any{"hidden": false})
+		if category.Archived {
+			tx.Model(&category).Updates(map[string]any{"archived": false})
 		}
 	}
 

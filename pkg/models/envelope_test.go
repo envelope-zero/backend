@@ -229,22 +229,22 @@ func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{
 		BudgetID: budget.ID,
-		Hidden:   true,
+		Archived: true,
 	})
 
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
 		CategoryID: category.ID,
 		Name:       "TestEnvelopeUnarchiveUnarchivesCategory",
-		Hidden:     true,
+		Archived:   true,
 	})
 
 	// Unarchive the envelope
-	data := models.Envelope{EnvelopeCreate: models.EnvelopeCreate{Hidden: false}}
-	suite.db.Model(&envelope).Select("hidden").Updates(data)
+	data := models.Envelope{EnvelopeCreate: models.EnvelopeCreate{Archived: false}}
+	suite.db.Model(&envelope).Select("Archived").Updates(data)
 
 	// Reload the category
 	suite.db.First(&category, category.ID)
-	assert.False(suite.T(), category.Hidden, "Category should be unarchived when child envelope is unarchived")
+	assert.False(suite.T(), category.Archived, "Category should be unarchived when child envelope is unarchived")
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeSelf() {

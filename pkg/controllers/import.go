@@ -96,11 +96,11 @@ func findAccounts(co Controller, transaction *importer.TransactionPreview, budge
 		AccountCreate: models.AccountCreate{
 			Name:     name,
 			BudgetID: budgetID,
-			Hidden:   false,
+			Archived: false,
 		},
 	},
 		// Account Names are unique, therefore only one can match
-		"Name", "BudgetID", "Hidden").First(&account).Error
+		"Name", "BudgetID", "Archived").First(&account).Error
 
 	// Abort if no accounts are found, but with no error
 	// since this is an expected case - there might just
