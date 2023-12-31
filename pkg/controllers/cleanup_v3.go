@@ -31,8 +31,8 @@ func (co Controller) CleanupV3(c *gin.Context) {
 
 	// The order is important here since there are foreign keys to consider!
 	models := []models.Model{
-		models.Allocation{},
 		models.MatchRule{},
+		models.Goal{},
 		models.Transaction{},
 		models.MonthConfig{},
 		models.Envelope{},

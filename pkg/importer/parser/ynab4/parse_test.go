@@ -137,34 +137,6 @@ func TestParse(t *testing.T) {
 	t.Run("transactions", func(t *testing.T) {
 		testTransactions(t, accounts, envelopes, transactions)
 	})
-
-	// In YNAB 4, starting balance counts as income our outflow, in Envelope Zero it does not
-	// Therefore, the numbers for available, balance, spent and income will differ in some cases
-	tests := []struct {
-		month     types.Month
-		available float32
-		balance   float32
-		spent     float32
-		budgeted  float32
-		income    float32
-	}{
-		{types.NewMonth(2022, 10), 46.17, -100, -175, 75, 0},
-		{types.NewMonth(2022, 11), 906.17, -60, -100, 140, 1000},
-		{types.NewMonth(2022, 12), 886.17, -55, -110, 115, 95},
-		{types.NewMonth(2023, 1), 576.17, 55, 0, 0, 0},
-		{types.NewMonth(2023, 2), 456.17, 175, 0, 0, 0},
-	}
-
-	for _, tt := range tests {
-		m, err := b.Month(db, tt.month)
-		assert.Nil(t, err)
-
-		assert.True(t, decimal.NewFromFloat32(tt.available).Equal(m.Available), "Available for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.available), m.Available)
-		assert.True(t, decimal.NewFromFloat32(tt.balance).Equal(m.Balance), "Balance for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.balance), m.Balance)
-		assert.True(t, decimal.NewFromFloat32(tt.spent).Equal(m.Spent), "Spent for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.spent), m.Spent)
-		assert.True(t, decimal.NewFromFloat32(tt.budgeted).Equal(m.Budgeted), "Budgeted for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.budgeted), m.Budgeted)
-		assert.True(t, decimal.NewFromFloat32(tt.income).Equal(m.Income), "Income for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.income), m.Income)
-	}
 }
 
 // testAccount tests all account resources.

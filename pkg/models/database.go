@@ -3,7 +3,9 @@ package models
 import (
 	"fmt"
 
+	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -30,9 +32,18 @@ func Migrate(db *gorm.DB) (err error) {
 		}
 	}
 
-	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, MatchRule{}, Goal{})
+	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, MonthConfig{}, MatchRule{}, Goal{})
 	if err != nil {
 		return fmt.Errorf("error during DB migration: %w", err)
+	}
+
+	// https://github.com/envelope-zero/backend/issues/440
+	// Remove with 5.0.0
+	if db.Migrator().HasTable("allocations") {
+		err = migrateAllocationToMonthConfig(db)
+		if err != nil {
+			return fmt.Errorf("error during migrateAllocationToMonthConfig: %w", err)
+		}
 	}
 
 	// Migration for https://github.com/envelope-zero/backend/issues/613
@@ -113,4 +124,50 @@ func unsetEnvelopes(db *gorm.DB) (err error) {
 	}
 
 	return
+}
+
+func migrateAllocationToMonthConfig(db *gorm.DB) (err error) {
+	type allocation struct {
+		EnvelopeID string          `gorm:"column:envelope_id"`
+		Month      types.Month     `gorm:"column:month"`
+		Amount     decimal.Decimal `gorm:"column:amount"`
+	}
+
+	var allocations []allocation
+	err = db.Raw("select envelope_id, month, amount from allocations").Scan(&allocations).Error
+	if err != nil {
+		return err
+	}
+
+	// Execute all updates in a transaction
+	tx := db.Begin()
+
+	// For each allocation, read the values and update the MonthConfig with it
+	for _, allocation := range allocations {
+		id, err := uuid.Parse(allocation.EnvelopeID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		err = tx.Where(MonthConfig{
+			Month:      allocation.Month,
+			EnvelopeID: id,
+		}).Assign(MonthConfig{MonthConfigCreate: MonthConfigCreate{
+			Allocation: allocation.Amount,
+		}}).FirstOrCreate(&MonthConfig{}).Error
+
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Raw("DROP TABLE allocations").Scan(nil).Error
+	if err != nil {
+		return err
+	}
+
+	tx.Commit()
+	return nil
 }

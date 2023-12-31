@@ -108,27 +108,15 @@ func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 		}
 	}
 
-	// Create allocations
-	for _, a := range resources.Allocations {
-		allocation := a.Model
-		allocation.AllocationCreate.EnvelopeID = resources.Categories[a.Category].Envelopes[a.Envelope].Model.ID
-
-		err := tx.Create(&allocation).Error
-		if err != nil {
-			tx.Rollback()
-			return models.Budget{}, err
-		}
-	}
-
 	// Create MonthConfigs
-	for _, m := range resources.MonthConfigs {
+	for i, m := range resources.MonthConfigs {
 		mConfig := m.Model
 		mConfig.EnvelopeID = resources.Categories[m.Category].Envelopes[m.Envelope].Model.ID
 
 		err := tx.Create(&mConfig).Error
 		if err != nil {
 			tx.Rollback()
-			return models.Budget{}, err
+			return models.Budget{}, fmt.Errorf("error on creation of month config %d: %w", i, err)
 		}
 	}
 

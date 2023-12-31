@@ -15,7 +15,7 @@ import (
 
 func (suite *TestSuiteStandard) createTestCategoryV3(t *testing.T, c controllers.CategoryCreateV3, expectedStatus ...int) controllers.CategoryResponseV3 {
 	if c.BudgetID == uuid.Nil {
-		c.BudgetID = suite.createTestBudget(models.BudgetCreate{Name: "Testing budget"}).Data.ID
+		c.BudgetID = suite.createTestBudgetV3(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}
 
 	if c.Name == "" {
@@ -138,8 +138,8 @@ func (suite *TestSuiteStandard) TestCategoriesV3GetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestCategoriesV3GetFilter() {
-	b1 := suite.createTestBudget(models.BudgetCreate{})
-	b2 := suite.createTestBudget(models.BudgetCreate{})
+	b1 := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
+	b2 := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{
 		Name:     "Category Name",

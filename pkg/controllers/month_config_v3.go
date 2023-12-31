@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
 
 	"github.com/envelope-zero/backend/v3/internal/types"
 	"github.com/envelope-zero/backend/v3/pkg/database"
@@ -14,8 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gorm.io/gorm"
 )
+
+type MonthConfigV3Editable struct {
+	EnvelopeID uuid.UUID       `json:"envelopeId" gorm:"primaryKey" example:"10b9705d-3356-459e-9d5a-28d42a6c4547"`                                      // ID of the envelope
+	Month      types.Month     `json:"month" gorm:"primaryKey" example:"1969-06-01T00:00:00.000000Z"`                                                    // The month. This is always set to 00:00 UTC on the first of the month.
+	Allocation decimal.Decimal `json:"allocation" gorm:"-" example:"22.01" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
+	Note       string          `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""`                               // A note for the month config
+}
 
 type MonthConfigV3 struct {
 	models.MonthConfig
@@ -161,31 +166,6 @@ func (co Controller) GetMonthConfigV3(c *gin.Context) {
 			}
 			mConfig.links(c)
 
-			// Check if there is an allocation for this MonthConfig. If yes, set the value.
-			var a models.Allocation
-			err := co.DB.First(&a, models.Allocation{
-				AllocationCreate: models.AllocationCreate{
-					Month:      types.MonthOf(month.Month),
-					EnvelopeID: id,
-				},
-			}).Error
-
-			// If there is a database error, return it
-			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				e := httperrors.Parse(c, err)
-				s := e.Error()
-				c.JSON(e.Status, MonthConfigResponseV3{
-					Error: &s,
-				})
-				return
-			}
-
-			// Set the amount if there is an allocation. If not,
-			// the amount is 0, which is the zero value of decimal.Decimal
-			if err == nil {
-				mConfig.Allocation = a.Amount
-			}
-
 			c.JSON(http.StatusOK, MonthConfigResponseV3{Data: &mConfig})
 			return
 		}
@@ -202,13 +182,14 @@ func (co Controller) GetMonthConfigV3(c *gin.Context) {
 
 // MonthConfigCreateV3 contains the fields relevant for MonthConfigs in APIv3.
 type MonthConfigCreateV3 struct {
-	Note       string          `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""`                               // A note for the month config
-	Allocation decimal.Decimal `json:"allocation" gorm:"-" example:"22.01" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
+	Note       string          `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""`                                                // A note for the month config
+	Allocation decimal.Decimal `json:"allocation" gorm:"type:DECIMAL(20,8)" example:"22.01" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
 }
 
 // ToCreate is used to transform the API representation into the model representation
 func (m MonthConfigCreateV3) ToCreate() (create models.MonthConfigCreate) {
 	create.Note = m.Note
+	create.Allocation = m.Allocation
 	return create
 }
 
@@ -305,27 +286,6 @@ func (co Controller) UpdateMonthConfigV3(c *gin.Context) {
 			Error: &s,
 		})
 		return
-	}
-
-	// The Allocation field does not yet exist on the MonthConfig model in the database, create
-	// or update the corresponding allocation resource in the meantime
-	if slices.Contains(updateFields, "Allocation") && data.Allocation != decimal.Zero {
-		var allocation models.Allocation
-		e := co.DB.Where(models.Allocation{AllocationCreate: models.AllocationCreate{
-			Month:      types.MonthOf(month.Month),
-			EnvelopeID: id,
-		}}).Assign(models.Allocation{AllocationCreate: models.AllocationCreate{
-			Amount: data.Allocation,
-		}}).FirstOrCreate(&allocation).Error
-
-		if e != nil {
-			err = httperrors.Parse(c, err)
-			s := err.Error()
-			c.JSON(err.Status, MonthConfigResponseV3{
-				Error: &s,
-			})
-			return
-		}
 	}
 
 	create := data.ToCreate()

@@ -128,24 +128,6 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 		monthTransactions[tDate] = append(monthTransactions[tDate], transaction)
 	}
 
-	// Get allocations
-	var rawAllocations []Allocation
-	err = db.
-		Table("allocations").
-		Where("allocations.month < date(?)", month.AddDate(0, 1)).
-		Where("allocations.envelope_id = ?", e.ID).
-		Where("allocations.deleted_at IS NULL").
-		Find(&rawAllocations).Error
-	if err != nil {
-		return decimal.Zero, nil
-	}
-
-	// Sort allocations by month
-	allocationMonths := make(map[types.Month]Allocation)
-	for _, allocation := range rawAllocations {
-		allocationMonths[allocation.Month] = allocation
-	}
-
 	// Get MonthConfigs
 	var rawConfigs []MonthConfig
 	err = db.
@@ -168,15 +150,9 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 	// monthKeys slice
 	monthsWithData := make(map[types.Month]bool)
 
-	// Create a slice of the months that have Allocation
-	// data to have a sorted list we can iterate over
+	// Create a slice of the months that have MonthConfigs
+	// to have a sorted list we can iterate over
 	monthKeys := make([]types.Month, 0)
-	for k := range allocationMonths {
-		monthKeys = append(monthKeys, k)
-		monthsWithData[k] = true
-	}
-
-	// Add the months that have MonthConfigs
 	for k := range configMonths {
 		if _, ok := monthsWithData[k]; !ok {
 			monthKeys = append(monthKeys, k)
@@ -204,7 +180,6 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 	loopMonth := monthKeys[0]
 	for i := 0; i < len(monthKeys); i++ {
 		currentMonthTransactions, transactionsOk := monthTransactions[loopMonth]
-		currentMonthAllocation, allocationOk := allocationMonths[loopMonth]
 		currentMonthConfig, configOk := configMonths[loopMonth]
 
 		// We always go forward one month until we
@@ -216,7 +191,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 		//
 		// We also reset the balance to 0 if it is negative
 		// since with no MonthConfig, the balance starts from 0 again
-		if !transactionsOk && !allocationOk && !configOk {
+		if !transactionsOk && !configOk {
 			i--
 			if sum.IsNegative() {
 				sum = decimal.Zero
@@ -239,7 +214,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 
 		// The zero value for a decimal is Zero, so we don't need to check
 		// if there is an allocation
-		monthSum = monthSum.Add(currentMonthAllocation.Amount)
+		monthSum = monthSum.Add(currentMonthConfig.Allocation)
 
 		// If the value is not negative, we're done here.
 		if !monthSum.IsNegative() {
@@ -295,7 +270,7 @@ type EnvelopeMonth struct {
 }
 
 // Month calculates the month specific values for an envelope and returns an EnvelopeMonth and allocation ID for them.
-func (e Envelope) Month(db *gorm.DB, month types.Month) (EnvelopeMonth, uuid.UUID, error) {
+func (e Envelope) Month(db *gorm.DB, month types.Month) (EnvelopeMonth, error) {
 	spent := e.Spent(db, month)
 	envelopeMonth := EnvelopeMonth{
 		Envelope:   e,
@@ -305,24 +280,22 @@ func (e Envelope) Month(db *gorm.DB, month types.Month) (EnvelopeMonth, uuid.UUI
 		Allocation: decimal.NewFromFloat(0),
 	}
 
-	var allocation Allocation
-	err := db.First(&allocation, &Allocation{
-		AllocationCreate: AllocationCreate{
-			EnvelopeID: e.ID,
-			Month:      month,
-		},
-	}).Error
+	var monthConfig MonthConfig
+	err := db.Where(&MonthConfig{
+		EnvelopeID: e.ID,
+		Month:      month,
+	}).Find(&monthConfig).Error
 
 	// If an unexpected error occurs, return
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return EnvelopeMonth{}, uuid.Nil, err
+		return EnvelopeMonth{}, err
 	}
 
 	envelopeMonth.Balance, err = e.Balance(db, month)
 	if err != nil {
-		return EnvelopeMonth{}, uuid.Nil, err
+		return EnvelopeMonth{}, err
 	}
 
-	envelopeMonth.Allocation = allocation.Amount
-	return envelopeMonth, allocation.ID, nil
+	envelopeMonth.Allocation = monthConfig.Allocation
+	return envelopeMonth, nil
 }

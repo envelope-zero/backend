@@ -480,26 +480,28 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 		for _, subCategoryBudget := range monthBudget.MonthlySubCategoryBudgets {
 			// If the budget allocation is deleted, we don't need to do anything.
 			// This is the case when a category that has budgeted amounts gets deleted.
-			if subCategoryBudget.Deleted {
+			//
+			// We also don't need to do anything when nothing is budgeted and the overspend handling
+			// is the default
+			if subCategoryBudget.Deleted || (subCategoryBudget.Budgeted.IsZero() && (subCategoryBudget.OverspendingHandling == "AffectsBuffer" || subCategoryBudget.OverspendingHandling == "")) {
 				continue
 			}
 
-			// If something is budgeted, create an allocation for it
-			if !subCategoryBudget.Budgeted.IsZero() {
-				resources.Allocations = append(resources.Allocations, importer.Allocation{
-					Model: models.Allocation{
-						AllocationCreate: models.AllocationCreate{
-							Month:  month,
-							Amount: subCategoryBudget.Budgeted,
-						},
-					},
-					Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
-					Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
-				})
+			monthConfig := importer.MonthConfig{
+				Model: models.MonthConfig{
+					Month: month,
+				},
+				Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
+				Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
 			}
 
-			// If the overspendHandling is configured, work with it
-			if !(subCategoryBudget.OverspendingHandling == "") {
+			// If something is budgeted, set the amount
+			if !subCategoryBudget.Budgeted.IsZero() {
+				monthConfig.Model.Allocation = subCategoryBudget.Budgeted
+			}
+
+			// If the overspendHandling is confined, work with it
+			if subCategoryBudget.OverspendingHandling == "Confined" {
 				// All occurrences of PreYNABDebt configurations that I could find are set for
 				// months before there is any budget data.
 				// Configuration for months before any data exists is not needed and therefore skipped
@@ -509,22 +511,10 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 					continue
 				}
 
-				var mode models.OverspendMode = "AFFECT_AVAILABLE"
-				if subCategoryBudget.OverspendingHandling == "Confined" {
-					mode = "AFFECT_ENVELOPE"
-				}
-
-				resources.MonthConfigs = append(resources.MonthConfigs, importer.MonthConfig{
-					Model: models.MonthConfig{
-						MonthConfigCreate: models.MonthConfigCreate{
-							OverspendMode: mode,
-						},
-						Month: month,
-					},
-					Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
-					Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
-				})
+				monthConfig.Model.OverspendMode = "AFFECT_ENVELOPE"
 			}
+
+			resources.MonthConfigs = append(resources.MonthConfigs, monthConfig)
 		}
 	}
 

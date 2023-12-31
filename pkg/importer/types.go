@@ -12,7 +12,6 @@ type ParsedResources struct {
 	Budget       models.Budget
 	Accounts     []models.Account
 	Categories   map[string]Category
-	Allocations  []Allocation
 	Transactions []Transaction
 	MonthConfigs []MonthConfig
 	MatchRules   []MatchRule
@@ -31,12 +30,6 @@ type Envelope struct {
 type MatchRule struct {
 	models.MatchRule
 	Account string
-}
-
-type Allocation struct {
-	Model    models.Allocation
-	Category string // There is a category here since an envelope with the same name can exist for multiple categories
-	Envelope string
 }
 
 type MonthConfig struct {

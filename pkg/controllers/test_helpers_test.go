@@ -5,17 +5,9 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
-
-// TOLERANCE is the number of seconds that a CreatedAt or UpdatedAt time.Time
-// is allowed to differ from the time at which it is checked.
-//
-// As CreatedAt and UpdatedAt are automatically set by gorm, we need a tolerance here.
-// This is in nanoseconds, so we multiply by 1000000000 for seconds.
-const tolerance time.Duration = 1000000000 * 60
 
 func assertHTTPStatus(t *testing.T, r *httptest.ResponseRecorder, expectedStatus ...int) {
 	assert.Contains(t, expectedStatus, r.Code, "HTTP status is wrong. Request ID: '%s' Response body: %s", r.Result().Header.Get("x-request-id"), r.Body.String())

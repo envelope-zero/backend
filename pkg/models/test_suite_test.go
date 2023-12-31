@@ -117,18 +117,6 @@ func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models
 	return account
 }
 
-func (suite *TestSuiteStandard) createTestAllocation(c models.AllocationCreate) models.Allocation {
-	allocation := models.Allocation{
-		AllocationCreate: c,
-	}
-	err := suite.db.Save(&allocation).Error
-	if err != nil {
-		suite.Assert().FailNow("Allocation could not be saved", "Error: %s, Allocation: %#v", err, allocation)
-	}
-
-	return allocation
-}
-
 func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate) models.Transaction {
 	transaction := models.Transaction{
 		TransactionCreate: c,

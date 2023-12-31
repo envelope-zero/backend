@@ -15,24 +15,22 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestCleanupV3() {
-	_ = suite.createTestBudget(models.BudgetCreate{})
+	_ = suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "TestCleanup"})
 	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{})
 	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
-	_ = suite.createTestAllocation(models.AllocationCreate{})
-	_ = suite.createTestTransaction(models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
-	_ = suite.createTestMonthConfig(envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{AccountID: account.Data.ID, Match: "Delete me"})
+	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
+	_ = suite.patchTestMonthConfigV3(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
+	_ = suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{AccountID: account.Data.ID, Match: "Delete me"})
 
 	tests := []string{
+		"http://example.com/v3/accounts",
 		"http://example.com/v3/budgets",
-		"http://example.com/v1/accounts",
-		"http://example.com/v1/categories",
-		"http://example.com/v3/transactions",
-		"http://example.com/v1/envelopes",
-		"http://example.com/v1/allocations",
-		"http://example.com/v1/month-configs",
+		"http://example.com/v3/categories",
+		"http://example.com/v3/envelopes",
+		"http://example.com/v3/goals",
 		"http://example.com/v3/match-rules",
+		"http://example.com/v3/transactions",
 	}
 
 	// Delete
