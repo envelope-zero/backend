@@ -241,7 +241,7 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 }
 
 type EnvelopeMonthLinks struct {
-	Allocation string `json:"allocation" example:"https://example.com/api/v1/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"` // The allocations for this envelope for this month
+	Allocation string `json:"allocation" example:"https://example.com/api/v3/allocations/772d6956-ecba-485b-8a27-46a506c5a2a3"` // The allocations for this envelope for this month
 }
 
 // EnvelopeMonth contains data about an Envelope for a specific month.
