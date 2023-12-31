@@ -44,8 +44,8 @@ kos:
     platforms:
       - linux/amd64
       - linux/arm64
-    flags:
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
+    labels:
+      org.opencontainers.image.created: "{{.Date}}"
+      org.opencontainers.image.revision: "{{.FullCommit}}"
+      org.opencontainers.image.title: "{{.ProjectName}}"
+      org.opencontainers.image.version: "{{.Version}}"
