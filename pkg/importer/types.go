@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"github.com/envelope-zero/backend/v4/internal/types"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/google/uuid"
 )
@@ -9,12 +10,29 @@ import (
 // Named resources are in maps with their names as keys to enable easy deduplication
 // and iteration through them.
 type ParsedResources struct {
-	Budget       models.Budget
-	Accounts     []models.Account
-	Categories   map[string]Category
-	Transactions []Transaction
-	MonthConfigs []MonthConfig
-	MatchRules   []MatchRule
+	Budget         models.Budget
+	Accounts       []models.Account
+	Categories     map[string]Category
+	Transactions   []Transaction
+	MonthConfigs   []MonthConfig
+	MatchRules     []MatchRule
+	OverspendFixes []OverspendFix
+}
+
+// OverspendFix supports the import of budgeting apps that allow overspending
+// for an envelope to affect that envelope's balance in the next month.
+// It is used by the creator to subtract the overspent amount from the allocation
+// of the next month for the specific envelope
+//
+// OverspendFixes have to be added by the budget parsers since these are responsible
+// for detecting situations where overspend is configured to affect the envelope.
+//
+// However, the calculation of the balance for the envelope and possible subtraction
+// of overspend is handled by the creator
+type OverspendFix struct {
+	Category string // There is a category here since an envelope with the same name can exist for multiple categories
+	Envelope string
+	Month    types.Month
 }
 
 type Category struct {

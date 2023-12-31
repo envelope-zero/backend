@@ -933,10 +933,6 @@ definitions:
         description: A note for the month config
         example: Added 200€ here because we replaced Tim's expensive vase
         type: string
-      overspendMode:
-        description: Ignore this. It is here to override the OverspendMode from models.MonthConfigCreate
-          and will be removed with 4.0.0
-        type: string
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
@@ -1193,14 +1189,6 @@ definitions:
         example: 3
         type: integer
     type: object
-  models.OverspendMode:
-    enum:
-    - AFFECT_AVAILABLE
-    - AFFECT_ENVELOPE
-    type: string
-    x-enum-varnames:
-    - AffectAvailable
-    - AffectEnvelope
   models.TransactionCreate:
     properties:
       amount:

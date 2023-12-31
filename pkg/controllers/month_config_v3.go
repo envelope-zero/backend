@@ -24,8 +24,7 @@ type MonthConfigV3Editable struct {
 
 type MonthConfigV3 struct {
 	models.MonthConfig
-	OverspendMode string `json:"overspendMode,omitempty"` // Ignore this. It is here to override the OverspendMode from models.MonthConfigCreate and will be removed with 4.0.0
-	Links         struct {
+	Links struct {
 		Self     string `json:"self" example:"https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"` // The Month Config itself
 		Envelope string `json:"envelope" example:"https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"`     // The Envelope this config belongs to
 	} `json:"links"`

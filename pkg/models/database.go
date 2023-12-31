@@ -37,6 +37,15 @@ func Migrate(db *gorm.DB) (err error) {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
+	// https://github.com/envelope-zero/backend/issues/856
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&MonthConfig{}, "OverspendMode") {
+		err = migrateOverspendHandling(db)
+		if err != nil {
+			return fmt.Errorf("error during overspend handling migration: %w", err)
+		}
+	}
+
 	// https://github.com/envelope-zero/backend/issues/440
 	// Remove with 5.0.0
 	if db.Migrator().HasTable("allocations") {
@@ -170,4 +179,70 @@ func migrateAllocationToMonthConfig(db *gorm.DB) (err error) {
 
 	tx.Commit()
 	return nil
+}
+
+func migrateOverspendHandling(db *gorm.DB) (err error) {
+	type overspend struct {
+		EnvelopeID    string // `gorm:"column:envelope_id"`
+		Month         types.Month
+		OverspendMode string
+	}
+
+	var overspends []overspend
+	err = db.Raw("select envelope_id, month, overspend_mode from month_configs WHERE overspend_mode != ''").Scan(&overspends).Error
+	if err != nil {
+		return err
+	}
+
+	// Execute all updates in a transaction
+	tx := db.Begin()
+
+	// For each overspend configuration, migrate the config as needed
+	for _, overspend := range overspends {
+		envelopeID, err := uuid.Parse(overspend.EnvelopeID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		var envelope Envelope
+		err = tx.First(&envelope, envelopeID).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		balance, err := envelope.Balance(tx, overspend.Month)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		// If the envelope is not overspent (i.e. balance is >= 0), we don't need to do anything
+		if balance.GreaterThanOrEqual(decimal.Zero) {
+			continue
+		}
+
+		var monthConfig MonthConfig
+		err = tx.Where(MonthConfig{
+			Month:      overspend.Month.AddDate(0, 1),
+			EnvelopeID: envelopeID,
+		}).FirstOrCreate(&monthConfig).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		// Add the balance
+		// We need to subtract the overspent amount, since the balance is negative the overspent amount, we add it
+		monthConfig.Allocation.Add(balance)
+		err = tx.Save(&monthConfig).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
+
+	return db.Migrator().DropColumn(&MonthConfig{}, "OverspendMode")
 }

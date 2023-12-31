@@ -4222,10 +4222,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
                 },
-                "overspendMode": {
-                    "description": "Ignore this. It is here to override the OverspendMode from models.MonthConfigCreate and will be removed with 4.0.0",
-                    "type": "string"
-                },
                 "updatedAt": {
                     "description": "Last time the resource was updated",
                     "type": "string",
@@ -4565,17 +4561,6 @@ const docTemplate = `{
                     "example": 3
                 }
             }
-        },
-        "models.OverspendMode": {
-            "type": "string",
-            "enum": [
-                "AFFECT_AVAILABLE",
-                "AFFECT_ENVELOPE"
-            ],
-            "x-enum-varnames": [
-                "AffectAvailable",
-                "AffectEnvelope"
-            ]
         },
         "models.TransactionCreate": {
             "type": "object",

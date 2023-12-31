@@ -9,14 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// swagger:enum OverspendMode
-type OverspendMode string
-
-const (
-	AffectAvailable OverspendMode = "AFFECT_AVAILABLE"
-	AffectEnvelope  OverspendMode = "AFFECT_ENVELOPE"
-)
-
 type MonthConfig struct {
 	Timestamps
 	MonthConfigCreate
@@ -25,9 +17,8 @@ type MonthConfig struct {
 }
 
 type MonthConfigCreate struct {
-	Allocation    decimal.Decimal `json:"allocation" gorm:"type:DECIMAL(20,8)" example:"22.01" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
-	OverspendMode OverspendMode   `json:"overspendMode" example:"AFFECT_ENVELOPE" default:"AFFECT_AVAILABLE"`                                                                // The overspend handling mode to use. Deprecated, will be removed with 4.0.0 release and is not used in API v3 anymore
-	Note          string          `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""`                                                // A note for the month config
+	Allocation decimal.Decimal `json:"allocation" gorm:"type:DECIMAL(20,8)" example:"22.01" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The maximum value is "999999999999.99999999", swagger unfortunately rounds this.
+	Note       string          `json:"note" example:"Added 200€ here because we replaced Tim's expensive vase" default:""`                                                // A note for the month config
 }
 
 func (m MonthConfig) Self() string {

@@ -222,16 +222,9 @@ func (e Envelope) Balance(db *gorm.DB, month types.Month) (decimal.Decimal, erro
 			continue
 		}
 
-		// If there is overspend and the overspend should affect the envelope,
-		// the sum for the month is subtracted (using decimal.Add since the
-		// number is negative)
-		if monthSum.IsNegative() && configOk && currentMonthConfig.OverspendMode == AffectEnvelope {
+		// If this is the last month, the sum is the monthSum
+		if monthSum.IsNegative() && loopMonth.After(month) {
 			sum = monthSum
-			// If this is the last month, the sum is the monthSum
-		} else if monthSum.IsNegative() && loopMonth.After(month) {
-			sum = monthSum
-			// In all other cases, the overspend affects Available to Budget,
-			// not the envelope balance
 		} else if monthSum.IsNegative() {
 			sum = decimal.Zero
 		}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
@@ -65,9 +64,6 @@ func Parse(f io.Reader) (importer.ParsedResources, error) {
 	if err != nil {
 		return importer.ParsedResources{}, fmt.Errorf("error parsing budget allocations: %w", err)
 	}
-
-	// Translate YNAB overspend handling behaviour to EZ overspending handling behaviour
-	fixOverspendHandling(&resources)
 
 	// Fix duplicate account names
 	fixDuplicateAccountNames(&resources)
@@ -511,7 +507,11 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 					continue
 				}
 
-				monthConfig.Model.OverspendMode = "AFFECT_ENVELOPE"
+				resources.OverspendFixes = append(resources.OverspendFixes, importer.OverspendFix{
+					Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
+					Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
+					Month:    month,
+				})
 			}
 
 			resources.MonthConfigs = append(resources.MonthConfigs, monthConfig)
@@ -519,98 +519,6 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 	}
 
 	return nil
-}
-
-// fixOverspendHandling translates the overspend handling behaviour of YNAB 4 into
-// the overspend handling of EZ. In YNAB 4, when the overspendHandling is set to "Confined",
-// it affects all months until it is explicitly set back to "AffectsBuffer".
-//
-// EZ on the other hand uses AFFECT_AVAILABLE as default (as does YNAB 4 with "AffectsBuffer")
-// but only changes to AFFECT_ENVELOPE (= "Confined" on YNAB 4) when explicitly configured for
-// that month.
-func fixOverspendHandling(resources *importer.ParsedResources) {
-	// sorter is a map of category names to a map of envelope names to the month configs
-	sorter := make(map[string]map[string][]importer.MonthConfig, 0)
-
-	// Sort by envelope
-	for _, monthConfig := range resources.MonthConfigs {
-		_, ok := sorter[monthConfig.Category]
-		if !ok {
-			sorter[monthConfig.Category] = make(map[string][]importer.MonthConfig, 0)
-		}
-
-		_, ok = sorter[monthConfig.Category][monthConfig.Envelope]
-		if !ok {
-			sorter[monthConfig.Category][monthConfig.Envelope] = make([]importer.MonthConfig, 0)
-		}
-
-		sorter[monthConfig.Category][monthConfig.Envelope] = append(sorter[monthConfig.Category][monthConfig.Envelope], monthConfig)
-	}
-
-	// New slice for final MonthConfigs
-	var monthConfigs []importer.MonthConfig
-
-	// Fix handling for all envelopes
-	for _, category := range sorter {
-		for _, monthConfig := range category {
-			// Sort by time so that earlier months are first
-			sort.Slice(monthConfig, func(i, j int) bool {
-				return monthConfig[i].Model.Month.Before(monthConfig[j].Model.Month)
-			})
-
-			for i, mConfig := range monthConfig {
-				// If we are switching back to "Available for budget", we don't need to do anything
-				if mConfig.Model.OverspendMode == "AFFECT_AVAILABLE" || mConfig.Model.OverspendMode == "" {
-					continue
-				}
-
-				monthConfigs = append(monthConfigs, mConfig)
-
-				// Start with the next month since we already appended the current one
-				checkMonth := mConfig.Model.Month.AddDate(0, 1)
-
-				// If this is the last month, we set all months including the one of today to "AFFECT_ENVELOPE"
-				// to preserve the YNAB 4 behaviour up to the switch to EZ
-				if i+1 == len(monthConfig) {
-					for ok := true; ok; ok = !checkMonth.AfterTime(time.Now()) {
-						monthConfigs = append(monthConfigs, importer.MonthConfig{
-							Model: models.MonthConfig{
-								Month: checkMonth,
-								MonthConfigCreate: models.MonthConfigCreate{
-									OverspendMode: models.AffectEnvelope,
-								},
-							},
-							Category: mConfig.Category,
-							Envelope: mConfig.Envelope,
-						})
-
-						checkMonth = checkMonth.AddDate(0, 1)
-					}
-
-					continue
-				}
-
-				// Set all months up to the next one with a configuration to "AFFECT_ENVELOPE"
-				for ok := !checkMonth.Equal(monthConfig[i+1].Model.Month); ok; ok = !checkMonth.Equal(monthConfig[i+1].Model.Month) {
-					monthConfigs = append(monthConfigs, importer.MonthConfig{
-						Model: models.MonthConfig{
-							Month: checkMonth,
-							MonthConfigCreate: models.MonthConfigCreate{
-								OverspendMode: "AFFECT_ENVELOPE",
-							},
-						},
-						Category: mConfig.Category,
-						Envelope: mConfig.Envelope,
-					})
-
-					checkMonth = checkMonth.AddDate(0, 1)
-				}
-			}
-		}
-	}
-
-	// Overwrite the original MonthConfigs with the fixed ones
-	resources.MonthConfigs = monthConfigs
 }
 
 // fixDuplicateAccountNames detects if an account name is the same for an internal and
