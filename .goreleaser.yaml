@@ -32,15 +32,19 @@ changelog:
       regexp: "^.*chore(deps):+.*$"
       order: 3
 
-dockers:
-  - dockerfile: Dockerfile.goreleaser
-    image_templates:
-      - "ghcr.io/envelope-zero/backend:{{ .Tag }}"
-      - "ghcr.io/envelope-zero/backend:v{{ .Major }}"
-      - "ghcr.io/envelope-zero/backend:v{{ .Major }}.{{ .Minor }}"
-      - "ghcr.io/envelope-zero/backend:latest"
-
-    build_flag_templates:
+kos:
+  - repository: ghcr.io/envelope-zero/backend
+    tags:
+      - "{{ .Tag }}" # v{{ .Major}}.{{ .Minor }}.{{ .Patch }}
+      - "v{{ .Major }}"
+      - "v{{ .Major }}.{{ .Minor }}"
+      - latest
+    bare: true
+    preserve_import_paths: false
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    flags:
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
