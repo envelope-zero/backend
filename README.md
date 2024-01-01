@@ -53,6 +53,9 @@ persistence:
   enabled: true
   mountPath: /data
 
+podSecurityContext:
+  fsGroup: 65532
+
 affinity:
   podAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
