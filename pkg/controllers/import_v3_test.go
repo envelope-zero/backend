@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/envelope-zero/backend/v4/internal/types"
@@ -51,6 +52,55 @@ func (suite *TestSuiteStandard) TestImportV3Success() {
 			body, headers := suite.loadTestFile(tt.file)
 			recorder := test.Request(suite.controller, t, http.MethodPost, fmt.Sprintf("http://example.com/v3/import/%s", tt.path), body, headers)
 			assertHTTPStatus(t, &recorder, tt.status)
+		})
+	}
+}
+
+// TestImportYnab4BudgetCalculation verifies that the budget calculation is correct
+// for an imported budget from YNAB 4.
+//
+// This in turn tests the budget calculation itself for edge cases that can only happen
+// with YNAB 4 budgets, e.g. for overspend handling migration
+//
+// Resource creation for YNAB 4 imports is tested in pkg/importer/parser/ynab4/parse_test.go -> TestParse,
+// but budget calculation is a controller function and therefore is tested here
+func (suite *TestSuiteStandard) TestImportYnab4BudgetCalculation() {
+	body, headers := suite.loadTestFile("importer/Budget.yfull")
+	recorder := test.Request(suite.controller, suite.T(), http.MethodPost, "http://example.com/v3/import/ynab4?budgetName=Test Budget", body, headers)
+	assertHTTPStatus(suite.T(), &recorder, http.StatusCreated)
+
+	var budget controllers.BudgetResponseV3
+	suite.decodeResponse(&recorder, &budget)
+
+	// In YNAB 4, starting balance counts as income our outflow, in Envelope Zero it does not
+	// Therefore, the numbers for available, balance, spent and income will differ in some cases
+	tests := []struct {
+		month     types.Month
+		available float32
+		balance   float32
+		spent     float32
+		budgeted  float32
+		income    float32
+	}{
+		{types.NewMonth(2022, 10), 46.17, -100, -175, 75, 0},
+		{types.NewMonth(2022, 11), 906.17, -60, -100, 140, 1000},
+		{types.NewMonth(2022, 12), 886.17, -55, -110, 115, 95},
+		{types.NewMonth(2023, 1), 576.17, 55, 0, 0, 0},
+		{types.NewMonth(2023, 2), 456.17, 175, 0, 0, 0},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.month.String(), func(t *testing.T) {
+			// Get the budget caculations for
+			recorder := test.Request(suite.controller, t, http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", tt.month.String(), 1), "")
+			assertHTTPStatus(t, &recorder, http.StatusOK)
+			var month controllers.MonthResponseV3
+			suite.decodeResponse(&recorder, &month)
+
+			assert.True(t, decimal.NewFromFloat32(tt.available).Equal(month.Data.Available), "Available for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.available), month.Data.Available)
+			assert.True(t, decimal.NewFromFloat32(tt.balance).Equal(month.Data.Balance), "Balance for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.balance), month.Data.Balance)
+			assert.True(t, decimal.NewFromFloat32(tt.spent).Equal(month.Data.Spent), "Spent for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.spent), month.Data.Spent)
+			assert.True(t, decimal.NewFromFloat32(tt.income).Equal(month.Data.Income), "Income for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.income), month.Data.Income)
 		})
 	}
 }

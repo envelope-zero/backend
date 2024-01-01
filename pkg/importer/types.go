@@ -50,10 +50,16 @@ type MatchRule struct {
 	Account string
 }
 
+const (
+	AffectAvailable string = "AFFECT_AVAILABLE"
+	AffectEnvelope  string = "AFFECT_ENVELOPE"
+)
+
 type MonthConfig struct {
-	Model    models.MonthConfig
-	Category string // There is a category here since an envelope with the same name can exist for multiple categories
-	Envelope string
+	Model         models.MonthConfig
+	Category      string // There is a category here since an envelope with the same name can exist for multiple categories
+	Envelope      string
+	OverspendMode string // The OverspendMode used by YNAB4
 }
 
 type Transaction struct {

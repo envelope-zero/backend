@@ -91,11 +91,6 @@ type BudgetResponseV3 struct {
 	Error *string   `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 }
 
-type BudgetMonthResponseV3 struct {
-	Data  *models.BudgetMonth `json:"data"`                                                          // Data for the budget's month
-	Error *string             `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-}
-
 // RegisterBudgetRoutesV3 registers the routes for Budgets with
 // the RouterGroup that is passed.
 func (co Controller) RegisterBudgetRoutesV3(r *gin.RouterGroup) {

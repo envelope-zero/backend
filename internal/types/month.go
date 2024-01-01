@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -31,13 +33,29 @@ func (m Month) MarshalJSON() ([]byte, error) {
 // The month is expected to be a string in a format accepted by ParseDate.
 // From the parsed string, everything is then ignored except the year and month
 func (m *Month) UnmarshalJSON(data []byte) error {
-	var date time.Time
-	err := date.UnmarshalJSON(data)
+	value := strings.Trim(string(data), `"`) // get rid of "
+	if value == "" || value == "null" {
+		return nil
+	}
+
+	// This allows to parse strings in the "2006-01-02" format
+	match, err := regexp.MatchString("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", string(value))
 	if err != nil {
 		return err
 	}
 
-	month := NewMonth(date.Year(), date.Month())
+	// This is the default pattern
+	pattern := "2006-01-02T15:04:05Z07:00"
+	if match {
+		pattern = "2006-01-02"
+	}
+
+	t, err := time.Parse(pattern, string(value))
+	if err != nil {
+		return err
+	}
+
+	month := NewMonth(t.Year(), t.Month())
 	*m = month
 	return nil
 }

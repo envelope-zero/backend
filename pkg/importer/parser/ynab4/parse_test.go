@@ -64,7 +64,7 @@ func TestParseFail(t *testing.T) {
 		{"CorruptNonParseableHidden", "hidden category could not be parsed"},
 		{"EmptyFile", "not a valid YNAB4 Budget.yfull file"},
 		{"CorruptNonParseableTransactionDate", "error parsing transactions: could not parse date"},
-		{"CorruptMonthlyBudget", "error parsing budget allocations: could not parse date"},
+		{"CorruptMonthlyBudget", "parsing time \"2022-12-01-12\" as \"2006-01-02T15:04:05Z07:00\""},
 		{"CorruptNoMatchingTransfer", "could not find corresponding transaction"},
 		{"CorruptMissingTargetTransaction", "could not find corresponding transaction for sub-transaction transfer"},
 	}

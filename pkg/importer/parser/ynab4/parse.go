@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -64,6 +65,8 @@ func Parse(f io.Reader) (importer.ParsedResources, error) {
 	if err != nil {
 		return importer.ParsedResources{}, fmt.Errorf("error parsing budget allocations: %w", err)
 	}
+
+	generateOverspendFixes(&resources)
 
 	// Fix duplicate account names
 	fixDuplicateAccountNames(&resources)
@@ -467,51 +470,49 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 }
 
 func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
-	for _, monthBudget := range monthlyBudgets {
-		month, err := types.ParseDateToMonth(monthBudget.Month)
-		if err != nil {
-			return fmt.Errorf("could not parse date, the Budget.yfull file seems to be corrupt: %w", err)
+	slices.SortFunc(monthlyBudgets, func(a, b MonthlyBudget) int {
+		if a.Month.Before(b.Month) {
+			return -1
 		}
 
+		if b.Month.Before(a.Month) {
+			return 1
+		}
+
+		return 0
+	})
+
+	for _, monthBudget := range monthlyBudgets {
 		for _, subCategoryBudget := range monthBudget.MonthlySubCategoryBudgets {
 			// If the budget allocation is deleted, we don't need to do anything.
 			// This is the case when a category that has budgeted amounts gets deleted.
 			//
-			// We also don't need to do anything when nothing is budgeted and the overspend handling
-			// is the default
-			if subCategoryBudget.Deleted || (subCategoryBudget.Budgeted.IsZero() && (subCategoryBudget.OverspendingHandling == "AffectsBuffer" || subCategoryBudget.OverspendingHandling == "")) {
+			// Category/PreYNABDebt: All occurrences of PreYNABDebt configurations that I could find are set for
+			// months before there is any budget data.
+			// Configuration for months before any data exists is not needed and therefore skipped
+			//
+			// If you find a budget where it is actually needed, please let me know!
+			if subCategoryBudget.Deleted || strings.HasPrefix(subCategoryBudget.CategoryID, "Category/PreYNABDebt") {
 				continue
 			}
 
 			monthConfig := importer.MonthConfig{
 				Model: models.MonthConfig{
-					Month: month,
+					Month: monthBudget.Month,
+					MonthConfigCreate: models.MonthConfigCreate{
+						Allocation: subCategoryBudget.Budgeted,
+					},
 				},
 				Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
 				Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
 			}
 
-			// If something is budgeted, set the amount
-			if !subCategoryBudget.Budgeted.IsZero() {
-				monthConfig.Model.Allocation = subCategoryBudget.Budgeted
-			}
-
-			// If the overspendHandling is confined, work with it
-			if subCategoryBudget.OverspendingHandling == "Confined" {
-				// All occurrences of PreYNABDebt configurations that I could find are set for
-				// months before there is any budget data.
-				// Configuration for months before any data exists is not needed and therefore skipped
-				//
-				// If you find a budget where it is actually needed, please let me know!
-				if strings.HasPrefix(subCategoryBudget.CategoryID, "Category/PreYNABDebt") {
-					continue
+			// If the overspendHandling is configured, work with it
+			if subCategoryBudget.OverspendingHandling != "" {
+				monthConfig.OverspendMode = importer.AffectAvailable
+				if subCategoryBudget.OverspendingHandling == "Confined" {
+					monthConfig.OverspendMode = importer.AffectEnvelope
 				}
-
-				resources.OverspendFixes = append(resources.OverspendFixes, importer.OverspendFix{
-					Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
-					Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,
-					Month:    month,
-				})
 			}
 
 			resources.MonthConfigs = append(resources.MonthConfigs, monthConfig)
@@ -539,6 +540,99 @@ func fixDuplicateAccountNames(r *importer.ParsedResources) {
 				}
 
 				a.Name = fmt.Sprintf("%s (External)", a.Name)
+			}
+		}
+	}
+}
+
+// generateOverspendFixes translates the overspend handling behaviour of YNAB 4 into
+// the overspend handling of EZ. In YNAB 4, when the overspendHandling is set to "Confined",
+// it affects all months until it is explicitly set back to "AffectsBuffer".
+//
+// Envelope Zero does not support overspend handling, so we generate an OverspendFix for every
+// month that is affected by "Confined" overspend handling in YNAB4.
+//
+// The OverspendFixes then will be used by the creator to correctly update allocations to envelopes
+// to preserve the correct budgeted values
+func generateOverspendFixes(resources *importer.ParsedResources) {
+	// sorter is a map of category names to a map of envelope names to the month configs
+	sorter := make(map[string]map[string][]importer.MonthConfig, 0)
+
+	// Sort by envelope
+	for _, monthConfig := range resources.MonthConfigs {
+		_, ok := sorter[monthConfig.Category]
+		if !ok {
+			sorter[monthConfig.Category] = make(map[string][]importer.MonthConfig, 0)
+		}
+
+		_, ok = sorter[monthConfig.Category][monthConfig.Envelope]
+		if !ok {
+			sorter[monthConfig.Category][monthConfig.Envelope] = make([]importer.MonthConfig, 0)
+		}
+
+		sorter[monthConfig.Category][monthConfig.Envelope] = append(sorter[monthConfig.Category][monthConfig.Envelope], monthConfig)
+	}
+
+	// Fix handling for all envelopes
+	for _, envelopes := range sorter {
+		for _, monthConfigs := range envelopes {
+			// Sort by time so that earlier months are first
+			sort.Slice(monthConfigs, func(i, j int) bool {
+				return monthConfigs[i].Model.Month.Before(monthConfigs[j].Model.Month)
+			})
+
+			for i, monthConfig := range monthConfigs {
+				// If we are switching back to "Available for budget", we don't need to do anything
+				// anymore and can go to the next month config
+				if monthConfig.OverspendMode == importer.AffectAvailable {
+					continue
+				}
+
+				// Append an overspend fix for this month
+				resources.OverspendFixes = append(resources.OverspendFixes, importer.OverspendFix{
+					Category: monthConfig.Category,
+					Envelope: monthConfig.Envelope,
+					Month:    monthConfig.Model.Month,
+				})
+
+				// Start with the next month since we already appended
+				// an overspend fix for the current one
+				checkMonth := monthConfig.Model.Month.AddDate(0, 1)
+
+				// If the checkMonth is the last month for which we have a month config,
+				// we then add overspend fixes for all month up until the date at which
+				// the import happens.
+				//
+				// This is done so that the budget values are exactly the same up until
+				// the month where the users is importing to Envelope Zero.
+				//
+				// This enables users to compare the values and verify they are the same.
+				if i+1 == len(monthConfigs) {
+					for ok := true; ok; ok = !checkMonth.AfterTime(time.Now()) {
+						resources.OverspendFixes = append(resources.OverspendFixes, importer.OverspendFix{
+							Category: monthConfig.Category,
+							Envelope: monthConfig.Envelope,
+							Month:    checkMonth,
+						})
+
+						checkMonth = checkMonth.AddDate(0, 1)
+					}
+					continue
+				}
+
+				// Set all months up to the next one with a configuration to "AFFECT_ENVELOPE"
+				// We have not arrived at the last month config in the list, so we add overspend
+				// fixes for the current month and all months that are between the current month
+				// and the next month for which we have a month config
+				for ok := !checkMonth.Equal(monthConfigs[i+1].Model.Month); ok; ok = !checkMonth.Equal(monthConfigs[i+1].Model.Month) {
+					resources.OverspendFixes = append(resources.OverspendFixes, importer.OverspendFix{
+						Category: monthConfig.Category,
+						Envelope: monthConfig.Envelope,
+						Month:    checkMonth,
+					})
+
+					checkMonth = checkMonth.AddDate(0, 1)
+				}
 			}
 		}
 	}

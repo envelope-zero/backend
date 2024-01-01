@@ -13,7 +13,7 @@ import (
 func Migrate(db *gorm.DB) (err error) {
 	// https://github.com/envelope-zero/backend/issues/871
 	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Account{}, "Hidden") {
+	if db.Migrator().HasColumn(&Account{}, "hidden") {
 		err = db.Migrator().RenameColumn(&Account{}, "Hidden", "Archived")
 		if err != nil {
 			return fmt.Errorf("error when renaming Hidden -> Archived for Account: %w", err)
@@ -22,7 +22,7 @@ func Migrate(db *gorm.DB) (err error) {
 
 	// https://github.com/envelope-zero/backend/issues/871
 	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Category{}, "Hidden") {
+	if db.Migrator().HasColumn(&Category{}, "hidden") {
 		err = db.Migrator().RenameColumn(&Category{}, "Hidden", "Archived")
 		if err != nil {
 			return fmt.Errorf("error when renaming Hidden -> Archived for Category: %w", err)
@@ -31,7 +31,7 @@ func Migrate(db *gorm.DB) (err error) {
 
 	// https://github.com/envelope-zero/backend/issues/871
 	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Envelope{}, "Hidden") {
+	if db.Migrator().HasColumn(&Envelope{}, "hidden") {
 		err = db.Migrator().RenameColumn(&Envelope{}, "Hidden", "Archived")
 		if err != nil {
 			return fmt.Errorf("error when renaming Hidden -> Archived for Envelope: %w", err)
@@ -43,9 +43,22 @@ func Migrate(db *gorm.DB) (err error) {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
+	// https://github.com/envelope-zero/backend/issues/440
+	// Remove with 5.0.0
+	//
+	// This migration has to be executed before the overspend handling migration
+	// so that the allocation values are correct when updated by the overspend
+	// handling migration
+	if db.Migrator().HasTable("allocations") {
+		err = migrateAllocationToMonthConfig(db)
+		if err != nil {
+			return fmt.Errorf("error during migrateAllocationToMonthConfig: %w", err)
+		}
+	}
+
 	// https://github.com/envelope-zero/backend/issues/856
 	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&MonthConfig{}, "OverspendMode") {
+	if db.Migrator().HasColumn(&MonthConfig{}, "overspend_mode") {
 		err = migrateOverspendHandling(db)
 		if err != nil {
 			return fmt.Errorf("error during overspend handling migration: %w", err)
@@ -54,19 +67,10 @@ func Migrate(db *gorm.DB) (err error) {
 
 	// https://github.com/envelope-zero/backend/issues/359
 	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Transaction{}, "Reconciled") {
+	if db.Migrator().HasColumn(&Transaction{}, "reconciled") {
 		err = db.Migrator().DropColumn(&Transaction{}, "Reconciled")
 		if err != nil {
 			return fmt.Errorf("error when dropping reconciled column for transactions: %w", err)
-		}
-	}
-
-	// https://github.com/envelope-zero/backend/issues/440
-	// Remove with 5.0.0
-	if db.Migrator().HasTable("allocations") {
-		err = migrateAllocationToMonthConfig(db)
-		if err != nil {
-			return fmt.Errorf("error during migrateAllocationToMonthConfig: %w", err)
 		}
 	}
 
@@ -127,7 +131,7 @@ func migrateOverspendHandling(db *gorm.DB) (err error) {
 	}
 
 	var overspends []overspend
-	err = db.Raw("select envelope_id, month, overspend_mode from month_configs WHERE overspend_mode != ''").Scan(&overspends).Error
+	err = db.Raw("select envelope_id, month, overspend_mode from month_configs WHERE overspend_mode = 'AFFECT_ENVELOPE'").Scan(&overspends).Error
 	if err != nil {
 		return err
 	}
@@ -173,7 +177,7 @@ func migrateOverspendHandling(db *gorm.DB) (err error) {
 
 		// Add the balance
 		// We need to subtract the overspent amount, since the balance is negative the overspent amount, we add it
-		monthConfig.Allocation.Add(balance)
+		monthConfig.Allocation = monthConfig.Allocation.Add(balance)
 		err = tx.Save(&monthConfig).Error
 		if err != nil {
 			tx.Rollback()
@@ -182,5 +186,5 @@ func migrateOverspendHandling(db *gorm.DB) (err error) {
 	}
 	tx.Commit()
 
-	return db.Migrator().DropColumn(&MonthConfig{}, "OverspendMode")
+	return db.Migrator().DropColumn(&MonthConfig{}, "overspend_mode")
 }

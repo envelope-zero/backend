@@ -156,7 +156,7 @@ func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 
 		// Add the balance
 		// We need to subtract the overspent amount, since the balance is negative the overspent amount, we add it
-		monthConfig.Allocation.Add(balance)
+		monthConfig.Allocation = monthConfig.Allocation.Add(balance)
 		err = tx.Save(&monthConfig).Error
 		if err != nil {
 			tx.Rollback()
