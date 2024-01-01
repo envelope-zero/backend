@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/router"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/router"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

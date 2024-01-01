@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
@@ -89,11 +89,6 @@ func (b *BudgetCreateResponseV3) appendError(err httperrors.Error, status int) i
 type BudgetResponseV3 struct {
 	Data  *BudgetV3 `json:"data"`                                                          // Data for the budget
 	Error *string   `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-}
-
-type BudgetMonthResponseV3 struct {
-	Data  *models.BudgetMonth `json:"data"`                                                          // Data for the budget's month
-	Error *string             `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 }
 
 // RegisterBudgetRoutesV3 registers the routes for Budgets with

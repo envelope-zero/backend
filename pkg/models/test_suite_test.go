@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
@@ -115,18 +115,6 @@ func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models
 	}
 
 	return account
-}
-
-func (suite *TestSuiteStandard) createTestAllocation(c models.AllocationCreate) models.Allocation {
-	allocation := models.Allocation{
-		AllocationCreate: c,
-	}
-	err := suite.db.Save(&allocation).Error
-	if err != nil {
-		suite.Assert().FailNow("Allocation could not be saved", "Error: %s, Allocation: %#v", err, allocation)
-	}
-
-	return allocation
 }
 
 func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate) models.Transaction {

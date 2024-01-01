@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
@@ -73,11 +73,11 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		Date:                 time.Time(january.AddDate(0, 1)),
 	})
 
-	envelopeMonth, _, err := envelope.Month(suite.db, january)
+	envelopeMonth, err := envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)
 
-	envelopeMonth, _, err = envelope.Month(suite.db, january.AddDate(0, 1))
+	envelopeMonth, err = envelope.Month(suite.db, january.AddDate(0, 1))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
@@ -86,7 +86,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	envelopeMonth, _, err = envelope.Month(suite.db, january)
+	envelopeMonth, err = envelope.Month(suite.db, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(decimal.NewFromFloat(0)), "Month calculation for 2022-01 is wrong: should be %v, but is %v", decimal.NewFromFloat(0), envelopeMonth.Spent)
 }
@@ -154,17 +154,21 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	january := types.NewMonth(2022, 1)
 
 	// Allocation in January
-	_ = suite.createTestAllocation(models.AllocationCreate{
+	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      january,
-		Amount:     decimal.NewFromFloat(50),
+		MonthConfigCreate: models.MonthConfigCreate{
+			Allocation: decimal.NewFromFloat(50),
+		},
 	})
 
 	// Allocation in February
-	_ = suite.createTestAllocation(models.AllocationCreate{
+	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      january.AddDate(0, 1),
-		Amount:     decimal.NewFromFloat(40),
+		MonthConfigCreate: models.MonthConfigCreate{
+			Allocation: decimal.NewFromFloat(40),
+		},
 	})
 
 	// Transaction in January
@@ -212,7 +216,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	for _, tt := range tests {
 		suite.T().Run(fmt.Sprintf("%s-%s", tt.envelope.Name, tt.month.String()), func(t *testing.T) {
 			should := decimal.NewFromFloat(float64(tt.balance))
-			eMonth, _, err := tt.envelope.Month(suite.db, tt.month)
+			eMonth, err := tt.envelope.Month(suite.db, tt.month)
 			assert.Nil(t, err)
 			assert.True(t, eMonth.Balance.Equal(should), "Balance calculation for 2022-01 is wrong: should be %v, but is %v", should, eMonth.Balance)
 		})
@@ -225,22 +229,22 @@ func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	category := suite.createTestCategory(models.CategoryCreate{
 		BudgetID: budget.ID,
-		Hidden:   true,
+		Archived: true,
 	})
 
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
 		CategoryID: category.ID,
 		Name:       "TestEnvelopeUnarchiveUnarchivesCategory",
-		Hidden:     true,
+		Archived:   true,
 	})
 
 	// Unarchive the envelope
-	data := models.Envelope{EnvelopeCreate: models.EnvelopeCreate{Hidden: false}}
-	suite.db.Model(&envelope).Select("hidden").Updates(data)
+	data := models.Envelope{EnvelopeCreate: models.EnvelopeCreate{Archived: false}}
+	suite.db.Model(&envelope).Select("Archived").Updates(data)
 
 	// Reload the category
 	suite.db.First(&category, category.ID)
-	assert.False(suite.T(), category.Hidden, "Category should be unarchived when child envelope is unarchived")
+	assert.False(suite.T(), category.Archived, "Category should be unarchived when child envelope is unarchived")
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeSelf() {

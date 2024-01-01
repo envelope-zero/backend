@@ -3,114 +3,188 @@ package models
 import (
 	"fmt"
 
+	"github.com/envelope-zero/backend/v4/internal/types"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
 // Migrate migrates all models to the schema defined in the code.
 func Migrate(db *gorm.DB) (err error) {
-	// Migration for https://github.com/envelope-zero/backend/issues/684
-	// Remove with 4.0.0
-	// This migration is done before the AutoMigrate since AutoMigrate will introduce
-	// new unique constraints that this migration ensures are fulfilled for existing
-	// transactions
-	if db.Migrator().HasTable(&Account{}) {
-		err = migrateDuplicateAccountNames(db)
+	// https://github.com/envelope-zero/backend/issues/871
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Account{}, "hidden") {
+		err = db.Migrator().RenameColumn(&Account{}, "Hidden", "Archived")
 		if err != nil {
-			return fmt.Errorf("error during migrateDuplicateAccountNames: %w", err)
+			return fmt.Errorf("error when renaming Hidden -> Archived for Account: %w", err)
 		}
 	}
 
-	// https://github.com/envelope-zero/backend/issues/763
-	// Remove with 4.0.0
-	if db.Migrator().HasTable("rename_rules") {
-		err := db.Migrator().RenameTable("rename_rules", "match_rules")
+	// https://github.com/envelope-zero/backend/issues/871
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Category{}, "hidden") {
+		err = db.Migrator().RenameColumn(&Category{}, "Hidden", "Archived")
 		if err != nil {
-			return fmt.Errorf("error during rename_rules -> match_rules migration: %w", err)
+			return fmt.Errorf("error when renaming Hidden -> Archived for Category: %w", err)
 		}
 	}
 
-	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, Allocation{}, MonthConfig{}, MatchRule{}, Goal{})
+	// https://github.com/envelope-zero/backend/issues/871
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Envelope{}, "hidden") {
+		err = db.Migrator().RenameColumn(&Envelope{}, "Hidden", "Archived")
+		if err != nil {
+			return fmt.Errorf("error when renaming Hidden -> Archived for Envelope: %w", err)
+		}
+	}
+
+	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, MonthConfig{}, MatchRule{}, Goal{})
 	if err != nil {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
-	// Migration for https://github.com/envelope-zero/backend/issues/613
-	// Remove with 4.0.0
-	err = unsetEnvelopes(db)
-	if err != nil {
-		return fmt.Errorf("error during unsetEnvelopes: %w", err)
-	}
-
-	return nil
-}
-
-// migrateDuplicateAccountNames migrates duplicate account names to be unique.
-func migrateDuplicateAccountNames(db *gorm.DB) (err error) {
-	type Duplicate struct {
-		BudgetID uuid.UUID
-		Name     string
-	}
-
-	// Get a list of budget ID and account name for all budgets that have duplicate account names
-	var duplicates []Duplicate
-	err = db.Raw("select budget_id, name, COUNT(*) from accounts GROUP BY budget_id, name having count(*) > 1").Scan(&duplicates).Error
-	if err != nil {
-		return
-	}
-
-	for _, d := range duplicates {
-		var accounts []Account
-
-		// Find all accounts that have a duplicate name
-		err = db.Unscoped().Where(Account{AccountCreate: AccountCreate{
-			BudgetID: d.BudgetID,
-			Name:     d.Name,
-		}}).Find(&accounts).Error
+	// https://github.com/envelope-zero/backend/issues/440
+	// Remove with 5.0.0
+	//
+	// This migration has to be executed before the overspend handling migration
+	// so that the allocation values are correct when updated by the overspend
+	// handling migration
+	if db.Migrator().HasTable("allocations") {
+		err = migrateAllocationToMonthConfig(db)
 		if err != nil {
-			return
+			return fmt.Errorf("error during migrateAllocationToMonthConfig: %w", err)
 		}
+	}
 
-		for i, a := range accounts {
-			a.Name = fmt.Sprintf("%s (%d)", a.Name, i+1)
-			err = db.Save(&a).Error
-			if err != nil {
-				return
-			}
+	// https://github.com/envelope-zero/backend/issues/856
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&MonthConfig{}, "overspend_mode") {
+		err = migrateOverspendHandling(db)
+		if err != nil {
+			return fmt.Errorf("error during overspend handling migration: %w", err)
+		}
+	}
+
+	// https://github.com/envelope-zero/backend/issues/359
+	// Remove with 5.0.0
+	if db.Migrator().HasColumn(&Transaction{}, "reconciled") {
+		err = db.Migrator().DropColumn(&Transaction{}, "Reconciled")
+		if err != nil {
+			return fmt.Errorf("error when dropping reconciled column for transactions: %w", err)
 		}
 	}
 
 	return nil
 }
 
-// unsetEnvelopes removes the envelopes from transfers between
-// accounts that are on budget.
-func unsetEnvelopes(db *gorm.DB) (err error) {
-	var accounts []Account
-	err = db.Where(&Account{AccountCreate: AccountCreate{
-		OnBudget: true,
-	}}).Find(&accounts).Error
+func migrateAllocationToMonthConfig(db *gorm.DB) (err error) {
+	type allocation struct {
+		EnvelopeID string          `gorm:"column:envelope_id"`
+		Month      types.Month     `gorm:"column:month"`
+		Amount     decimal.Decimal `gorm:"column:amount"`
+	}
+
+	var allocations []allocation
+	err = db.Raw("select envelope_id, month, amount from allocations").Scan(&allocations).Error
 	if err != nil {
-		return
+		return err
 	}
 
-	for _, a := range accounts {
-		var transactions []Transaction
-		err = db.Model(&Transaction{}).
-			Joins("JOIN accounts ON transactions.source_account_id = accounts.id").
-			Where("destination_account_id = ? AND accounts.on_budget AND envelope_id not null", a.ID).
-			Find(&transactions).Error
+	// Execute all updates in a transaction
+	tx := db.Begin()
+
+	// For each allocation, read the values and update the MonthConfig with it
+	for _, allocation := range allocations {
+		id, err := uuid.Parse(allocation.EnvelopeID)
 		if err != nil {
-			return
+			tx.Rollback()
+			return err
 		}
 
-		for _, t := range transactions {
-			err = db.Model(&t).Select("EnvelopeID").Updates(map[string]interface{}{"EnvelopeID": nil}).Error
-			if err != nil {
-				return
-			}
+		err = tx.Where(MonthConfig{
+			Month:      allocation.Month,
+			EnvelopeID: id,
+		}).Assign(MonthConfig{MonthConfigCreate: MonthConfigCreate{
+			Allocation: allocation.Amount,
+		}}).FirstOrCreate(&MonthConfig{}).Error
+
+		if err != nil {
+			tx.Rollback()
+			return err
 		}
 	}
 
-	return
+	err = tx.Raw("DROP TABLE allocations").Scan(nil).Error
+	if err != nil {
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func migrateOverspendHandling(db *gorm.DB) (err error) {
+	type overspend struct {
+		EnvelopeID    string // `gorm:"column:envelope_id"`
+		Month         types.Month
+		OverspendMode string
+	}
+
+	var overspends []overspend
+	err = db.Raw("select envelope_id, month, overspend_mode from month_configs WHERE overspend_mode = 'AFFECT_ENVELOPE'").Scan(&overspends).Error
+	if err != nil {
+		return err
+	}
+
+	// Execute all updates in a transaction
+	tx := db.Begin()
+
+	// For each overspend configuration, migrate the config as needed
+	for _, overspend := range overspends {
+		envelopeID, err := uuid.Parse(overspend.EnvelopeID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		var envelope Envelope
+		err = tx.First(&envelope, envelopeID).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		balance, err := envelope.Balance(tx, overspend.Month)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		// If the envelope is not overspent (i.e. balance is >= 0), we don't need to do anything
+		if balance.GreaterThanOrEqual(decimal.Zero) {
+			continue
+		}
+
+		var monthConfig MonthConfig
+		err = tx.Where(MonthConfig{
+			Month:      overspend.Month.AddDate(0, 1),
+			EnvelopeID: envelopeID,
+		}).FirstOrCreate(&monthConfig).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		// Add the balance
+		// We need to subtract the overspent amount, since the balance is negative the overspent amount, we add it
+		monthConfig.Allocation = monthConfig.Allocation.Add(balance)
+		err = tx.Save(&monthConfig).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
+
+	return db.Migrator().DropColumn(&MonthConfig{}, "overspend_mode")
 }

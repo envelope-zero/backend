@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -56,12 +56,12 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	})
 
 	incomingTransaction := suite.createTestTransaction(models.TransactionCreate{
-		BudgetID:             budget.ID,
-		EnvelopeID:           &envelope.ID,
-		SourceAccountID:      externalAccount.ID,
-		DestinationAccountID: account.ID,
-		Reconciled:           true,
-		Amount:               decimal.NewFromFloat(32.17),
+		BudgetID:              budget.ID,
+		EnvelopeID:            &envelope.ID,
+		SourceAccountID:       externalAccount.ID,
+		DestinationAccountID:  account.ID,
+		ReconciledDestination: true,
+		Amount:                decimal.NewFromFloat(32.17),
 	})
 
 	outgoingTransaction := suite.createTestTransaction(models.TransactionCreate{

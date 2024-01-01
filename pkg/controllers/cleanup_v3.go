@@ -3,8 +3,8 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,8 +31,8 @@ func (co Controller) CleanupV3(c *gin.Context) {
 
 	// The order is important here since there are foreign keys to consider!
 	models := []models.Model{
-		models.Allocation{},
 		models.MatchRule{},
+		models.Goal{},
 		models.Transaction{},
 		models.MonthConfig{},
 		models.Envelope{},

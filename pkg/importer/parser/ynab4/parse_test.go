@@ -11,11 +11,11 @@ import (
 	"testing/iotest"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/importer"
-	"github.com/envelope-zero/backend/v3/pkg/importer/parser/ynab4"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/importer"
+	"github.com/envelope-zero/backend/v4/pkg/importer/parser/ynab4"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -64,7 +64,7 @@ func TestParseFail(t *testing.T) {
 		{"CorruptNonParseableHidden", "hidden category could not be parsed"},
 		{"EmptyFile", "not a valid YNAB4 Budget.yfull file"},
 		{"CorruptNonParseableTransactionDate", "error parsing transactions: could not parse date"},
-		{"CorruptMonthlyBudget", "error parsing budget allocations: could not parse date"},
+		{"CorruptMonthlyBudget", "parsing time \"2022-12-01-12\" as \"2006-01-02T15:04:05Z07:00\""},
 		{"CorruptNoMatchingTransfer", "could not find corresponding transaction"},
 		{"CorruptMissingTargetTransaction", "could not find corresponding transaction for sub-transaction transfer"},
 	}
@@ -137,34 +137,6 @@ func TestParse(t *testing.T) {
 	t.Run("transactions", func(t *testing.T) {
 		testTransactions(t, accounts, envelopes, transactions)
 	})
-
-	// In YNAB 4, starting balance counts as income our outflow, in Envelope Zero it does not
-	// Therefore, the numbers for available, balance, spent and income will differ in some cases
-	tests := []struct {
-		month     types.Month
-		available float32
-		balance   float32
-		spent     float32
-		budgeted  float32
-		income    float32
-	}{
-		{types.NewMonth(2022, 10), 46.17, -100, -175, 75, 0},
-		{types.NewMonth(2022, 11), 906.17, -60, -100, 140, 1000},
-		{types.NewMonth(2022, 12), 886.17, -55, -110, 115, 95},
-		{types.NewMonth(2023, 1), 576.17, 55, 0, 0, 0},
-		{types.NewMonth(2023, 2), 456.17, 175, 0, 0, 0},
-	}
-
-	for _, tt := range tests {
-		m, err := b.Month(db, tt.month)
-		assert.Nil(t, err)
-
-		assert.True(t, decimal.NewFromFloat32(tt.available).Equal(m.Available), "Available for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.available), m.Available)
-		assert.True(t, decimal.NewFromFloat32(tt.balance).Equal(m.Balance), "Balance for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.balance), m.Balance)
-		assert.True(t, decimal.NewFromFloat32(tt.spent).Equal(m.Spent), "Spent for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.spent), m.Spent)
-		assert.True(t, decimal.NewFromFloat32(tt.budgeted).Equal(m.Budgeted), "Budgeted for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.budgeted), m.Budgeted)
-		assert.True(t, decimal.NewFromFloat32(tt.income).Equal(m.Income), "Income for %s is wrong, should be %s but is %s", tt.month, decimal.NewFromFloat32(tt.income), m.Income)
-	}
 }
 
 // testAccount tests all account resources.
@@ -190,7 +162,7 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 		initialBalance     float32
 		initialBalanceDate time.Time
 		onBudget           bool
-		hidden             bool
+		archived           bool
 		note               string
 	}{
 		{"Checking", 100, time.Date(2022, 10, 15, 0, 0, 0, 0, time.UTC), true, false, ""},
@@ -211,7 +183,7 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 			assert.True(t, a.InitialBalance.Equal(decimal.NewFromFloat32(tt.initialBalance)), "Initial balance does not match, is %s, expected %f", a.InitialBalance, tt.initialBalance)
 			assert.False(t, a.External, "Account is marked external")
 			assert.Equal(t, tt.onBudget, a.OnBudget, "On Budget is wrong")
-			assert.Equal(t, tt.hidden, a.Hidden, "Hidden is wrong")
+			assert.Equal(t, tt.archived, a.Archived, "Archived is wrong")
 			assert.Equal(t, tt.note, a.Note, "Note differs. Should be '%s', but is '%s'", tt.note, a.Note)
 
 			if tt.initialBalance != 0 {
@@ -264,13 +236,13 @@ func testMatchRules(t *testing.T, matchRules []models.MatchRule, accounts []mode
 
 // testCategories tests all the categories for correct import.
 func testCategories(t *testing.T, categories []models.Category) {
-	// 3 categories, 1 (Rainy Day Funds) only has hidden envelopes
+	// 3 categories, 1 (Rainy Day Funds) only has archived envelopes
 	assert.Len(t, categories, 3, "Number of categories is wrong")
 
 	tests := []struct {
-		name   string
-		note   string
-		hidden bool
+		name     string
+		note     string
+		archived bool
 	}{
 		{"Savings Goals", "Money I'm saving for big expenses", false},
 		{"Everyday Expenses", "", false},
@@ -283,6 +255,10 @@ func testCategories(t *testing.T, categories []models.Category) {
 			if !assert.NotEqual(t, -1, idx, "No category with expected name") {
 				return
 			}
+
+			assert.Equal(t, tt.archived, categories[idx].Archived)
+			assert.Equal(t, tt.note, categories[idx].Note)
+			assert.Equal(t, tt.name, categories[idx].Name)
 		})
 	}
 }
@@ -295,7 +271,7 @@ func testEnvelopes(t *testing.T, categories []models.Category, envelopes []model
 		name     string
 		category string
 		note     string
-		hidden   bool
+		archived bool
 	}{
 		{"Groceries", "Everyday Expenses", "", false},
 		{"Transport", "Everyday Expenses", "", false},
@@ -324,7 +300,7 @@ func testEnvelopes(t *testing.T, categories []models.Category, envelopes []model
 			e := envelopes[idx]
 
 			assert.Equal(t, tt.note, e.Note, "Note differs, is '%s', should be '%s'", e.Note, tt.note)
-			assert.Equal(t, tt.hidden, e.Hidden, "Hidden is wrong")
+			assert.Equal(t, tt.archived, e.Archived, "Archived is wrong")
 		})
 	}
 }

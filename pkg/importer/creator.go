@@ -4,8 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
@@ -108,27 +109,58 @@ func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 		}
 	}
 
-	// Create allocations
-	for _, a := range resources.Allocations {
-		allocation := a.Model
-		allocation.AllocationCreate.EnvelopeID = resources.Categories[a.Category].Envelopes[a.Envelope].Model.ID
-
-		err := tx.Create(&allocation).Error
-		if err != nil {
-			tx.Rollback()
-			return models.Budget{}, err
-		}
-	}
-
 	// Create MonthConfigs
-	for _, m := range resources.MonthConfigs {
+	for i, m := range resources.MonthConfigs {
 		mConfig := m.Model
 		mConfig.EnvelopeID = resources.Categories[m.Category].Envelopes[m.Envelope].Model.ID
 
 		err := tx.Create(&mConfig).Error
 		if err != nil {
 			tx.Rollback()
-			return models.Budget{}, err
+			return models.Budget{}, fmt.Errorf("error on creation of month config %d: %w", i, err)
+		}
+	}
+
+	for _, f := range resources.OverspendFixes {
+		envelopeID := resources.Categories[f.Category].Envelopes[f.Envelope].Model.ID
+
+		var envelope models.Envelope
+		err := tx.First(&envelope, envelopeID).Error
+		if err != nil {
+			tx.Rollback()
+			return models.Budget{}, fmt.Errorf("could not find envelope to fix overspend on: %w", err)
+		}
+
+		balance, err := envelope.Balance(tx, f.Month)
+		if err != nil {
+			tx.Rollback()
+			return models.Budget{}, fmt.Errorf("error on balance calculation for envelope to fix overspend on: %w", err)
+		}
+
+		// If the envelope is not overspent (i.e. balance is >= 0), we don't need to do anything
+		if balance.GreaterThanOrEqual(decimal.Zero) {
+			continue
+		}
+
+		// We need to add(!) the envelope balance to the allocation for the next month.
+		// To do so, we find the MonthConfig or create it
+		var monthConfig models.MonthConfig
+		err = tx.Where(models.MonthConfig{
+			Month:      f.Month.AddDate(0, 1),
+			EnvelopeID: envelopeID,
+		}).FirstOrCreate(&monthConfig).Error
+		if err != nil {
+			tx.Rollback()
+			return models.Budget{}, fmt.Errorf("error on reading/creating the month config for overspend fixing: %w", err)
+		}
+
+		// Add the balance
+		// We need to subtract the overspent amount, since the balance is negative the overspent amount, we add it
+		monthConfig.Allocation = monthConfig.Allocation.Add(balance)
+		err = tx.Save(&monthConfig).Error
+		if err != nil {
+			tx.Rollback()
+			return models.Budget{}, fmt.Errorf("error on updating the month config for overspend fixing: %w", err)
 		}
 	}
 

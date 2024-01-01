@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
@@ -19,8 +19,6 @@ func (co Controller) RegisterGoalRoutesV3(r *gin.RouterGroup) {
 	}
 	{
 		r.OPTIONS("/:id", co.OptionsGoalDetailV3)
-
-		// FIMXE: These three
 		r.GET("/:id", co.GetGoalV3)
 		r.PATCH("/:id", co.UpdateGoalV3)
 		r.DELETE("/:id", co.DeleteGoalV3)

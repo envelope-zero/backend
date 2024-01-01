@@ -3,7 +3,7 @@ package models_test
 import (
 	"strings"
 
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,18 +28,18 @@ func (suite *TestSuiteStandard) TestCategoryArchiveArchivesEnvelopes() {
 
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
 		CategoryID: category.ID,
-		Hidden:     false,
+		Archived:   false,
 	})
-	assert.False(suite.T(), envelope.Hidden, "Envelope archived on creation, it should not be")
+	assert.False(suite.T(), envelope.Archived, "Envelope archived on creation, it should not be")
 
 	// Archive the category
-	err := suite.db.Model(&category).Select("Hidden").Updates(models.Category{CategoryCreate: models.CategoryCreate{Hidden: true}}).Error
+	err := suite.db.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
 	assert.Nil(suite.T(), err)
 
 	// Verify that the envelope is archived
 	err = suite.db.First(&envelope, envelope.ID).Error
 	assert.Nil(suite.T(), err)
-	assert.True(suite.T(), envelope.Hidden, "Envelope was not archived together with category")
+	assert.True(suite.T(), envelope.Archived, "Envelope was not archived together with category")
 }
 
 func (suite *TestSuiteStandard) TestCategoryArchiveNoEnvelopes() {
@@ -55,18 +55,18 @@ func (suite *TestSuiteStandard) TestCategoryArchiveNoEnvelopes() {
 
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
 		CategoryID: category2.ID,
-		Hidden:     false,
+		Archived:   false,
 	})
-	assert.False(suite.T(), envelope.Hidden, "Envelope archived on creation, it should not be")
+	assert.False(suite.T(), envelope.Archived, "Envelope archived on creation, it should not be")
 
 	// Archive the empty category
-	err := suite.db.Model(&category).Select("Hidden").Updates(models.Category{CategoryCreate: models.CategoryCreate{Hidden: true}}).Error
+	err := suite.db.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
 	assert.Nil(suite.T(), err)
 
 	// Verify that the envelope is not archived
 	err = suite.db.First(&envelope, envelope.ID).Error
 	assert.Nil(suite.T(), err)
-	assert.False(suite.T(), envelope.Hidden, "Envelope was archived together with category")
+	assert.False(suite.T(), envelope.Archived, "Envelope was archived together with category")
 }
 
 func (suite *TestSuiteStandard) TestCategorySetEnvelopes() {

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/pkg/controllers"
-	"github.com/envelope-zero/backend/v3/pkg/models"
-	"github.com/envelope-zero/backend/v3/test"
+	"github.com/envelope-zero/backend/v4/pkg/controllers"
+	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -138,8 +138,8 @@ func (suite *TestSuiteStandard) TestAccountsV3GetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestAccountsV3GetFilter() {
-	b1 := suite.createTestBudget(models.BudgetCreate{})
-	b2 := suite.createTestBudget(models.BudgetCreate{})
+	b1 := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
+	b2 := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 
 	_ = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{
 		Name:     "Exact Account Match",

@@ -6,11 +6,11 @@ import (
 	"os"
 	"strings"
 
-	docs "github.com/envelope-zero/backend/v3/api"
-	"github.com/envelope-zero/backend/v3/pkg/controllers"
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
+	docs "github.com/envelope-zero/backend/v4/api"
+	"github.com/envelope-zero/backend/v4/pkg/controllers"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/pprof"
@@ -121,36 +121,6 @@ func AttachRoutes(co controllers.Controller, group *gin.RouterGroup) {
 	group.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	co.RegisterHealthzRoutes(group.Group("/healthz"))
 
-	// API v1 setup
-	v1 := group.Group("/v1")
-	{
-		v1.GET("", GetV1)
-		v1.DELETE("", co.DeleteAll)
-		v1.OPTIONS("", OptionsV1)
-	}
-
-	co.RegisterBudgetRoutes(v1.Group("/budgets"))
-	co.RegisterAccountRoutes(v1.Group("/accounts"))
-	co.RegisterTransactionRoutes(v1.Group("/transactions"))
-	co.RegisterCategoryRoutes(v1.Group("/categories"))
-	co.RegisterEnvelopeRoutes(v1.Group("/envelopes"))
-	co.RegisterAllocationRoutes(v1.Group("/allocations"))
-	co.RegisterMonthRoutes(v1.Group("/months"))
-	co.RegisterImportRoutes(v1.Group("/import"))
-	co.RegisterMonthConfigRoutes(v1.Group("/month-configs"))
-
-	// API v2 setup
-	v2 := group.Group("/v2")
-	{
-		v2.GET("", GetV2)
-		v2.OPTIONS("", OptionsV2)
-	}
-
-	co.RegisterAccountRoutesV2(v2.Group("/accounts"))
-	co.RegisterTransactionRoutesV2(v2.Group("/transactions"))
-	co.RegisterRenameRuleRoutes(v2.Group("/rename-rules"))
-	co.RegisterMatchRuleRoutes(v2.Group("/match-rules"))
-
 	// API v3 setup
 	v3 := group.Group("/v3")
 	{
@@ -180,8 +150,6 @@ type RootLinks struct {
 	Healthz string `json:"healthz" example:"https://example.com/api/healtzh"`      // Healthz endpoint
 	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
 	Metrics string `json:"metrics" example:"https://example.com/api/metrics"`      // Endpoint returning Prometheus metrics
-	V1      string `json:"v1" example:"https://example.com/api/v1"`                // List endpoint for all v1 endpoints
-	V2      string `json:"v2" example:"https://example.com/api/v2"`                // List endpoint for all v2 endpoints
 	V3      string `json:"v3" example:"https://example.com/api/v3"`                // List endpoint for all v3 endpoints
 }
 
@@ -199,8 +167,6 @@ func GetRoot(c *gin.Context) {
 			Healthz: c.GetString(string(database.ContextURL)) + "/healthz",
 			Version: c.GetString(string(database.ContextURL)) + "/version",
 			Metrics: c.GetString(string(database.ContextURL)) + "/metrics",
-			V1:      c.GetString(string(database.ContextURL)) + "/v1",
-			V2:      c.GetString(string(database.ContextURL)) + "/v2",
 			V3:      c.GetString(string(database.ContextURL)) + "/v3",
 		},
 	})
@@ -250,100 +216,8 @@ func OptionsVersion(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
 
-type V1Response struct {
-	Links V1Links `json:"links"` // Links for the v1 API
-}
-
-type V1Links struct {
-	Budgets      string `json:"budgets" example:"https://example.com/api/v1/budgets"`           // URL of budget list endpoint
-	Accounts     string `json:"accounts" example:"https://example.com/api/v1/accounts"`         // URL of account list endpoint
-	Categories   string `json:"categories" example:"https://example.com/api/v1/categories"`     // URL of category list endpoint
-	Transactions string `json:"transactions" example:"https://example.com/api/v1/transactions"` // URL of transaction list endpoint
-	Envelopes    string `json:"envelopes" example:"https://example.com/api/v1/envelopes"`       // URL of envelope list endpoint
-	Allocations  string `json:"allocations" example:"https://example.com/api/v1/allocations"`   // URL of allocation list endpoint
-	Months       string `json:"months" example:"https://example.com/api/v1/months"`             // URL of month list endpoint
-	Import       string `json:"import" example:"https://example.com/api/v1/import"`             // URL of import list endpoint
-}
-
-// GetV1 returns the link list for v1
-//
-//	@Summary		v1 API
-//	@Description	Returns general information about the v1 API
-//	@Tags			v1
-//	@Success		200	{object}	V1Response
-//	@Router			/v1 [get]
-//	@Deprecated		true
-func GetV1(c *gin.Context) {
-	c.JSON(http.StatusOK, V1Response{
-		Links: V1Links{
-			Budgets:      c.GetString(string(database.ContextURL)) + "/v1/budgets",
-			Accounts:     c.GetString(string(database.ContextURL)) + "/v1/accounts",
-			Categories:   c.GetString(string(database.ContextURL)) + "/v1/categories",
-			Transactions: c.GetString(string(database.ContextURL)) + "/v1/transactions",
-			Envelopes:    c.GetString(string(database.ContextURL)) + "/v1/envelopes",
-			Allocations:  c.GetString(string(database.ContextURL)) + "/v1/allocations",
-			Months:       c.GetString(string(database.ContextURL)) + "/v1/months",
-			Import:       c.GetString(string(database.ContextURL)) + "/v1/import",
-		},
-	})
-}
-
-// OptionsV1 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			v1
-//	@Success		204
-//	@Router			/v1 [options]
-//	@Deprecated		true
-func OptionsV1(c *gin.Context) {
-	httputil.OptionsGetDelete(c)
-}
-
-type V2Response struct {
-	Links V2Links `json:"links"` // Links for the v2 API
-}
-
-type V2Links struct {
-	Accounts     string `json:"accounts" example:"https://example.com/api/v2/accounts"`         // URL of transaction list endpoint
-	Transactions string `json:"transactions" example:"https://example.com/api/v2/transactions"` // URL of transaction list endpoint
-	RenameRules  string `json:"rename-rules" example:"https://example.com/api/v2/rename-rules"` // URL of rename-rule list endpoint
-	MatchRules   string `json:"match-rules" example:"https://example.com/api/v2/match-rules"`   // URL of match-rule list endpoint
-}
-
-// GetV2 returns the link list for v2
-//
-//	@Summary		v2 API
-//	@Description	Returns general information about the v2 API
-//	@Tags			v2
-//	@Success		200	{object}	V2Response
-//	@Router			/v2 [get]
-//	@Deprecated		true
-func GetV2(c *gin.Context) {
-	c.JSON(http.StatusOK, V2Response{
-		Links: V2Links{
-			Accounts:     c.GetString(string(database.ContextURL)) + "/v2/accounts",
-			Transactions: c.GetString(string(database.ContextURL)) + "/v2/transactions",
-			RenameRules:  c.GetString(string(database.ContextURL)) + "/v2/rename-rules",
-			MatchRules:   c.GetString(string(database.ContextURL)) + "/v2/match-rules",
-		},
-	})
-}
-
-// OptionsV2 returns the allowed HTTP methods
-//
-//	@Summary		Allowed HTTP verbs
-//	@Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
-//	@Tags			v2
-//	@Success		204
-//	@Router			/v2 [options]
-//	@Deprecated		true
-func OptionsV2(c *gin.Context) {
-	httputil.OptionsGet(c)
-}
-
 type V3Response struct {
-	Links V3Links `json:"links"` // Links for the v2 API
+	Links V3Links `json:"links"` // Links for the v3 API
 }
 
 type V3Links struct {

@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/pkg/controllers"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/models"
-	"github.com/envelope-zero/backend/v3/test"
+	"github.com/envelope-zero/backend/v4/pkg/controllers"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -176,7 +176,6 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		EnvelopeID:            e1ID,
 		SourceAccountID:       a1.Data.ID,
 		DestinationAccountID:  a2.Data.ID,
-		Reconciled:            false,
 		ReconciledSource:      true,
 		ReconciledDestination: false,
 	})
@@ -189,7 +188,6 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		EnvelopeID:            e2ID,
 		SourceAccountID:       a2.Data.ID,
 		DestinationAccountID:  a1.Data.ID,
-		Reconciled:            false,
 		ReconciledSource:      true,
 		ReconciledDestination: true,
 	})
@@ -202,7 +200,6 @@ func (suite *TestSuiteStandard) TestTransactionsV3GetFilter() {
 		EnvelopeID:            e1ID,
 		SourceAccountID:       a3.Data.ID,
 		DestinationAccountID:  a2.Data.ID,
-		Reconciled:            true,
 		ReconciledSource:      false,
 		ReconciledDestination: true,
 	})

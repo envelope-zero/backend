@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/go-sqlite"

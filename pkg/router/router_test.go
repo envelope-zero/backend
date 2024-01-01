@@ -10,9 +10,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/pkg/controllers"
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/router"
+	"github.com/envelope-zero/backend/v4/pkg/controllers"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/router"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -96,8 +96,6 @@ func TestGetRoot(t *testing.T) {
 			Healthz: "/healthz",
 			Version: "/version",
 			Metrics: "/metrics",
-			V1:      "/v1",
-			V2:      "/v2",
 			V3:      "/v3",
 		},
 	}
@@ -105,70 +103,6 @@ func TestGetRoot(t *testing.T) {
 	var lr router.RootResponse
 
 	c.Request, _ = http.NewRequest(http.MethodGet, "https://example.com/", nil)
-	r.ServeHTTP(w, c.Request)
-
-	decodeResponse(t, w, &lr)
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, l, lr)
-}
-
-func TestGetV1(t *testing.T) {
-	t.Parallel()
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-
-	r.GET("/v1", func(ctx *gin.Context) {
-		router.GetV1(c)
-	})
-
-	// Test contexts cannot be injected any middleware, therefore
-	// this only tests the path, not the host
-	l := router.V1Response{
-		Links: router.V1Links{
-			Budgets:      "/v1/budgets",
-			Accounts:     "/v1/accounts",
-			Transactions: "/v1/transactions",
-			Categories:   "/v1/categories",
-			Envelopes:    "/v1/envelopes",
-			Allocations:  "/v1/allocations",
-			Months:       "/v1/months",
-			Import:       "/v1/import",
-		},
-	}
-
-	var lr router.V1Response
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/v1", nil)
-	r.ServeHTTP(w, c.Request)
-
-	decodeResponse(t, w, &lr)
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, l, lr)
-}
-
-func TestGetV2(t *testing.T) {
-	t.Parallel()
-	w := httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-
-	r.GET("/v2", func(ctx *gin.Context) {
-		router.GetV2(c)
-	})
-
-	// Test contexts cannot be injected any middleware, therefore
-	// this only tests the path, not the host
-	l := router.V2Response{
-		Links: router.V2Links{
-			Accounts:     "/v2/accounts",
-			Transactions: "/v2/transactions",
-			RenameRules:  "/v2/rename-rules",
-			MatchRules:   "/v2/match-rules",
-		},
-	}
-
-	var lr router.V2Response
-
-	c.Request, _ = http.NewRequest(http.MethodGet, "http://example.com/v2", nil)
 	r.ServeHTTP(w, c.Request)
 
 	decodeResponse(t, w, &lr)
@@ -246,8 +180,6 @@ func TestOptions(t *testing.T) {
 	}{
 		{"/", router.OptionsRoot, "OPTIONS, GET"},
 		{"/version", router.OptionsVersion, "OPTIONS, GET"},
-		{"/v1", router.OptionsV1, "OPTIONS, GET, DELETE"},
-		{"/v2", router.OptionsV2, "OPTIONS, GET"},
 		{"/v3", router.OptionsV3, "OPTIONS, GET, DELETE"},
 	}
 

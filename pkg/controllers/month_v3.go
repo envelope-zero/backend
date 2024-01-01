@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -235,16 +235,17 @@ func (co Controller) DeleteAllocationsV3(c *gin.Context) {
 		})
 		return
 	}
-	// We query for all allocations here
-	var allocations []models.Allocation
+
+	var monthConfigs []models.MonthConfig
 
 	err = query(c, co.DB.
-		Joins("JOIN envelopes ON envelopes.id = allocations.envelope_id").
+		Joins("JOIN envelopes ON envelopes.id = month_configs.envelope_id").
 		Joins("JOIN categories ON categories.id = envelopes.category_id").
 		Joins("JOIN budgets on budgets.id = categories.budget_id").
-		Where(models.Allocation{AllocationCreate: models.AllocationCreate{Month: month}}).
+		Where(models.MonthConfig{Month: month}).
 		Where("budgets.id = ?", budget.ID).
-		Find(&allocations))
+		Where("month_configs.allocation > 0").
+		Find(&monthConfigs))
 
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
@@ -253,8 +254,9 @@ func (co Controller) DeleteAllocationsV3(c *gin.Context) {
 		return
 	}
 
-	for _, allocation := range allocations {
-		err = query(c, co.DB.Unscoped().Delete(&allocation))
+	for _, monthConfig := range monthConfigs {
+		monthConfig.Allocation = decimal.Zero
+		err = query(c, co.DB.Updates(&monthConfig))
 		if !err.Nil() {
 			c.JSON(err.Status, httperrors.HTTPError{
 				Error: err.Error(),
@@ -305,20 +307,20 @@ func (co Controller) SetAllocationsV3(c *gin.Context) {
 	}
 
 	pastMonth := month.AddDate(0, -1)
-	queryCurrentMonth := co.DB.Select("id").Table("allocations").Where("allocations.envelope_id = envelopes.id AND allocations.month = ?", month)
+	queryCurrentMonth := co.DB.Select("*").Table("month_configs").Where("month_configs.envelope_id = envelopes.id AND month_configs.month = ? AND month_configs.allocation != 0", month)
 
 	// Get all envelopes that do not have an allocation for the target month
 	// but for the month before
 	var envelopesAmount []struct {
-		EnvelopeID uuid.UUID `gorm:"column:id"`
-		Amount     decimal.Decimal
+		EnvelopeID uuid.UUID       `gorm:"column:id"`
+		Amount     decimal.Decimal `gorm:"column:allocation"`
 	}
 
 	// Get all envelope IDs and allocation amounts where there is no allocation
 	// for the request month, but one for the last month
 	err = query(c, co.DB.
-		Joins("JOIN allocations ON allocations.envelope_id = envelopes.id AND envelopes.hidden IS FALSE AND allocations.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
-		Select("envelopes.id, allocations.amount").
+		Joins("JOIN month_configs ON month_configs.envelope_id = envelopes.id AND envelopes.archived IS FALSE AND month_configs.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
+		Select("envelopes.id, month_configs.allocation").
 		Table("envelopes").
 		Find(&envelopesAmount))
 	if !err.Nil() {
@@ -336,18 +338,14 @@ func (co Controller) SetAllocationsV3(c *gin.Context) {
 			amount = models.Envelope{DefaultModel: models.DefaultModel{ID: allocation.EnvelopeID}}.Spent(co.DB, pastMonth).Neg()
 		}
 
-		// Do not create allocations for an amount of 0
-		if amount.IsZero() {
-			continue
-		}
-
-		err = query(c, co.DB.Create(&models.Allocation{
-			AllocationCreate: models.AllocationCreate{
-				EnvelopeID: allocation.EnvelopeID,
-				Amount:     amount,
-				Month:      month,
-			},
-		}))
+		// Find and update the correct MonthConfig.
+		// If it does not exist, create it
+		err = query(c, co.DB.Where(models.MonthConfig{
+			Month:      month,
+			EnvelopeID: allocation.EnvelopeID,
+		}).Assign(models.MonthConfig{MonthConfigCreate: models.MonthConfigCreate{
+			Allocation: amount,
+		}}).FirstOrCreate(&models.MonthConfig{}))
 		if !err.Nil() {
 			c.JSON(err.Status, httperrors.HTTPError{
 				Error: err.Error(),
@@ -370,12 +368,10 @@ func envelopeMonthV3(c *gin.Context, db *gorm.DB, e models.Envelope, month types
 		Allocation: decimal.NewFromFloat(0),
 	}
 
-	var allocation models.Allocation
-	err := db.First(&allocation, &models.Allocation{
-		AllocationCreate: models.AllocationCreate{
-			EnvelopeID: e.ID,
-			Month:      month,
-		},
+	var monthConfig models.MonthConfig
+	err := db.First(&monthConfig, &models.MonthConfig{
+		EnvelopeID: e.ID,
+		Month:      month,
 	}).Error
 
 	// If an unexpected error occurs, return
@@ -388,7 +384,7 @@ func envelopeMonthV3(c *gin.Context, db *gorm.DB, e models.Envelope, month types
 		return EnvelopeMonthV3{}, err
 	}
 
-	envelopeMonth.Allocation = allocation.Amount
+	envelopeMonth.Allocation = monthConfig.Allocation
 
 	// Set the links
 	envelopeMonth.Links.links(c, e)

@@ -7,15 +7,15 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/pkg/controllers"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/controllers"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetURLFields(t *testing.T) {
-	url, _ := url.Parse("http://example.com/api/v1/accounts?budget=87645467-ad8a-4e16-ae7f-9d879b45f569&onBudget=false&name=")
+	url, _ := url.Parse("http://example.com/api/v3/accounts?budget=87645467-ad8a-4e16-ae7f-9d879b45f569&onBudget=false&name=")
 
 	queryFields, setFields := httputil.GetURLFields(url, controllers.AccountQueryFilter{})
 

@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/importer"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/importer"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ryanuber/go-glob"
@@ -96,11 +96,11 @@ func findAccounts(co Controller, transaction *importer.TransactionPreview, budge
 		AccountCreate: models.AccountCreate{
 			Name:     name,
 			BudgetID: budgetID,
-			Hidden:   false,
+			Archived: false,
 		},
 	},
 		// Account Names are unique, therefore only one can match
-		"Name", "BudgetID", "Hidden").First(&account).Error
+		"Name", "BudgetID", "Archived").First(&account).Error
 
 	// Abort if no accounts are found, but with no error
 	// since this is an expected case - there might just
@@ -137,18 +137,10 @@ func match(transaction *importer.TransactionPreview, rules []models.MatchRule) {
 
 	if transaction.SourceAccountName != "" {
 		transaction.Transaction.SourceAccountID, transaction.MatchRuleID = replace(transaction.SourceAccountName)
-
-		// This is kept for backwards compatibility and will be removed with API version 3
-		// https://github.com/envelope-zero/backend/issues/763
-		transaction.RenameRuleID = transaction.MatchRuleID
 	}
 
 	if transaction.DestinationAccountName != "" {
 		transaction.Transaction.DestinationAccountID, transaction.MatchRuleID = replace(transaction.DestinationAccountName)
-
-		// This is kept for backwards compatibility and will be removed with API version 3
-		// https://github.com/envelope-zero/backend/issues/763
-		transaction.RenameRuleID = transaction.MatchRuleID
 	}
 }
 

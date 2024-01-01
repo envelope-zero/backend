@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/envelope-zero/backend/v3/internal/types"
+	"github.com/envelope-zero/backend/v4/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )

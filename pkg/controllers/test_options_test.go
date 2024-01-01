@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/test"
+	"github.com/envelope-zero/backend/v4/test"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,19 +14,6 @@ func (suite *TestSuiteStandard) TestOptionsHeaderResources() {
 		response string
 	}{
 		{"http://example.com/healthz", "OPTIONS, GET"},
-		{"http://example.com/v1/accounts", "OPTIONS, GET, POST"},
-		{"http://example.com/v1/allocations", "OPTIONS, GET, POST"},
-		{"http://example.com/v1/budgets", "OPTIONS, GET, POST"},
-		{"http://example.com/v1/categories", "OPTIONS, GET, POST"},
-		{"http://example.com/v1/envelopes", "OPTIONS, GET, POST"},
-		{"http://example.com/v1/import", "OPTIONS, POST"},
-		{"http://example.com/v1/import/ynab-import-preview", "OPTIONS, POST"},
-		{"http://example.com/v1/import/ynab4", "OPTIONS, POST"},
-		{"http://example.com/v1/month-configs", "OPTIONS, GET"},
-		{"http://example.com/v1/transactions", "OPTIONS, GET, POST"},
-		{"http://example.com/v2/accounts", "OPTIONS, GET"},
-		{"http://example.com/v2/match-rules", "OPTIONS, GET, POST"},
-		{"http://example.com/v2/transactions", "OPTIONS, POST"},
 		{"http://example.com/v3/accounts", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/budgets", "OPTIONS, GET, POST"},
 		{"http://example.com/v3/categories", "OPTIONS, GET, POST"},

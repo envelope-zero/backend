@@ -1,8 +1,26 @@
 # Upgrading
 
-:warning: You cannot skip major versions on upgrades. You have to upgrade to at least one release of each major version.
+:warning: You cannot skip major versions on upgrades. You have to upgrade to the latest release of each major version before updating to the next major version.
 
 If upgrades between versions require manual actions, those are described here.
+
+# to v4.0.0
+
+For breaking changes to functionality, see the release notes. Upgrade as follows:
+
+## Using the binary directly
+
+1. Upgrade to v3.22.2 before upgrading to v4.0.0.
+2. Upgrade to v4.0.0
+
+## Using the OCI image
+
+With the upgrade to v4.0.0, the image will now run rootless.
+
+1. Upgrade to v3.22.2 before upgrading to v4.0.0.
+2. Turn off your backend instance. This depends on how you have deployed the backend. On Kubernetes, scale the Deployment to 0, with docker(-compose), delete the container.
+3. Update the ownership of the database file. Enter the directory where it is stored and run `chown 65532:65532 gorm.db` to update the permissions to the user the image is now using.
+4. Upgrade to v4.0.0
 
 # to v3.0.0
 

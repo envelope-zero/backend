@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
@@ -18,7 +18,7 @@ type EnvelopeCreateV3 struct {
 	Name       string    `json:"name" gorm:"uniqueIndex:envelope_category_name" example:"Groceries" default:""`                       // Name of the envelope
 	CategoryID uuid.UUID `json:"categoryId" gorm:"uniqueIndex:envelope_category_name" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"` // ID of the category the envelope belongs to
 	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`                           // Notes about the envelope
-	Archived   bool      `json:"archived" example:"true" default:"false"`                                                             // Is the envelope hidden?
+	Archived   bool      `json:"archived" example:"true" default:"false"`                                                             // Is the envelope archived?
 }
 
 // ToCreate transforms the API representation into the model representation
@@ -27,7 +27,7 @@ func (e EnvelopeCreateV3) ToCreate() models.EnvelopeCreate {
 		Name:       e.Name,
 		CategoryID: e.CategoryID,
 		Note:       e.Note,
-		Hidden:     e.Archived,
+		Archived:   e.Archived,
 	}
 }
 
@@ -48,8 +48,7 @@ func (l *EnvelopeV3Links) links(c *gin.Context, e models.Envelope) {
 
 type EnvelopeV3 struct {
 	models.Envelope
-	Links  EnvelopeV3Links `json:"links"`            // Links to related resources
-	Hidden bool            `json:"hidden,omitempty"` // Remove the hidden field
+	Links EnvelopeV3Links `json:"links"` // Links to related resources
 }
 
 func (co Controller) getEnvelopeV3(c *gin.Context, id uuid.UUID) (EnvelopeV3, httperrors.Error) {
@@ -101,13 +100,13 @@ type EnvelopeMonthResponseV3 struct {
 }
 
 type EnvelopeQueryFilterV3 struct {
-	Name       string `form:"name" filterField:"false"`     // By name
-	CategoryID string `form:"category"`                     // By the ID of the category
-	Note       string `form:"note" filterField:"false"`     // By the note
-	Archived   bool   `form:"archived" filterField:"false"` // Is the envelope archived?
-	Search     string `form:"search" filterField:"false"`   // By string in name or note
-	Offset     uint   `form:"offset" filterField:"false"`   // The offset of the first Envelope returned. Defaults to 0.
-	Limit      int    `form:"limit" filterField:"false"`    // Maximum number of Envelopes to return. Defaults to 50.
+	Name       string `form:"name" filterField:"false"`   // By name
+	CategoryID string `form:"category"`                   // By the ID of the category
+	Note       string `form:"note" filterField:"false"`   // By the note
+	Archived   bool   `form:"archived"`                   // Is the envelope archived?
+	Search     string `form:"search" filterField:"false"` // By string in name or note
+	Offset     uint   `form:"offset" filterField:"false"` // The offset of the first Envelope returned. Defaults to 0.
+	Limit      int    `form:"limit" filterField:"false"`  // Maximum number of Envelopes to return. Defaults to 50.
 }
 
 func (f EnvelopeQueryFilterV3) ToCreate() (models.EnvelopeCreate, httperrors.Error) {
@@ -118,7 +117,7 @@ func (f EnvelopeQueryFilterV3) ToCreate() (models.EnvelopeCreate, httperrors.Err
 
 	return models.EnvelopeCreate{
 		CategoryID: categoryID,
-		Hidden:     f.Archived,
+		Archived:   f.Archived,
 	}, httperrors.Error{}
 }
 
@@ -260,13 +259,6 @@ func (co Controller) GetEnvelopesV3(c *gin.Context) {
 	_ = c.Bind(&filter)
 
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
-
-	// If the archived parameter is set, add "Hidden" to the query fields
-	// This is done since in v3, we're using the name "Archived", but the
-	// field is not yet updated in the database, which will happen later
-	if slices.Contains(setFields, "Archived") {
-		queryFields = append(queryFields, "Hidden")
-	}
 
 	// Convert the QueryFilter to a Create struct
 	create, err := filter.ToCreate()
@@ -436,13 +428,6 @@ func (co Controller) UpdateEnvelopeV3(c *gin.Context) {
 	// Transform the API representation to the model representation
 	e := models.Envelope{
 		EnvelopeCreate: data.ToCreate(),
-	}
-
-	// If the archived parameter is set, add "Hidden" to the update fields
-	// This is done since in v3, we're using the name "Archived", but the
-	// field is not yet updated in the database, which will happen later
-	if slices.Contains(updateFields, "Archived") {
-		updateFields = append(updateFields, "Hidden")
 	}
 
 	err = query(c, co.DB.Model(&envelope).Select("", updateFields...).Updates(e))

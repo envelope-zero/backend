@@ -3,7 +3,7 @@ package controllers_test
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/test"
+	"github.com/envelope-zero/backend/v4/test"
 )
 
 var methodNotAllowedTests = []struct {
@@ -12,9 +12,9 @@ var methodNotAllowedTests = []struct {
 }{
 	{"/", http.MethodPost},
 	{"/", http.MethodDelete},
-	{"http://example.com/v1", http.MethodPost},
-	{"http://example.com/v1/budgets", http.MethodHead},
-	{"http://example.com/v1/budgets", http.MethodPut},
+	{"http://example.com/v3", http.MethodPost},
+	{"http://example.com/v3/budgets", http.MethodHead},
+	{"http://example.com/v3/budgets", http.MethodPut},
 }
 
 func (suite *TestSuiteStandard) TestMethodNotAllowed() {

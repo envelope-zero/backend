@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -49,42 +49,6 @@ func (co Controller) createTransaction(c *gin.Context, create models.Transaction
 	return t, httperrors.Error{}
 }
 
-// checkTransactionAndHandleErrors verifies that the transaction is correct
-//
-// It checks that
-//   - the transaction is not between two external accounts
-//   - if an envelope is set: the transaction is not between two on-budget accounts
-//   - if an envelope is set: the envelope exists
-//
-// It returns true if the transaction is valid, false in all
-// other cases.
-//
-// Deprecated.
-func (co Controller) checkTransactionAndHandleErrors(c *gin.Context, transaction models.Transaction, source, destination models.Account) (ok bool) {
-	ok = true
-
-	if !decimal.Decimal.IsPositive(transaction.Amount) {
-		httperrors.New(c, http.StatusBadRequest, "The transaction amount must be positive")
-		return false
-	}
-
-	if source.External && destination.External {
-		httperrors.New(c, http.StatusBadRequest, "A transaction between two external accounts is not possible.")
-		return false
-	}
-
-	// Check envelope being set for transfer between on-budget accounts
-	if transaction.EnvelopeID != nil {
-		if source.OnBudget && destination.OnBudget {
-			httperrors.New(c, http.StatusBadRequest, "Transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
-			return false
-		}
-		_, ok = getResourceByIDAndHandleErrors[models.Envelope](c, co, *transaction.EnvelopeID)
-	}
-
-	return
-}
-
 // checkTransaction verifies that the transaction is correct
 //
 // It checks that
@@ -111,49 +75,6 @@ func (co Controller) checkTransaction(c *gin.Context, transaction models.Transac
 	}
 
 	return httperrors.Error{}
-}
-
-// ToCreateHandleErrors parses the query string and returns a TransactionCreate struct for
-// the database request.
-//
-// This method is deprecated, use ToCreate() and handle errors in the calling method.
-func (f TransactionQueryFilterV1) ToCreateHandleErrors(c *gin.Context) (models.TransactionCreate, bool) {
-	budgetID, ok := httputil.UUIDFromStringHandleErrors(c, f.BudgetID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	sourceAccountID, ok := httputil.UUIDFromStringHandleErrors(c, f.SourceAccountID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	destinationAccountID, ok := httputil.UUIDFromStringHandleErrors(c, f.DestinationAccountID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	envelopeID, ok := httputil.UUIDFromStringHandleErrors(c, f.EnvelopeID)
-	if !ok {
-		return models.TransactionCreate{}, false
-	}
-
-	// If the envelopeID is nil, use an actual nil, not uuid.Nil
-	var eID *uuid.UUID
-	if envelopeID != uuid.Nil {
-		eID = &envelopeID
-	}
-
-	return models.TransactionCreate{
-		Amount:                f.Amount,
-		BudgetID:              budgetID,
-		SourceAccountID:       sourceAccountID,
-		DestinationAccountID:  destinationAccountID,
-		EnvelopeID:            eID,
-		Reconciled:            f.Reconciled,
-		ReconciledSource:      f.ReconciledSource,
-		ReconciledDestination: f.ReconciledDestination,
-	}, true
 }
 
 // ToCreate parses the query string and returns a TransactionCreate struct for

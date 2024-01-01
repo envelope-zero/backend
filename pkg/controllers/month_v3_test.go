@@ -8,10 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/internal/types"
-	"github.com/envelope-zero/backend/v3/pkg/controllers"
-	"github.com/envelope-zero/backend/v3/pkg/models"
-	"github.com/envelope-zero/backend/v3/test"
+	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v4/pkg/controllers"
+	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v4/test"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
@@ -29,7 +30,13 @@ func (suite *TestSuiteStandard) TestMonthsGetV3EnvelopeAllocationLink() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
-	_ = suite.createTestAllocation(models.AllocationCreate{Amount: decimal.NewFromFloat(10), EnvelopeID: envelope.Data.ID, Month: types.NewMonth(2022, 1)})
+
+	_ = suite.patchTestMonthConfigV3(suite.T(),
+		envelope.Data.ID,
+		types.NewMonth(2022, 1),
+		models.MonthConfigCreate{
+			Allocation: decimal.NewFromFloat(10),
+		})
 
 	r := test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", 1), "")
 	assertHTTPStatus(suite.T(), &r, http.StatusOK)
@@ -108,28 +115,33 @@ func (suite *TestSuiteStandard) TestMonthsGetV3Delete() {
 	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 
-	allocation1 := suite.createTestAllocation(models.AllocationCreate{
-		Month:      types.NewMonth(2022, 1),
-		Amount:     decimal.NewFromFloat(15.42),
-		EnvelopeID: envelope1.Data.ID,
-	})
+	monthConfig1 := suite.patchTestMonthConfigV3(suite.T(),
+		envelope1.Data.ID,
+		types.NewMonth(2022, 1),
+		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(15.42)},
+	)
 
-	allocation2 := suite.createTestAllocation(models.AllocationCreate{
-		Month:      types.NewMonth(2022, 1),
-		Amount:     decimal.NewFromFloat(15.42),
-		EnvelopeID: envelope2.Data.ID,
-	})
+	monthConfig2 := suite.patchTestMonthConfigV3(suite.T(),
+		envelope2.Data.ID,
+		types.NewMonth(2022, 1),
+		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(15.42)},
+	)
 
 	// Clear allocations
 	recorder := test.Request(suite.controller, suite.T(), http.MethodDelete, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", 1), "")
 	assertHTTPStatus(suite.T(), &recorder, http.StatusNoContent)
 
 	// Verify that allocations are deleted
-	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, allocation1.Data.Links.Self, "")
-	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
+	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, monthConfig1.Data.Links.Self, "")
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+	var response controllers.MonthConfigResponseV3
+	suite.decodeResponse(&recorder, &response)
+	assert.True(suite.T(), response.Data.Allocation.IsZero(), "Allocation is not zero after deletion")
 
-	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, allocation2.Data.Links.Self, "")
-	assertHTTPStatus(suite.T(), &recorder, http.StatusNotFound)
+	recorder = test.Request(suite.controller, suite.T(), http.MethodGet, monthConfig2.Data.Links.Self, "")
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+	suite.decodeResponse(&recorder, &response)
+	assert.True(suite.T(), response.Data.Allocation.IsZero(), "Allocation is not zero after deletion")
 }
 
 func (suite *TestSuiteStandard) TestMonthsV3DeleteFail() {
@@ -163,25 +175,20 @@ func (suite *TestSuiteStandard) TestMonthsV3AllocateBudgeted() {
 	february := january.AddDate(0, 1)
 
 	// Allocate funds to the months
-	// TODO: Replace this with createTestMonthConfigV3 once Allocations are integrated and not transparently created by API v3
 	allocations := []struct {
-		envelopeMonth string
-		month         types.Month
-		amount        decimal.Decimal
+		envelopeID uuid.UUID
+		month      types.Month
+		amount     decimal.Decimal
 	}{
-		{envelope1.Data.Links.Month, january, e1Amount},
-		{envelope2.Data.Links.Month, january, e2Amount},
-		{archivedEnvelope.Data.Links.Month, january, eArchivedAmount},
+		{envelope1.Data.ID, january, e1Amount},
+		{envelope2.Data.ID, january, e2Amount},
+		{archivedEnvelope.Data.ID, january, eArchivedAmount},
 	}
 
 	for _, allocation := range allocations {
-		recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, strings.Replace(allocation.envelopeMonth, "YYYY-MM", january.String(), 1), map[string]string{
-			"allocation": allocation.amount.String(),
+		suite.patchTestMonthConfigV3(suite.T(), allocation.envelopeID, allocation.month, models.MonthConfigCreate{
+			Allocation: allocation.amount,
 		})
-		assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
-		var a controllers.MonthConfigResponseV3
-		suite.decodeResponse(&recorder, &a)
-		assert.True(suite.T(), allocation.amount.Equal(a.Data.Allocation))
 	}
 
 	// Update in budgeted mode allocations
@@ -220,17 +227,17 @@ func (suite *TestSuiteStandard) TestMonthsV3AllocateSpend() {
 	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 
-	_ = suite.createTestAllocation(models.AllocationCreate{
-		Month:      types.NewMonth(2022, 1),
-		Amount:     decimal.NewFromFloat(30),
-		EnvelopeID: envelope1.Data.ID,
-	})
+	_ = suite.patchTestMonthConfigV3(suite.T(),
+		envelope1.Data.ID,
+		types.NewMonth(2022, 1),
+		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(30)},
+	)
 
-	_ = suite.createTestAllocation(models.AllocationCreate{
-		Month:      types.NewMonth(2022, 1),
-		Amount:     decimal.NewFromFloat(40),
-		EnvelopeID: envelope2.Data.ID,
-	})
+	_ = suite.patchTestMonthConfigV3(suite.T(),
+		envelope2.Data.ID,
+		types.NewMonth(2022, 1),
+		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(40)},
+	)
 
 	eID := &envelope1.Data.ID
 	transaction1 := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
@@ -299,7 +306,6 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, External: true})
 
 	// Allocate funds to the months
-	// TODO: Replace this with createTestMonthConfigV3 once Allocations are integrated and not transparently created by API v3
 	allocations := []struct {
 		month  types.Month
 		amount decimal.Decimal
@@ -310,13 +316,9 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 	}
 
 	for _, allocation := range allocations {
-		recorder := test.Request(suite.controller, suite.T(), http.MethodPatch, strings.Replace(envelope.Data.Links.Month, "YYYY-MM", allocation.month.String(), 1), map[string]string{
-			"allocation": allocation.amount.String(),
+		suite.patchTestMonthConfigV3(suite.T(), envelope.Data.ID, allocation.month, models.MonthConfigCreate{
+			Allocation: allocation.amount,
 		})
-		assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
-		var a controllers.MonthConfigResponseV3
-		suite.decodeResponse(&recorder, &a)
-		assert.True(suite.T(), allocation.amount.Equal(a.Data.Allocation))
 	}
 
 	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
@@ -327,7 +329,6 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
-		Reconciled:           true,
 	})
 
 	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
@@ -338,7 +339,6 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
-		Reconciled:           true,
 	})
 
 	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
@@ -349,7 +349,6 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
-		Reconciled:           true,
 	})
 
 	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{

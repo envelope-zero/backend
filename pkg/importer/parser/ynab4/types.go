@@ -1,6 +1,7 @@
 package ynab4
 
 import (
+	"github.com/envelope-zero/backend/v4/internal/types"
 	"github.com/shopspring/decimal"
 	"golang.org/x/text/language"
 )
@@ -40,7 +41,7 @@ type Account struct {
 	EntityID string `json:"entityId"`
 	Note     string `json:"note"`
 	OnBudget bool   `json:"onBudget"`
-	Hidden   bool   `json:"hidden"`
+	Archived bool   `json:"hidden"`
 	Name     string `json:"accountName"`
 }
 
@@ -102,7 +103,7 @@ type MonthlySubCategoryBudget struct {
 }
 
 type MonthlyBudget struct {
-	Month                     string                     `json:"month"`
+	Month                     types.Month                `json:"month"`
 	MonthlySubCategoryBudgets []MonthlySubCategoryBudget `json:"monthlySubCategoryBudgets"`
 }
 

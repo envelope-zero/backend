@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -47,8 +47,7 @@ type TransactionResponseV3 struct {
 // TransactionV3 is the representation of a Transaction in API v3.
 type TransactionV3 struct {
 	models.Transaction
-	Reconciled bool `json:"reconciled,omitempty"` // Remove the reconciled field
-	Links      struct {
+	Links struct {
 		Self string `json:"self" example:"https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"` // The transaction itself
 	} `json:"links"` // Links for the transaction
 }

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/stretchr/testify/assert"
 )
 

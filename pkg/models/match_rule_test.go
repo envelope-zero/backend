@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/stretchr/testify/assert"
 )
 

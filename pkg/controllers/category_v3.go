@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v3/pkg/database"
-	"github.com/envelope-zero/backend/v3/pkg/httperrors"
-	"github.com/envelope-zero/backend/v3/pkg/httputil"
-	"github.com/envelope-zero/backend/v3/pkg/models"
+	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
@@ -18,7 +18,7 @@ type CategoryCreateV3 struct {
 	Name     string    `json:"name" gorm:"uniqueIndex:category_budget_name" example:"Saving" default:""`                        // Name of the category
 	BudgetID uuid.UUID `json:"budgetId" gorm:"uniqueIndex:category_budget_name" example:"52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"` // ID of the budget the category belongs to
 	Note     string    `json:"note" example:"All envelopes for long-term saving" default:""`                                    // Notes about the category
-	Archived bool      `json:"archived" example:"true" default:"false"`                                                         // Is the category hidden?
+	Archived bool      `json:"archived" example:"true" default:"false"`                                                         // Is the category archived?
 }
 
 // ToCreate transforms the API representation into the model representation
@@ -27,14 +27,13 @@ func (c CategoryCreateV3) ToCreate() models.CategoryCreate {
 		Name:     c.Name,
 		BudgetID: c.BudgetID,
 		Note:     c.Note,
-		Hidden:   c.Archived,
+		Archived: c.Archived,
 	}
 }
 
 type CategoryV3 struct {
 	models.Category
-	Envelopes []EnvelopeV3 `json:"envelopes"`        // Envelopes for the category
-	Hidden    bool         `json:"hidden,omitempty"` // Remove the hidden field
+	Envelopes []EnvelopeV3 `json:"envelopes"` // Envelopes for the category
 
 	Links struct {
 		Self      string `json:"self" example:"https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"`              // The category itself
@@ -108,13 +107,13 @@ type CategoryResponseV3 struct {
 }
 
 type CategoryQueryFilterV3 struct {
-	Name     string `form:"name" filterField:"false"`     // By name
-	BudgetID string `form:"budget"`                       // By ID of the Budget
-	Note     string `form:"note" filterField:"false"`     // By note
-	Archived bool   `form:"archived" filterField:"false"` // Is the Category archived?
-	Search   string `form:"search" filterField:"false"`   // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"`   // The offset of the first Category returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`    // Maximum number of Categories to return. Defaults to 50.
+	Name     string `form:"name" filterField:"false"`   // By name
+	BudgetID string `form:"budget"`                     // By ID of the Budget
+	Note     string `form:"note" filterField:"false"`   // By note
+	Archived bool   `form:"archived"`                   // Is the Category archived?
+	Search   string `form:"search" filterField:"false"` // By string in name or note
+	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Category returned. Defaults to 0.
+	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Categories to return. Defaults to 50.
 }
 
 func (f CategoryQueryFilterV3) ToCreate() (models.CategoryCreate, httperrors.Error) {
@@ -125,7 +124,7 @@ func (f CategoryQueryFilterV3) ToCreate() (models.CategoryCreate, httperrors.Err
 
 	return models.CategoryCreate{
 		BudgetID: budgetID,
-		Hidden:   f.Archived,
+		Archived: f.Archived,
 	}, httperrors.Error{}
 }
 
@@ -252,13 +251,13 @@ func (co Controller) CreateCategoriesV3(c *gin.Context) {
 // @Failure		400	{object}	CategoryListResponseV3
 // @Failure		500	{object}	CategoryListResponseV3
 // @Router			/v3/categories [get]
-// @Param			name	query	string	false	"Filter by name"
-// @Param			note	query	string	false	"Filter by note"
-// @Param			budget	query	string	false	"Filter by budget ID"
-// @Param			hidden	query	bool	false	"Is the category hidden?"
-// @Param			search	query	string	false	"Search for this text in name and note"
-// @Param			offset	query	uint	false	"The offset of the first Category returned. Defaults to 0."
-// @Param			limit	query	int		false	"Maximum number of Categories to return. Defaults to 50."
+// @Param			name		query	string	false	"Filter by name"
+// @Param			note		query	string	false	"Filter by note"
+// @Param			budget		query	string	false	"Filter by budget ID"
+// @Param			archived	query	bool	false	"Is the category archived?"
+// @Param			search		query	string	false	"Search for this text in name and note"
+// @Param			offset		query	uint	false	"The offset of the first Category returned. Defaults to 0."
+// @Param			limit		query	int		false	"Maximum number of Categories to return. Defaults to 50."
 func (co Controller) GetCategoriesV3(c *gin.Context) {
 	var filter CategoryQueryFilterV3
 
@@ -267,13 +266,6 @@ func (co Controller) GetCategoriesV3(c *gin.Context) {
 
 	// Get the fields that we are filtering for
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
-
-	// If the archived parameter is set, add "Hidden" to the query fields
-	// This is done since in v3, we're using the name "Archived", but the
-	// field is not yet updated in the database, which will happen later
-	if slices.Contains(setFields, "Archived") {
-		queryFields = append(queryFields, "Hidden")
-	}
 
 	// Convert the QueryFilter to a Create struct
 	create, err := filter.ToCreate()
@@ -432,13 +424,6 @@ func (co Controller) UpdateCategoryV3(c *gin.Context) {
 	// Transform the API representation to the model representation
 	cat := models.Category{
 		CategoryCreate: data.ToCreate(),
-	}
-
-	// If the archived parameter is set, add "Hidden" to the update fields
-	// This is done since in v3, we're using the name "Archived", but the
-	// field is not yet updated in the database, which will happen later
-	if slices.Contains(updateFields, "Archived") {
-		updateFields = append(updateFields, "Hidden")
 	}
 
 	err = query(c, co.DB.Model(&category).Select("", updateFields...).Updates(cat))
