@@ -297,6 +297,35 @@ func (suite *TestSuiteStandard) TestMonthsV3PostFails() {
 	}
 }
 
+// TestMonthsV3Sorting verifies that categories and months are sorted correctly
+func (suite *TestSuiteStandard) TestMonthsV3Sorting() {
+	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
+	categoryU := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID, Name: "Upkeep"})
+	envelopeU := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: categoryU.Data.ID, Name: "Utilities"})
+	envelopeM := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: categoryU.Data.ID, Name: "Muppets"})
+
+	categoryA := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID, Name: "Alphabetically first"})
+	envelopeB := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: categoryA.Data.ID, Name: "Batteries"})
+	envelopeC := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: categoryA.Data.ID, Name: "Chargers"})
+
+	// Get month data
+	recorder := test.Request(suite.controller, suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", types.MonthOf(time.Now()).String(), 1), "")
+	assertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+
+	// Parse month data
+	var response controllers.MonthResponseV3
+	suite.decodeResponse(&recorder, &response)
+	month := response.Data
+
+	assert.Equal(suite.T(), categoryU.Data.ID, month.Categories[1].ID)
+	assert.Equal(suite.T(), envelopeU.Data.ID, month.Categories[1].Envelopes[1].ID)
+	assert.Equal(suite.T(), envelopeM.Data.ID, month.Categories[1].Envelopes[0].ID)
+
+	assert.Equal(suite.T(), categoryA.Data.ID, month.Categories[0].ID)
+	assert.Equal(suite.T(), envelopeB.Data.ID, month.Categories[0].Envelopes[0].ID)
+	assert.Equal(suite.T(), envelopeC.Data.ID, month.Categories[0].Envelopes[1].ID)
+}
+
 // TestMonthsV3 verifies that the monthly calculations are correct.
 func (suite *TestSuiteStandard) TestMonthsV3() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
