@@ -19,8 +19,6 @@ func (co Controller) RegisterGoalRoutesV3(r *gin.RouterGroup) {
 	}
 	{
 		r.OPTIONS("/:id", co.OptionsGoalDetailV3)
-
-		// FIMXE: These three
 		r.GET("/:id", co.GetGoalV3)
 		r.PATCH("/:id", co.UpdateGoalV3)
 		r.DELETE("/:id", co.DeleteGoalV3)
