@@ -4,16 +4,16 @@
 
 If upgrades between versions require manual actions, those are described here.
 
-# to v4.0.0
+## to v4.0.0
 
 For breaking changes to functionality, see the release notes. Upgrade as follows:
 
-## Using the binary directly
+### Using the binary directly
 
 1. Upgrade to v3.22.2 before upgrading to v4.0.0.
 2. Upgrade to v4.0.0
 
-## Using the OCI image
+### Using the OCI image
 
 With the upgrade to v4.0.0, the image will now run rootless.
 
@@ -22,11 +22,11 @@ With the upgrade to v4.0.0, the image will now run rootless.
 3. Update the ownership of the database file. Enter the directory where it is stored and run `chown 65532:65532 gorm.db` to update the permissions to the user the image is now using.
 4. Upgrade to v4.0.0
 
-# to v3.0.0
+## to v3.0.0
 
 v3.0.0 does not require manual steps. With v3.0.0, account names must be unique per budget.
 
-# to v2.0.0
+## to v2.0.0
 
 v2.0.0 does not require manual steps. With v2.0.0, spent amounts are now negative values instead of positive values.
 
