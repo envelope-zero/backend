@@ -123,7 +123,12 @@ func (co Controller) GetMonthV3(c *gin.Context) {
 
 	// Get all categories for the budget
 	var categories []models.Category
-	err = co.DB.Where(&models.Category{CategoryCreate: models.CategoryCreate{BudgetID: b.ID}}).Find(&categories).Error
+	err = co.DB.
+		Where(&models.Category{CategoryCreate: models.CategoryCreate{BudgetID: b.ID}}).
+		Order("name ASC").
+		Find(&categories).
+		Error
+
 	if err != nil {
 		e := httperrors.Parse(c, err)
 		s := e.Error()
@@ -146,11 +151,16 @@ func (co Controller) GetMonthV3(c *gin.Context) {
 
 		var envelopes []models.Envelope
 
-		err = co.DB.Where(&models.Envelope{
-			EnvelopeCreate: models.EnvelopeCreate{
-				CategoryID: category.ID,
-			},
-		}).Find(&envelopes).Error
+		err = co.DB.
+			Where(&models.Envelope{
+				EnvelopeCreate: models.EnvelopeCreate{
+					CategoryID: category.ID,
+				},
+			}).
+			Order("name asc").
+			Find(&envelopes).
+			Error
+
 		if err != nil {
 			e := httperrors.Parse(c, err)
 			s := e.Error()
