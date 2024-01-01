@@ -61,11 +61,7 @@ func Parse(f io.Reader) (importer.ParsedResources, error) {
 		return importer.ParsedResources{}, fmt.Errorf("error parsing transactions: %w", err)
 	}
 
-	err = parseMonthlyBudgets(&resources, budget.MonthlyBudgets, envelopeIDNames)
-	if err != nil {
-		return importer.ParsedResources{}, fmt.Errorf("error parsing budget allocations: %w", err)
-	}
-
+	parseMonthlyBudgets(&resources, budget.MonthlyBudgets, envelopeIDNames)
 	generateOverspendFixes(&resources)
 
 	// Fix duplicate account names
@@ -469,7 +465,7 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 	return nil
 }
 
-func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) error {
+func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []MonthlyBudget, envelopeIDNames IDToEnvelopes) {
 	slices.SortFunc(monthlyBudgets, func(a, b MonthlyBudget) int {
 		if a.Month.Before(b.Month) {
 			return -1
@@ -478,7 +474,6 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 		if b.Month.Before(a.Month) {
 			return 1
 		}
-
 		return 0
 	})
 
@@ -518,8 +513,6 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 			resources.MonthConfigs = append(resources.MonthConfigs, monthConfig)
 		}
 	}
-
-	return nil
 }
 
 // fixDuplicateAccountNames detects if an account name is the same for an internal and
