@@ -6,7 +6,7 @@ If upgrades between versions require manual actions, those are described here.
 
 # to v4.0.0
 
-1. Upgrade to v3.22.1 before upgrading to v4.0.0
+1. Upgrade to v3.22.2 before upgrading to v4.0.0
 2. Upgrade to v4.0.0
 
 For breaking changes, see the release notes
