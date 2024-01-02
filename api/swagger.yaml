@@ -11,51 +11,6 @@ definitions:
         example: the specified resource ID is not a valid UUID
         type: string
     type: object
-  controllers.AccountCreateV3:
-    properties:
-      archived:
-        default: false
-        description: Is the account archived?
-        example: true
-        type: boolean
-      budgetId:
-        description: ID of the budget this account belongs to
-        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      external:
-        default: false
-        description: Does the account belong to the budget owner or not?
-        example: false
-        type: boolean
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      initialBalance:
-        default: 0
-        description: Balance of the account before any transactions were recorded
-        example: 173.12
-        type: number
-      initialBalanceDate:
-        description: Date of the initial balance
-        example: "2017-05-12T00:00:00Z"
-        type: string
-      name:
-        description: Name of the account
-        example: Cash
-        type: string
-      note:
-        description: A longer description for the account
-        example: Money in my wallet
-        type: string
-      onBudget:
-        default: false
-        description: 'Does the account factor into the available budget? Always false
-          when external: true'
-        example: true
-        type: boolean
-    type: object
   controllers.AccountListResponseV3:
     properties:
       data:
@@ -91,8 +46,7 @@ definitions:
         example: true
         type: boolean
       balance:
-        description: Balance of the account, including all transactions referencing
-          it
+        description: These fields are calculated
         example: 2735.17
         type: number
       budgetId:
@@ -118,29 +72,23 @@ definitions:
         type: string
       importHash:
         description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
+          detection for imports
         example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
         type: string
       initialBalance:
         default: 0
         description: Balance of the account before any transactions were recorded
         example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       initialBalanceDate:
         description: Date of the initial balance
         example: "2017-05-12T00:00:00Z"
         type: string
       links:
-        properties:
-          self:
-            description: The account itself
-            example: https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-          transactions:
-            description: Transactions referencing the account
-            example: https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-        type: object
+        $ref: '#/definitions/controllers.AccountV3Links'
       name:
         description: Name of the account
         example: Cash
@@ -168,6 +116,65 @@ definitions:
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  controllers.AccountV3Editable:
+    properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+    type: object
+  controllers.AccountV3Links:
+    properties:
+      self:
+        description: The account itself
+        example: https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        type: string
+      transactions:
+        description: Transactions referencing the account
+        example: https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
         type: string
     type: object
   controllers.AllocationMode:
@@ -1202,13 +1209,10 @@ definitions:
   models.Account:
     properties:
       archived:
-        default: false
-        description: Is the account archived?
-        example: true
         type: boolean
-      budgetId:
-        description: ID of the budget this account belongs to
-        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+      budget:
+        $ref: '#/definitions/models.Budget'
+      budgetID:
         type: string
       createdAt:
         description: Time the resource was created
@@ -1219,41 +1223,24 @@ definitions:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       external:
-        default: false
-        description: Does the account belong to the budget owner or not?
-        example: false
         type: boolean
       id:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        description: A SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
         type: string
       initialBalance:
-        default: 0
-        description: Balance of the account before any transactions were recorded
-        example: 173.12
         type: number
       initialBalanceDate:
-        description: Date of the initial balance
-        example: "2017-05-12T00:00:00Z"
         type: string
       name:
-        description: Name of the account
-        example: Cash
         type: string
       note:
-        description: A longer description for the account
-        example: Money in my wallet
         type: string
       onBudget:
-        default: false
-        description: 'Does the account factor into the available budget? Always false
-          when external: true'
-        example: true
         type: boolean
       updatedAt:
         description: Last time the resource was updated
@@ -1668,7 +1655,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/controllers.AccountCreateV3'
+            $ref: '#/definitions/controllers.AccountV3Editable'
           type: array
       produces:
       - application/json
@@ -1791,7 +1778,7 @@ paths:
         name: account
         required: true
         schema:
-          $ref: '#/definitions/controllers.AccountCreateV3'
+          $ref: '#/definitions/controllers.AccountV3Editable'
       produces:
       - application/json
       responses:

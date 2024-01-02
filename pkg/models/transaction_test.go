@@ -21,8 +21,8 @@ func (suite *TestSuiteStandard) TestTransactionTrimWhitespace() {
 		Note:                 note,
 		ImportHash:           importHash,
 		BudgetID:             budgetID,
-		SourceAccountID:      suite.createTestAccount(models.AccountCreate{BudgetID: budgetID}).ID,
-		DestinationAccountID: suite.createTestAccount(models.AccountCreate{BudgetID: budgetID}).ID,
+		SourceAccountID:      suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+		DestinationAccountID: suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
 	})
 
 	assert.Equal(suite.T(), strings.TrimSpace(note), transaction.Note)
@@ -46,8 +46,8 @@ func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 
 func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
@@ -75,8 +75,8 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 // when the respective account is external.
 func (suite *TestSuiteStandard) TestTransactionReconciled() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	tests := []struct {
 		name                      string
@@ -137,8 +137,8 @@ func (suite *TestSuiteStandard) TestTransactionSelf() {
 // Regression test for https://github.com/envelope-zero/backend/issues/768
 func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	transaction := models.Transaction{
 		SourceAccountID:      externalAccount.ID,
@@ -160,8 +160,8 @@ func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 // If it were not, it would reference the envelope with the nil UUID, which does not exist.
 func (suite *TestSuiteStandard) TestTransactionEnvelopeNilUUID() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	eID := uuid.Nil
 

@@ -245,7 +245,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.AccountCreateV3"
+                                "$ref": "#/definitions/controllers.AccountV3Editable"
                             }
                         }
                     }
@@ -440,7 +440,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountCreateV3"
+                            "$ref": "#/definitions/controllers.AccountV3Editable"
                         }
                     }
                 ],
@@ -2975,60 +2975,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.AccountCreateV3": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the account archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "budgetId": {
-                    "description": "ID of the budget this account belongs to",
-                    "type": "string",
-                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "external": {
-                    "description": "Does the account belong to the budget owner or not?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "initialBalance": {
-                    "description": "Balance of the account before any transactions were recorded",
-                    "type": "number",
-                    "default": 0,
-                    "example": 173.12
-                },
-                "initialBalanceDate": {
-                    "description": "Date of the initial balance",
-                    "type": "string",
-                    "example": "2017-05-12T00:00:00Z"
-                },
-                "name": {
-                    "description": "Name of the account",
-                    "type": "string",
-                    "example": "Cash"
-                },
-                "note": {
-                    "description": "A longer description for the account",
-                    "type": "string",
-                    "example": "Money in my wallet"
-                },
-                "onBudget": {
-                    "description": "Does the account factor into the available budget? Always false when external: true",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                }
-            }
-        },
         "controllers.AccountListResponseV3": {
             "type": "object",
             "properties": {
@@ -3082,7 +3028,7 @@ const docTemplate = `{
                     "example": true
                 },
                 "balance": {
-                    "description": "Balance of the account, including all transactions referencing it",
+                    "description": "These fields are calculated",
                     "type": "number",
                     "example": 2735.17
                 },
@@ -3113,7 +3059,7 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
                     "type": "string",
                     "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
                 },
@@ -3121,6 +3067,9 @@ const docTemplate = `{
                     "description": "Balance of the account before any transactions were recorded",
                     "type": "number",
                     "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
                     "example": 173.12
                 },
                 "initialBalanceDate": {
@@ -3129,19 +3078,7 @@ const docTemplate = `{
                     "example": "2017-05-12T00:00:00Z"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The account itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        },
-                        "transactions": {
-                            "description": "Transactions referencing the account",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        }
-                    }
+                    "$ref": "#/definitions/controllers.AccountV3Links"
                 },
                 "name": {
                     "description": "Name of the account",
@@ -3175,6 +3112,78 @@ const docTemplate = `{
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.AccountV3Editable": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                }
+            }
+        },
+        "controllers.AccountV3Links": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "description": "The account itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                },
+                "transactions": {
+                    "description": "Transactions referencing the account",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
                 }
             }
         },
@@ -4571,15 +4580,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "archived": {
-                    "description": "Is the account archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "type": "boolean"
                 },
-                "budgetId": {
-                    "description": "ID of the budget this account belongs to",
-                    "type": "string",
-                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                "budget": {
+                    "$ref": "#/definitions/models.Budget"
+                },
+                "budgetID": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "description": "Time the resource was created",
@@ -4592,10 +4599,7 @@ const docTemplate = `{
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "external": {
-                    "description": "Does the account belong to the budget owner or not?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
+                    "type": "boolean"
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -4603,36 +4607,23 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                    "description": "A SHA256 hash of a unique combination of values to use in duplicate detection for imports",
+                    "type": "string"
                 },
                 "initialBalance": {
-                    "description": "Balance of the account before any transactions were recorded",
-                    "type": "number",
-                    "default": 0,
-                    "example": 173.12
+                    "type": "number"
                 },
                 "initialBalanceDate": {
-                    "description": "Date of the initial balance",
-                    "type": "string",
-                    "example": "2017-05-12T00:00:00Z"
+                    "type": "string"
                 },
                 "name": {
-                    "description": "Name of the account",
-                    "type": "string",
-                    "example": "Cash"
+                    "type": "string"
                 },
                 "note": {
-                    "description": "A longer description for the account",
-                    "type": "string",
-                    "example": "Money in my wallet"
+                    "type": "string"
                 },
                 "onBudget": {
-                    "description": "Does the account factor into the available budget? Always false when external: true",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "type": "boolean"
                 },
                 "updatedAt": {
                     "description": "Last time the resource was updated",

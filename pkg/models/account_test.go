@@ -17,7 +17,7 @@ func (suite *TestSuiteStandard) TestAccountTrimWhitespace() {
 	note := " Some more whitespace in the notes    "
 	importHash := "  867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70  \t"
 
-	account := suite.createTestAccount(models.AccountCreate{
+	account := suite.createTestAccount(models.Account{
 		Name:       name,
 		Note:       note,
 		ImportHash: importHash,
@@ -33,7 +33,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	initialBalanceDate := time.Now()
 
-	account := suite.createTestAccount(models.AccountCreate{
+	account := suite.createTestAccount(models.Account{
 		Name:               "TestAccountCalculations",
 		BudgetID:           budget.ID,
 		OnBudget:           true,
@@ -42,7 +42,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		InitialBalanceDate: &initialBalanceDate,
 	})
 
-	externalAccount := suite.createTestAccount(models.AccountCreate{
+	externalAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		External: true,
 	})
@@ -130,10 +130,8 @@ func (suite *TestSuiteStandard) TestAccountTransactions() {
 
 func (suite *TestSuiteStandard) TestAccountOnBudget() {
 	account := models.Account{
-		AccountCreate: models.AccountCreate{
-			OnBudget: true,
-			External: true,
-		},
+		OnBudget: true,
+		External: true,
 	}
 
 	err := account.BeforeSave(suite.db)
@@ -144,10 +142,8 @@ func (suite *TestSuiteStandard) TestAccountOnBudget() {
 	assert.False(suite.T(), account.OnBudget, "OnBudget is true even though the account is external")
 
 	account = models.Account{
-		AccountCreate: models.AccountCreate{
-			OnBudget: true,
-			External: false,
-		},
+		OnBudget: true,
+		External: false,
 	}
 
 	err = account.BeforeSave(suite.db)
@@ -172,17 +168,15 @@ func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
 func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 
-	_ = suite.createTestAccount(models.AccountCreate{
+	_ = suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		Name:     "TestAccountDuplicateNames",
 	})
 
 	externalAccount := models.Account{
-		AccountCreate: models.AccountCreate{
-			BudgetID: budget.ID,
-			Name:     "TestAccountDuplicateNames",
-			External: true,
-		},
+		BudgetID: budget.ID,
+		Name:     "TestAccountDuplicateNames",
+		External: true,
 	}
 	err := suite.db.Save(&externalAccount).Error
 	if err == nil {
@@ -198,14 +192,14 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 		Name: "TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes",
 	})
 
-	account := suite.createTestAccount(models.AccountCreate{
+	account := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: true,
 		External: false,
 		Name:     "TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes",
 	})
 
-	transferTargetAccount := suite.createTestAccount(models.AccountCreate{
+	transferTargetAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: false,
 		External: false,
@@ -229,7 +223,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 	})
 
 	// Try saving the account, which must fail
-	data := models.Account{AccountCreate: models.AccountCreate{OnBudget: true}}
+	data := models.Account{OnBudget: true}
 	err := suite.db.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
 
 	if !assert.NotNil(suite.T(), err, "Target account could be updated to be on budget while having transactions with envelopes being set") {
@@ -252,14 +246,14 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 		Name: "TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes",
 	})
 
-	account := suite.createTestAccount(models.AccountCreate{
+	account := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: false,
 		External: false,
 		Name:     "TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes",
 	})
 
-	transferTargetAccount := suite.createTestAccount(models.AccountCreate{
+	transferTargetAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: false,
 		External: false,
@@ -283,7 +277,7 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 	})
 
 	// Try saving the account, which must work
-	data := models.Account{AccountCreate: models.AccountCreate{OnBudget: true}}
+	data := models.Account{OnBudget: true}
 	err := suite.db.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
 
 	assert.Nil(suite.T(), err, "Target account could not be updated to be on budget, but it does not have transactions with envelopes being set")
@@ -296,7 +290,7 @@ func (suite *TestSuiteStandard) TestAccountSelf() {
 func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 
-	account := suite.createTestAccount(models.AccountCreate{
+	account := suite.createTestAccount(models.Account{
 		BudgetID:       budget.ID,
 		Name:           "Internal Account",
 		OnBudget:       true,
@@ -304,7 +298,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		InitialBalance: decimal.NewFromFloat(170),
 	})
 
-	externalAccount := suite.createTestAccount(models.AccountCreate{
+	externalAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		Name:     "External Account",
 		External: true,

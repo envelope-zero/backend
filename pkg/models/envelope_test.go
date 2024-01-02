@@ -31,13 +31,13 @@ func (suite *TestSuiteStandard) TestEnvelopeTrimWhitespace() {
 func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 
-	internalAccount := suite.createTestAccount(models.AccountCreate{
+	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
 		BudgetID: budget.ID,
 		OnBudget: true,
 	})
 
-	externalAccount := suite.createTestAccount(models.AccountCreate{
+	externalAccount := suite.createTestAccount(models.Account{
 		Name:     "External Destination Account",
 		BudgetID: budget.ID,
 		External: true,
@@ -94,12 +94,12 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 
-	internalAccount := suite.createTestAccount(models.AccountCreate{
+	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
 		BudgetID: budget.ID,
 	})
 
-	externalAccount := suite.createTestAccount(models.AccountCreate{
+	externalAccount := suite.createTestAccount(models.Account{
 		Name:     "External Destination Account",
 		BudgetID: budget.ID,
 		External: true,
@@ -124,13 +124,13 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 
-	internalAccount := suite.createTestAccount(models.AccountCreate{
+	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
 		BudgetID: budget.ID,
 		OnBudget: true,
 	})
 
-	externalAccount := suite.createTestAccount(models.AccountCreate{
+	externalAccount := suite.createTestAccount(models.Account{
 		Name:     "External Destination Account",
 		BudgetID: budget.ID,
 		External: true,

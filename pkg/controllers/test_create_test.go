@@ -12,11 +12,11 @@ func (suite *TestSuiteStandard) defaultTransactionCreate(c models.Transaction) m
 	}
 
 	if c.SourceAccountID == uuid.Nil {
-		c.SourceAccountID = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "Source Account"}).Data.ID
+		c.SourceAccountID = suite.createTestAccountV3(suite.T(), models.Account{Name: "Source Account"}).Data.ID
 	}
 
 	if c.DestinationAccountID == uuid.Nil {
-		c.DestinationAccountID = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "Destination Account"}).Data.ID
+		c.DestinationAccountID = suite.createTestAccountV3(suite.T(), models.Account{Name: "Destination Account"}).Data.ID
 	}
 
 	if c.EnvelopeID == &uuid.Nil {

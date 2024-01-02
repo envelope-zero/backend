@@ -101,14 +101,11 @@ func (suite *TestSuiteStandard) createTestEnvelope(c models.EnvelopeCreate) mode
 	return envelope
 }
 
-func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models.Account {
-	if c.Name == "" {
-		c.Name = uuid.New().String()
+func (suite *TestSuiteStandard) createTestAccount(account models.Account) models.Account {
+	if account.Name == "" {
+		account.Name = uuid.New().String()
 	}
 
-	account := models.Account{
-		AccountCreate: c,
-	}
 	err := suite.db.Save(&account).Error
 	if err != nil {
 		suite.Assert().FailNow("Account could not be saved", "Error: %s, Account: %#v", err, account)

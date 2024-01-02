@@ -46,27 +46,27 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	emptyBudget := suite.createTestBudget(models.BudgetCreate{})
 
-	bankAccount := suite.createTestAccount(models.AccountCreate{
+	bankAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: true,
 		External: false,
 		Name:     "TestBudgetCalculations Bank Account",
 	})
 
-	cashAccount := suite.createTestAccount(models.AccountCreate{
+	cashAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: true,
 		External: false,
 		Name:     "TestBudgetCalculations Cash Account",
 	})
 
-	employerAccount := suite.createTestAccount(models.AccountCreate{
+	employerAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		External: true,
 		Name:     "TestBudgetCalculations Employer Account",
 	})
 
-	groceryAccount := suite.createTestAccount(models.AccountCreate{
+	groceryAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		External: true,
 	})

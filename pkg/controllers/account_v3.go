@@ -1,163 +1,14 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/database"
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"golang.org/x/exp/slices"
 )
-
-// AccountCreateV3 represents all user configurable parameters
-type AccountCreateV3 struct {
-	Name               string          `json:"name" example:"Cash" default:"" gorm:"uniqueIndex:account_name_budget_id"`                          // Name of the account
-	Note               string          `json:"note" example:"Money in my wallet" default:""`                                                      // A longer description for the account
-	BudgetID           uuid.UUID       `json:"budgetId" example:"550dc009-cea6-4c12-b2a5-03446eb7b7cf" gorm:"uniqueIndex:account_name_budget_id"` // ID of the budget this account belongs to
-	OnBudget           bool            `json:"onBudget" example:"true" default:"false"`                                                           // Does the account factor into the available budget? Always false when external: true
-	External           bool            `json:"external" example:"false" default:"false"`                                                          // Does the account belong to the budget owner or not?
-	InitialBalance     decimal.Decimal `json:"initialBalance" example:"173.12" default:"0"`                                                       // Balance of the account before any transactions were recorded
-	InitialBalanceDate *time.Time      `json:"initialBalanceDate" example:"2017-05-12T00:00:00Z"`                                                 // Date of the initial balance
-	Archived           bool            `json:"archived" example:"true" default:"false"`                                                           // Is the account archived?
-	ImportHash         string          `json:"importHash" example:"867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70" default:""`  // The SHA256 hash of a unique combination of values to use in duplicate detection
-}
-
-// ToCreate transforms the API representation into the model representation
-func (a AccountCreateV3) ToCreate() models.AccountCreate {
-	return models.AccountCreate{
-		Name:               a.Name,
-		Note:               a.Note,
-		BudgetID:           a.BudgetID,
-		OnBudget:           a.OnBudget,
-		External:           a.External,
-		InitialBalance:     a.InitialBalance,
-		InitialBalanceDate: a.InitialBalanceDate,
-		Archived:           a.Archived,
-		ImportHash:         a.ImportHash,
-	}
-}
-
-type AccountListResponseV3 struct {
-	Data       []AccountV3 `json:"data"`                                                          // List of accounts
-	Error      *string     `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Pagination *Pagination `json:"pagination"`                                                    // Pagination information
-}
-
-type AccountCreateResponseV3 struct {
-	Error *string             `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Data  []AccountResponseV3 `json:"data"`                                                          // List of created Accounts
-}
-
-func (a *AccountCreateResponseV3) appendError(err httperrors.Error, status int) int {
-	s := err.Error()
-	a.Data = append(a.Data, AccountResponseV3{Error: &s})
-
-	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
-	}
-
-	return status
-}
-
-type AccountResponseV3 struct {
-	Data  *AccountV3 `json:"data"`                                                          // Data for the account
-	Error *string    `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this transaction
-}
-
-// AccountV3 is the API v3 representation of an Account in EZ.
-type AccountV3 struct {
-	models.Account
-	Balance           decimal.Decimal `json:"balance" example:"2735.17"`           // Balance of the account, including all transactions referencing it
-	ReconciledBalance decimal.Decimal `json:"reconciledBalance" example:"2539.57"` // Balance of the account, including all reconciled transactions referencing it
-	RecentEnvelopes   []*uuid.UUID    `json:"recentEnvelopes"`                     // Envelopes recently used with this account
-
-	Links struct {
-		Self         string `json:"self" example:"https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`                     // The account itself
-		Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"` // Transactions referencing the account
-	} `json:"links"`
-}
-
-// links generates the HATEOAS links for the Account.
-func (a *AccountV3) links(c *gin.Context) {
-	url := c.GetString(string(database.ContextURL))
-	a.Links.Self = fmt.Sprintf("%s/v3/accounts/%s", url, a.ID)
-	a.Links.Transactions = fmt.Sprintf("%s/v3/transactions?account=%s", url, a.ID)
-}
-
-type AccountQueryFilterV3 struct {
-	Name     string `form:"name" filterField:"false"`   // Fuzzy filter for the account name
-	Note     string `form:"note" filterField:"false"`   // Fuzzy filter for the note
-	BudgetID string `form:"budget"`                     // By budget ID
-	OnBudget bool   `form:"onBudget"`                   // Is the account on-budget?
-	External bool   `form:"external"`                   // Is the account external?
-	Archived bool   `form:"archived"`                   // Is the account archived?
-	Search   string `form:"search" filterField:"false"` // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Account returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Accounts to return. Defaults to 50.
-}
-
-func (f AccountQueryFilterV3) ToCreate() (models.AccountCreate, httperrors.Error) {
-	budgetID, err := httputil.UUIDFromString(f.BudgetID)
-	if !err.Nil() {
-		return models.AccountCreate{}, err
-	}
-
-	return models.AccountCreate{
-		BudgetID: budgetID,
-		OnBudget: f.OnBudget,
-		External: f.External,
-		Archived: f.Archived,
-	}, httperrors.Error{}
-}
-
-func (co Controller) getAccountV3(c *gin.Context, id uuid.UUID) (AccountV3, httperrors.Error) {
-	m, e := getResourceByID[models.Account](c, co, id)
-	if !e.Nil() {
-		return AccountV3{}, e
-	}
-
-	account := AccountV3{
-		Account: m,
-	}
-
-	// Recent Envelopes
-	ids, err := m.RecentEnvelopes(co.DB)
-	if err != nil {
-		e := httperrors.Parse(c, err)
-		return AccountV3{}, e
-	}
-
-	account.RecentEnvelopes = ids
-
-	// Balance
-	balance, _, err := m.GetBalanceMonth(co.DB, types.Month{})
-	if err != nil {
-		e := httperrors.Parse(c, err)
-		return AccountV3{}, e
-	}
-	account.Balance = balance
-
-	// Reconciled Balance
-	reconciledBalance, err := m.SumReconciled(co.DB)
-	if err != nil {
-		e := httperrors.Parse(c, err)
-		return AccountV3{}, e
-	}
-	account.ReconciledBalance = reconciledBalance
-
-	// Links
-	account.links(c)
-
-	return account, httperrors.Error{}
-}
 
 // RegisterAccountRoutesV3 registers the routes for accounts with
 // the RouterGroup that is passed.
@@ -205,7 +56,8 @@ func (co Controller) OptionsAccountDetailV3(c *gin.Context) {
 		return
 	}
 
-	_, err = co.getAccountV3(c, id)
+	var account models.Account
+	err = query(c, co.DB.First(&account, id))
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -224,13 +76,13 @@ func (co Controller) OptionsAccountDetailV3(c *gin.Context) {
 // @Failure		400			{object}	AccountCreateResponseV3
 // @Failure		404			{object}	AccountCreateResponseV3
 // @Failure		500			{object}	AccountCreateResponseV3
-// @Param			accounts	body		[]AccountCreateV3	true	"Accounts"
+// @Param			accounts	body		[]AccountV3Editable	true	"Accounts"
 // @Router			/v3/accounts [post]
 func (co Controller) CreateAccountsV3(c *gin.Context) {
-	var accounts []AccountCreateV3
+	var editables []AccountV3Editable
 
 	// Bind data and return error if not possible
-	err := httputil.BindData(c, &accounts)
+	err := httputil.BindData(c, &editables)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionCreateResponseV3{
@@ -242,32 +94,30 @@ func (co Controller) CreateAccountsV3(c *gin.Context) {
 	status := http.StatusCreated
 	r := AccountCreateResponseV3{}
 
-	for _, create := range accounts {
-		a := models.Account{
-			AccountCreate: create.ToCreate(),
-		}
+	for _, editable := range editables {
+		account := editable.model()
 
 		// Verify that budget exists. If not, append the error
 		// and move to the next account
-		_, err := getResourceByID[models.Budget](c, co, create.BudgetID)
+		_, err := getResourceByID[models.Budget](c, co, editable.BudgetID)
 		if !err.Nil() {
 			status = r.appendError(err, status)
 			continue
 		}
 
-		dbErr := co.DB.Create(&a).Error
+		dbErr := co.DB.Create(&account).Error
 		if dbErr != nil {
-			err := httperrors.GenericDBError[models.Account](a, c, dbErr)
+			err := httperrors.GenericDBError[models.Account](account, c, dbErr)
 			status = r.appendError(err, status)
 			continue
 		}
 
-		aObject, err := co.getAccountV3(c, a.ID)
+		data, err := newAccountV3(c, co.DB, account)
 		if !err.Nil() {
 			status = r.appendError(err, status)
 			continue
 		}
-		r.Data = append(r.Data, AccountResponseV3{Data: &aObject})
+		r.Data = append(r.Data, AccountResponseV3{Data: &data})
 	}
 
 	c.JSON(status, r)
@@ -301,7 +151,7 @@ func (co Controller) GetAccountsV3(c *gin.Context) {
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate()
+	model, err := filter.model()
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountListResponseV3{
@@ -312,9 +162,7 @@ func (co Controller) GetAccountsV3(c *gin.Context) {
 
 	q := co.DB.
 		Order("name ASC").
-		Where(&models.Account{
-			AccountCreate: create,
-		}, queryFields...)
+		Where(&model, queryFields...)
 
 	q = stringFilters(co.DB, q, setFields, filter.Name, filter.Note, filter.Search)
 
@@ -351,9 +199,9 @@ func (co Controller) GetAccountsV3(c *gin.Context) {
 	// When there are no resources, we want an empty list, not null
 	// Therefore, we use make to create a slice with zero elements
 	// which will be marshalled to an empty JSON array
-	accountObjects := make([]AccountV3, 0)
+	data := make([]AccountV3, 0)
 	for _, account := range accounts {
-		o, err := co.getAccountV3(c, account.ID)
+		apiResource, err := newAccountV3(c, co.DB, account)
 		if !err.Nil() {
 			s := err.Error()
 			c.JSON(err.Status, AccountListResponseV3{
@@ -361,13 +209,13 @@ func (co Controller) GetAccountsV3(c *gin.Context) {
 			})
 		}
 
-		accountObjects = append(accountObjects, o)
+		data = append(data, apiResource)
 	}
 
 	c.JSON(http.StatusOK, AccountListResponseV3{
-		Data: accountObjects,
+		Data: data,
 		Pagination: &Pagination{
-			Count:  len(accountObjects),
+			Count:  len(data),
 			Total:  count,
 			Offset: filter.Offset,
 			Limit:  limit,
@@ -395,7 +243,8 @@ func (co Controller) GetAccountV3(c *gin.Context) {
 		return
 	}
 
-	accountObject, err := co.getAccountV3(c, id)
+	var account models.Account
+	err = query(c, co.DB.First(&account, id))
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponseV3{
@@ -404,7 +253,16 @@ func (co Controller) GetAccountV3(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, AccountResponseV3{Data: &accountObject})
+	data, err := newAccountV3(c, co.DB, account)
+	if !err.Nil() {
+		s := err.Error()
+		c.JSON(err.Status, AccountResponseV3{
+			Error: &s,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, AccountResponseV3{Data: &data})
 }
 
 // @Summary		Update account
@@ -415,8 +273,8 @@ func (co Controller) GetAccountV3(c *gin.Context) {
 // @Failure		400		{object}	AccountResponseV3
 // @Failure		404		{object}	AccountResponseV3
 // @Failure		500		{object}	AccountResponseV3
-// @Param			id		path		string			true	"ID formatted as string"
-// @Param			account	body		AccountCreateV3	true	"Account"
+// @Param			id		path		string				true	"ID formatted as string"
+// @Param			account	body		AccountV3Editable	true	"Account"
 // @Router			/v3/accounts/{id} [patch]
 func (co Controller) UpdateAccountV3(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -437,7 +295,7 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, AccountCreateV3{})
+	updateFields, err := httputil.GetBodyFields(c, AccountV3Editable{})
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponseV3{
@@ -446,7 +304,7 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	var data AccountCreateV3
+	var data AccountV3Editable
 	err = httputil.BindData(c, &data)
 	if !err.Nil() {
 		s := err.Error()
@@ -456,12 +314,7 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	// Transform the API representation to the model representation
-	a := models.Account{
-		AccountCreate: data.ToCreate(),
-	}
-
-	err = query(c, co.DB.Model(&account).Select("", updateFields...).Updates(a))
+	err = query(c, co.DB.Model(&account).Select("", updateFields...).Updates(data.model()))
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponseV3{
@@ -470,7 +323,7 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	accountObject, err := co.getAccountV3(c, account.ID)
+	apiResource, err := newAccountV3(c, co.DB, account)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponseV3{
@@ -479,7 +332,7 @@ func (co Controller) UpdateAccountV3(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, AccountResponseV3{Data: &accountObject})
+	c.JSON(http.StatusOK, AccountResponseV3{Data: &apiResource})
 }
 
 // @Summary		Delete account

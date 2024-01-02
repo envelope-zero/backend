@@ -221,8 +221,8 @@ func (suite *TestSuiteStandard) TestMonthsV3AllocateBudgeted() {
 
 func (suite *TestSuiteStandard) TestMonthsV3AllocateSpend() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	cashAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
-	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: true, Name: "TestSetMonthSpend External"})
+	cashAccount := suite.createTestAccountV3(suite.T(), models.Account{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
+	externalAccount := suite.createTestAccountV3(suite.T(), models.Account{External: true, Name: "TestSetMonthSpend External"})
 	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
@@ -331,8 +331,8 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID, Name: "Upkeep"})
 	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID, Name: "Utilities"})
-	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
-	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, External: true})
+	account := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
+	externalAccount := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, External: true})
 
 	// Allocate funds to the months
 	allocations := []struct {

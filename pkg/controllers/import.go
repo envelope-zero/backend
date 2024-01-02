@@ -64,8 +64,8 @@ func duplicateTransactions(co Controller, transaction *importer.TransactionPrevi
 		Where(models.Transaction{
 			ImportHash: transaction.Transaction.ImportHash,
 		}).
-		Where(models.Transaction{SourceAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
-		Or(models.Transaction{DestinationAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
+		Where(models.Transaction{SourceAccount: models.Account{BudgetID: budgetID}}).
+		Or(models.Transaction{DestinationAccount: models.Account{BudgetID: budgetID}}).
 		Find(&duplicates)
 
 	// When there are no resources, we want an empty list, not null
@@ -91,11 +91,9 @@ func findAccounts(co Controller, transaction *importer.TransactionPreview, budge
 
 	var account models.Account
 	err := co.DB.Where(models.Account{
-		AccountCreate: models.AccountCreate{
-			Name:     name,
-			BudgetID: budgetID,
-			Archived: false,
-		},
+		Name:     name,
+		BudgetID: budgetID,
+		Archived: false,
 	},
 		// Account Names are unique, therefore only one can match
 		"Name", "BudgetID", "Archived").First(&account).Error

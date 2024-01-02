@@ -92,13 +92,11 @@ func parseAccounts(resources *importer.ParsedResources, accounts []Account) IDTo
 		idToNames[account.EntityID] = account.Name
 
 		resources.Accounts = append(resources.Accounts, models.Account{
-			AccountCreate: models.AccountCreate{
-				Name:       account.Name,
-				Note:       account.Note,
-				OnBudget:   account.OnBudget,
-				Archived:   account.Archived,
-				ImportHash: helpers.Sha256String(account.EntityID),
-			},
+			Name:       account.Name,
+			Note:       account.Note,
+			OnBudget:   account.OnBudget,
+			Archived:   account.Archived,
+			ImportHash: helpers.Sha256String(account.EntityID),
 		})
 	}
 
@@ -122,12 +120,10 @@ func parsePayees(resources *importer.ParsedResources, payees []Payee) IDToName {
 
 		// Create the account
 		resources.Accounts = append(resources.Accounts, models.Account{
-			AccountCreate: models.AccountCreate{
-				Name:       payee.Name,
-				OnBudget:   false,
-				External:   true,
-				ImportHash: helpers.Sha256String(payee.EntityID),
-			},
+			Name:       payee.Name,
+			OnBudget:   false,
+			External:   true,
+			ImportHash: helpers.Sha256String(payee.EntityID),
 		})
 
 		// Parse the Match Rules from the payee's rename conditions
@@ -450,13 +446,11 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 	// Create the "no payee" payee if needed
 	if addNoPayee {
 		resources.Accounts = append(resources.Accounts, models.Account{
-			AccountCreate: models.AccountCreate{
-				Name:       "YNAB 4 Import - No Payee",
-				Note:       "This is the opposing account for all transactions that were imported from YNAB 4, but did not have a Payee. In Envelope Zero, all transactions must have a Source and Destination account",
-				OnBudget:   false,
-				External:   true,
-				ImportHash: noPayeeImportHash,
-			},
+			Name:       "YNAB 4 Import - No Payee",
+			Note:       "This is the opposing account for all transactions that were imported from YNAB 4, but did not have a Payee. In Envelope Zero, all transactions must have a Source and Destination account",
+			OnBudget:   false,
+			External:   true,
+			ImportHash: noPayeeImportHash,
 		})
 	}
 

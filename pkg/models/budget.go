@@ -40,10 +40,8 @@ func (b Budget) Balance(tx *gorm.DB) (balance decimal.Decimal, err error) {
 	// Get all OnBudget accounts for the budget
 	var accounts []Account
 	_ = tx.Where(&Account{
-		AccountCreate: AccountCreate{
-			BudgetID: b.ID,
-			OnBudget: true,
-		},
+		BudgetID: b.ID,
+		OnBudget: true,
 	}).Find(&accounts)
 
 	// Add all their balances to the budget's balance

@@ -200,7 +200,7 @@ func (co Controller) GetMonthV3(c *gin.Context) {
 
 	// Get all on budget accounts for the budget
 	var accounts []models.Account
-	err = co.DB.Where(&models.Account{AccountCreate: models.AccountCreate{BudgetID: b.ID, OnBudget: true}}).Find(&accounts).Error
+	err = co.DB.Where(&models.Account{BudgetID: b.ID, OnBudget: true}).Find(&accounts).Error
 	if err != nil {
 		e := httperrors.Parse(c, err)
 		s := e.Error()
