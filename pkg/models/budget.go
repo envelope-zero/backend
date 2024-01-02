@@ -71,9 +71,7 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, 
 		Where("transactions.envelope_id IS NULL").
 		Where("transactions.available_from >= date(?) AND transactions.available_from < date(?)", month, month.AddDate(0, 1)).
 		Where(&Transaction{
-			TransactionCreate: TransactionCreate{
-				BudgetID: b.ID,
-			},
+			BudgetID: b.ID,
 		}).
 		Find(&transactions).
 		Error

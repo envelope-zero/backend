@@ -62,9 +62,7 @@ func duplicateTransactions(co Controller, transaction *importer.TransactionPrevi
 		Preload("SourceAccount").
 		Preload("DestinationAccount").
 		Where(models.Transaction{
-			TransactionCreate: models.TransactionCreate{
-				ImportHash: transaction.Transaction.ImportHash,
-			},
+			ImportHash: transaction.Transaction.ImportHash,
 		}).
 		Where(models.Transaction{SourceAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).
 		Or(models.Transaction{DestinationAccount: models.Account{AccountCreate: models.AccountCreate{BudgetID: budgetID}}}).

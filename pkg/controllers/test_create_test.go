@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (suite *TestSuiteStandard) defaultTransactionCreate(c models.TransactionCreate) models.TransactionCreate {
+func (suite *TestSuiteStandard) defaultTransactionCreate(c models.Transaction) models.Transaction {
 	if c.BudgetID == uuid.Nil {
 		c.BudgetID = suite.createTestBudgetV3(suite.T(), models.BudgetCreate{Name: "Testing budget"}).Data.ID
 	}

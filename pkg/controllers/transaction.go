@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -13,40 +12,36 @@ import (
 )
 
 // createTransaction creates a single transaction after verifying it is a valid transaction.
-func (co Controller) createTransaction(c *gin.Context, create models.TransactionCreate) (models.Transaction, httperrors.Error) {
-	t := models.Transaction{
-		TransactionCreate: create,
-	}
-
-	_, err := getResourceByID[models.Budget](c, co, t.BudgetID)
+func (co Controller) createTransaction(c *gin.Context, model *models.Transaction) httperrors.Error {
+	_, err := getResourceByID[models.Budget](c, co, model.BudgetID)
 	if !err.Nil() {
-		return models.Transaction{}, err
+		return err
 	}
 
 	// Check the source account
-	sourceAccount, err := getResourceByID[models.Account](c, co, t.SourceAccountID)
+	sourceAccount, err := getResourceByID[models.Account](c, co, model.SourceAccountID)
 	if !err.Nil() {
-		return models.Transaction{}, err
+		return err
 	}
 
 	// Check the destination account
-	destinationAccount, err := getResourceByID[models.Account](c, co, t.DestinationAccountID)
+	destinationAccount, err := getResourceByID[models.Account](c, co, model.DestinationAccountID)
 	if !err.Nil() {
-		return models.Transaction{}, err
+		return err
 	}
 
 	// Check the transaction
-	err = co.checkTransaction(c, t, sourceAccount, destinationAccount)
+	err = co.checkTransaction(c, *model, sourceAccount, destinationAccount)
 	if !err.Nil() {
-		return models.Transaction{}, err
+		return err
 	}
 
-	dbErr := co.DB.Create(&t).Error
+	dbErr := co.DB.Create(&model).Error
 	if dbErr != nil {
-		return models.Transaction{}, httperrors.GenericDBError[models.Transaction](t, c, dbErr)
+		return httperrors.GenericDBError[models.Transaction](models.Transaction{}, c, dbErr)
 	}
 
-	return t, httperrors.Error{}
+	return httperrors.Error{}
 }
 
 // checkTransaction verifies that the transaction is correct
@@ -75,44 +70,4 @@ func (co Controller) checkTransaction(c *gin.Context, transaction models.Transac
 	}
 
 	return httperrors.Error{}
-}
-
-// ToCreate parses the query string and returns a TransactionCreate struct for
-// the database request. On error, it returns httperrors.ErrorStatus struct with.
-func (f TransactionQueryFilterV3) ToCreate() (models.TransactionCreate, httperrors.Error) {
-	budgetID, err := httputil.UUIDFromString(f.BudgetID)
-	if !err.Nil() {
-		return models.TransactionCreate{}, err
-	}
-
-	sourceAccountID, err := httputil.UUIDFromString(f.SourceAccountID)
-	if !err.Nil() {
-		return models.TransactionCreate{}, err
-	}
-
-	destinationAccountID, err := httputil.UUIDFromString(f.DestinationAccountID)
-	if !err.Nil() {
-		return models.TransactionCreate{}, err
-	}
-
-	envelopeID, err := httputil.UUIDFromString(f.EnvelopeID)
-	if !err.Nil() {
-		return models.TransactionCreate{}, err
-	}
-
-	// If the envelopeID is nil, use an actual nil, not uuid.Nil
-	var eID *uuid.UUID
-	if envelopeID != uuid.Nil {
-		eID = &envelopeID
-	}
-
-	return models.TransactionCreate{
-		Amount:                f.Amount,
-		BudgetID:              budgetID,
-		SourceAccountID:       sourceAccountID,
-		DestinationAccountID:  destinationAccountID,
-		EnvelopeID:            eID,
-		ReconciledSource:      f.ReconciledSource,
-		ReconciledDestination: f.ReconciledDestination,
-	}, httperrors.Error{}
 }

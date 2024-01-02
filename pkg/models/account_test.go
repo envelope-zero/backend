@@ -55,7 +55,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		CategoryID: category.ID,
 	})
 
-	incomingTransaction := suite.createTestTransaction(models.TransactionCreate{
+	incomingTransaction := suite.createTestTransaction(models.Transaction{
 		BudgetID:              budget.ID,
 		EnvelopeID:            &envelope.ID,
 		SourceAccountID:       externalAccount.ID,
@@ -64,7 +64,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		Amount:                decimal.NewFromFloat(32.17),
 	})
 
-	outgoingTransaction := suite.createTestTransaction(models.TransactionCreate{
+	outgoingTransaction := suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		SourceAccountID:      account.ID,
@@ -72,7 +72,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		Amount:               decimal.NewFromFloat(17.45),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		SourceAccountID:      externalAccount.ID,
 		DestinationAccountID: account.ID,
@@ -220,7 +220,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 		CategoryID: category.ID,
 	})
 
-	t := suite.createTestTransaction(models.TransactionCreate{
+	t := suite.createTestTransaction(models.Transaction{
 		Amount:               decimal.NewFromFloat(17.23),
 		BudgetID:             budget.ID,
 		SourceAccountID:      account.ID,
@@ -274,7 +274,7 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 		CategoryID: category.ID,
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		Amount:               decimal.NewFromFloat(17.23),
 		BudgetID:             budget.ID,
 		SourceAccountID:      account.ID,
@@ -338,7 +338,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		if i > 5 {
 			eIndex = 2
 		}
-		_ = suite.createTestTransaction(models.TransactionCreate{
+		_ = suite.createTestTransaction(models.Transaction{
 			BudgetID:             budget.ID,
 			EnvelopeID:           envelopeIDs[eIndex%3],
 			SourceAccountID:      externalAccount.ID,
@@ -357,7 +357,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	// Creating three income transactions puts "income" as the second most common
 	// envelope, verifying the fix
 	for i := 0; i < 3; i++ {
-		_ = suite.createTestTransaction(models.TransactionCreate{
+		_ = suite.createTestTransaction(models.Transaction{
 			BudgetID:             budget.ID,
 			EnvelopeID:           nil,
 			SourceAccountID:      externalAccount.ID,

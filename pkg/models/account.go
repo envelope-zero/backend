@@ -87,7 +87,7 @@ func (a Account) Transactions(db *gorm.DB) []Transaction {
 	var transactions []Transaction
 
 	// Get all transactions where the account is either the source or the destination
-	db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}}).Or(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).Find(&transactions)
+	db.Where(Transaction{SourceAccountID: a.ID}).Or(Transaction{DestinationAccountID: a.ID}).Find(&transactions)
 	return transactions
 }
 
@@ -99,8 +99,8 @@ func (a Account) SumReconciled(db *gorm.DB) (balance decimal.Decimal, err error)
 		Preload("DestinationAccount").
 		Preload("SourceAccount").
 		Where(
-			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID, ReconciledDestination: true}}).
-				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID, ReconciledSource: true}}))).
+			db.Where(Transaction{DestinationAccountID: a.ID, ReconciledDestination: true}).
+				Or(db.Where(Transaction{SourceAccountID: a.ID, ReconciledSource: true}))).
 		Find(&transactions).Error
 
 	if err != nil {
@@ -132,8 +132,8 @@ func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, avail
 		Preload("DestinationAccount").
 		Preload("SourceAccount").
 		Where(
-			db.Where(Transaction{TransactionCreate: TransactionCreate{DestinationAccountID: a.ID}}).
-				Or(db.Where(Transaction{TransactionCreate: TransactionCreate{SourceAccountID: a.ID}})))
+			db.Where(Transaction{DestinationAccountID: a.ID}).
+				Or(db.Where(Transaction{SourceAccountID: a.ID})))
 
 	// Limit to the month if it is specified
 	if !month.IsZero() {
@@ -187,9 +187,7 @@ func (a Account) RecentEnvelopes(db *gorm.DB) ([]*uuid.UUID, error) {
 		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
 		Select("envelopes.id as e_id, datetime(envelopes.created_at) as created").
 		Where(&Transaction{
-			TransactionCreate: TransactionCreate{
-				DestinationAccountID: a.ID,
-			},
+			DestinationAccountID: a.ID,
 		}).
 		Order("datetime(transactions.date) DESC").
 		Limit(50)

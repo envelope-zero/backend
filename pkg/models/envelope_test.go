@@ -55,7 +55,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 	january := types.NewMonth(2022, 1)
 
 	spent := decimal.NewFromFloat(17.32)
-	transaction := suite.createTestTransaction(models.TransactionCreate{
+	transaction := suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               spent,
@@ -64,7 +64,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		Date:                 time.Time(january),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               spent,
@@ -110,7 +110,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 	})
 
 	// Transactions must be able to be created without an envelope (to enable internal transfers without an Envelope and income transactions)
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		Amount:               decimal.NewFromFloat(17.32),
 		SourceAccountID:      internalAccount.ID,
@@ -172,7 +172,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	})
 
 	// Transaction in January
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               decimal.NewFromFloat(15),
@@ -182,7 +182,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	})
 
 	// Transaction in February
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               decimal.NewFromFloat(30),
@@ -192,7 +192,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	})
 
 	// Deleted transaction to verify that deleted transactions are not used in the calculation
-	deletedTransaction := suite.createTestTransaction(models.TransactionCreate{
+	deletedTransaction := suite.createTestTransaction(models.Transaction{
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               decimal.NewFromFloat(30),

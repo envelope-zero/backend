@@ -240,7 +240,7 @@ func (suite *TestSuiteStandard) TestMonthsV3AllocateSpend() {
 	)
 
 	eID := &envelope1.Data.ID
-	transaction1 := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	transaction1 := suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 1, 15, 14, 43, 27, 0, time.UTC),
 		EnvelopeID:           eID,
 		BudgetID:             budget.Data.ID,
@@ -350,7 +350,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		})
 	}
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(10.0),
 		Note:                 "Water bill for January",
@@ -360,7 +360,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(5.0),
 		Note:                 "Water bill for February",
@@ -370,7 +370,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(15.0),
 		Note:                 "Water bill for March",
@@ -380,7 +380,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 3, 1, 7, 38, 17, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(1500),
 		Note:                 "Income for march",

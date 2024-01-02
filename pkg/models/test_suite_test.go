@@ -117,10 +117,7 @@ func (suite *TestSuiteStandard) createTestAccount(c models.AccountCreate) models
 	return account
 }
 
-func (suite *TestSuiteStandard) createTestTransaction(c models.TransactionCreate) models.Transaction {
-	transaction := models.Transaction{
-		TransactionCreate: c,
-	}
+func (suite *TestSuiteStandard) createTestTransaction(transaction models.Transaction) models.Transaction {
 	err := suite.db.Save(&transaction).Error
 	if err != nil {
 		suite.Assert().FailNow("Transaction could not be saved", "Error: %s, Transaction: %#v", err, transaction)

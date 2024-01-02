@@ -323,11 +323,9 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 
 		newTransaction := importer.Transaction{
 			Model: models.Transaction{
-				TransactionCreate: models.TransactionCreate{
-					Date:       date,
-					Note:       strings.TrimSpace(transaction.Memo),
-					ImportHash: helpers.Sha256String(transaction.EntityID),
-				},
+				Date:       date,
+				Note:       strings.TrimSpace(transaction.Memo),
+				ImportHash: helpers.Sha256String(transaction.EntityID),
 			},
 		}
 
@@ -344,9 +342,9 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 		// Set the reconciled flags
 		if transaction.Cleared == "Reconciled" {
 			if transaction.Amount.IsNegative() {
-				newTransaction.Model.TransactionCreate.ReconciledSource = true
+				newTransaction.Model.ReconciledSource = true
 			} else {
-				newTransaction.Model.TransactionCreate.ReconciledDestination = true
+				newTransaction.Model.ReconciledDestination = true
 			}
 		}
 
@@ -362,9 +360,9 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 			// to set which Reconciled flag we set.
 			if transactions[idx].Cleared == "Reconciled" {
 				if transaction.Amount.IsNegative() {
-					newTransaction.Model.TransactionCreate.ReconciledDestination = true
+					newTransaction.Model.ReconciledDestination = true
 				} else {
-					newTransaction.Model.TransactionCreate.ReconciledSource = true
+					newTransaction.Model.ReconciledSource = true
 				}
 			}
 		}
@@ -432,9 +430,9 @@ func parseTransactions(resources *importer.ParsedResources, transactions []Trans
 				// to set which Reconciled flag we set.
 				if transactions[idx].Cleared == "Reconciled" {
 					if transaction.Amount.IsNegative() {
-						subTransaction.Model.TransactionCreate.ReconciledDestination = true
+						subTransaction.Model.ReconciledDestination = true
 					} else {
-						subTransaction.Model.TransactionCreate.ReconciledSource = true
+						subTransaction.Model.ReconciledSource = true
 					}
 				}
 			}
