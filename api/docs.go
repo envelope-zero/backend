@@ -3851,7 +3851,10 @@ const docTemplate = `{
                     "description": "How much money should be saved for this goal?",
                     "type": "number",
                     "default": 0,
-                    "example": 127
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 750
                 },
                 "archived": {
                     "description": "If this goal is still in use or not",
@@ -3883,7 +3886,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/controllers.GoalV3Links"
                 },
                 "month": {
-                    "description": "The month the balance of the envelope should be the set amount",
+                    "description": "The month the goal should be reached",
                     "type": "string",
                     "example": "2024-07-01T00:00:00.000000Z"
                 },
@@ -3911,7 +3914,10 @@ const docTemplate = `{
                     "description": "How much money should be saved for this goal?",
                     "type": "number",
                     "default": 0,
-                    "example": 127
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 750
                 },
                 "archived": {
                     "description": "If this goal is still in use or not",
@@ -3925,7 +3931,7 @@ const docTemplate = `{
                     "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
                 },
                 "month": {
-                    "description": "The month the balance of the envelope should be the set amount",
+                    "description": "The month the goal should be reached",
                     "type": "string",
                     "example": "2024-07-01T00:00:00.000000Z"
                 },

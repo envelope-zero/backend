@@ -15,7 +15,7 @@ type Goal struct {
 	Note       string
 	Envelope   Envelope
 	EnvelopeID uuid.UUID       `gorm:"uniqueIndex:goal_name_envelope"`
-	Amount     decimal.Decimal `json:"amount" gorm:"type:DECIMAL(20,8)" example:"750" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The target for the goal
+	Amount     decimal.Decimal `gorm:"type:DECIMAL(20,8)"` // The target for the goal
 	Month      types.Month
 	Archived   bool
 }
