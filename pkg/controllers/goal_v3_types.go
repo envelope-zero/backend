@@ -15,12 +15,12 @@ import (
 )
 
 type GoalV3Editable struct {
-	Name       string          `json:"name" example:"New TV" default:""`                                     // Name of the goal
-	Note       string          `json:"note" example:"We want to replace the old CRT TV soon-ish" default:""` // Note about the goal
-	EnvelopeID uuid.UUID       `json:"envelopeId" example:"f81566d9-af4d-4f13-9830-c62c4b5e4c7e"`            // The ID of the envelope this goal is for
-	Amount     decimal.Decimal `json:"amount" example:"127" default:"0"`                                     // How much money should be saved for this goal?
-	Month      types.Month     `json:"month" example:"2024-07-01T00:00:00.000000Z"`                          // The month the balance of the envelope should be the set amount
-	Archived   bool            `json:"archived" example:"true" default:"false"`                              // If this goal is still in use or not
+	Name       string          `json:"name" example:"New TV" default:""`                                                                              // Name of the goal
+	Note       string          `json:"note" example:"We want to replace the old CRT TV soon-ish" default:""`                                          // Note about the goal
+	EnvelopeID uuid.UUID       `json:"envelopeId" example:"f81566d9-af4d-4f13-9830-c62c4b5e4c7e"`                                                     // The ID of the envelope this goal is for
+	Amount     decimal.Decimal `json:"amount" example:"750" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001" default:"0"` // How much money should be saved for this goal?
+	Month      types.Month     `json:"month" example:"2024-07-01T00:00:00.000000Z"`                                                                   // The month the goal should be reached
+	Archived   bool            `json:"archived" example:"true" default:"false"`                                                                       // If this goal is still in use or not
 }
 
 // model returns the database resource for the API representation of the editable fields

@@ -221,8 +221,8 @@ func (suite *TestSuiteStandard) TestMonthsV3AllocateBudgeted() {
 
 func (suite *TestSuiteStandard) TestMonthsV3AllocateSpend() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	cashAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
-	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{External: true, Name: "TestSetMonthSpend External"})
+	cashAccount := suite.createTestAccountV3(suite.T(), models.Account{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
+	externalAccount := suite.createTestAccountV3(suite.T(), models.Account{External: true, Name: "TestSetMonthSpend External"})
 	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID})
@@ -240,7 +240,7 @@ func (suite *TestSuiteStandard) TestMonthsV3AllocateSpend() {
 	)
 
 	eID := &envelope1.Data.ID
-	transaction1 := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	transaction1 := suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 1, 15, 14, 43, 27, 0, time.UTC),
 		EnvelopeID:           eID,
 		BudgetID:             budget.Data.ID,
@@ -331,8 +331,8 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
 	category := suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID, Name: "Upkeep"})
 	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: category.Data.ID, Name: "Utilities"})
-	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
-	externalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, External: true})
+	account := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
+	externalAccount := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, External: true})
 
 	// Allocate funds to the months
 	allocations := []struct {
@@ -350,7 +350,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		})
 	}
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(10.0),
 		Note:                 "Water bill for January",
@@ -360,7 +360,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(5.0),
 		Note:                 "Water bill for February",
@@ -370,7 +370,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(15.0),
 		Note:                 "Water bill for March",
@@ -380,7 +380,7 @@ func (suite *TestSuiteStandard) TestMonthsV3() {
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
 		Date:                 time.Date(2022, 3, 1, 7, 38, 17, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(1500),
 		Note:                 "Income for march",

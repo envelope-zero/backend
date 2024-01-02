@@ -234,7 +234,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.AccountCreateV3"
+                                "$ref": "#/definitions/controllers.AccountV3Editable"
                             }
                         }
                     }
@@ -429,7 +429,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountCreateV3"
+                            "$ref": "#/definitions/controllers.AccountV3Editable"
                         }
                     }
                 ],
@@ -2689,7 +2689,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.TransactionCreate"
+                                "$ref": "#/definitions/controllers.TransactionV3Editable"
                             }
                         }
                     }
@@ -2884,7 +2884,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.TransactionCreate"
+                            "$ref": "#/definitions/controllers.TransactionV3Editable"
                         }
                     }
                 ],
@@ -2964,60 +2964,6 @@
                 }
             }
         },
-        "controllers.AccountCreateV3": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the account archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "budgetId": {
-                    "description": "ID of the budget this account belongs to",
-                    "type": "string",
-                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "external": {
-                    "description": "Does the account belong to the budget owner or not?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "initialBalance": {
-                    "description": "Balance of the account before any transactions were recorded",
-                    "type": "number",
-                    "default": 0,
-                    "example": 173.12
-                },
-                "initialBalanceDate": {
-                    "description": "Date of the initial balance",
-                    "type": "string",
-                    "example": "2017-05-12T00:00:00Z"
-                },
-                "name": {
-                    "description": "Name of the account",
-                    "type": "string",
-                    "example": "Cash"
-                },
-                "note": {
-                    "description": "A longer description for the account",
-                    "type": "string",
-                    "example": "Money in my wallet"
-                },
-                "onBudget": {
-                    "description": "Does the account factor into the available budget? Always false when external: true",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                }
-            }
-        },
         "controllers.AccountListResponseV3": {
             "type": "object",
             "properties": {
@@ -3071,7 +3017,7 @@
                     "example": true
                 },
                 "balance": {
-                    "description": "Balance of the account, including all transactions referencing it",
+                    "description": "These fields are calculated",
                     "type": "number",
                     "example": 2735.17
                 },
@@ -3102,7 +3048,7 @@
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
                     "type": "string",
                     "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
                 },
@@ -3110,6 +3056,9 @@
                     "description": "Balance of the account before any transactions were recorded",
                     "type": "number",
                     "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
                     "example": 173.12
                 },
                 "initialBalanceDate": {
@@ -3118,19 +3067,7 @@
                     "example": "2017-05-12T00:00:00Z"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The account itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        },
-                        "transactions": {
-                            "description": "Transactions referencing the account",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                        }
-                    }
+                    "$ref": "#/definitions/controllers.AccountV3Links"
                 },
                 "name": {
                     "description": "Name of the account",
@@ -3164,6 +3101,78 @@
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "controllers.AccountV3Editable": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                }
+            }
+        },
+        "controllers.AccountV3Links": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "description": "The account itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                },
+                "transactions": {
+                    "description": "Transactions referencing the account",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
                 }
             }
         },
@@ -3840,7 +3849,10 @@
                     "description": "How much money should be saved for this goal?",
                     "type": "number",
                     "default": 0,
-                    "example": 127
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 750
                 },
                 "archived": {
                     "description": "If this goal is still in use or not",
@@ -3872,7 +3884,7 @@
                     "$ref": "#/definitions/controllers.GoalV3Links"
                 },
                 "month": {
-                    "description": "The month the balance of the envelope should be the set amount",
+                    "description": "The month the goal should be reached",
                     "type": "string",
                     "example": "2024-07-01T00:00:00.000000Z"
                 },
@@ -3900,7 +3912,10 @@
                     "description": "How much money should be saved for this goal?",
                     "type": "number",
                     "default": 0,
-                    "example": 127
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 750
                 },
                 "archived": {
                     "description": "If this goal is still in use or not",
@@ -3914,7 +3929,7 @@
                     "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
                 },
                 "month": {
-                    "description": "The month the balance of the envelope should be the set amount",
+                    "description": "The month the goal should be reached",
                     "type": "string",
                     "example": "2024-07-01T00:00:00.000000Z"
                 },
@@ -4405,15 +4420,7 @@
                     "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
                 },
                 "links": {
-                    "description": "Links for the transaction",
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The transaction itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
-                        }
-                    }
+                    "$ref": "#/definitions/controllers.TransactionV3Links"
                 },
                 "note": {
                     "description": "A note",
@@ -4444,86 +4451,7 @@
                 }
             }
         },
-        "httperrors.HTTPError": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "An ID specified in the query string was not a valid UUID"
-                }
-            }
-        },
-        "importer.TransactionPreviewV3": {
-            "type": "object",
-            "properties": {
-                "destinationAccountName": {
-                    "description": "Name of the destination account from the CSV file",
-                    "type": "string",
-                    "example": "Deutsche Bahn"
-                },
-                "duplicateTransactionIds": {
-                    "description": "IDs of transactions that this transaction duplicates",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "matchRuleId": {
-                    "description": "ID of the match rule that was applied to this transaction preview",
-                    "type": "string",
-                    "example": "042d101d-f1de-4403-9295-59dc0ea58677"
-                },
-                "sourceAccountName": {
-                    "description": "Name of the source account from the CSV file",
-                    "type": "string",
-                    "example": "Employer"
-                },
-                "transaction": {
-                    "$ref": "#/definitions/models.TransactionCreate"
-                }
-            }
-        },
-        "models.BudgetCreate": {
-            "type": "object",
-            "properties": {
-                "currency": {
-                    "description": "The currency for the budget",
-                    "type": "string",
-                    "example": "€"
-                },
-                "name": {
-                    "description": "Name of the budget",
-                    "type": "string",
-                    "example": "Morre's Budget"
-                },
-                "note": {
-                    "description": "A longer description of the budget",
-                    "type": "string",
-                    "example": "My personal expenses"
-                }
-            }
-        },
-        "models.MatchRuleCreate": {
-            "type": "object",
-            "properties": {
-                "accountId": {
-                    "description": "The account to map matching transactions to",
-                    "type": "string",
-                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
-                },
-                "match": {
-                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
-                    "type": "string",
-                    "example": "Bank*"
-                },
-                "priority": {
-                    "description": "The priority of the match rule",
-                    "type": "integer",
-                    "example": 3
-                }
-            }
-        },
-        "models.TransactionCreate": {
+        "controllers.TransactionV3Editable": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -4585,6 +4513,312 @@
                     "description": "ID of the source account",
                     "type": "string",
                     "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
+                }
+            }
+        },
+        "controllers.TransactionV3Links": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "description": "The transaction itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
+                }
+            }
+        },
+        "httperrors.HTTPError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "An ID specified in the query string was not a valid UUID"
+                }
+            }
+        },
+        "importer.TransactionPreviewV3": {
+            "type": "object",
+            "properties": {
+                "destinationAccountName": {
+                    "description": "Name of the destination account from the CSV file",
+                    "type": "string",
+                    "example": "Deutsche Bahn"
+                },
+                "duplicateTransactionIds": {
+                    "description": "IDs of transactions that this transaction duplicates",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "matchRuleId": {
+                    "description": "ID of the match rule that was applied to this transaction preview",
+                    "type": "string",
+                    "example": "042d101d-f1de-4403-9295-59dc0ea58677"
+                },
+                "sourceAccountName": {
+                    "description": "Name of the source account from the CSV file",
+                    "type": "string",
+                    "example": "Employer"
+                },
+                "transaction": {
+                    "$ref": "#/definitions/models.Transaction"
+                }
+            }
+        },
+        "models.Account": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
+                "budget": {
+                    "$ref": "#/definitions/models.Budget"
+                },
+                "budgetID": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "external": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "A SHA256 hash of a unique combination of values to use in duplicate detection for imports",
+                    "type": "string"
+                },
+                "initialBalance": {
+                    "type": "number"
+                },
+                "initialBalanceDate": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "onBudget": {
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "models.Budget": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "currency": {
+                    "description": "The currency for the budget",
+                    "type": "string",
+                    "example": "€"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "description": "Name of the budget",
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "description": "A longer description of the budget",
+                    "type": "string",
+                    "example": "My personal expenses"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "models.BudgetCreate": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "description": "The currency for the budget",
+                    "type": "string",
+                    "example": "€"
+                },
+                "name": {
+                    "description": "Name of the budget",
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "description": "A longer description of the budget",
+                    "type": "string",
+                    "example": "My personal expenses"
+                }
+            }
+        },
+        "models.Envelope": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "models.MatchRuleCreate": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                }
+            }
+        },
+        "models.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "availableFrom": {
+                    "description": "Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string"
+                },
+                "budget": {
+                    "$ref": "#/definitions/models.Budget"
+                },
+                "budgetID": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "date": {
+                    "description": "Time of day is currently only used for sorting",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "destinationAccount": {
+                    "$ref": "#/definitions/models.Account"
+                },
+                "destinationAccountID": {
+                    "type": "string"
+                },
+                "envelope": {
+                    "$ref": "#/definitions/models.Envelope"
+                },
+                "envelopeID": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection when importing transactions",
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "reconciledDestination": {
+                    "description": "Is the transaction reconciled in the destination account?",
+                    "type": "boolean"
+                },
+                "reconciledSource": {
+                    "description": "Is the transaction reconciled in the source account?",
+                    "type": "boolean"
+                },
+                "sourceAccount": {
+                    "$ref": "#/definitions/models.Account"
+                },
+                "sourceAccountID": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },

@@ -55,7 +55,7 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 		}
 
 		t := importer.TransactionPreview{
-			Transaction: models.TransactionCreate{
+			Transaction: models.Transaction{
 				Date:          date,
 				AvailableFrom: types.NewMonth(date.Year(), date.Month()),
 				ImportHash:    helpers.Sha256String(strings.Join(record, ",")),

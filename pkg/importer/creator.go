@@ -25,7 +25,7 @@ func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 
 	// Create accounts
 	for idx, account := range resources.Accounts {
-		account.AccountCreate.BudgetID = budget.ID
+		account.BudgetID = budget.ID
 		err := tx.Create(&account).Error
 		if err != nil {
 			tx.Rollback()

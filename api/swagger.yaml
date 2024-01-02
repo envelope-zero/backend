@@ -11,51 +11,6 @@ definitions:
         example: the specified resource ID is not a valid UUID
         type: string
     type: object
-  controllers.AccountCreateV3:
-    properties:
-      archived:
-        default: false
-        description: Is the account archived?
-        example: true
-        type: boolean
-      budgetId:
-        description: ID of the budget this account belongs to
-        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      external:
-        default: false
-        description: Does the account belong to the budget owner or not?
-        example: false
-        type: boolean
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      initialBalance:
-        default: 0
-        description: Balance of the account before any transactions were recorded
-        example: 173.12
-        type: number
-      initialBalanceDate:
-        description: Date of the initial balance
-        example: "2017-05-12T00:00:00Z"
-        type: string
-      name:
-        description: Name of the account
-        example: Cash
-        type: string
-      note:
-        description: A longer description for the account
-        example: Money in my wallet
-        type: string
-      onBudget:
-        default: false
-        description: 'Does the account factor into the available budget? Always false
-          when external: true'
-        example: true
-        type: boolean
-    type: object
   controllers.AccountListResponseV3:
     properties:
       data:
@@ -91,8 +46,7 @@ definitions:
         example: true
         type: boolean
       balance:
-        description: Balance of the account, including all transactions referencing
-          it
+        description: These fields are calculated
         example: 2735.17
         type: number
       budgetId:
@@ -118,29 +72,23 @@ definitions:
         type: string
       importHash:
         description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
+          detection for imports
         example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
         type: string
       initialBalance:
         default: 0
         description: Balance of the account before any transactions were recorded
         example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       initialBalanceDate:
         description: Date of the initial balance
         example: "2017-05-12T00:00:00Z"
         type: string
       links:
-        properties:
-          self:
-            description: The account itself
-            example: https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-          transactions:
-            description: Transactions referencing the account
-            example: https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-            type: string
-        type: object
+        $ref: '#/definitions/controllers.AccountV3Links'
       name:
         description: Name of the account
         example: Cash
@@ -168,6 +116,65 @@ definitions:
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  controllers.AccountV3Editable:
+    properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+    type: object
+  controllers.AccountV3Links:
+    properties:
+      self:
+        description: The account itself
+        example: https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        type: string
+      transactions:
+        description: Transactions referencing the account
+        example: https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
         type: string
     type: object
   controllers.AllocationMode:
@@ -656,7 +663,10 @@ definitions:
       amount:
         default: 0
         description: How much money should be saved for this goal?
-        example: 127
+        example: 750
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       archived:
         default: false
@@ -682,7 +692,7 @@ definitions:
       links:
         $ref: '#/definitions/controllers.GoalV3Links'
       month:
-        description: The month the balance of the envelope should be the set amount
+        description: The month the goal should be reached
         example: "2024-07-01T00:00:00.000000Z"
         type: string
       name:
@@ -703,7 +713,10 @@ definitions:
       amount:
         default: 0
         description: How much money should be saved for this goal?
-        example: 127
+        example: 750
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
         type: number
       archived:
         default: false
@@ -715,7 +728,7 @@ definitions:
         example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
         type: string
       month:
-        description: The month the balance of the envelope should be the set amount
+        description: The month the goal should be reached
         example: "2024-07-01T00:00:00.000000Z"
         type: string
       name:
@@ -1078,13 +1091,7 @@ definitions:
         example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
         type: string
       links:
-        description: Links for the transaction
-        properties:
-          self:
-            description: The transaction itself
-            example: https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
-            type: string
-        type: object
+        $ref: '#/definitions/controllers.TransactionV3Links'
       note:
         description: A note
         example: Lunch
@@ -1108,66 +1115,7 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  httperrors.HTTPError:
-    properties:
-      error:
-        example: An ID specified in the query string was not a valid UUID
-        type: string
-    type: object
-  importer.TransactionPreviewV3:
-    properties:
-      destinationAccountName:
-        description: Name of the destination account from the CSV file
-        example: Deutsche Bahn
-        type: string
-      duplicateTransactionIds:
-        description: IDs of transactions that this transaction duplicates
-        items:
-          type: string
-        type: array
-      matchRuleId:
-        description: ID of the match rule that was applied to this transaction preview
-        example: 042d101d-f1de-4403-9295-59dc0ea58677
-        type: string
-      sourceAccountName:
-        description: Name of the source account from the CSV file
-        example: Employer
-        type: string
-      transaction:
-        $ref: '#/definitions/models.TransactionCreate'
-    type: object
-  models.BudgetCreate:
-    properties:
-      currency:
-        description: The currency for the budget
-        example: €
-        type: string
-      name:
-        description: Name of the budget
-        example: Morre's Budget
-        type: string
-      note:
-        description: A longer description of the budget
-        example: My personal expenses
-        type: string
-    type: object
-  models.MatchRuleCreate:
-    properties:
-      accountId:
-        description: The account to map matching transactions to
-        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
-        type: string
-      match:
-        description: The matching applied to the opposite account. This is a glob
-          pattern. Multiple globs are allowed. Globbing is case sensitive.
-        example: Bank*
-        type: string
-      priority:
-        description: The priority of the match rule
-        example: 3
-        type: integer
-    type: object
-  models.TransactionCreate:
+  controllers.TransactionV3Editable:
     properties:
       amount:
         description: The maximum value is "999999999999.99999999", swagger unfortunately
@@ -1221,6 +1169,236 @@ definitions:
       sourceAccountId:
         description: ID of the source account
         example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
+        type: string
+    type: object
+  controllers.TransactionV3Links:
+    properties:
+      self:
+        description: The transaction itself
+        example: https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
+        type: string
+    type: object
+  httperrors.HTTPError:
+    properties:
+      error:
+        example: An ID specified in the query string was not a valid UUID
+        type: string
+    type: object
+  importer.TransactionPreviewV3:
+    properties:
+      destinationAccountName:
+        description: Name of the destination account from the CSV file
+        example: Deutsche Bahn
+        type: string
+      duplicateTransactionIds:
+        description: IDs of transactions that this transaction duplicates
+        items:
+          type: string
+        type: array
+      matchRuleId:
+        description: ID of the match rule that was applied to this transaction preview
+        example: 042d101d-f1de-4403-9295-59dc0ea58677
+        type: string
+      sourceAccountName:
+        description: Name of the source account from the CSV file
+        example: Employer
+        type: string
+      transaction:
+        $ref: '#/definitions/models.Transaction'
+    type: object
+  models.Account:
+    properties:
+      archived:
+        type: boolean
+      budget:
+        $ref: '#/definitions/models.Budget'
+      budgetID:
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      external:
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: A SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
+        type: string
+      initialBalance:
+        type: number
+      initialBalanceDate:
+        type: string
+      name:
+        type: string
+      note:
+        type: string
+      onBudget:
+        type: boolean
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.Budget:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.BudgetCreate:
+    properties:
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+    type: object
+  models.Envelope:
+    properties:
+      archived:
+        default: false
+        description: Is the envelope archived?
+        example: true
+        type: boolean
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.MatchRuleCreate:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+    type: object
+  models.Transaction:
+    properties:
+      amount:
+        type: number
+      availableFrom:
+        description: Only used for income transactions. Defaults to the transaction
+          date.
+        type: string
+      budget:
+        $ref: '#/definitions/models.Budget'
+      budgetID:
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      date:
+        description: Time of day is currently only used for sorting
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      destinationAccount:
+        $ref: '#/definitions/models.Account'
+      destinationAccountID:
+        type: string
+      envelope:
+        $ref: '#/definitions/models.Envelope'
+      envelopeID:
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection when importing transactions
+        type: string
+      note:
+        type: string
+      reconciledDestination:
+        description: Is the transaction reconciled in the destination account?
+        type: boolean
+      reconciledSource:
+        description: Is the transaction reconciled in the source account?
+        type: boolean
+      sourceAccount:
+        $ref: '#/definitions/models.Account'
+      sourceAccountID:
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
   router.RootLinks:
@@ -1477,7 +1655,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/controllers.AccountCreateV3'
+            $ref: '#/definitions/controllers.AccountV3Editable'
           type: array
       produces:
       - application/json
@@ -1600,7 +1778,7 @@ paths:
         name: account
         required: true
         schema:
-          $ref: '#/definitions/controllers.AccountCreateV3'
+          $ref: '#/definitions/controllers.AccountV3Editable'
       produces:
       - application/json
       responses:
@@ -3143,7 +3321,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/models.TransactionCreate'
+            $ref: '#/definitions/controllers.TransactionV3Editable'
           type: array
       produces:
       - application/json
@@ -3267,7 +3445,7 @@ paths:
         name: transaction
         required: true
         schema:
-          $ref: '#/definitions/models.TransactionCreate'
+          $ref: '#/definitions/controllers.TransactionV3Editable'
       produces:
       - application/json
       responses:

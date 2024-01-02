@@ -16,10 +16,10 @@ import (
 
 func (suite *TestSuiteStandard) TestCleanupV3() {
 	_ = suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "TestCleanup"})
+	account := suite.createTestAccountV3(suite.T(), models.Account{Name: "TestCleanup"})
 	_ = suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{})
 	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{})
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{Amount: decimal.NewFromFloat(17.32)})
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(17.32)})
 	_ = suite.patchTestMonthConfigV3(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
 	_ = suite.createTestMatchRuleV3(suite.T(), models.MatchRuleCreate{AccountID: account.Data.ID, Match: "Delete me"})
 

@@ -17,12 +17,12 @@ func (suite *TestSuiteStandard) TestTransactionTrimWhitespace() {
 
 	budgetID := suite.createTestBudget(models.BudgetCreate{}).ID
 
-	transaction := suite.createTestTransaction(models.TransactionCreate{
+	transaction := suite.createTestTransaction(models.Transaction{
 		Note:                 note,
 		ImportHash:           importHash,
 		BudgetID:             budgetID,
-		SourceAccountID:      suite.createTestAccount(models.AccountCreate{BudgetID: budgetID}).ID,
-		DestinationAccountID: suite.createTestAccount(models.AccountCreate{BudgetID: budgetID}).ID,
+		SourceAccountID:      suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+		DestinationAccountID: suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
 	})
 
 	assert.Equal(suite.T(), strings.TrimSpace(note), transaction.Note)
@@ -33,9 +33,7 @@ func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
-		},
+		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
 	}
 
 	err := transaction.AfterFind(suite.db)
@@ -48,12 +46,12 @@ func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 
 func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
-	transaction := models.Transaction{TransactionCreate: models.TransactionCreate{SourceAccountID: internalAccount.ID, DestinationAccountID: externalAccount.ID}}
+	transaction := models.Transaction{SourceAccountID: internalAccount.ID, DestinationAccountID: externalAccount.ID}
 	err := transaction.BeforeSave(suite.db)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.BeforeSave failed", err)
@@ -62,9 +60,7 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
 
 	transaction = models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
-		},
+		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
 	}
 	err = transaction.BeforeSave(suite.db)
 	if err != nil {
@@ -79,8 +75,8 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 // when the respective account is external.
 func (suite *TestSuiteStandard) TestTransactionReconciled() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	tests := []struct {
 		name                      string
@@ -105,15 +101,13 @@ func (suite *TestSuiteStandard) TestTransactionReconciled() {
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			transaction := models.Transaction{
-				SourceAccount:      tt.source,
-				DestinationAccount: tt.destination,
-				TransactionCreate: models.TransactionCreate{
-					Note:                  tt.name,
-					SourceAccountID:       tt.sourceAccountID,
-					DestinationAccountID:  tt.destinationAccountID,
-					ReconciledSource:      tt.setReconciledSource,
-					ReconciledDestination: tt.setReconciledDestination,
-				},
+				SourceAccount:         tt.source,
+				DestinationAccount:    tt.destination,
+				Note:                  tt.name,
+				SourceAccountID:       tt.sourceAccountID,
+				DestinationAccountID:  tt.destinationAccountID,
+				ReconciledSource:      tt.setReconciledSource,
+				ReconciledDestination: tt.setReconciledDestination,
 			}
 
 			err := transaction.BeforeSave(suite.db)
@@ -143,17 +137,15 @@ func (suite *TestSuiteStandard) TestTransactionSelf() {
 // Regression test for https://github.com/envelope-zero/backend/issues/768
 func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	transaction := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			SourceAccountID:      externalAccount.ID,
-			DestinationAccountID: internalAccount.ID,
-			Note:                 "TestTransactionAvailableFromDate",
-			AvailableFrom:        types.NewMonth(2023, 9),
-			Date:                 time.Date(2023, 10, 7, 0, 0, 0, 0, time.UTC),
-		},
+		SourceAccountID:      externalAccount.ID,
+		DestinationAccountID: internalAccount.ID,
+		Note:                 "TestTransactionAvailableFromDate",
+		AvailableFrom:        types.NewMonth(2023, 9),
+		Date:                 time.Date(2023, 10, 7, 0, 0, 0, 0, time.UTC),
 	}
 
 	err := suite.db.Save(&transaction).Error
@@ -168,19 +160,17 @@ func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 // If it were not, it would reference the envelope with the nil UUID, which does not exist.
 func (suite *TestSuiteStandard) TestTransactionEnvelopeNilUUID() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	internalAccount := suite.createTestAccount(models.AccountCreate{External: false, BudgetID: budget.ID})
-	externalAccount := suite.createTestAccount(models.AccountCreate{External: true, BudgetID: budget.ID})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
 	eID := uuid.Nil
 
 	transaction := models.Transaction{
-		TransactionCreate: models.TransactionCreate{
-			BudgetID:             budget.ID,
-			SourceAccountID:      externalAccount.ID,
-			DestinationAccountID: internalAccount.ID,
-			EnvelopeID:           &eID,
-			Note:                 "TestTransactionEnvelopeNilUUID",
-		},
+		BudgetID:             budget.ID,
+		SourceAccountID:      externalAccount.ID,
+		DestinationAccountID: internalAccount.ID,
+		EnvelopeID:           &eID,
+		Note:                 "TestTransactionEnvelopeNilUUID",
 	}
 
 	err := suite.db.Save(&transaction).Error

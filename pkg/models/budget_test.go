@@ -46,27 +46,27 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 	emptyBudget := suite.createTestBudget(models.BudgetCreate{})
 
-	bankAccount := suite.createTestAccount(models.AccountCreate{
+	bankAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: true,
 		External: false,
 		Name:     "TestBudgetCalculations Bank Account",
 	})
 
-	cashAccount := suite.createTestAccount(models.AccountCreate{
+	cashAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		OnBudget: true,
 		External: false,
 		Name:     "TestBudgetCalculations Cash Account",
 	})
 
-	employerAccount := suite.createTestAccount(models.AccountCreate{
+	employerAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		External: true,
 		Name:     "TestBudgetCalculations Employer Account",
 	})
 
-	groceryAccount := suite.createTestAccount(models.AccountCreate{
+	groceryAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		External: true,
 	})
@@ -111,7 +111,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		},
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
 		BudgetID:             budget.ID,
 		EnvelopeID:           nil,
@@ -120,7 +120,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		Amount:               decimal.NewFromFloat(1800),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
 		BudgetID:             budget.ID,
 		EnvelopeID:           nil,
@@ -129,7 +129,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		Amount:               decimal.NewFromFloat(2800),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo.AddDate(0, 1)),
 		BudgetID:             budget.ID,
 		EnvelopeID:           nil,
@@ -138,7 +138,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		Amount:               decimal.NewFromFloat(2800),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
@@ -147,7 +147,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		Amount:               decimal.NewFromFloat(87.45),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
 		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
@@ -156,7 +156,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		Amount:               decimal.NewFromFloat(23.17),
 	})
 
-	_ = suite.createTestTransaction(models.TransactionCreate{
+	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
 		BudgetID:             budget.ID,
 		SourceAccountID:      cashAccount.ID,

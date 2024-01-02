@@ -5,91 +5,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/pkg/database"
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
-
-type TransactionListResponseV3 struct {
-	Data       []TransactionV3 `json:"data"`                                                          // List of transactions
-	Error      *string         `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Pagination *Pagination     `json:"pagination"`                                                    // Pagination information
-}
-
-type TransactionCreateResponseV3 struct {
-	Error *string                 `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Data  []TransactionResponseV3 `json:"data"`                                                          // List of created Transactions
-}
-
-func (t *TransactionCreateResponseV3) appendError(err httperrors.Error, status int) int {
-	s := err.Error()
-	t.Data = append(t.Data, TransactionResponseV3{Error: &s})
-
-	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
-	}
-
-	return status
-}
-
-type TransactionResponseV3 struct {
-	Error *string        `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this transaction
-	Data  *TransactionV3 `json:"data"`                                                          // The Transaction data, if creation was successful
-}
-
-// TransactionV3 is the representation of a Transaction in API v3.
-type TransactionV3 struct {
-	models.Transaction
-	Links struct {
-		Self string `json:"self" example:"https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"` // The transaction itself
-	} `json:"links"` // Links for the transaction
-}
-
-// links generates HATEOAS links for the transaction.
-func (t *TransactionV3) links(c *gin.Context) {
-	// Set links
-	t.Links.Self = fmt.Sprintf("%s/v3/transactions/%s", c.GetString(string(database.ContextURL)), t.ID)
-}
-
-type TransactionQueryFilterV3 struct {
-	Date                  time.Time       `form:"date" filterField:"false"`              // Exact date. Time is ignored.
-	FromDate              time.Time       `form:"fromDate" filterField:"false"`          // From this date. Time is ignored.
-	UntilDate             time.Time       `form:"untilDate" filterField:"false"`         // Until this date. Time is ignored.
-	Amount                decimal.Decimal `form:"amount"`                                // Exact amount
-	AmountLessOrEqual     decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
-	AmountMoreOrEqual     decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
-	Note                  string          `form:"note" filterField:"false"`              // Note contains this string
-	BudgetID              string          `form:"budget"`                                // ID of the budget
-	SourceAccountID       string          `form:"source"`                                // ID of the source account
-	DestinationAccountID  string          `form:"destination"`                           // ID of the destination account
-	EnvelopeID            string          `form:"envelope"`                              // ID of the envelope
-	ReconciledSource      bool            `form:"reconciledSource"`                      // Is the transaction reconciled in the source account?
-	ReconciledDestination bool            `form:"reconciledDestination"`                 // Is the transaction reconciled in the destination account?
-	AccountID             string          `form:"account" filterField:"false"`           // ID of either source or destination account
-	Offset                uint            `form:"offset" filterField:"false"`            // The offset of the first Transaction returned. Defaults to 0.
-	Limit                 int             `form:"limit" filterField:"false"`             // Maximum number of transactions to return. Defaults to 50.
-}
-
-func (co Controller) getTransactionV3(c *gin.Context, id uuid.UUID) (TransactionV3, httperrors.Error) {
-	transactionModel, err := getResourceByID[models.Transaction](c, co, id)
-	if !err.Nil() {
-		return TransactionV3{}, err
-	}
-
-	transaction := TransactionV3{
-		Transaction: transactionModel,
-	}
-
-	transaction.links(c)
-	return transaction, httperrors.Error{}
-}
 
 // RegisterTransactionRoutesV3 registers the routes for transactions with
 // the RouterGroup that is passed.
@@ -169,8 +92,8 @@ func (co Controller) GetTransactionV3(c *gin.Context) {
 		return
 	}
 
-	var t models.Transaction
-	err = query(c, co.DB.First(&t, id))
+	var transaction models.Transaction
+	err = query(c, co.DB.First(&transaction, id))
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponseV3{
@@ -179,16 +102,8 @@ func (co Controller) GetTransactionV3(c *gin.Context) {
 		return
 	}
 
-	tObject, err := co.getTransactionV3(c, t.ID)
-	if !err.Nil() {
-		e := err.Error()
-		c.JSON(err.Status, TransactionResponseV3{
-			Error: &e,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, TransactionResponseV3{Data: &tObject})
+	data := newTransactionV3(c, transaction)
+	c.JSON(http.StatusOK, TransactionResponseV3{Data: &data})
 }
 
 // @Summary		Get transactions
@@ -229,7 +144,7 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate()
+	model, err := filter.model()
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionListResponseV3{
@@ -239,9 +154,7 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 	}
 
 	var q *gorm.DB
-	q = co.DB.Order("datetime(date) DESC, datetime(created_at) DESC").Where(&models.Transaction{
-		TransactionCreate: create,
-	}, queryFields...)
+	q = co.DB.Order("datetime(date) DESC, datetime(created_at) DESC").Where(&model, queryFields...)
 
 	// Filter for the transaction being at the same date
 	if !filter.Date.IsZero() {
@@ -268,13 +181,9 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 		}
 
 		q = q.Where(co.DB.Where(&models.Transaction{
-			TransactionCreate: models.TransactionCreate{
-				SourceAccountID: accountID,
-			},
+			SourceAccountID: accountID,
 		}).Or(&models.Transaction{
-			TransactionCreate: models.TransactionCreate{
-				DestinationAccountID: accountID,
-			},
+			DestinationAccountID: accountID,
 		}))
 	}
 
@@ -287,7 +196,7 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 	}
 
 	if filter.Note != "" {
-		q = q.Where("note LIKE 	?", fmt.Sprintf("%%%s%%", filter.Note))
+		q = q.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
 	} else if slices.Contains(setFields, "Note") {
 		q = q.Where("note = ''")
 	}
@@ -322,24 +231,15 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 		return
 	}
 
-	transactionObjects := make([]TransactionV3, 0)
-	for _, t := range transactions {
-		transactionObject, err := co.getTransactionV3(c, t.ID)
-		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, TransactionListResponseV3{
-				Error: &e,
-			})
-			return
-		}
-
-		transactionObjects = append(transactionObjects, transactionObject)
+	data := make([]TransactionV3, 0)
+	for _, transaction := range transactions {
+		data = append(data, newTransactionV3(c, transaction))
 	}
 
 	c.JSON(http.StatusOK, TransactionListResponseV3{
-		Data: transactionObjects,
+		Data: data,
 		Pagination: &Pagination{
-			Count:  len(transactionObjects),
+			Count:  len(data),
 			Total:  count,
 			Offset: filter.Offset,
 			Limit:  limit,
@@ -355,13 +255,13 @@ func (co Controller) GetTransactionsV3(c *gin.Context) {
 // @Failure		400				{object}	TransactionCreateResponseV3
 // @Failure		404				{object}	TransactionCreateResponseV3
 // @Failure		500				{object}	TransactionCreateResponseV3
-// @Param			transactions	body		[]models.TransactionCreate	true	"Transactions"
+// @Param			transactions	body		[]TransactionV3Editable	true	"Transactions"
 // @Router			/v3/transactions [post]
 func (co Controller) CreateTransactionsV3(c *gin.Context) {
-	var transactions []models.TransactionCreate
+	var editables []TransactionV3Editable
 
 	// Bind data and return error if not possible
-	err := httputil.BindData(c, &transactions)
+	err := httputil.BindData(c, &editables)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionCreateResponseV3{
@@ -374,8 +274,10 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 	status := http.StatusCreated
 	r := TransactionCreateResponseV3{}
 
-	for _, create := range transactions {
-		t, err := co.createTransaction(c, create)
+	for _, editable := range editables {
+		transaction := editable.model()
+
+		err := co.createTransaction(c, &transaction)
 
 		// Append the error
 		if !err.Nil() {
@@ -383,13 +285,8 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 			continue
 		}
 
-		// Append the transaction
-		tObject, err := co.getTransactionV3(c, t.ID)
-		if !err.Nil() {
-			status = r.appendError(err, status)
-			continue
-		}
-		r.Data = append(r.Data, TransactionResponseV3{Data: &tObject})
+		data := newTransactionV3(c, transaction)
+		r.Data = append(r.Data, TransactionResponseV3{Data: &data})
 	}
 
 	c.JSON(status, r)
@@ -404,8 +301,8 @@ func (co Controller) CreateTransactionsV3(c *gin.Context) {
 // @Failure		400			{object}	TransactionResponseV3
 // @Failure		404			{object}	TransactionResponseV3
 // @Failure		500			{object}	TransactionResponseV3
-// @Param			id			path		string						true	"ID formatted as string"
-// @Param			transaction	body		models.TransactionCreate	true	"Transaction"
+// @Param			id			path		string					true	"ID formatted as string"
+// @Param			transaction	body		TransactionV3Editable	true	"Transaction"
 // @Router			/v3/transactions/{id} [patch]
 func (co Controller) UpdateTransactionV3(c *gin.Context) {
 	// Get the resource ID
@@ -429,7 +326,7 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 	}
 
 	// Get the fields that are set to be updated
-	updateFields, err := httputil.GetBodyFields(c, models.TransactionCreate{})
+	updateFields, err := httputil.GetBodyFields(c, TransactionV3Editable{})
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponseV3{
@@ -438,9 +335,9 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 		return
 	}
 
-	// Bind the data for the patch
-	var data models.Transaction
-	err = httputil.BindData(c, &data.TransactionCreate)
+	// Bind the update for the patch
+	var update TransactionV3Editable
+	err = httputil.BindData(c, &update)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponseV3{
@@ -451,14 +348,14 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 
 	// If the amount set via the API request is not existent or
 	// is 0, we use the old amount
-	if data.Amount.IsZero() {
-		data.Amount = transaction.Amount
+	if update.Amount.IsZero() {
+		update.Amount = transaction.Amount
 	}
 
 	// Check the source account
 	sourceAccountID := transaction.SourceAccountID
-	if data.SourceAccountID != uuid.Nil {
-		sourceAccountID = data.SourceAccountID
+	if update.SourceAccountID != uuid.Nil {
+		sourceAccountID = update.SourceAccountID
 	}
 	sourceAccount, err := getResourceByID[models.Account](c, co, sourceAccountID)
 	if !err.Nil() {
@@ -471,8 +368,8 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 
 	// Check the destination account
 	destinationAccountID := transaction.DestinationAccountID
-	if data.DestinationAccountID != uuid.Nil {
-		destinationAccountID = data.DestinationAccountID
+	if update.DestinationAccountID != uuid.Nil {
+		destinationAccountID = update.DestinationAccountID
 	}
 	destinationAccount, err := getResourceByID[models.Account](c, co, destinationAccountID)
 	if !err.Nil() {
@@ -484,7 +381,7 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 	}
 
 	// Check the transaction that is set
-	err = co.checkTransaction(c, data, sourceAccount, destinationAccount)
+	err = co.checkTransaction(c, update.model(), sourceAccount, destinationAccount)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponseV3{
@@ -493,7 +390,7 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 		return
 	}
 
-	err = query(c, co.DB.Model(&transaction).Select("", updateFields...).Updates(data))
+	err = query(c, co.DB.Model(&transaction).Select("", updateFields...).Updates(update.model()))
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponseV3{
@@ -502,16 +399,8 @@ func (co Controller) UpdateTransactionV3(c *gin.Context) {
 		return
 	}
 
-	transactionObject, err := co.getTransactionV3(c, transaction.ID)
-	if !err.Nil() {
-		e := err.Error()
-		c.JSON(err.Status, TransactionResponseV3{
-			Error: &e,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, TransactionResponseV3{Data: &transactionObject})
+	data := newTransactionV3(c, transaction)
+	c.JSON(http.StatusOK, TransactionResponseV3{Data: &data})
 }
 
 // @Summary		Delete transaction

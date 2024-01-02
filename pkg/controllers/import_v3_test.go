@@ -34,7 +34,7 @@ func (suite *TestSuiteStandard) parseCsvV3(t *testing.T, accountID uuid.UUID, fi
 
 // TestImportV3Success verifies successful imports for all import types.
 func (suite *TestSuiteStandard) TestImportV3Success() {
-	accountID := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "TestImport"}).Data.ID.String()
+	accountID := suite.createTestAccountV3(suite.T(), models.Account{Name: "TestImport"}).Data.ID.String()
 
 	tests := []struct {
 		name   string
@@ -151,7 +151,7 @@ func (suite *TestSuiteStandard) TestImportYnab4V3Fails() {
 
 // TestImportYnabImportPreviewV3Fails tests failing requests for the YNAB import format preview endpoint.
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3Fails() {
-	accountID := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "TestImportYnabImportPreviewV3Fails"}).Data.ID.String()
+	accountID := suite.createTestAccountV3(suite.T(), models.Account{Name: "TestImportYnabImportPreviewV3Fails"}).Data.ID.String()
 
 	tests := []struct {
 		name          string
@@ -190,19 +190,19 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3Fails() {
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3DuplicateDetection() {
 	// Create test account
-	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "TestImportYnabImportPreviewV3DuplicateDetection"})
+	account := suite.createTestAccountV3(suite.T(), models.Account{Name: "TestImportYnabImportPreviewV3DuplicateDetection"})
 
 	// Get the import hash of the first transaction and create one with the same import hash
 	preview := suite.parseCsvV3(suite.T(), account.Data.ID, "comdirect-ynap.csv")
 
-	transaction := suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
+	transaction := suite.createTestTransactionV3(suite.T(), models.Transaction{
 		SourceAccountID: account.Data.ID,
 		ImportHash:      preview.Data[0].Transaction.ImportHash,
 		Amount:          decimal.NewFromFloat(1.13),
 	})
 
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{
-		SourceAccountID: suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Note: "This account is in a different Budget, but has the same ImportHash", Name: "TestYnabImportPreviewDuplicateDetection Different Budget"}).Data.ID,
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{
+		SourceAccountID: suite.createTestAccountV3(suite.T(), models.Account{Note: "This account is in a different Budget, but has the same ImportHash", Name: "TestYnabImportPreviewDuplicateDetection Different Budget"}).Data.ID,
 		ImportHash:      preview.Data[0].Transaction.ImportHash,
 		Amount:          decimal.NewFromFloat(42.23),
 	})
@@ -215,7 +215,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3DuplicateDetection(
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3AvailableFrom() {
 	// Create test account
-	account := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "TestImportYnabImportPreviewV3AvailableFrom"})
+	account := suite.createTestAccountV3(suite.T(), models.Account{Name: "TestImportYnabImportPreviewV3AvailableFrom"})
 	preview := suite.parseCsvV3(suite.T(), account.Data.ID, "available-from-test.csv")
 
 	dates := []types.Month{
@@ -232,19 +232,19 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3AvailableFrom() {
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3FindAccounts() {
 	// Create a budget and two existing accounts to use
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	edeka := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
+	edeka := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
 
 	// Create an account named "Edeka" in another budget to ensure it is not found. If it were found, the tests for the non-archived
 	// Edeka account being found would fail since we do not use an account if we find more than one with the same name
-	_ = suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{Name: "Edeka"})
+	_ = suite.createTestAccountV3(suite.T(), models.Account{Name: "Edeka"})
 
 	// Account we import to
-	internalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
+	internalAccount := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
 	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
 	tests := []struct {
 		name                    string       // Name of the test
@@ -292,16 +292,16 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3FindAccounts() {
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewV3Match() {
 	// Create a budget and two existing accounts to use
 	budget := suite.createTestBudgetV3(suite.T(), models.BudgetCreate{})
-	edeka := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
-	bahn := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, Name: "Deutsche Bahn", External: true})
+	edeka := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
+	bahn := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Deutsche Bahn", External: true})
 
 	// Account we import to
-	internalAccount := suite.createTestAccountV3(suite.T(), controllers.AccountCreateV3{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
+	internalAccount := suite.createTestAccountV3(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
 	envelope := suite.createTestEnvelopeV3(suite.T(), controllers.EnvelopeCreateV3{CategoryID: suite.createTestCategoryV3(suite.T(), controllers.CategoryCreateV3{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
-	_ = suite.createTestTransactionV3(suite.T(), models.TransactionCreate{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+	_ = suite.createTestTransactionV3(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
 	tests := []struct {
 		name                  string                        // Name of the test
