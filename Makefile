@@ -25,7 +25,7 @@ coverage: test
 VERSION ?= $(shell git rev-parse HEAD)
 .PHONY: build
 build:
-	go build -ldflags "-X github.com/envelope-zero/backend/v3/pkg/router.version=${VERSION}"
+	go build -ldflags "-X github.com/envelope-zero/backend/v4/pkg/router.version=${VERSION}"
 
 .PHONY: docs
 docs:

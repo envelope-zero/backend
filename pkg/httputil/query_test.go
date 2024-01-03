@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/controllers"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,12 @@ import (
 func TestGetURLFields(t *testing.T) {
 	url, _ := url.Parse("http://example.com/api/v3/accounts?budget=87645467-ad8a-4e16-ae7f-9d879b45f569&onBudget=false&name=")
 
-	queryFields, setFields := httputil.GetURLFields(url, controllers.AccountQueryFilterV3{})
+	queryFields, setFields := httputil.GetURLFields(url, struct {
+		Name     string `form:"name" filterField:"false"`
+		Note     string `form:"note" filterField:"false"`
+		BudgetID string `form:"budget"`
+		OnBudget bool   `form:"onBudget"`
+	}{})
 
 	assert.Equal(t, []interface{}{"BudgetID", "OnBudget"}, queryFields)
 	assert.Equal(t, []string{"Name", "BudgetID", "OnBudget"}, setFields)
@@ -27,7 +31,9 @@ func TestGetBodyFieldsHandleErrors(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.PATCH("/", func(ctx *gin.Context) {
-		fields, err := httputil.GetBodyFieldsHandleErrors(c, controllers.AccountV3Editable{})
+		fields, err := httputil.GetBodyFieldsHandleErrors(c, struct {
+			Name string `json:"name"`
+		}{})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
@@ -46,7 +52,9 @@ func TestGetBodyFieldsHandleErrorsNull(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.PATCH("/", func(ctx *gin.Context) {
-		fields, err := httputil.GetBodyFieldsHandleErrors(c, controllers.AccountV3Editable{})
+		fields, err := httputil.GetBodyFieldsHandleErrors(c, struct {
+			Name string `json:"name"`
+		}{})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
@@ -66,7 +74,9 @@ func TestGetBodyFieldsHandleErrorsUnparseable(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 
 	r.PATCH("/", func(ctx *gin.Context) {
-		fields, err := httputil.GetBodyFieldsHandleErrors(c, controllers.AccountV3Editable{})
+		fields, err := httputil.GetBodyFieldsHandleErrors(c, struct {
+			Name string `json:"name"`
+		}{})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 		}
@@ -116,7 +126,9 @@ func TestGetBodyFields(t *testing.T) {
 			c, r := gin.CreateTestContext(w)
 
 			r.PATCH("/", func(ctx *gin.Context) {
-				fields, err := httputil.GetBodyFields(c, controllers.AccountV3Editable{})
+				fields, err := httputil.GetBodyFields(c, struct {
+					Name string `json:"name"`
+				}{})
 				if !err.Nil() {
 					c.JSON(err.Status, err.Error())
 				}

@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/database"
 	"github.com/envelope-zero/backend/v4/pkg/importer"
 	"github.com/envelope-zero/backend/v4/pkg/importer/parser/ynab4"
 	"github.com/envelope-zero/backend/v4/pkg/models"
@@ -31,23 +30,18 @@ func date(year int, month time.Month, day int) time.Time {
 // testDB returns an in-memory test database and a function to close it.
 func testDB() (*gorm.DB, func() error) {
 	// Connect a database
-	db, err := database.Connect(":memory:?_pragma=foreign_keys(1)")
+	err := models.Connect(":memory:?_pragma=foreign_keys(1)")
 	if err != nil {
 		log.Fatalf("Database connection failed with: %#v", err)
-	}
-
-	models.Migrate(db)
-	if err != nil {
-		log.Fatalf("Database migration failed with: %#v", err)
 	}
 
 	// Create the context and store the API URL
 	ctx := context.Background()
 	url, _ := url.Parse("https://example.com")
-	ctx = context.WithValue(ctx, database.ContextURL, url)
+	ctx = context.WithValue(ctx, models.DBContextURL, url)
 
-	sqlDB, _ := db.DB()
-	return db.WithContext(ctx), sqlDB.Close
+	sqlDB, _ := models.DB.DB()
+	return models.DB.WithContext(ctx), sqlDB.Close
 }
 
 func TestParseNoFile(t *testing.T) {

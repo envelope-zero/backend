@@ -82,10 +82,10 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		Note:                 "Future Income Transaction",
 	})
 
-	balance, _, err := account.GetBalanceMonth(suite.db, types.Month{})
+	balance, _, err := account.GetBalanceMonth(models.DB, types.Month{})
 	assert.Nil(suite.T(), err)
 
-	reconciled, err := account.SumReconciled(suite.db)
+	reconciled, err := account.SumReconciled(models.DB)
 	assert.Nil(suite.T(), err)
 
 	expected := incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(account.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
@@ -94,7 +94,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	expected = incomingTransaction.Amount.Add(account.InitialBalance)
 	assert.True(suite.T(), reconciled.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, reconciled)
 
-	balanceNow, availableNow, err := account.GetBalanceMonth(suite.db, types.MonthOf(time.Now()))
+	balanceNow, availableNow, err := account.GetBalanceMonth(models.DB, types.MonthOf(time.Now()))
 	assert.Nil(suite.T(), err)
 
 	expected = decimal.NewFromFloat(284.72)
@@ -103,15 +103,15 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	expected = decimal.NewFromFloat(184.72)
 	assert.True(suite.T(), availableNow.Equal(expected), "Available balance for account is not correct. Should be: %v but is %v", expected, availableNow)
 
-	err = suite.db.Delete(&incomingTransaction).Error
+	err = models.DB.Delete(&incomingTransaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	balance, _, err = account.GetBalanceMonth(suite.db, types.Month{})
+	balance, _, err = account.GetBalanceMonth(models.DB, types.Month{})
 	assert.Nil(suite.T(), err)
 
-	reconciled, err = account.SumReconciled(suite.db)
+	reconciled, err = account.SumReconciled(models.DB)
 	assert.Nil(suite.T(), err)
 
 	expected = outgoingTransaction.Amount.Neg().Add(account.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
@@ -124,7 +124,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 func (suite *TestSuiteStandard) TestAccountTransactions() {
 	account := models.Account{}
 
-	transactions := account.Transactions(suite.db)
+	transactions := account.Transactions(models.DB)
 	assert.Len(suite.T(), transactions, 0)
 }
 
@@ -134,7 +134,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudget() {
 		External: true,
 	}
 
-	err := account.BeforeSave(suite.db)
+	err := account.BeforeSave(models.DB)
 	if err != nil {
 		assert.Fail(suite.T(), "account.BeforeSave failed")
 	}
@@ -146,7 +146,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudget() {
 		External: false,
 	}
 
-	err = account.BeforeSave(suite.db)
+	err = account.BeforeSave(models.DB)
 	if err != nil {
 		assert.Fail(suite.T(), "account.BeforeSave failed")
 	}
@@ -159,7 +159,7 @@ func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
 
 	suite.CloseDB()
 
-	_, _, err := account.GetBalanceMonth(suite.db, types.NewMonth(2017, 7))
+	_, _, err := account.GetBalanceMonth(models.DB, types.NewMonth(2017, 7))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
@@ -178,7 +178,7 @@ func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
 		Name:     "TestAccountDuplicateNames",
 		External: true,
 	}
-	err := suite.db.Save(&externalAccount).Error
+	err := models.DB.Save(&externalAccount).Error
 	if err == nil {
 		suite.Assert().Fail("Account with the same name than another account could be saved. This must not be possible", err)
 		return
@@ -224,7 +224,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 
 	// Try saving the account, which must fail
 	data := models.Account{OnBudget: true}
-	err := suite.db.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
+	err := models.DB.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
 
 	if !assert.NotNil(suite.T(), err, "Target account could be updated to be on budget while having transactions with envelopes being set") {
 		assert.FailNow(suite.T(), "Exiting because assertion was not met")
@@ -233,11 +233,11 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 
 	// Update the envelope for the transaction
 	t.EnvelopeID = nil
-	err = suite.db.Model(&t).Updates(&t).Error
+	err = models.DB.Model(&t).Updates(&t).Error
 	assert.Nil(suite.T(), err, "Transaction could not be updated")
 
 	// Save again
-	err = suite.db.Model(&transferTargetAccount).Updates(&transferTargetAccount).Error
+	err = models.DB.Model(&transferTargetAccount).Updates(&transferTargetAccount).Error
 	assert.Nil(suite.T(), err, "Target account could not be updated despite transaction having its envelope removed")
 }
 
@@ -278,7 +278,7 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 
 	// Try saving the account, which must work
 	data := models.Account{OnBudget: true}
-	err := suite.db.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
+	err := models.DB.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
 
 	assert.Nil(suite.T(), err, "Target account could not be updated to be on budget, but it does not have transactions with envelopes being set")
 }
@@ -360,7 +360,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		})
 	}
 
-	ids, err := account.RecentEnvelopes(suite.db)
+	ids, err := account.RecentEnvelopes(models.DB)
 	if err != nil {
 		suite.Assert().FailNow("Could not compute recent envelopes", err)
 	}

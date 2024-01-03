@@ -28,7 +28,7 @@ func (suite *TestSuiteStandard) TestBudgetTrimWhitespace() {
 
 func (suite *TestSuiteStandard) TestBudgetAfterFind() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
-	err := budget.AfterFind(suite.db)
+	err := budget.AfterFind(models.DB)
 	assert.Nil(suite.T(), err)
 }
 
@@ -165,11 +165,11 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	})
 
 	// Explicitly call AfterFind since we want the calculations to be done
-	err := budget.AfterFind(suite.db)
+	err := budget.AfterFind(models.DB)
 	assert.Nil(suite.T(), err)
 
 	shouldBalance := decimal.NewFromFloat(7269.38)
-	isBalance, err := budget.Balance(suite.db)
+	isBalance, err := budget.Balance(models.DB)
 	if err != nil {
 		assert.FailNow(suite.T(), "Balance for budget could not be calculated")
 	}
@@ -177,22 +177,22 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	// Verify income for used budget in March
 	shouldIncome := decimal.NewFromFloat(4600)
-	income, err := budget.Income(suite.db, marchTwentyTwentyTwo)
+	income, err := budget.Income(models.DB, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncome), "Income is %s, should be %s", income, shouldIncome)
 
 	// Verify income for empty budget in March
-	income, err = emptyBudget.Income(suite.db, marchTwentyTwentyTwo)
+	income, err = emptyBudget.Income(models.DB, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
 	// Verify budgeted for used budget
-	budgeted, err := budget.Allocated(suite.db, marchTwentyTwentyTwo)
+	budgeted, err := budget.Allocated(models.DB, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.Equal(decimal.NewFromFloat(25)), "Budgeted is %s, should be 25", budgeted)
 
 	// Verify budgeted for empty budget
-	budgeted, err = emptyBudget.Allocated(suite.db, marchTwentyTwentyTwo)
+	budgeted, err = emptyBudget.Allocated(models.DB, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), budgeted.IsZero(), "Budgeted is %s, should be 0", budgeted)
 }
@@ -200,7 +200,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
 	budget := suite.createTestBudget(models.BudgetCreate{})
 
-	income, err := budget.Income(suite.db, types.NewMonth(2022, 3))
+	income, err := budget.Income(models.DB, types.NewMonth(2022, 3))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 }
@@ -210,7 +210,7 @@ func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
 
 	suite.CloseDB()
 
-	_, err := budget.Income(suite.db, types.NewMonth(1995, 2))
+	_, err := budget.Income(models.DB, types.NewMonth(1995, 2))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }
@@ -220,7 +220,7 @@ func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
 
 	suite.CloseDB()
 
-	_, err := budget.Allocated(suite.db, types.NewMonth(200, 2))
+	_, err := budget.Allocated(models.DB, types.NewMonth(200, 2))
 	suite.Assert().NotNil(err)
 	suite.Assert().Equal("sql: database is closed", err.Error())
 }

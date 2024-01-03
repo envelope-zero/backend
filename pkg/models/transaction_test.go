@@ -36,7 +36,7 @@ func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
 	}
 
-	err := transaction.AfterFind(suite.db)
+	err := transaction.AfterFind(models.DB)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.AfterFind failed", err)
 	}
@@ -52,7 +52,7 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	tz, _ := time.LoadLocation("Europe/Berlin")
 
 	transaction := models.Transaction{SourceAccountID: internalAccount.ID, DestinationAccountID: externalAccount.ID}
-	err := transaction.BeforeSave(suite.db)
+	err := transaction.BeforeSave(models.DB)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.BeforeSave failed", err)
 	}
@@ -62,7 +62,7 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 	transaction = models.Transaction{
 		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
 	}
-	err = transaction.BeforeSave(suite.db)
+	err = transaction.BeforeSave(models.DB)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.BeforeSave failed", err)
 	}
@@ -110,7 +110,7 @@ func (suite *TestSuiteStandard) TestTransactionReconciled() {
 				ReconciledDestination: tt.setReconciledDestination,
 			}
 
-			err := transaction.BeforeSave(suite.db)
+			err := transaction.BeforeSave(models.DB)
 			if err != nil {
 				if tt.expectedError == "" {
 					assert.Fail(t, "transaction.BeforeSave failed", err)
@@ -148,7 +148,7 @@ func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 		Date:                 time.Date(2023, 10, 7, 0, 0, 0, 0, time.UTC),
 	}
 
-	err := suite.db.Save(&transaction).Error
+	err := models.DB.Save(&transaction).Error
 	suite.Assert().NotNil(err, "Saving a transaction with an AvailableFrom date in a month before the transaction date should not be possible")
 	suite.Assert().Contains(err.Error(), "availability month must not be earlier than the month of the transaction")
 }
@@ -173,6 +173,6 @@ func (suite *TestSuiteStandard) TestTransactionEnvelopeNilUUID() {
 		Note:                 "TestTransactionEnvelopeNilUUID",
 	}
 
-	err := suite.db.Save(&transaction).Error
+	err := models.DB.Save(&transaction).Error
 	suite.Assert().Nil(err, "Saving a transaction with a nil UUID for the Envelope ID should not result in an error")
 }

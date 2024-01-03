@@ -33,11 +33,11 @@ func (suite *TestSuiteStandard) TestCategoryArchiveArchivesEnvelopes() {
 	assert.False(suite.T(), envelope.Archived, "Envelope archived on creation, it should not be")
 
 	// Archive the category
-	err := suite.db.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
+	err := models.DB.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
 	assert.Nil(suite.T(), err)
 
 	// Verify that the envelope is archived
-	err = suite.db.First(&envelope, envelope.ID).Error
+	err = models.DB.First(&envelope, envelope.ID).Error
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelope.Archived, "Envelope was not archived together with category")
 }
@@ -60,11 +60,11 @@ func (suite *TestSuiteStandard) TestCategoryArchiveNoEnvelopes() {
 	assert.False(suite.T(), envelope.Archived, "Envelope archived on creation, it should not be")
 
 	// Archive the empty category
-	err := suite.db.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
+	err := models.DB.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
 	assert.Nil(suite.T(), err)
 
 	// Verify that the envelope is not archived
-	err = suite.db.First(&envelope, envelope.ID).Error
+	err = models.DB.First(&envelope, envelope.ID).Error
 	assert.Nil(suite.T(), err)
 	assert.False(suite.T(), envelope.Archived, "Envelope was archived together with category")
 }
@@ -76,7 +76,7 @@ func (suite *TestSuiteStandard) TestCategorySetEnvelopes() {
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.ID})
 
 	// Set envelopes and verify
-	envelopes, err := category.Envelopes(suite.db)
+	envelopes, err := category.Envelopes(models.DB)
 	assert.Nil(suite.T(), err)
 	assert.Len(suite.T(), envelopes, 1)
 	assert.Equal(suite.T(), envelope.ID, envelopes[0].ID)
@@ -88,7 +88,7 @@ func (suite *TestSuiteStandard) TestCategorySetEnvelopesDBFail() {
 	})
 	suite.CloseDB()
 
-	_, err := category.Envelopes(suite.db)
+	_, err := category.Envelopes(models.DB)
 	assert.NotNil(suite.T(), err)
 	assert.Contains(suite.T(), err.Error(), "database is closed")
 }

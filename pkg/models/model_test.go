@@ -19,7 +19,7 @@ func (suite *TestSuiteStandard) TestModelTimeUTC() {
 		},
 	}
 
-	err := model.AfterFind(suite.db)
+	err := model.AfterFind(models.DB)
 	if err != nil {
 		assert.Fail(suite.T(), "model.AfterFind failed")
 	}

@@ -1,0 +1,459 @@
+package v3
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/google/uuid"
+	"golang.org/x/exp/slices"
+
+	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	"github.com/envelope-zero/backend/v4/pkg/httputil"
+	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/gin-gonic/gin"
+)
+
+// MatchRuleQueryFilter contains the fields that Match Rules can be filtered with.
+type MatchRuleQueryFilter struct {
+	Priority  uint   `form:"priority"`                   // By priority
+	Match     string `form:"match" filterField:"false"`  // By match
+	AccountID string `form:"account"`                    // By ID of the Account they map to
+	Offset    uint   `form:"offset" filterField:"false"` // The offset of the first Match Rule returned. Defaults to 0.
+	Limit     int    `form:"limit" filterField:"false"`  // Maximum number of Match Rules to return. Defaults to 50.
+}
+
+// Parse returns a models.MatchRuleCreate struct that represents the MatchRuleQueryFilter.
+func (f MatchRuleQueryFilter) Parse() (models.MatchRuleCreate, httperrors.Error) {
+	envelopeID, err := httputil.UUIDFromString(f.AccountID)
+	if !err.Nil() {
+		return models.MatchRuleCreate{}, err
+	}
+
+	return models.MatchRuleCreate{
+		Priority:  f.Priority,
+		AccountID: envelopeID,
+	}, httperrors.Error{}
+}
+
+type MatchRuleListResponse struct {
+	Data       []MatchRule `json:"data"`                                                          // List of Match Rules
+	Error      *string     `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
+	Pagination *Pagination `json:"pagination"`                                                    // Pagination information
+}
+
+type MatchRuleCreateResponse struct {
+	Error *string             `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
+	Data  []MatchRuleResponse `json:"data"`                                                          // List of created Match Rules
+}
+
+func (m *MatchRuleCreateResponse) appendError(err httperrors.Error, status int) int {
+	s := err.Error()
+	m.Data = append(m.Data, MatchRuleResponse{Error: &s})
+
+	// The final status code is the highest HTTP status code number
+	if err.Status > status {
+		status = err.Status
+	}
+
+	return status
+}
+
+type MatchRuleResponse struct {
+	Error *string    `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this Match Rule
+	Data  *MatchRule `json:"data"`                                                          // The Match Rule data, if creation was successful
+}
+
+// MatchRule is the API representation of a Match Rule.
+type MatchRule struct {
+	models.MatchRule
+	Links struct {
+		Self string `json:"self" example:"https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"` // The match rule itself
+	} `json:"links"`
+}
+
+// links generates HATEOAS links for the Match Rule.
+func (r *MatchRule) links(c *gin.Context) {
+	r.Links.Self = fmt.Sprintf("%s/v3/match-rules/%s", c.GetString(string(models.DBContextURL)), r.ID)
+}
+
+func getMatchRule(c *gin.Context, id uuid.UUID) (MatchRule, httperrors.Error) {
+	m, err := getResourceByID[models.MatchRule](c, id)
+	if !err.Nil() {
+		return MatchRule{}, err
+	}
+
+	r := MatchRule{
+		MatchRule: m,
+	}
+
+	r.links(c)
+	return r, httperrors.Error{}
+}
+
+// RegisterMatchRuleRoutes registers the routes for matchRules with
+// the RouterGroup that is passed.
+func RegisterMatchRuleRoutes(r *gin.RouterGroup) {
+	// Root group
+	{
+		r.OPTIONS("", OptionsMatchRuleList)
+		r.GET("", GetMatchRules)
+		r.POST("", CreateMatchRules)
+	}
+
+	// MatchRule with ID
+	{
+		r.OPTIONS("/:id", OptionsMatchRuleDetail)
+		r.GET("/:id", GetMatchRule)
+		r.PATCH("/:id", UpdateMatchRule)
+		r.DELETE("/:id", DeleteMatchRule)
+	}
+}
+
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			MatchRules
+// @Success		204
+// @Router			/v3/match-rules [options]
+func OptionsMatchRuleList(c *gin.Context) {
+	httputil.OptionsGetPost(c)
+}
+
+// @Summary		Allowed HTTP verbs
+// @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
+// @Tags			MatchRules
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/match-rules/{id} [options]
+func OptionsMatchRuleDetail(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("id"))
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+	}
+
+	_, err = getResourceByID[models.MatchRule](c, id)
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+		return
+	}
+
+	httputil.OptionsGetPatchDelete(c)
+}
+
+// @Summary		Create matchRules
+// @Description	Creates matchRules from the list of submitted matchRule data. The response code is the highest response code number that a single matchRule creation would have caused. If it is not equal to 201, at least one matchRule has an error.
+// @Tags			MatchRules
+// @Produce		json
+// @Success		201			{object}	MatchRuleCreateResponse
+// @Failure		400			{object}	MatchRuleCreateResponse
+// @Failure		404			{object}	MatchRuleCreateResponse
+// @Failure		500			{object}	MatchRuleCreateResponse
+// @Param			matchRules	body		[]models.MatchRuleCreate	true	"MatchRules"
+// @Router			/v3/match-rules [post]
+func CreateMatchRules(c *gin.Context) {
+	var matchRules []models.MatchRuleCreate
+
+	err := httputil.BindData(c, &matchRules)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleCreateResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	// The final http status. Will be modified when errors occur
+	status := http.StatusCreated
+	r := MatchRuleCreateResponse{}
+
+	for _, create := range matchRules {
+		m, err := createMatchRule(c, create)
+
+		// Append the error or the successfully created transaction to the response list
+		if !err.Nil() {
+			status = r.appendError(err, status)
+			continue
+		}
+
+		o, err := getMatchRule(c, m.ID)
+		if !err.Nil() {
+			status = r.appendError(err, status)
+			continue
+		}
+		r.Data = append(r.Data, MatchRuleResponse{Data: &o})
+	}
+
+	c.JSON(status, r)
+}
+
+// @Summary		Get matchRules
+// @Description	Returns a list of matchRules
+// @Tags			MatchRules
+// @Produce		json
+// @Success		200			{object}	MatchRuleListResponse
+// @Failure		400			{object}	MatchRuleListResponse
+// @Failure		500			{object}	MatchRuleListResponse
+// @Param			priority	query		uint	false	"Filter by priority"
+// @Param			match		query		string	false	"Filter by match"
+// @Param			account		query		string	false	"Filter by account ID"
+// @Param			offset		query		uint	false	"The offset of the first Match Rule returned. Defaults to 0."
+// @Param			limit		query		int		false	"Maximum number of Match Rules to return. Defaults to 50.".
+// @Router			/v3/match-rules [get]
+func GetMatchRules(c *gin.Context) {
+	var filter MatchRuleQueryFilter
+	if err := c.Bind(&filter); err != nil {
+		s := httperrors.ErrInvalidQueryString.Error()
+		c.JSON(http.StatusBadRequest, MatchRuleListResponse{
+			Error: &s,
+		})
+		return
+	}
+
+	// Get the parameters set in the query string
+	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
+
+	// Convert the QueryFilter to a Create struct
+	create, err := filter.Parse()
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleListResponse{Error: &e})
+		return
+	}
+
+	q := models.DB.Order("priority ASC, match ASC").Where(&models.MatchRule{
+		MatchRuleCreate: create,
+	}, queryFields...)
+
+	// Filter for match containing the query string or explicitly empty one
+	if filter.Match != "" {
+		q = q.Where("match LIKE ?", fmt.Sprintf("%%%s%%", filter.Match))
+	} else if slices.Contains(setFields, "Match") {
+		q = q.Where("match = ''")
+	}
+
+	// Set the offset. Does not need checking since the default is 0
+	q = q.Offset(int(filter.Offset))
+
+	// Default to 50 Match Rules and set the limit
+	limit := 50
+	if slices.Contains(setFields, "Limit") {
+		limit = filter.Limit
+	}
+	q = q.Limit(limit)
+
+	// Execute the query
+	var matchRules []models.MatchRule
+	err = query(c, q.Find(&matchRules))
+
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleListResponse{Error: &e})
+		return
+	}
+
+	var count int64
+	err = query(c, q.Limit(-1).Offset(-1).Count(&count))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleListResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	mrs := make([]MatchRule, 0)
+	for _, t := range matchRules {
+		o, err := getMatchRule(c, t.ID)
+		if !err.Nil() {
+			e := err.Error()
+			c.JSON(err.Status, MatchRuleListResponse{
+				Error: &e,
+			})
+			return
+		}
+
+		mrs = append(mrs, o)
+	}
+
+	c.JSON(http.StatusOK, MatchRuleListResponse{
+		Data: mrs,
+		Pagination: &Pagination{
+			Count:  len(mrs),
+			Total:  count,
+			Offset: filter.Offset,
+			Limit:  limit,
+		},
+	})
+}
+
+// @Summary		Get matchRule
+// @Description	Returns a specific matchRule
+// @Tags			MatchRules
+// @Produce		json
+// @Success		200	{object}	MatchRuleResponse
+// @Failure		400	{object}	MatchRuleResponse
+// @Failure		404	{object}	MatchRuleResponse
+// @Failure		500	{object}	MatchRuleResponse
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/match-rules/{id} [get]
+func GetMatchRule(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("id"))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	o, err := getMatchRule(c, id)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, MatchRuleResponse{
+		Data: &o,
+	})
+}
+
+// @Summary		Update matchRule
+// @Description	Update a matchRule. Only values to be updated need to be specified.
+// @Tags			MatchRules
+// @Accept			json
+// @Produce		json
+// @Success		200			{object}	MatchRuleResponse
+// @Failure		400			{object}	MatchRuleResponse
+// @Failure		404			{object}	MatchRuleResponse
+// @Failure		500			{object}	MatchRuleResponse
+// @Param			id			path		string					true	"ID formatted as string"
+// @Param			matchRule	body		models.MatchRuleCreate	true	"MatchRule"
+// @Router			/v3/match-rules/{id} [patch]
+func UpdateMatchRule(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("id"))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	matchRule, err := getResourceByID[models.MatchRule](c, id)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	updateFields, err := httputil.GetBodyFields(c, models.MatchRuleCreate{})
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	var data models.MatchRule
+	err = httputil.BindData(c, &data.MatchRuleCreate)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	// Check that the referenced account exists
+	if slices.Contains(updateFields, "AccountID") {
+		_, err = getResourceByID[models.Account](c, data.AccountID)
+		if !err.Nil() {
+			e := err.Error()
+			c.JSON(err.Status, MatchRuleResponse{
+				Error: &e,
+			})
+			return
+		}
+	}
+
+	err = query(c, models.DB.Model(&matchRule).Select("", updateFields...).Updates(data))
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	o, err := getMatchRule(c, matchRule.ID)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{
+			Error: &e,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, MatchRuleResponse{
+		Data: &o,
+	})
+}
+
+// @Summary		Delete matchRule
+// @Description	Deletes an matchRule
+// @Tags			MatchRules
+// @Success		204
+// @Failure		400	{object}	httperrors.HTTPError
+// @Failure		404	{object}	httperrors.HTTPError
+// @Failure		500	{object}	httperrors.HTTPError
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v3/match-rules/{id} [delete]
+func DeleteMatchRule(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("id"))
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+		return
+	}
+	matchRule, err := getResourceByID[models.MatchRule](c, id)
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+		return
+	}
+
+	err = query(c, models.DB.Delete(&matchRule))
+	if !err.Nil() {
+		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, gin.H{})
+}
+
+// createMatchRule creates a single matchRule after verifying it is a valid matchRule.
+func createMatchRule(c *gin.Context, create models.MatchRuleCreate) (models.MatchRule, httperrors.Error) {
+	r := models.MatchRule{
+		MatchRuleCreate: create,
+	}
+
+	// Check that the referenced account exists
+	_, err := getResourceByID[models.Account](c, r.AccountID)
+	if !err.Nil() {
+		return r, err
+	}
+
+	// Create the resource
+	dbErr := models.DB.Create(&r).Error
+	if dbErr != nil {
+		return models.MatchRule{}, httperrors.GenericDBError[models.MatchRule](r, c, dbErr)
+	}
+
+	return r, httperrors.Error{}
+}
