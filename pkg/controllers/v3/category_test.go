@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	v3 "github.com/envelope-zero/backend/v4/pkg/controllers/v3"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +14,7 @@ import (
 
 func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v3.CategoryCreate, expectedStatus ...int) v3.CategoryResponse {
 	if c.BudgetID == uuid.Nil {
-		c.BudgetID = suite.createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
+		c.BudgetID = suite.createTestBudget(t, v3.BudgetEditable{Name: "Testing budget"}).Data.ID
 	}
 
 	if c.Name == "" {
@@ -45,7 +44,7 @@ func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v3.CategoryCr
 // TestCategoriesDBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestCategoriesDBClosed() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -138,8 +137,8 @@ func (suite *TestSuiteStandard) TestCategoriesGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestCategoriesGetFilter() {
-	b1 := suite.createTestBudget(suite.T(), models.BudgetCreate{})
-	b2 := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b1 := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
+	b2 := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	_ = suite.createTestCategory(suite.T(), v3.CategoryCreate{
 		Name:     "Category Name",
@@ -278,7 +277,7 @@ func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 
 // Verify that updating categories works as desired
 func (suite *TestSuiteStandard) TestCategoriesUpdate() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{Name: "Name of the category", BudgetID: budget.Data.ID})
 
 	tests := []struct {

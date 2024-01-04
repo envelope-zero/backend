@@ -39,9 +39,7 @@ func Parse(f io.Reader) (importer.ParsedResources, error) {
 	// Set options for the budget
 	cur, _ := currency.FromTag(budget.BudgetMetaData.CurrencyLocale)
 	resources.Budget = models.Budget{
-		BudgetCreate: models.BudgetCreate{
-			Currency: fmt.Sprintf("%s", currency.Symbol(cur)),
-		},
+		Currency: fmt.Sprintf("%s", currency.Symbol(cur)),
 	}
 
 	// Parse accounts and payees

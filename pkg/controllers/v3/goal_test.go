@@ -8,7 +8,6 @@ import (
 	"github.com/envelope-zero/backend/v4/internal/types"
 	v3 "github.com/envelope-zero/backend/v4/pkg/controllers/v3"
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -151,7 +150,7 @@ func (suite *TestSuiteStandard) TestGoalsGet() {
 
 // TestGoalsGetFilter verifies that filtering goals works as expected.
 func (suite *TestSuiteStandard) TestGoalsGetFilter() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	c := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: b.Data.ID})
 

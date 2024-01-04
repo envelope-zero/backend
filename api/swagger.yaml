@@ -53,8 +53,6 @@ definitions:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       currency:
-        description: The currency for the budget
-        example: €
         type: string
       deletedAt:
         description: Time the resource was marked as deleted
@@ -65,31 +63,12 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       name:
-        description: Name of the budget
-        example: Morre's Budget
         type: string
       note:
-        description: A longer description of the budget
-        example: My personal expenses
         type: string
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  models.BudgetCreate:
-    properties:
-      currency:
-        description: The currency for the budget
-        example: €
-        type: string
-      name:
-        description: Name of the budget
-        example: Morre's Budget
-        type: string
-      note:
-        description: A longer description of the budget
-        example: My personal expenses
         type: string
     type: object
   models.Envelope:
@@ -433,33 +412,7 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        properties:
-          accounts:
-            description: Accounts for this budget
-            example: https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          categories:
-            description: Categories for this budget
-            example: https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          envelopes:
-            description: Envelopes for this budget
-            example: https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          month:
-            description: This uses 'YYYY-MM' for clients to replace with the actual
-              year and month.
-            example: https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
-            type: string
-          self:
-            description: The budget itself
-            example: https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          transactions:
-            description: Transactions for this budget
-            example: https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-        type: object
+        $ref: '#/definitions/v3.BudgetLinks'
       name:
         description: Name of the budget
         example: Morre's Budget
@@ -491,6 +444,49 @@ definitions:
       error:
         description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.BudgetEditable:
+    properties:
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+    type: object
+  v3.BudgetLinks:
+    properties:
+      accounts:
+        description: Accounts for this budget
+        example: https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      categories:
+        description: Categories for this budget
+        example: https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      envelopes:
+        description: Envelopes for this budget
+        example: https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      month:
+        description: This uses 'YYYY-MM' for clients to replace with the actual year
+          and month.
+        example: https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+        type: string
+      self:
+        description: The budget itself
+        example: https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      transactions:
+        description: Transactions for this budget
+        example: https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
     type: object
   v3.BudgetListResponse:
@@ -1860,7 +1856,9 @@ paths:
         name: budget
         required: true
         schema:
-          $ref: '#/definitions/models.BudgetCreate'
+          items:
+            $ref: '#/definitions/v3.BudgetEditable'
+          type: array
       produces:
       - application/json
       responses:
@@ -1979,7 +1977,7 @@ paths:
         name: budget
         required: true
         schema:
-          $ref: '#/definitions/models.BudgetCreate'
+          $ref: '#/definitions/v3.BudgetEditable'
       produces:
       - application/json
       responses:

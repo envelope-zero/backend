@@ -183,7 +183,7 @@ func (suite *TestSuiteStandard) TestMatchRulesDatabaseError() {
 
 // TestMatchRulesGetFilter verifies that filtering Match Rules works as expected.
 func (suite *TestSuiteStandard) TestMatchRulesGetFilter() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	a1 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
 	a2 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
@@ -235,7 +235,7 @@ func (suite *TestSuiteStandard) TestMatchRulesGetFilter() {
 
 // TestMatchRulesGetFilterErrors verifies that filtering Match Rules returns errors as expected.
 func (suite *TestSuiteStandard) TestMatchRulesGetFilterErrors() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	a1 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
 	a2 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
@@ -292,7 +292,7 @@ func (suite *TestSuiteStandard) TestMatchRulesCreateInvalidBody() {
 
 // TestMatchRulesCreate verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestMatchRulesCreate() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	internalAccount := suite.createTestAccount(suite.T(), models.Account{External: false, BudgetID: budget.Data.ID, Name: "TestMatchRulesCreate Internal"})
 
 	tests := []struct {
@@ -536,7 +536,7 @@ func (suite *TestSuiteStandard) TestMatchRulesDelete() {
 
 // TestMatchRulesGetSorted verifies that Match Rules are sorted as expected.
 func (suite *TestSuiteStandard) TestMatchRulesGetSorted() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	a := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
 
 	m1 := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{

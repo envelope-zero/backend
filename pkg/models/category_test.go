@@ -14,7 +14,7 @@ func (suite *TestSuiteStandard) TestCategoryTrimWhitespace() {
 	category := suite.createTestCategory(models.CategoryCreate{
 		Name:     name,
 		Note:     note,
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
 
 	assert.Equal(suite.T(), strings.TrimSpace(name), category.Name)
@@ -23,7 +23,7 @@ func (suite *TestSuiteStandard) TestCategoryTrimWhitespace() {
 
 func (suite *TestSuiteStandard) TestCategoryArchiveArchivesEnvelopes() {
 	category := suite.createTestCategory(models.CategoryCreate{
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
 
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
@@ -43,7 +43,7 @@ func (suite *TestSuiteStandard) TestCategoryArchiveArchivesEnvelopes() {
 }
 
 func (suite *TestSuiteStandard) TestCategoryArchiveNoEnvelopes() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	category := suite.createTestCategory(models.CategoryCreate{
 		BudgetID: budget.ID,
 		Name:     "TestCategoryArchiveNoEnvelopes",
@@ -71,7 +71,7 @@ func (suite *TestSuiteStandard) TestCategoryArchiveNoEnvelopes() {
 
 func (suite *TestSuiteStandard) TestCategorySetEnvelopes() {
 	category := suite.createTestCategory(models.CategoryCreate{
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
 	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.ID})
 
@@ -84,7 +84,7 @@ func (suite *TestSuiteStandard) TestCategorySetEnvelopes() {
 
 func (suite *TestSuiteStandard) TestCategorySetEnvelopesDBFail() {
 	category := suite.createTestCategory(models.CategoryCreate{
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
 	suite.CloseDB()
 

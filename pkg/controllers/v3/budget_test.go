@@ -7,19 +7,18 @@ import (
 	"testing"
 
 	v3 "github.com/envelope-zero/backend/v4/pkg/controllers/v3"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestBudget(t *testing.T, c models.BudgetCreate, expectedStatus ...int) v3.BudgetResponse {
+func (suite *TestSuiteStandard) createTestBudget(t *testing.T, c v3.BudgetEditable, expectedStatus ...int) v3.BudgetResponse {
 	// Default to 201 Created as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	body := []models.BudgetCreate{
+	body := []v3.BudgetEditable{
 		c,
 	}
 
@@ -46,7 +45,7 @@ func (suite *TestSuiteStandard) TestBudgetsDBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestBudget(t, models.BudgetCreate{}, http.StatusInternalServerError)
+				suite.createTestBudget(t, v3.BudgetEditable{}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -77,7 +76,7 @@ func (suite *TestSuiteStandard) TestBudgetOptions() {
 	}{
 		{"No budget with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Budget exists", suite.createTestBudget(suite.T(), models.BudgetCreate{}).Data.ID.String(), http.StatusNoContent},
+		{"Budget exists", suite.createTestBudget(suite.T(), v3.BudgetEditable{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -96,7 +95,7 @@ func (suite *TestSuiteStandard) TestBudgetOptions() {
 // TestBudgetsGetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestBudgetsGetSingle() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	tests := []struct {
 		name   string
@@ -130,19 +129,19 @@ func (suite *TestSuiteStandard) TestBudgetsGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetsGetFilter() {
-	_ = suite.createTestBudget(suite.T(), models.BudgetCreate{
+	_ = suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name:     "Exact String Match",
 		Note:     "This is a specific note",
 		Currency: "",
 	})
 
-	_ = suite.createTestBudget(suite.T(), models.BudgetCreate{
+	_ = suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name:     "",
 		Note:     "This is a specific note",
 		Currency: "$",
 	})
 
-	_ = suite.createTestBudget(suite.T(), models.BudgetCreate{
+	_ = suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name:     "Another String",
 		Note:     "A different note",
 		Currency: "€",
@@ -185,7 +184,7 @@ func (suite *TestSuiteStandard) TestBudgetsCreateFails() {
 		testFunc func(t *testing.T, b v3.BudgetCreateResponse) // tests to perform against the updated budget resource
 	}{
 		{"Broken Body", `{ "note": 2 }`, func(t *testing.T, b v3.BudgetCreateResponse) {
-			assert.Equal(t, "json: cannot unmarshal object into Go value of type []models.BudgetCreate", *b.Error)
+			assert.Equal(t, "json: cannot unmarshal object into Go value of type []v3.BudgetEditable", *b.Error)
 		}},
 		{"No body", "", func(t *testing.T, b v3.BudgetCreateResponse) {
 			assert.Equal(t, "the request body must not be empty", *b.Error)
@@ -208,7 +207,7 @@ func (suite *TestSuiteStandard) TestBudgetsCreateFails() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetsUpdate() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name: "New Budget",
 		Note: "More tests something something",
 	})
@@ -243,7 +242,7 @@ func (suite *TestSuiteStandard) TestBudgetsUpdateFails() {
 
 			if tt.id == "" {
 				// Create test budget
-				budget := suite.createTestBudget(suite.T(), models.BudgetCreate{
+				budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{
 					Name: "New Budget",
 					Note: "More tests something something",
 				})
@@ -275,7 +274,7 @@ func (suite *TestSuiteStandard) TestBudgetsDelete() {
 
 			if tt.id == "" {
 				// Create test budget
-				b := suite.createTestBudget(t, models.BudgetCreate{})
+				b := suite.createTestBudget(t, v3.BudgetEditable{})
 				tt.id = b.Data.ID.String()
 			}
 
@@ -288,19 +287,19 @@ func (suite *TestSuiteStandard) TestBudgetsDelete() {
 
 // TestBudgetsGetSorted verifies that budgets are sorted by name.
 func (suite *TestSuiteStandard) TestBudgetsGetSorted() {
-	b1 := suite.createTestBudget(suite.T(), models.BudgetCreate{
+	b1 := suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name: "Alphabetically first",
 	})
 
-	b2 := suite.createTestBudget(suite.T(), models.BudgetCreate{
+	b2 := suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name: "Second in creation, third in list",
 	})
 
-	b3 := suite.createTestBudget(suite.T(), models.BudgetCreate{
+	b3 := suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name: "First is alphabetically second",
 	})
 
-	b4 := suite.createTestBudget(suite.T(), models.BudgetCreate{
+	b4 := suite.createTestBudget(suite.T(), v3.BudgetEditable{
 		Name: "Zulu is the last one",
 	})
 
@@ -322,7 +321,7 @@ func (suite *TestSuiteStandard) TestBudgetsGetSorted() {
 
 func (suite *TestSuiteStandard) TestBudgetsPagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestBudget(suite.T(), models.BudgetCreate{Name: fmt.Sprint(i)})
+		suite.createTestBudget(suite.T(), v3.BudgetEditable{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

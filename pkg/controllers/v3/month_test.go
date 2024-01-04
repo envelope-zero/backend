@@ -18,7 +18,7 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestMonthsGet() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	r := test.Request(suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", -1), "")
 	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
@@ -27,7 +27,7 @@ func (suite *TestSuiteStandard) TestMonthsGet() {
 func (suite *TestSuiteStandard) TestMonthsGetEnvelopeAllocationLink() {
 	var month v3.MonthResponse
 
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
 
@@ -49,7 +49,7 @@ func (suite *TestSuiteStandard) TestMonthsGetNotNil() {
 	var month v3.MonthResponse
 
 	// Verify that the categories list is empty, not nil
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	r := test.Request(suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", 1), "")
 	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
@@ -70,7 +70,7 @@ func (suite *TestSuiteStandard) TestMonthsGetNotNil() {
 }
 
 func (suite *TestSuiteStandard) TestMonthsGetInvalidRequest() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	tests := []struct {
 		name     string                                          // name of the test
@@ -101,7 +101,7 @@ func (suite *TestSuiteStandard) TestMonthsGetInvalidRequest() {
 }
 
 func (suite *TestSuiteStandard) TestMonthsGetDBFail() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	suite.CloseDB()
 
@@ -110,7 +110,7 @@ func (suite *TestSuiteStandard) TestMonthsGetDBFail() {
 }
 
 func (suite *TestSuiteStandard) TestMonthsGetDelete() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
@@ -145,7 +145,7 @@ func (suite *TestSuiteStandard) TestMonthsGetDelete() {
 }
 
 func (suite *TestSuiteStandard) TestMonthsDeleteFail() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	// Bad Request for invalid UUID
 	recorder := test.Request(suite.T(), http.MethodDelete, "http://example.com/v3/months?budget=nouuid&month=2022-01", "")
@@ -161,7 +161,7 @@ func (suite *TestSuiteStandard) TestMonthsDeleteFail() {
 }
 
 func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
@@ -220,7 +220,7 @@ func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 }
 
 func (suite *TestSuiteStandard) TestMonthsAllocateSpend() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	cashAccount := suite.createTestAccount(suite.T(), models.Account{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
 	externalAccount := suite.createTestAccount(suite.T(), models.Account{External: true, Name: "TestSetMonthSpend External"})
 	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
@@ -274,7 +274,7 @@ func (suite *TestSuiteStandard) TestMonthsAllocateSpend() {
 }
 
 func (suite *TestSuiteStandard) TestMonthsPostFails() {
-	budgetAllocationsLink := suite.createTestBudget(suite.T(), models.BudgetCreate{}).Data.Links.Month
+	budgetAllocationsLink := suite.createTestBudget(suite.T(), v3.BudgetEditable{}).Data.Links.Month
 
 	tests := []struct {
 		name   string
@@ -299,7 +299,7 @@ func (suite *TestSuiteStandard) TestMonthsPostFails() {
 
 // TestMonthsSorting verifies that categories and months are sorted correctly
 func (suite *TestSuiteStandard) TestMonthsSorting() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	categoryU := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID, Name: "Upkeep"})
 	envelopeU := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: categoryU.Data.ID, Name: "Utilities"})
 	envelopeM := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: categoryU.Data.ID, Name: "Muppets"})
@@ -328,7 +328,7 @@ func (suite *TestSuiteStandard) TestMonthsSorting() {
 
 // TestMonths verifies that the monthly calculations are correct.
 func (suite *TestSuiteStandard) TestMonths() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID, Name: "Upkeep"})
 	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
 	account := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})

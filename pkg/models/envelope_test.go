@@ -20,7 +20,7 @@ func (suite *TestSuiteStandard) TestEnvelopeTrimWhitespace() {
 		Name: name,
 		Note: note,
 		CategoryID: suite.createTestCategory(models.CategoryCreate{
-			BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+			BudgetID: suite.createTestBudget(models.Budget{}).ID,
 		}).ID,
 	})
 
@@ -29,7 +29,7 @@ func (suite *TestSuiteStandard) TestEnvelopeTrimWhitespace() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
@@ -92,7 +92,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 }
 
 func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
@@ -122,7 +122,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 // TestEnvelopeMonthBalance verifies that the monthly balance calculation for
 // envelopes is correct.
 func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
@@ -226,7 +226,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 // TestEnvelopeUnarchiveUnarchivesCategory tests that when an envelope is unarchived, but its parent category
 // is archived, the parent category is unarchived, too.
 func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	category := suite.createTestCategory(models.CategoryCreate{
 		BudgetID: budget.ID,
 		Archived: true,

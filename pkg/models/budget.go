@@ -14,17 +14,13 @@ import (
 // resources reference it directly or transitively.
 type Budget struct {
 	DefaultModel
-	BudgetCreate
+	Name     string
+	Note     string
+	Currency string
 }
 
 func (b Budget) Self() string {
 	return "Budget"
-}
-
-type BudgetCreate struct {
-	Name     string `json:"name" example:"Morre's Budget" default:""`       // Name of the budget
-	Note     string `json:"note" example:"My personal expenses" default:""` // A longer description of the budget
-	Currency string `json:"currency" example:"€" default:""`                // The currency for the budget
 }
 
 func (b *Budget) BeforeSave(_ *gorm.DB) error {

@@ -48,10 +48,7 @@ func (suite *TestSuiteStandard) CloseDB() {
 	sqlDB.Close()
 }
 
-func (suite *TestSuiteStandard) createTestBudget(c models.BudgetCreate) models.Budget {
-	budget := models.Budget{
-		BudgetCreate: c,
-	}
+func (suite *TestSuiteStandard) createTestBudget(budget models.Budget) models.Budget {
 	err := models.DB.Save(&budget).Error
 	if err != nil {
 		suite.Assert().FailNow("Budget could not be saved", "Error: %s, Budget: %#v", err, budget)

@@ -154,7 +154,7 @@ func (suite *TestSuiteStandard) TestTransactionsGet() {
 
 // TestTransactionsGetFilter verifies that filtering transactions works as expected.
 func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	a1 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 1"})
 	a2 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 2"})
@@ -306,7 +306,7 @@ func (suite *TestSuiteStandard) TestTransactionsCreateInvalidBody() {
 
 // TestTransactionsCreate verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestTransactionsCreate() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	internalAccount := suite.createTestAccount(suite.T(), models.Account{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate Internal"})
 	externalAccount := suite.createTestAccount(suite.T(), models.Account{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate External"})
 
@@ -534,7 +534,7 @@ func (suite *TestSuiteStandard) TestTransactionsUpdate() {
 	transaction := suite.createTestTransaction(suite.T(), models.Transaction{
 		Amount:               decimal.NewFromFloat(23.14),
 		Note:                 "Test note for transaction",
-		BudgetID:             suite.createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
+		BudgetID:             suite.createTestBudget(suite.T(), v3.BudgetEditable{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
 		SourceAccountID:      suite.createTestAccount(suite.T(), models.Account{Name: "Internal Source Account", External: false}).Data.ID,
 		DestinationAccountID: suite.createTestAccount(suite.T(), models.Account{Name: "External destination account", External: true}).Data.ID,
 		EnvelopeID:           &envelope.Data.ID,

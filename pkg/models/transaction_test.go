@@ -15,7 +15,7 @@ func (suite *TestSuiteStandard) TestTransactionTrimWhitespace() {
 	note := " Some more whitespace in the notes    "
 	importHash := "  867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70  \t"
 
-	budgetID := suite.createTestBudget(models.BudgetCreate{}).ID
+	budgetID := suite.createTestBudget(models.Budget{}).ID
 
 	transaction := suite.createTestTransaction(models.Transaction{
 		Note:                 note,
@@ -45,7 +45,7 @@ func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
 }
 
 func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
 	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
@@ -74,7 +74,7 @@ func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
 // correctly enforces ReconciledSource and ReconciledDestination to be false
 // when the respective account is external.
 func (suite *TestSuiteStandard) TestTransactionReconciled() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
 	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
@@ -136,7 +136,7 @@ func (suite *TestSuiteStandard) TestTransactionSelf() {
 
 // Regression test for https://github.com/envelope-zero/backend/issues/768
 func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
 	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
@@ -159,7 +159,7 @@ func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 //
 // If it were not, it would reference the envelope with the nil UUID, which does not exist.
 func (suite *TestSuiteStandard) TestTransactionEnvelopeNilUUID() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
 	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 

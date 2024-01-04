@@ -20,7 +20,7 @@ func (suite *TestSuiteStandard) TestMonthConfigTrimWhitespace() {
 		},
 		EnvelopeID: suite.createTestEnvelope(models.EnvelopeCreate{
 			CategoryID: suite.createTestCategory(models.CategoryCreate{
-				BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+				BudgetID: suite.createTestBudget(models.Budget{}).ID,
 			}).ID,
 		}).ID,
 	})

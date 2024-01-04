@@ -554,7 +554,10 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.BudgetCreate"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v3.BudgetEditable"
+                            }
                         }
                     }
                 ],
@@ -742,7 +745,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.BudgetCreate"
+                            "$ref": "#/definitions/v3.BudgetEditable"
                         }
                     }
                 ],
@@ -3032,9 +3035,7 @@ const docTemplate = `{
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "currency": {
-                    "description": "The currency for the budget",
-                    "type": "string",
-                    "example": "€"
+                    "type": "string"
                 },
                 "deletedAt": {
                     "description": "Time the resource was marked as deleted",
@@ -3047,39 +3048,15 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "name": {
-                    "description": "Name of the budget",
-                    "type": "string",
-                    "example": "Morre's Budget"
+                    "type": "string"
                 },
                 "note": {
-                    "description": "A longer description of the budget",
-                    "type": "string",
-                    "example": "My personal expenses"
+                    "type": "string"
                 },
                 "updatedAt": {
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "models.BudgetCreate": {
-            "type": "object",
-            "properties": {
-                "currency": {
-                    "description": "The currency for the budget",
-                    "type": "string",
-                    "example": "€"
-                },
-                "name": {
-                    "description": "Name of the budget",
-                    "type": "string",
-                    "example": "Morre's Budget"
-                },
-                "note": {
-                    "description": "A longer description of the budget",
-                    "type": "string",
-                    "example": "My personal expenses"
                 }
             }
         },
@@ -3526,39 +3503,7 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "accounts": {
-                            "description": "Accounts for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "categories": {
-                            "description": "Categories for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "envelopes": {
-                            "description": "Envelopes for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "month": {
-                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
-                        },
-                        "self": {
-                            "description": "The budget itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "transactions": {
-                            "description": "Transactions for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.BudgetLinks"
                 },
                 "name": {
                     "description": "Name of the budget",
@@ -3605,6 +3550,61 @@ const docTemplate = `{
                     "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.BudgetEditable": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "description": "The currency for the budget",
+                    "type": "string",
+                    "example": "€"
+                },
+                "name": {
+                    "description": "Name of the budget",
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "description": "A longer description of the budget",
+                    "type": "string",
+                    "example": "My personal expenses"
+                }
+            }
+        },
+        "v3.BudgetLinks": {
+            "type": "object",
+            "properties": {
+                "accounts": {
+                    "description": "Accounts for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "categories": {
+                    "description": "Categories for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "envelopes": {
+                    "description": "Envelopes for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "month": {
+                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                },
+                "self": {
+                    "description": "The budget itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "transactions": {
+                    "description": "Transactions for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 }
             }
         },
