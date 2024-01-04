@@ -73,20 +73,20 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		Date:                 time.Time(january.AddDate(0, 1)),
 	})
 
-	envelopeMonth, err := envelope.Month(suite.db, january)
+	envelopeMonth, err := envelope.Month(models.DB, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent.Neg()), "Month calculation for 2022-01 is wrong: should be %v, but is %v", spent.Neg(), envelopeMonth.Spent)
 
-	envelopeMonth, err = envelope.Month(suite.db, january.AddDate(0, 1))
+	envelopeMonth, err = envelope.Month(models.DB, january.AddDate(0, 1))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(spent), "Month calculation for 2022-02 is wrong: should be %v, but is %v", spent, envelopeMonth.Spent)
 
-	err = suite.db.Delete(&transaction).Error
+	err = models.DB.Delete(&transaction).Error
 	if err != nil {
 		suite.Assert().Fail("Resource could not be deleted", err)
 	}
 
-	envelopeMonth, err = envelope.Month(suite.db, january)
+	envelopeMonth, err = envelope.Month(models.DB, january)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), envelopeMonth.Spent.Equal(decimal.NewFromFloat(0)), "Month calculation for 2022-01 is wrong: should be %v, but is %v", decimal.NewFromFloat(0), envelopeMonth.Spent)
 }
@@ -200,7 +200,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 		DestinationAccountID: externalAccount.ID,
 		Date:                 time.Time(january.AddDate(0, 1)),
 	})
-	suite.db.Delete(&deletedTransaction)
+	models.DB.Delete(&deletedTransaction)
 
 	tests := []struct {
 		month    types.Month
@@ -216,7 +216,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	for _, tt := range tests {
 		suite.T().Run(fmt.Sprintf("%s-%s", tt.envelope.Name, tt.month.String()), func(t *testing.T) {
 			should := decimal.NewFromFloat(float64(tt.balance))
-			eMonth, err := tt.envelope.Month(suite.db, tt.month)
+			eMonth, err := tt.envelope.Month(models.DB, tt.month)
 			assert.Nil(t, err)
 			assert.True(t, eMonth.Balance.Equal(should), "Balance calculation for 2022-01 is wrong: should be %v, but is %v", should, eMonth.Balance)
 		})
@@ -240,10 +240,10 @@ func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
 
 	// Unarchive the envelope
 	data := models.Envelope{EnvelopeCreate: models.EnvelopeCreate{Archived: false}}
-	suite.db.Model(&envelope).Select("Archived").Updates(data)
+	models.DB.Model(&envelope).Select("Archived").Updates(data)
 
 	// Reload the category
-	suite.db.First(&category, category.ID)
+	models.DB.First(&category, category.ID)
 	assert.False(suite.T(), category.Archived, "Category should be unarchived when child envelope is unarchived")
 }
 

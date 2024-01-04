@@ -2,15 +2,65 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	gorm_zerolog "github.com/wei840222/gorm-zerolog"
 	"gorm.io/gorm"
 )
 
-// Migrate migrates all models to the schema defined in the code.
-func Migrate(db *gorm.DB) (err error) {
+var DB *gorm.DB
+
+type EZContext string
+
+const (
+	DBContextURL EZContext = "ez-backend-url"
+)
+
+// Connect opens the SQLite database and configures the connection pool.
+func Connect(dsn string) error {
+	config := &gorm.Config{
+		// Set generated timestamps in UTC
+		NowFunc: func() time.Time {
+			return time.Now().In(time.UTC)
+		},
+		Logger: gorm_zerolog.New(),
+	}
+
+	db, err := gorm.Open(sqlite.Open(dsn), config)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get database object: %w", err)
+	}
+
+	// Get new connections after one hour
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	// This is done to prevent SQLITE_BUSY errors.
+	// If you have ideas how to improve this, you are very welcome to open an issue or a PR. Thank you!
+	sqlDB.SetMaxIdleConns(1)
+	sqlDB.SetMaxOpenConns(1)
+
+	err = migrate(db)
+	if err != nil {
+		return err
+	}
+
+	// Set the exported variable
+	DB = db
+
+	return nil
+}
+
+// migrate migrates all models to the schema defined in the code.
+func migrate(db *gorm.DB) (err error) {
 	// https://github.com/envelope-zero/backend/issues/871
 	// Remove with 5.0.0
 	if db.Migrator().HasColumn(&Account{}, "hidden") {

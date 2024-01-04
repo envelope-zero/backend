@@ -15,7 +15,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.RootResponse"
+                            "$ref": "#/definitions/root.Response"
                         }
                     }
                 }
@@ -79,7 +79,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.V3Response"
+                            "$ref": "#/definitions/v3.Response"
                         }
                     }
                 }
@@ -199,19 +199,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountListResponseV3"
+                            "$ref": "#/definitions/v3.AccountListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountListResponseV3"
+                            "$ref": "#/definitions/v3.AccountListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountListResponseV3"
+                            "$ref": "#/definitions/v3.AccountListResponse"
                         }
                     }
                 }
@@ -234,7 +234,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.AccountV3Editable"
+                                "$ref": "#/definitions/v3.AccountEditable"
                             }
                         }
                     }
@@ -243,25 +243,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                            "$ref": "#/definitions/v3.AccountCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                            "$ref": "#/definitions/v3.AccountCreateResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                            "$ref": "#/definitions/v3.AccountCreateResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountCreateResponseV3"
+                            "$ref": "#/definitions/v3.AccountCreateResponse"
                         }
                     }
                 }
@@ -302,25 +302,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     }
                 }
@@ -429,7 +429,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountV3Editable"
+                            "$ref": "#/definitions/v3.AccountEditable"
                         }
                     }
                 ],
@@ -437,25 +437,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.AccountResponseV3"
+                            "$ref": "#/definitions/v3.AccountResponse"
                         }
                     }
                 }
@@ -513,13 +513,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetListResponseV3"
+                            "$ref": "#/definitions/v3.BudgetListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetListResponseV3"
+                            "$ref": "#/definitions/v3.BudgetListResponse"
                         }
                     }
                 }
@@ -551,19 +551,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetCreateResponseV3"
+                            "$ref": "#/definitions/v3.BudgetCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetCreateResponseV3"
+                            "$ref": "#/definitions/v3.BudgetCreateResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetCreateResponseV3"
+                            "$ref": "#/definitions/v3.BudgetCreateResponse"
                         }
                     }
                 }
@@ -604,25 +604,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     }
                 }
@@ -739,25 +739,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     }
                 }
@@ -821,19 +821,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryListResponseV3"
+                            "$ref": "#/definitions/v3.CategoryListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryListResponseV3"
+                            "$ref": "#/definitions/v3.CategoryListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryListResponseV3"
+                            "$ref": "#/definitions/v3.CategoryListResponse"
                         }
                     }
                 }
@@ -856,7 +856,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.CategoryCreateV3"
+                                "$ref": "#/definitions/v3.CategoryCreate"
                             }
                         }
                     }
@@ -865,25 +865,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                            "$ref": "#/definitions/v3.CategoryCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                            "$ref": "#/definitions/v3.CategoryCreateResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                            "$ref": "#/definitions/v3.CategoryCreateResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryCreateResponseV3"
+                            "$ref": "#/definitions/v3.CategoryCreateResponse"
                         }
                     }
                 }
@@ -924,25 +924,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     }
                 }
@@ -1051,7 +1051,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryCreateV3"
+                            "$ref": "#/definitions/v3.CategoryCreate"
                         }
                     }
                 ],
@@ -1059,25 +1059,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CategoryResponseV3"
+                            "$ref": "#/definitions/v3.CategoryResponse"
                         }
                     }
                 }
@@ -1141,19 +1141,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeListResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeListResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeListResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeListResponse"
                         }
                     }
                 }
@@ -1176,7 +1176,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.EnvelopeCreateV3"
+                                "$ref": "#/definitions/v3.EnvelopeCreate"
                             }
                         }
                     }
@@ -1185,25 +1185,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeCreateResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeCreateResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeCreateResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeCreateResponse"
                         }
                     }
                 }
@@ -1244,25 +1244,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     }
                 }
@@ -1371,7 +1371,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeCreateV3"
+                            "$ref": "#/definitions/v3.EnvelopeCreate"
                         }
                     }
                 ],
@@ -1379,25 +1379,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.EnvelopeResponseV3"
+                            "$ref": "#/definitions/v3.EnvelopeResponse"
                         }
                     }
                 }
@@ -1433,25 +1433,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     }
                 }
@@ -1520,7 +1520,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigCreateV3"
+                            "$ref": "#/definitions/v3.MonthConfigCreate"
                         }
                     }
                 ],
@@ -1528,25 +1528,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthConfigResponseV3"
+                            "$ref": "#/definitions/v3.MonthConfigResponse"
                         }
                     }
                 }
@@ -1646,19 +1646,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalListResponseV3"
+                            "$ref": "#/definitions/v3.GoalListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalListResponseV3"
+                            "$ref": "#/definitions/v3.GoalListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalListResponseV3"
+                            "$ref": "#/definitions/v3.GoalListResponse"
                         }
                     }
                 }
@@ -1681,7 +1681,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.GoalV3Editable"
+                                "$ref": "#/definitions/v3.GoalEditable"
                             }
                         }
                     }
@@ -1690,25 +1690,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                            "$ref": "#/definitions/v3.GoalCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                            "$ref": "#/definitions/v3.GoalCreateResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                            "$ref": "#/definitions/v3.GoalCreateResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalCreateResponseV3"
+                            "$ref": "#/definitions/v3.GoalCreateResponse"
                         }
                     }
                 }
@@ -1749,25 +1749,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     }
                 }
@@ -1876,7 +1876,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalV3Editable"
+                            "$ref": "#/definitions/v3.GoalEditable"
                         }
                     }
                 ],
@@ -1884,25 +1884,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GoalResponseV3"
+                            "$ref": "#/definitions/v3.GoalResponse"
                         }
                     }
                 }
@@ -1919,7 +1919,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ImportV3Response"
+                            "$ref": "#/definitions/v3.ImportResponse"
                         }
                     }
                 }
@@ -1969,25 +1969,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                            "$ref": "#/definitions/v3.ImportPreviewList"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                            "$ref": "#/definitions/v3.ImportPreviewList"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                            "$ref": "#/definitions/v3.ImportPreviewList"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ImportPreviewListV3"
+                            "$ref": "#/definitions/v3.ImportPreviewList"
                         }
                     }
                 }
@@ -2037,19 +2037,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetResponseV3"
+                            "$ref": "#/definitions/v3.BudgetResponse"
                         }
                     }
                 }
@@ -2113,19 +2113,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleListResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleListResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleListResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleListResponse"
                         }
                     }
                 }
@@ -2157,25 +2157,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleCreateResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleCreateResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleCreateResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleCreateResponse"
                         }
                     }
                 }
@@ -2216,25 +2216,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     }
                 }
@@ -2351,25 +2351,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MatchRuleResponseV3"
+                            "$ref": "#/definitions/v3.MatchRuleResponse"
                         }
                     }
                 }
@@ -2405,25 +2405,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                            "$ref": "#/definitions/v3.MonthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                            "$ref": "#/definitions/v3.MonthResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                            "$ref": "#/definitions/v3.MonthResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.MonthResponseV3"
+                            "$ref": "#/definitions/v3.MonthResponse"
                         }
                     }
                 }
@@ -2455,7 +2455,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.BudgetAllocationMode"
+                            "$ref": "#/definitions/v3.BudgetAllocationMode"
                         }
                     }
                 ],
@@ -2654,19 +2654,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionListResponseV3"
+                            "$ref": "#/definitions/v3.TransactionListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionListResponseV3"
+                            "$ref": "#/definitions/v3.TransactionListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionListResponseV3"
+                            "$ref": "#/definitions/v3.TransactionListResponse"
                         }
                     }
                 }
@@ -2689,7 +2689,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.TransactionV3Editable"
+                                "$ref": "#/definitions/v3.TransactionEditable"
                             }
                         }
                     }
@@ -2698,25 +2698,25 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                            "$ref": "#/definitions/v3.TransactionCreateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                            "$ref": "#/definitions/v3.TransactionCreateResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                            "$ref": "#/definitions/v3.TransactionCreateResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionCreateResponseV3"
+                            "$ref": "#/definitions/v3.TransactionCreateResponse"
                         }
                     }
                 }
@@ -2757,25 +2757,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     }
                 }
@@ -2884,7 +2884,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionV3Editable"
+                            "$ref": "#/definitions/v3.TransactionEditable"
                         }
                     }
                 ],
@@ -2892,25 +2892,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.TransactionResponseV3"
+                            "$ref": "#/definitions/v3.TransactionResponse"
                         }
                     }
                 }
@@ -2927,7 +2927,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.VersionResponse"
+                            "$ref": "#/definitions/version.Response"
                         }
                     }
                 }
@@ -2947,1621 +2947,12 @@
         }
     },
     "definitions": {
-        "controllers.AccountCreateResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of created Accounts",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.AccountResponseV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.AccountListResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of accounts",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.AccountV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                },
-                "pagination": {
-                    "description": "Pagination information",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.AccountResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the account",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.AccountV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred for this transaction",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.AccountV3": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the account archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "balance": {
-                    "description": "These fields are calculated",
-                    "type": "number",
-                    "example": 2735.17
-                },
-                "budgetId": {
-                    "description": "ID of the budget this account belongs to",
-                    "type": "string",
-                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "external": {
-                    "description": "Does the account belong to the budget owner or not?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "initialBalance": {
-                    "description": "Balance of the account before any transactions were recorded",
-                    "type": "number",
-                    "default": 0,
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 173.12
-                },
-                "initialBalanceDate": {
-                    "description": "Date of the initial balance",
-                    "type": "string",
-                    "example": "2017-05-12T00:00:00Z"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.AccountV3Links"
-                },
-                "name": {
-                    "description": "Name of the account",
-                    "type": "string",
-                    "example": "Cash"
-                },
-                "note": {
-                    "description": "A longer description for the account",
-                    "type": "string",
-                    "example": "Money in my wallet"
-                },
-                "onBudget": {
-                    "description": "Does the account factor into the available budget? Always false when external: true",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "recentEnvelopes": {
-                    "description": "Envelopes recently used with this account",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "reconciledBalance": {
-                    "description": "Balance of the account, including all reconciled transactions referencing it",
-                    "type": "number",
-                    "example": 2539.57
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.AccountV3Editable": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the account archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "budgetId": {
-                    "description": "ID of the budget this account belongs to",
-                    "type": "string",
-                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                },
-                "external": {
-                    "description": "Does the account belong to the budget owner or not?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": false
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "initialBalance": {
-                    "description": "Balance of the account before any transactions were recorded",
-                    "type": "number",
-                    "default": 0,
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 173.12
-                },
-                "initialBalanceDate": {
-                    "description": "Date of the initial balance",
-                    "type": "string",
-                    "example": "2017-05-12T00:00:00Z"
-                },
-                "name": {
-                    "description": "Name of the account",
-                    "type": "string",
-                    "example": "Cash"
-                },
-                "note": {
-                    "description": "A longer description for the account",
-                    "type": "string",
-                    "example": "Money in my wallet"
-                },
-                "onBudget": {
-                    "description": "Does the account factor into the available budget? Always false when external: true",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                }
-            }
-        },
-        "controllers.AccountV3Links": {
-            "type": "object",
-            "properties": {
-                "self": {
-                    "description": "The account itself",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                },
-                "transactions": {
-                    "description": "Transactions referencing the account",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
-                }
-            }
-        },
-        "controllers.AllocationMode": {
-            "type": "string",
-            "enum": [
-                "ALLOCATE_LAST_MONTH_BUDGET",
-                "ALLOCATE_LAST_MONTH_SPEND"
-            ],
-            "x-enum-varnames": [
-                "AllocateLastMonthBudget",
-                "AllocateLastMonthSpend"
-            ]
-        },
-        "controllers.BudgetAllocationMode": {
-            "type": "object",
-            "properties": {
-                "mode": {
-                    "description": "Mode to allocate budget with",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.AllocationMode"
-                        }
-                    ],
-                    "example": "ALLOCATE_LAST_MONTH_SPEND"
-                }
-            }
-        },
-        "controllers.BudgetCreateResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of created Budgets",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.BudgetResponseV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.BudgetListResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of budgets",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.BudgetV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                },
-                "pagination": {
-                    "description": "Pagination information",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.BudgetResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the budget",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.BudgetV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.BudgetV3": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "currency": {
-                    "description": "The currency for the budget",
-                    "type": "string",
-                    "example": "€"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "accounts": {
-                            "description": "Accounts for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "categories": {
-                            "description": "Categories for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "envelopes": {
-                            "description": "Envelopes for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "month": {
-                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
-                        },
-                        "self": {
-                            "description": "The budget itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "transactions": {
-                            "description": "Transactions for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        }
-                    }
-                },
-                "name": {
-                    "description": "Name of the budget",
-                    "type": "string",
-                    "example": "Morre's Budget"
-                },
-                "note": {
-                    "description": "A longer description of the budget",
-                    "type": "string",
-                    "example": "My personal expenses"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.CategoryCreateResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of the created Categories or their respective error",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.CategoryResponseV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.CategoryCreateV3": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the category archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "budgetId": {
-                    "description": "ID of the budget the category belongs to",
-                    "type": "string",
-                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
-                },
-                "name": {
-                    "description": "Name of the category",
-                    "type": "string",
-                    "example": "Saving"
-                },
-                "note": {
-                    "description": "Notes about the category",
-                    "type": "string",
-                    "example": "All envelopes for long-term saving"
-                }
-            }
-        },
-        "controllers.CategoryEnvelopesV3": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "description": "Sum of allocations for the envelopes",
-                    "type": "number",
-                    "example": 90
-                },
-                "archived": {
-                    "description": "Is the category archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "balance": {
-                    "description": "Sum of the balances of the envelopes",
-                    "type": "number",
-                    "example": -10.13
-                },
-                "budgetId": {
-                    "description": "ID of the budget the category belongs to",
-                    "type": "string",
-                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopes": {
-                    "description": "Slice of all envelopes",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.EnvelopeMonthV3"
-                    }
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "name": {
-                    "description": "Name of the category",
-                    "type": "string",
-                    "example": "Saving"
-                },
-                "note": {
-                    "description": "Notes about the category",
-                    "type": "string",
-                    "example": "All envelopes for long-term saving"
-                },
-                "spent": {
-                    "description": "Sum spent for all envelopes",
-                    "type": "number",
-                    "example": 100.13
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.CategoryListResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of Categories",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.CategoryV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                },
-                "pagination": {
-                    "description": "Pagination information",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.CategoryResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the Category",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.CategoryV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.CategoryV3": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the category archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "budgetId": {
-                    "description": "ID of the budget the category belongs to",
-                    "type": "string",
-                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopes": {
-                    "description": "Envelopes for the category",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.EnvelopeV3"
-                    }
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelopes": {
-                            "description": "Envelopes for this category",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
-                        },
-                        "self": {
-                            "description": "The category itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
-                        }
-                    }
-                },
-                "name": {
-                    "description": "Name of the category",
-                    "type": "string",
-                    "example": "Saving"
-                },
-                "note": {
-                    "description": "Notes about the category",
-                    "type": "string",
-                    "example": "All envelopes for long-term saving"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.EnvelopeCreateResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the Envelope",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.EnvelopeResponseV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.EnvelopeCreateV3": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the envelope archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "categoryId": {
-                    "description": "ID of the category the envelope belongs to",
-                    "type": "string",
-                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
-                },
-                "name": {
-                    "description": "Name of the envelope",
-                    "type": "string",
-                    "example": "Groceries"
-                },
-                "note": {
-                    "description": "Notes about the envelope",
-                    "type": "string",
-                    "example": "For stuff bought at supermarkets and drugstores"
-                }
-            }
-        },
-        "controllers.EnvelopeListResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of Envelopes",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.EnvelopeV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                },
-                "pagination": {
-                    "description": "Pagination information",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.EnvelopeMonthV3": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "description": "The amount of money allocated",
-                    "type": "number",
-                    "example": 85.44
-                },
-                "archived": {
-                    "description": "Is the envelope archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "balance": {
-                    "description": "The balance at the end of the monht",
-                    "type": "number",
-                    "example": 12.32
-                },
-                "categoryId": {
-                    "description": "ID of the category the envelope belongs to",
-                    "type": "string",
-                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.EnvelopeV3Links"
-                },
-                "name": {
-                    "description": "Name of the envelope",
-                    "type": "string",
-                    "example": "Groceries"
-                },
-                "note": {
-                    "description": "Notes about the envelope",
-                    "type": "string",
-                    "example": "For stuff bought at supermarkets and drugstores"
-                },
-                "spent": {
-                    "description": "The amount spent over the whole month",
-                    "type": "number",
-                    "example": 73.12
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.EnvelopeResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the Envelope",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.EnvelopeV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.EnvelopeV3": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "description": "Is the envelope archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "categoryId": {
-                    "description": "ID of the category the envelope belongs to",
-                    "type": "string",
-                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "description": "Links to related resources",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.EnvelopeV3Links"
-                        }
-                    ]
-                },
-                "name": {
-                    "description": "Name of the envelope",
-                    "type": "string",
-                    "example": "Groceries"
-                },
-                "note": {
-                    "description": "Notes about the envelope",
-                    "type": "string",
-                    "example": "For stuff bought at supermarkets and drugstores"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.EnvelopeV3Links": {
-            "type": "object",
-            "properties": {
-                "month": {
-                    "description": "The MonthConfig for the envelope",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
-                },
-                "self": {
-                    "description": "The envelope itself",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                },
-                "transactions": {
-                    "description": "The envelope's transactions",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
-                }
-            }
-        },
-        "controllers.GoalCreateResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of created resources",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.GoalResponseV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.GoalListResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of resources",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.GoalV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                },
-                "pagination": {
-                    "description": "Pagination information",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.GoalResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "The resource",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.GoalV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.GoalV3": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "How much money should be saved for this goal?",
-                    "type": "number",
-                    "default": 0,
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 750
-                },
-                "archived": {
-                    "description": "If this goal is still in use or not",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopeId": {
-                    "description": "The ID of the envelope this goal is for",
-                    "type": "string",
-                    "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.GoalV3Links"
-                },
-                "month": {
-                    "description": "The month the goal should be reached",
-                    "type": "string",
-                    "example": "2024-07-01T00:00:00.000000Z"
-                },
-                "name": {
-                    "description": "Name of the goal",
-                    "type": "string",
-                    "example": "New TV"
-                },
-                "note": {
-                    "description": "Note about the goal",
-                    "type": "string",
-                    "example": "We want to replace the old CRT TV soon-ish"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.GoalV3Editable": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "How much money should be saved for this goal?",
-                    "type": "number",
-                    "default": 0,
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 750
-                },
-                "archived": {
-                    "description": "If this goal is still in use or not",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "envelopeId": {
-                    "description": "The ID of the envelope this goal is for",
-                    "type": "string",
-                    "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
-                },
-                "month": {
-                    "description": "The month the goal should be reached",
-                    "type": "string",
-                    "example": "2024-07-01T00:00:00.000000Z"
-                },
-                "name": {
-                    "description": "Name of the goal",
-                    "type": "string",
-                    "example": "New TV"
-                },
-                "note": {
-                    "description": "Note about the goal",
-                    "type": "string",
-                    "example": "We want to replace the old CRT TV soon-ish"
-                }
-            }
-        },
-        "controllers.GoalV3Links": {
-            "type": "object",
-            "properties": {
-                "envelope": {
-                    "description": "The Envelope this goal references",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/envelopes/c1a96ae4-80e3-4827-8ed0-c7656f224fee"
-                },
-                "self": {
-                    "description": "The Goal itself",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/goals/438cc6c0-9baf-49fd-a75a-d76bd5cab19c"
-                }
-            }
-        },
-        "controllers.ImportPreviewListV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of transaction previews",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/importer.TransactionPreviewV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred for this Match Rule",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.ImportV3Links": {
-            "type": "object",
-            "properties": {
-                "matchRules": {
-                    "description": "URL of YNAB Import preview endpoint",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/import/ynab-import-preview"
-                },
-                "transactions": {
-                    "description": "URL of YNAB4 import endpoint",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/import/ynab4"
-                }
-            }
-        },
-        "controllers.ImportV3Response": {
-            "type": "object",
-            "properties": {
-                "links": {
-                    "description": "Links for the v3 API",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.ImportV3Links"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.MatchRuleCreateResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of created Match Rules",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.MatchRuleResponseV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.MatchRuleListResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of Match Rules",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.MatchRuleV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                },
-                "pagination": {
-                    "description": "Pagination information",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.MatchRuleResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "The Match Rule data, if creation was successful",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.MatchRuleV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred for this Match Rule",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.MatchRuleV3": {
-            "type": "object",
-            "properties": {
-                "accountId": {
-                    "description": "The account to map matching transactions to",
-                    "type": "string",
-                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The match rule itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
-                        }
-                    }
-                },
-                "match": {
-                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
-                    "type": "string",
-                    "example": "Bank*"
-                },
-                "priority": {
-                    "description": "The priority of the match rule",
-                    "type": "integer",
-                    "example": 3
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.MonthConfigCreateV3": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 22.01
-                },
-                "note": {
-                    "description": "A note for the month config",
-                    "type": "string",
-                    "example": "Added 200€ here because we replaced Tim's expensive vase"
-                }
-            }
-        },
-        "controllers.MonthConfigResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Config for the month",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.MonthConfigV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.MonthConfigV3": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 22.01
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "envelopeId": {
-                    "description": "ID of the envelope",
-                    "type": "string",
-                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
-                },
-                "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelope": {
-                            "description": "The Envelope this config belongs to",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
-                        },
-                        "self": {
-                            "description": "The Month Config itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
-                        }
-                    }
-                },
-                "month": {
-                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
-                    "type": "string",
-                    "example": "1969-06-01T00:00:00.000000Z"
-                },
-                "note": {
-                    "description": "A note for the month config",
-                    "type": "string",
-                    "example": "Added 200€ here because we replaced Tim's expensive vase"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.MonthResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the month",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.MonthV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.MonthV3": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "description": "The sum of all allocations for this month",
-                    "type": "number",
-                    "example": 1200.5
-                },
-                "available": {
-                    "description": "The amount available to budget",
-                    "type": "number",
-                    "example": 217.34
-                },
-                "balance": {
-                    "description": "The sum of all envelope balances",
-                    "type": "number",
-                    "example": 5231.37
-                },
-                "categories": {
-                    "description": "A list of envelope month calculations grouped by category",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.CategoryEnvelopesV3"
-                    }
-                },
-                "id": {
-                    "description": "The ID of the Budget",
-                    "type": "string",
-                    "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
-                },
-                "income": {
-                    "description": "The total income for the month (sum of all incoming transactions without an Envelope)",
-                    "type": "number",
-                    "example": 2317.34
-                },
-                "month": {
-                    "description": "The month",
-                    "type": "string",
-                    "example": "2006-05-01T00:00:00.000000Z"
-                },
-                "name": {
-                    "description": "The name of the Budget",
-                    "type": "string",
-                    "example": "Zero budget"
-                },
-                "spent": {
-                    "description": "The amount of money spent in this month",
-                    "type": "number",
-                    "example": 133.7
-                }
-            }
-        },
-        "controllers.Pagination": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "description": "The amount of records returned in this response",
-                    "type": "integer",
-                    "example": 25
-                },
-                "limit": {
-                    "description": "The maximum amount of resources to return for this request",
-                    "type": "integer",
-                    "example": 25
-                },
-                "offset": {
-                    "description": "The offset for the first record returned",
-                    "type": "integer",
-                    "example": 50
-                },
-                "total": {
-                    "description": "The total number of resources matching the query",
-                    "type": "integer",
-                    "example": 827
-                }
-            }
-        },
-        "controllers.TransactionCreateResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of created Transactions",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.TransactionResponseV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.TransactionListResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of transactions",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controllers.TransactionV3"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                },
-                "pagination": {
-                    "description": "Pagination information",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.Pagination"
-                        }
-                    ]
-                }
-            }
-        },
-        "controllers.TransactionResponseV3": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "The Transaction data, if creation was successful",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/controllers.TransactionV3"
-                        }
-                    ]
-                },
-                "error": {
-                    "description": "The error, if any occurred for this transaction",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
-                }
-            }
-        },
-        "controllers.TransactionV3": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 14.03
-                },
-                "availableFrom": {
-                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
-                    "type": "string",
-                    "example": "2021-11-17T00:00:00Z"
-                },
-                "budgetId": {
-                    "description": "ID of the budget",
-                    "type": "string",
-                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
-                },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "date": {
-                    "description": "Date of the transaction. Time is currently only used for sorting",
-                    "type": "string",
-                    "example": "1815-12-10T18:43:00.271152Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
-                "destinationAccountId": {
-                    "description": "ID of the destination account",
-                    "type": "string",
-                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
-                },
-                "envelopeId": {
-                    "description": "ID of the envelope",
-                    "type": "string",
-                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
-                },
-                "id": {
-                    "description": "UUID for the resource",
-                    "type": "string",
-                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "links": {
-                    "$ref": "#/definitions/controllers.TransactionV3Links"
-                },
-                "note": {
-                    "description": "A note",
-                    "type": "string",
-                    "example": "Lunch"
-                },
-                "reconciledDestination": {
-                    "description": "Is the transaction reconciled in the destination account?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "reconciledSource": {
-                    "description": "Is the transaction reconciled in the source account?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "sourceAccountId": {
-                    "description": "ID of the source account",
-                    "type": "string",
-                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "controllers.TransactionV3Editable": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
-                    "type": "number",
-                    "maximum": 1000000000000,
-                    "minimum": 1e-8,
-                    "multipleOf": 1e-8,
-                    "example": 14.03
-                },
-                "availableFrom": {
-                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
-                    "type": "string",
-                    "example": "2021-11-17T00:00:00Z"
-                },
-                "budgetId": {
-                    "description": "ID of the budget",
-                    "type": "string",
-                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
-                },
-                "date": {
-                    "description": "Date of the transaction. Time is currently only used for sorting",
-                    "type": "string",
-                    "example": "1815-12-10T18:43:00.271152Z"
-                },
-                "destinationAccountId": {
-                    "description": "ID of the destination account",
-                    "type": "string",
-                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
-                },
-                "envelopeId": {
-                    "description": "ID of the envelope",
-                    "type": "string",
-                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
-                },
-                "importHash": {
-                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
-                    "type": "string",
-                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
-                },
-                "note": {
-                    "description": "A note",
-                    "type": "string",
-                    "example": "Lunch"
-                },
-                "reconciledDestination": {
-                    "description": "Is the transaction reconciled in the destination account?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "reconciledSource": {
-                    "description": "Is the transaction reconciled in the source account?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
-                },
-                "sourceAccountId": {
-                    "description": "ID of the source account",
-                    "type": "string",
-                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
-                }
-            }
-        },
-        "controllers.TransactionV3Links": {
-            "type": "object",
-            "properties": {
-                "self": {
-                    "description": "The transaction itself",
-                    "type": "string",
-                    "example": "https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
-                }
-            }
-        },
         "httperrors.HTTPError": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string",
                     "example": "An ID specified in the query string was not a valid UUID"
-                }
-            }
-        },
-        "importer.TransactionPreviewV3": {
-            "type": "object",
-            "properties": {
-                "destinationAccountName": {
-                    "description": "Name of the destination account from the CSV file",
-                    "type": "string",
-                    "example": "Deutsche Bahn"
-                },
-                "duplicateTransactionIds": {
-                    "description": "IDs of transactions that this transaction duplicates",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "matchRuleId": {
-                    "description": "ID of the match rule that was applied to this transaction preview",
-                    "type": "string",
-                    "example": "042d101d-f1de-4403-9295-59dc0ea58677"
-                },
-                "sourceAccountName": {
-                    "description": "Name of the source account from the CSV file",
-                    "type": "string",
-                    "example": "Employer"
-                },
-                "transaction": {
-                    "$ref": "#/definitions/models.Transaction"
                 }
             }
         },
@@ -4822,7 +3213,7 @@
                 }
             }
         },
-        "router.RootLinks": {
+        "root.Links": {
             "type": "object",
             "properties": {
                 "docs": {
@@ -4852,20 +3243,1073 @@
                 }
             }
         },
-        "router.RootResponse": {
+        "root.Response": {
             "type": "object",
             "properties": {
                 "links": {
-                    "description": "URLs of API endpoints",
+                    "$ref": "#/definitions/root.Links"
+                }
+            }
+        },
+        "v3.Account": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "balance": {
+                    "description": "These fields are calculated",
+                    "type": "number",
+                    "example": 2735.17
+                },
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "links": {
+                    "$ref": "#/definitions/v3.AccountLinks"
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "recentEnvelopes": {
+                    "description": "Envelopes recently used with this account",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reconciledBalance": {
+                    "description": "Balance of the account, including all reconciled transactions referencing it",
+                    "type": "number",
+                    "example": 2539.57
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.AccountCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created Accounts",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.AccountResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.AccountEditable": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the account archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "budgetId": {
+                    "description": "ID of the budget this account belongs to",
+                    "type": "string",
+                    "example": "550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "external": {
+                    "description": "Does the account belong to the budget owner or not?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": false
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection for imports",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "initialBalance": {
+                    "description": "Balance of the account before any transactions were recorded",
+                    "type": "number",
+                    "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 173.12
+                },
+                "initialBalanceDate": {
+                    "description": "Date of the initial balance",
+                    "type": "string",
+                    "example": "2017-05-12T00:00:00Z"
+                },
+                "name": {
+                    "description": "Name of the account",
+                    "type": "string",
+                    "example": "Cash"
+                },
+                "note": {
+                    "description": "A longer description for the account",
+                    "type": "string",
+                    "example": "Money in my wallet"
+                },
+                "onBudget": {
+                    "description": "Does the account factor into the available budget? Always false when external: true",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                }
+            }
+        },
+        "v3.AccountLinks": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "description": "The account itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                },
+                "transactions": {
+                    "description": "Transactions referencing the account",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"
+                }
+            }
+        },
+        "v3.AccountListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of accounts",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.Account"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/router.RootLinks"
+                            "$ref": "#/definitions/v3.Pagination"
                         }
                     ]
                 }
             }
         },
-        "router.V3Links": {
+        "v3.AccountResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the account",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Account"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred for this transaction",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.AllocationMode": {
+            "type": "string",
+            "enum": [
+                "ALLOCATE_LAST_MONTH_BUDGET",
+                "ALLOCATE_LAST_MONTH_SPEND"
+            ],
+            "x-enum-varnames": [
+                "AllocateLastMonthBudget",
+                "AllocateLastMonthSpend"
+            ]
+        },
+        "v3.Budget": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "currency": {
+                    "description": "The currency for the budget",
+                    "type": "string",
+                    "example": "€"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "accounts": {
+                            "description": "Accounts for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "categories": {
+                            "description": "Categories for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "envelopes": {
+                            "description": "Envelopes for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "month": {
+                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                        },
+                        "self": {
+                            "description": "The budget itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        },
+                        "transactions": {
+                            "description": "Transactions for this budget",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the budget",
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "description": "A longer description of the budget",
+                    "type": "string",
+                    "example": "My personal expenses"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.BudgetAllocationMode": {
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "description": "Mode to allocate budget with",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.AllocationMode"
+                        }
+                    ],
+                    "example": "ALLOCATE_LAST_MONTH_SPEND"
+                }
+            }
+        },
+        "v3.BudgetCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created Budgets",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.BudgetResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.BudgetListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of budgets",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.Budget"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "v3.BudgetResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the budget",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Budget"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.Category": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the category archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopes": {
+                    "description": "Envelopes for the category",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.Envelope"
+                    }
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelopes": {
+                            "description": "Envelopes for this category",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                        },
+                        "self": {
+                            "description": "The category itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.CategoryCreate": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the category archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                }
+            }
+        },
+        "v3.CategoryCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of the created Categories or their respective error",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.CategoryResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.CategoryEnvelopes": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "Sum of allocations for the envelopes",
+                    "type": "number",
+                    "example": 90
+                },
+                "archived": {
+                    "description": "Is the category archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "balance": {
+                    "description": "Sum of the balances of the envelopes",
+                    "type": "number",
+                    "example": -10.13
+                },
+                "budgetId": {
+                    "description": "ID of the budget the category belongs to",
+                    "type": "string",
+                    "example": "52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopes": {
+                    "description": "Slice of all envelopes",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.EnvelopeMonth"
+                    }
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "description": "Name of the category",
+                    "type": "string",
+                    "example": "Saving"
+                },
+                "note": {
+                    "description": "Notes about the category",
+                    "type": "string",
+                    "example": "All envelopes for long-term saving"
+                },
+                "spent": {
+                    "description": "Sum spent for all envelopes",
+                    "type": "number",
+                    "example": 100.13
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.CategoryListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of Categories",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.Category"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "v3.CategoryResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Category",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Category"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.Envelope": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "description": "Links to related resources",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.EnvelopeLinks"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.EnvelopeCreate": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "description": "Is the envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                }
+            }
+        },
+        "v3.EnvelopeCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Envelope",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.EnvelopeResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.EnvelopeLinks": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "description": "The MonthConfig for the envelope",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"
+                },
+                "self": {
+                    "description": "The envelope itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                },
+                "transactions": {
+                    "description": "The envelope's transactions",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"
+                }
+            }
+        },
+        "v3.EnvelopeListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of Envelopes",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.Envelope"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "v3.EnvelopeMonth": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The amount of money allocated",
+                    "type": "number",
+                    "example": 85.44
+                },
+                "archived": {
+                    "description": "Is the envelope archived?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "balance": {
+                    "description": "The balance at the end of the monht",
+                    "type": "number",
+                    "example": 12.32
+                },
+                "categoryId": {
+                    "description": "ID of the category the envelope belongs to",
+                    "type": "string",
+                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "$ref": "#/definitions/v3.EnvelopeLinks"
+                },
+                "name": {
+                    "description": "Name of the envelope",
+                    "type": "string",
+                    "example": "Groceries"
+                },
+                "note": {
+                    "description": "Notes about the envelope",
+                    "type": "string",
+                    "example": "For stuff bought at supermarkets and drugstores"
+                },
+                "spent": {
+                    "description": "The amount spent over the whole month",
+                    "type": "number",
+                    "example": 73.12
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.EnvelopeResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Envelope",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Envelope"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.Goal": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "How much money should be saved for this goal?",
+                    "type": "number",
+                    "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 750
+                },
+                "archived": {
+                    "description": "If this goal is still in use or not",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "description": "The ID of the envelope this goal is for",
+                    "type": "string",
+                    "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "$ref": "#/definitions/v3.GoalLinks"
+                },
+                "month": {
+                    "description": "The month the goal should be reached",
+                    "type": "string",
+                    "example": "2024-07-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "Name of the goal",
+                    "type": "string",
+                    "example": "New TV"
+                },
+                "note": {
+                    "description": "Note about the goal",
+                    "type": "string",
+                    "example": "We want to replace the old CRT TV soon-ish"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.GoalCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created resources",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.GoalResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.GoalEditable": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "How much money should be saved for this goal?",
+                    "type": "number",
+                    "default": 0,
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 750
+                },
+                "archived": {
+                    "description": "If this goal is still in use or not",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "envelopeId": {
+                    "description": "The ID of the envelope this goal is for",
+                    "type": "string",
+                    "example": "f81566d9-af4d-4f13-9830-c62c4b5e4c7e"
+                },
+                "month": {
+                    "description": "The month the goal should be reached",
+                    "type": "string",
+                    "example": "2024-07-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "Name of the goal",
+                    "type": "string",
+                    "example": "New TV"
+                },
+                "note": {
+                    "description": "Note about the goal",
+                    "type": "string",
+                    "example": "We want to replace the old CRT TV soon-ish"
+                }
+            }
+        },
+        "v3.GoalLinks": {
+            "type": "object",
+            "properties": {
+                "envelope": {
+                    "description": "The Envelope this goal references",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/c1a96ae4-80e3-4827-8ed0-c7656f224fee"
+                },
+                "self": {
+                    "description": "The Goal itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/goals/438cc6c0-9baf-49fd-a75a-d76bd5cab19c"
+                }
+            }
+        },
+        "v3.GoalListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of resources",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.Goal"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "v3.GoalResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "The resource",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Goal"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.ImportLinks": {
+            "type": "object",
+            "properties": {
+                "matchRules": {
+                    "description": "URL of YNAB Import preview endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/import/ynab-import-preview"
+                },
+                "transactions": {
+                    "description": "URL of YNAB4 import endpoint",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/import/ynab4"
+                }
+            }
+        },
+        "v3.ImportPreviewList": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of transaction previews",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.TransactionPreview"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred for this Match Rule",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.ImportResponse": {
+            "type": "object",
+            "properties": {
+                "links": {
+                    "description": "Links for the v3 API",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.ImportLinks"
+                        }
+                    ]
+                }
+            }
+        },
+        "v3.Links": {
             "type": "object",
             "properties": {
                 "accounts": {
@@ -4915,20 +4359,571 @@
                 }
             }
         },
-        "router.V3Response": {
+        "v3.MatchRule": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "description": "The match rule itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
+                        }
+                    }
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.MatchRuleCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created Match Rules",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.MatchRuleResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.MatchRuleListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of Match Rules",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.MatchRule"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "v3.MatchRuleResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "The Match Rule data, if creation was successful",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.MatchRule"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred for this Match Rule",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.Month": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The sum of all allocations for this month",
+                    "type": "number",
+                    "example": 1200.5
+                },
+                "available": {
+                    "description": "The amount available to budget",
+                    "type": "number",
+                    "example": 217.34
+                },
+                "balance": {
+                    "description": "The sum of all envelope balances",
+                    "type": "number",
+                    "example": 5231.37
+                },
+                "categories": {
+                    "description": "A list of envelope month calculations grouped by category",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.CategoryEnvelopes"
+                    }
+                },
+                "id": {
+                    "description": "The ID of the Budget",
+                    "type": "string",
+                    "example": "1e777d24-3f5b-4c43-8000-04f65f895578"
+                },
+                "income": {
+                    "description": "The total income for the month (sum of all incoming transactions without an Envelope)",
+                    "type": "number",
+                    "example": 2317.34
+                },
+                "month": {
+                    "description": "The month",
+                    "type": "string",
+                    "example": "2006-05-01T00:00:00.000000Z"
+                },
+                "name": {
+                    "description": "The name of the Budget",
+                    "type": "string",
+                    "example": "Zero budget"
+                },
+                "spent": {
+                    "description": "The amount of money spent in this month",
+                    "type": "number",
+                    "example": 133.7
+                }
+            }
+        },
+        "v3.MonthConfig": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                },
+                "links": {
+                    "type": "object",
+                    "properties": {
+                        "envelope": {
+                            "description": "The Envelope this config belongs to",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
+                        },
+                        "self": {
+                            "description": "The Month Config itself",
+                            "type": "string",
+                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
+                        }
+                    }
+                },
+                "month": {
+                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
+                },
+                "note": {
+                    "description": "A note for the month config",
+                    "type": "string",
+                    "example": "Added 200€ here because we replaced Tim's expensive vase"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.MonthConfigCreate": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 22.01
+                },
+                "note": {
+                    "description": "A note for the month config",
+                    "type": "string",
+                    "example": "Added 200€ here because we replaced Tim's expensive vase"
+                }
+            }
+        },
+        "v3.MonthConfigResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Config for the month",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.MonthConfig"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.MonthResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the month",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Month"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string"
+                }
+            }
+        },
+        "v3.Pagination": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "description": "The amount of records returned in this response",
+                    "type": "integer",
+                    "example": 25
+                },
+                "limit": {
+                    "description": "The maximum amount of resources to return for this request",
+                    "type": "integer",
+                    "example": 25
+                },
+                "offset": {
+                    "description": "The offset for the first record returned",
+                    "type": "integer",
+                    "example": 50
+                },
+                "total": {
+                    "description": "The total number of resources matching the query",
+                    "type": "integer",
+                    "example": 827
+                }
+            }
+        },
+        "v3.Response": {
             "type": "object",
             "properties": {
                 "links": {
                     "description": "Links for the v3 API",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/router.V3Links"
+                            "$ref": "#/definitions/v3.Links"
                         }
                     ]
                 }
             }
         },
-        "router.VersionObject": {
+        "v3.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 14.03
+                },
+                "availableFrom": {
+                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string",
+                    "example": "2021-11-17T00:00:00Z"
+                },
+                "budgetId": {
+                    "description": "ID of the budget",
+                    "type": "string",
+                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "date": {
+                    "description": "Date of the transaction. Time is currently only used for sorting",
+                    "type": "string",
+                    "example": "1815-12-10T18:43:00.271152Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "destinationAccountId": {
+                    "description": "ID of the destination account",
+                    "type": "string",
+                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "links": {
+                    "$ref": "#/definitions/v3.TransactionLinks"
+                },
+                "note": {
+                    "description": "A note",
+                    "type": "string",
+                    "example": "Lunch"
+                },
+                "reconciledDestination": {
+                    "description": "Is the transaction reconciled in the destination account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledSource": {
+                    "description": "Is the transaction reconciled in the source account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "sourceAccountId": {
+                    "description": "ID of the source account",
+                    "type": "string",
+                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.TransactionCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of created Transactions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.TransactionResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.TransactionEditable": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "The maximum value is \"999999999999.99999999\", swagger unfortunately rounds this.",
+                    "type": "number",
+                    "maximum": 1000000000000,
+                    "minimum": 1e-8,
+                    "multipleOf": 1e-8,
+                    "example": 14.03
+                },
+                "availableFrom": {
+                    "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
+                    "type": "string",
+                    "example": "2021-11-17T00:00:00Z"
+                },
+                "budgetId": {
+                    "description": "ID of the budget",
+                    "type": "string",
+                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
+                },
+                "date": {
+                    "description": "Date of the transaction. Time is currently only used for sorting",
+                    "type": "string",
+                    "example": "1815-12-10T18:43:00.271152Z"
+                },
+                "destinationAccountId": {
+                    "description": "ID of the destination account",
+                    "type": "string",
+                    "example": "8e16b456-a719-48ce-9fec-e115cfa7cbcc"
+                },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "2649c965-7999-4873-ae16-89d5d5fa972e"
+                },
+                "importHash": {
+                    "description": "The SHA256 hash of a unique combination of values to use in duplicate detection",
+                    "type": "string",
+                    "example": "867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70"
+                },
+                "note": {
+                    "description": "A note",
+                    "type": "string",
+                    "example": "Lunch"
+                },
+                "reconciledDestination": {
+                    "description": "Is the transaction reconciled in the destination account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "reconciledSource": {
+                    "description": "Is the transaction reconciled in the source account?",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "sourceAccountId": {
+                    "description": "ID of the source account",
+                    "type": "string",
+                    "example": "fd81dc45-a3a2-468e-a6fa-b2618f30aa45"
+                }
+            }
+        },
+        "v3.TransactionLinks": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "description": "The transaction itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673"
+                }
+            }
+        },
+        "v3.TransactionListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of transactions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.Transaction"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                },
+                "pagination": {
+                    "description": "Pagination information",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Pagination"
+                        }
+                    ]
+                }
+            }
+        },
+        "v3.TransactionPreview": {
+            "type": "object",
+            "properties": {
+                "destinationAccountName": {
+                    "description": "Name of the destination account from the CSV file",
+                    "type": "string",
+                    "example": "Deutsche Bahn"
+                },
+                "duplicateTransactionIds": {
+                    "description": "IDs of transactions that this transaction duplicates",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "matchRuleId": {
+                    "description": "ID of the match rule that was applied to this transaction preview",
+                    "type": "string",
+                    "example": "042d101d-f1de-4403-9295-59dc0ea58677"
+                },
+                "sourceAccountName": {
+                    "description": "Name of the source account from the CSV file",
+                    "type": "string",
+                    "example": "Employer"
+                },
+                "transaction": {
+                    "$ref": "#/definitions/models.Transaction"
+                }
+            }
+        },
+        "v3.TransactionResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "The Transaction data, if creation was successful",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v3.Transaction"
+                        }
+                    ]
+                },
+                "error": {
+                    "description": "The error, if any occurred for this transaction",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "version.Object": {
             "type": "object",
             "properties": {
                 "version": {
@@ -4938,14 +4933,14 @@
                 }
             }
         },
-        "router.VersionResponse": {
+        "version.Response": {
             "type": "object",
             "properties": {
                 "data": {
                     "description": "Data object for the version endpoint",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/router.VersionObject"
+                            "$ref": "#/definitions/version.Object"
                         }
                     ]
                 }

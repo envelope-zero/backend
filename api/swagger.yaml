@@ -1,1210 +1,9 @@
 definitions:
-  controllers.AccountCreateResponseV3:
-    properties:
-      data:
-        description: List of created Accounts
-        items:
-          $ref: '#/definitions/controllers.AccountResponseV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.AccountListResponseV3:
-    properties:
-      data:
-        description: List of accounts
-        items:
-          $ref: '#/definitions/controllers.AccountV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-      pagination:
-        allOf:
-        - $ref: '#/definitions/controllers.Pagination'
-        description: Pagination information
-    type: object
-  controllers.AccountResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.AccountV3'
-        description: Data for the account
-      error:
-        description: The error, if any occurred for this transaction
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.AccountV3:
-    properties:
-      archived:
-        default: false
-        description: Is the account archived?
-        example: true
-        type: boolean
-      balance:
-        description: These fields are calculated
-        example: 2735.17
-        type: number
-      budgetId:
-        description: ID of the budget this account belongs to
-        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      external:
-        default: false
-        description: Does the account belong to the budget owner or not?
-        example: false
-        type: boolean
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection for imports
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      initialBalance:
-        default: 0
-        description: Balance of the account before any transactions were recorded
-        example: 173.12
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      initialBalanceDate:
-        description: Date of the initial balance
-        example: "2017-05-12T00:00:00Z"
-        type: string
-      links:
-        $ref: '#/definitions/controllers.AccountV3Links'
-      name:
-        description: Name of the account
-        example: Cash
-        type: string
-      note:
-        description: A longer description for the account
-        example: Money in my wallet
-        type: string
-      onBudget:
-        default: false
-        description: 'Does the account factor into the available budget? Always false
-          when external: true'
-        example: true
-        type: boolean
-      recentEnvelopes:
-        description: Envelopes recently used with this account
-        items:
-          type: string
-        type: array
-      reconciledBalance:
-        description: Balance of the account, including all reconciled transactions
-          referencing it
-        example: 2539.57
-        type: number
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.AccountV3Editable:
-    properties:
-      archived:
-        default: false
-        description: Is the account archived?
-        example: true
-        type: boolean
-      budgetId:
-        description: ID of the budget this account belongs to
-        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
-        type: string
-      external:
-        default: false
-        description: Does the account belong to the budget owner or not?
-        example: false
-        type: boolean
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection for imports
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      initialBalance:
-        default: 0
-        description: Balance of the account before any transactions were recorded
-        example: 173.12
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      initialBalanceDate:
-        description: Date of the initial balance
-        example: "2017-05-12T00:00:00Z"
-        type: string
-      name:
-        description: Name of the account
-        example: Cash
-        type: string
-      note:
-        description: A longer description for the account
-        example: Money in my wallet
-        type: string
-      onBudget:
-        default: false
-        description: 'Does the account factor into the available budget? Always false
-          when external: true'
-        example: true
-        type: boolean
-    type: object
-  controllers.AccountV3Links:
-    properties:
-      self:
-        description: The account itself
-        example: https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-        type: string
-      transactions:
-        description: Transactions referencing the account
-        example: https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
-        type: string
-    type: object
-  controllers.AllocationMode:
-    enum:
-    - ALLOCATE_LAST_MONTH_BUDGET
-    - ALLOCATE_LAST_MONTH_SPEND
-    type: string
-    x-enum-varnames:
-    - AllocateLastMonthBudget
-    - AllocateLastMonthSpend
-  controllers.BudgetAllocationMode:
-    properties:
-      mode:
-        allOf:
-        - $ref: '#/definitions/controllers.AllocationMode'
-        description: Mode to allocate budget with
-        example: ALLOCATE_LAST_MONTH_SPEND
-    type: object
-  controllers.BudgetCreateResponseV3:
-    properties:
-      data:
-        description: List of created Budgets
-        items:
-          $ref: '#/definitions/controllers.BudgetResponseV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.BudgetListResponseV3:
-    properties:
-      data:
-        description: List of budgets
-        items:
-          $ref: '#/definitions/controllers.BudgetV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-      pagination:
-        allOf:
-        - $ref: '#/definitions/controllers.Pagination'
-        description: Pagination information
-    type: object
-  controllers.BudgetResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.BudgetV3'
-        description: Data for the budget
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.BudgetV3:
-    properties:
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      currency:
-        description: The currency for the budget
-        example: €
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        properties:
-          accounts:
-            description: Accounts for this budget
-            example: https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          categories:
-            description: Categories for this budget
-            example: https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          envelopes:
-            description: Envelopes for this budget
-            example: https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          month:
-            description: This uses 'YYYY-MM' for clients to replace with the actual
-              year and month.
-            example: https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
-            type: string
-          self:
-            description: The budget itself
-            example: https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          transactions:
-            description: Transactions for this budget
-            example: https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-        type: object
-      name:
-        description: Name of the budget
-        example: Morre's Budget
-        type: string
-      note:
-        description: A longer description of the budget
-        example: My personal expenses
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.CategoryCreateResponseV3:
-    properties:
-      data:
-        description: List of the created Categories or their respective error
-        items:
-          $ref: '#/definitions/controllers.CategoryResponseV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.CategoryCreateV3:
-    properties:
-      archived:
-        default: false
-        description: Is the category archived?
-        example: true
-        type: boolean
-      budgetId:
-        description: ID of the budget the category belongs to
-        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
-        type: string
-      name:
-        description: Name of the category
-        example: Saving
-        type: string
-      note:
-        description: Notes about the category
-        example: All envelopes for long-term saving
-        type: string
-    type: object
-  controllers.CategoryEnvelopesV3:
-    properties:
-      allocation:
-        description: Sum of allocations for the envelopes
-        example: 90
-        type: number
-      archived:
-        default: false
-        description: Is the category archived?
-        example: true
-        type: boolean
-      balance:
-        description: Sum of the balances of the envelopes
-        example: -10.13
-        type: number
-      budgetId:
-        description: ID of the budget the category belongs to
-        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopes:
-        description: Slice of all envelopes
-        items:
-          $ref: '#/definitions/controllers.EnvelopeMonthV3'
-        type: array
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      name:
-        description: Name of the category
-        example: Saving
-        type: string
-      note:
-        description: Notes about the category
-        example: All envelopes for long-term saving
-        type: string
-      spent:
-        description: Sum spent for all envelopes
-        example: 100.13
-        type: number
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.CategoryListResponseV3:
-    properties:
-      data:
-        description: List of Categories
-        items:
-          $ref: '#/definitions/controllers.CategoryV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-      pagination:
-        allOf:
-        - $ref: '#/definitions/controllers.Pagination'
-        description: Pagination information
-    type: object
-  controllers.CategoryResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.CategoryV3'
-        description: Data for the Category
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.CategoryV3:
-    properties:
-      archived:
-        default: false
-        description: Is the category archived?
-        example: true
-        type: boolean
-      budgetId:
-        description: ID of the budget the category belongs to
-        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopes:
-        description: Envelopes for the category
-        items:
-          $ref: '#/definitions/controllers.EnvelopeV3'
-        type: array
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        properties:
-          envelopes:
-            description: Envelopes for this category
-            example: https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-          self:
-            description: The category itself
-            example: https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-        type: object
-      name:
-        description: Name of the category
-        example: Saving
-        type: string
-      note:
-        description: Notes about the category
-        example: All envelopes for long-term saving
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.EnvelopeCreateResponseV3:
-    properties:
-      data:
-        description: Data for the Envelope
-        items:
-          $ref: '#/definitions/controllers.EnvelopeResponseV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.EnvelopeCreateV3:
-    properties:
-      archived:
-        default: false
-        description: Is the envelope archived?
-        example: true
-        type: boolean
-      categoryId:
-        description: ID of the category the envelope belongs to
-        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
-        type: string
-      name:
-        description: Name of the envelope
-        example: Groceries
-        type: string
-      note:
-        description: Notes about the envelope
-        example: For stuff bought at supermarkets and drugstores
-        type: string
-    type: object
-  controllers.EnvelopeListResponseV3:
-    properties:
-      data:
-        description: List of Envelopes
-        items:
-          $ref: '#/definitions/controllers.EnvelopeV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-      pagination:
-        allOf:
-        - $ref: '#/definitions/controllers.Pagination'
-        description: Pagination information
-    type: object
-  controllers.EnvelopeMonthV3:
-    properties:
-      allocation:
-        description: The amount of money allocated
-        example: 85.44
-        type: number
-      archived:
-        default: false
-        description: Is the envelope archived?
-        example: true
-        type: boolean
-      balance:
-        description: The balance at the end of the monht
-        example: 12.32
-        type: number
-      categoryId:
-        description: ID of the category the envelope belongs to
-        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        $ref: '#/definitions/controllers.EnvelopeV3Links'
-      name:
-        description: Name of the envelope
-        example: Groceries
-        type: string
-      note:
-        description: Notes about the envelope
-        example: For stuff bought at supermarkets and drugstores
-        type: string
-      spent:
-        description: The amount spent over the whole month
-        example: 73.12
-        type: number
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.EnvelopeResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.EnvelopeV3'
-        description: Data for the Envelope
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.EnvelopeV3:
-    properties:
-      archived:
-        default: false
-        description: Is the envelope archived?
-        example: true
-        type: boolean
-      categoryId:
-        description: ID of the category the envelope belongs to
-        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        allOf:
-        - $ref: '#/definitions/controllers.EnvelopeV3Links'
-        description: Links to related resources
-      name:
-        description: Name of the envelope
-        example: Groceries
-        type: string
-      note:
-        description: Notes about the envelope
-        example: For stuff bought at supermarkets and drugstores
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.EnvelopeV3Links:
-    properties:
-      month:
-        description: The MonthConfig for the envelope
-        example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
-        type: string
-      self:
-        description: The envelope itself
-        example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
-        type: string
-      transactions:
-        description: The envelope's transactions
-        example: https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
-        type: string
-    type: object
-  controllers.GoalCreateResponseV3:
-    properties:
-      data:
-        description: List of created resources
-        items:
-          $ref: '#/definitions/controllers.GoalResponseV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.GoalListResponseV3:
-    properties:
-      data:
-        description: List of resources
-        items:
-          $ref: '#/definitions/controllers.GoalV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-      pagination:
-        allOf:
-        - $ref: '#/definitions/controllers.Pagination'
-        description: Pagination information
-    type: object
-  controllers.GoalResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.GoalV3'
-        description: The resource
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.GoalV3:
-    properties:
-      amount:
-        default: 0
-        description: How much money should be saved for this goal?
-        example: 750
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      archived:
-        default: false
-        description: If this goal is still in use or not
-        example: true
-        type: boolean
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopeId:
-        description: The ID of the envelope this goal is for
-        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        $ref: '#/definitions/controllers.GoalV3Links'
-      month:
-        description: The month the goal should be reached
-        example: "2024-07-01T00:00:00.000000Z"
-        type: string
-      name:
-        description: Name of the goal
-        example: New TV
-        type: string
-      note:
-        description: Note about the goal
-        example: We want to replace the old CRT TV soon-ish
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.GoalV3Editable:
-    properties:
-      amount:
-        default: 0
-        description: How much money should be saved for this goal?
-        example: 750
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      archived:
-        default: false
-        description: If this goal is still in use or not
-        example: true
-        type: boolean
-      envelopeId:
-        description: The ID of the envelope this goal is for
-        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
-        type: string
-      month:
-        description: The month the goal should be reached
-        example: "2024-07-01T00:00:00.000000Z"
-        type: string
-      name:
-        description: Name of the goal
-        example: New TV
-        type: string
-      note:
-        description: Note about the goal
-        example: We want to replace the old CRT TV soon-ish
-        type: string
-    type: object
-  controllers.GoalV3Links:
-    properties:
-      envelope:
-        description: The Envelope this goal references
-        example: https://example.com/api/v3/envelopes/c1a96ae4-80e3-4827-8ed0-c7656f224fee
-        type: string
-      self:
-        description: The Goal itself
-        example: https://example.com/api/v3/goals/438cc6c0-9baf-49fd-a75a-d76bd5cab19c
-        type: string
-    type: object
-  controllers.ImportPreviewListV3:
-    properties:
-      data:
-        description: List of transaction previews
-        items:
-          $ref: '#/definitions/importer.TransactionPreviewV3'
-        type: array
-      error:
-        description: The error, if any occurred for this Match Rule
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.ImportV3Links:
-    properties:
-      matchRules:
-        description: URL of YNAB Import preview endpoint
-        example: https://example.com/api/v3/import/ynab-import-preview
-        type: string
-      transactions:
-        description: URL of YNAB4 import endpoint
-        example: https://example.com/api/v3/import/ynab4
-        type: string
-    type: object
-  controllers.ImportV3Response:
-    properties:
-      links:
-        allOf:
-        - $ref: '#/definitions/controllers.ImportV3Links'
-        description: Links for the v3 API
-    type: object
-  controllers.MatchRuleCreateResponseV3:
-    properties:
-      data:
-        description: List of created Match Rules
-        items:
-          $ref: '#/definitions/controllers.MatchRuleResponseV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.MatchRuleListResponseV3:
-    properties:
-      data:
-        description: List of Match Rules
-        items:
-          $ref: '#/definitions/controllers.MatchRuleV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-      pagination:
-        allOf:
-        - $ref: '#/definitions/controllers.Pagination'
-        description: Pagination information
-    type: object
-  controllers.MatchRuleResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.MatchRuleV3'
-        description: The Match Rule data, if creation was successful
-      error:
-        description: The error, if any occurred for this Match Rule
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.MatchRuleV3:
-    properties:
-      accountId:
-        description: The account to map matching transactions to
-        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      links:
-        properties:
-          self:
-            description: The match rule itself
-            example: https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21
-            type: string
-        type: object
-      match:
-        description: The matching applied to the opposite account. This is a glob
-          pattern. Multiple globs are allowed. Globbing is case sensitive.
-        example: Bank*
-        type: string
-      priority:
-        description: The priority of the match rule
-        example: 3
-        type: integer
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.MonthConfigCreateV3:
-    properties:
-      allocation:
-        description: The maximum value is "999999999999.99999999", swagger unfortunately
-          rounds this.
-        example: 22.01
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      note:
-        description: A note for the month config
-        example: Added 200€ here because we replaced Tim's expensive vase
-        type: string
-    type: object
-  controllers.MonthConfigResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.MonthConfigV3'
-        description: Config for the month
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.MonthConfigV3:
-    properties:
-      allocation:
-        description: The maximum value is "999999999999.99999999", swagger unfortunately
-          rounds this.
-        example: 22.01
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      envelopeId:
-        description: ID of the envelope
-        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
-        type: string
-      links:
-        properties:
-          envelope:
-            description: The Envelope this config belongs to
-            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
-            type: string
-          self:
-            description: The Month Config itself
-            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
-            type: string
-        type: object
-      month:
-        description: The month. This is always set to 00:00 UTC on the first of the
-          month.
-        example: "1969-06-01T00:00:00.000000Z"
-        type: string
-      note:
-        description: A note for the month config
-        example: Added 200€ here because we replaced Tim's expensive vase
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.MonthResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.MonthV3'
-        description: Data for the month
-      error:
-        description: The error, if any occurred
-        type: string
-    type: object
-  controllers.MonthV3:
-    properties:
-      allocation:
-        description: The sum of all allocations for this month
-        example: 1200.5
-        type: number
-      available:
-        description: The amount available to budget
-        example: 217.34
-        type: number
-      balance:
-        description: The sum of all envelope balances
-        example: 5231.37
-        type: number
-      categories:
-        description: A list of envelope month calculations grouped by category
-        items:
-          $ref: '#/definitions/controllers.CategoryEnvelopesV3'
-        type: array
-      id:
-        description: The ID of the Budget
-        example: 1e777d24-3f5b-4c43-8000-04f65f895578
-        type: string
-      income:
-        description: The total income for the month (sum of all incoming transactions
-          without an Envelope)
-        example: 2317.34
-        type: number
-      month:
-        description: The month
-        example: "2006-05-01T00:00:00.000000Z"
-        type: string
-      name:
-        description: The name of the Budget
-        example: Zero budget
-        type: string
-      spent:
-        description: The amount of money spent in this month
-        example: 133.7
-        type: number
-    type: object
-  controllers.Pagination:
-    properties:
-      count:
-        description: The amount of records returned in this response
-        example: 25
-        type: integer
-      limit:
-        description: The maximum amount of resources to return for this request
-        example: 25
-        type: integer
-      offset:
-        description: The offset for the first record returned
-        example: 50
-        type: integer
-      total:
-        description: The total number of resources matching the query
-        example: 827
-        type: integer
-    type: object
-  controllers.TransactionCreateResponseV3:
-    properties:
-      data:
-        description: List of created Transactions
-        items:
-          $ref: '#/definitions/controllers.TransactionResponseV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.TransactionListResponseV3:
-    properties:
-      data:
-        description: List of transactions
-        items:
-          $ref: '#/definitions/controllers.TransactionV3'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
-        type: string
-      pagination:
-        allOf:
-        - $ref: '#/definitions/controllers.Pagination'
-        description: Pagination information
-    type: object
-  controllers.TransactionResponseV3:
-    properties:
-      data:
-        allOf:
-        - $ref: '#/definitions/controllers.TransactionV3'
-        description: The Transaction data, if creation was successful
-      error:
-        description: The error, if any occurred for this transaction
-        example: the specified resource ID is not a valid UUID
-        type: string
-    type: object
-  controllers.TransactionV3:
-    properties:
-      amount:
-        description: The maximum value is "999999999999.99999999", swagger unfortunately
-          rounds this.
-        example: 14.03
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      availableFrom:
-        description: The date from which on the transaction amount is available for
-          budgeting. Only used for income transactions. Defaults to the transaction
-          date.
-        example: "2021-11-17T00:00:00Z"
-        type: string
-      budgetId:
-        description: ID of the budget
-        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      date:
-        description: Date of the transaction. Time is currently only used for sorting
-        example: "1815-12-10T18:43:00.271152Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      destinationAccountId:
-        description: ID of the destination account
-        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
-        type: string
-      envelopeId:
-        description: ID of the envelope
-        example: 2649c965-7999-4873-ae16-89d5d5fa972e
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      links:
-        $ref: '#/definitions/controllers.TransactionV3Links'
-      note:
-        description: A note
-        example: Lunch
-        type: string
-      reconciledDestination:
-        default: false
-        description: Is the transaction reconciled in the destination account?
-        example: true
-        type: boolean
-      reconciledSource:
-        default: false
-        description: Is the transaction reconciled in the source account?
-        example: true
-        type: boolean
-      sourceAccountId:
-        description: ID of the source account
-        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  controllers.TransactionV3Editable:
-    properties:
-      amount:
-        description: The maximum value is "999999999999.99999999", swagger unfortunately
-          rounds this.
-        example: 14.03
-        maximum: 1000000000000
-        minimum: 1e-08
-        multipleOf: 1e-08
-        type: number
-      availableFrom:
-        description: The date from which on the transaction amount is available for
-          budgeting. Only used for income transactions. Defaults to the transaction
-          date.
-        example: "2021-11-17T00:00:00Z"
-        type: string
-      budgetId:
-        description: ID of the budget
-        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
-        type: string
-      date:
-        description: Date of the transaction. Time is currently only used for sorting
-        example: "1815-12-10T18:43:00.271152Z"
-        type: string
-      destinationAccountId:
-        description: ID of the destination account
-        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
-        type: string
-      envelopeId:
-        description: ID of the envelope
-        example: 2649c965-7999-4873-ae16-89d5d5fa972e
-        type: string
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection
-        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
-        type: string
-      note:
-        description: A note
-        example: Lunch
-        type: string
-      reconciledDestination:
-        default: false
-        description: Is the transaction reconciled in the destination account?
-        example: true
-        type: boolean
-      reconciledSource:
-        default: false
-        description: Is the transaction reconciled in the source account?
-        example: true
-        type: boolean
-      sourceAccountId:
-        description: ID of the source account
-        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
-        type: string
-    type: object
-  controllers.TransactionV3Links:
-    properties:
-      self:
-        description: The transaction itself
-        example: https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
-        type: string
-    type: object
   httperrors.HTTPError:
     properties:
       error:
         example: An ID specified in the query string was not a valid UUID
         type: string
-    type: object
-  importer.TransactionPreviewV3:
-    properties:
-      destinationAccountName:
-        description: Name of the destination account from the CSV file
-        example: Deutsche Bahn
-        type: string
-      duplicateTransactionIds:
-        description: IDs of transactions that this transaction duplicates
-        items:
-          type: string
-        type: array
-      matchRuleId:
-        description: ID of the match rule that was applied to this transaction preview
-        example: 042d101d-f1de-4403-9295-59dc0ea58677
-        type: string
-      sourceAccountName:
-        description: Name of the source account from the CSV file
-        example: Employer
-        type: string
-      transaction:
-        $ref: '#/definitions/models.Transaction'
     type: object
   models.Account:
     properties:
@@ -1401,7 +200,7 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  router.RootLinks:
+  root.Links:
     properties:
       docs:
         description: Swagger API documentation
@@ -1424,14 +223,794 @@ definitions:
         example: https://example.com/api/version
         type: string
     type: object
-  router.RootResponse:
+  root.Response:
+    properties:
+      links:
+        $ref: '#/definitions/root.Links'
+    type: object
+  v3.Account:
+    properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      balance:
+        description: These fields are calculated
+        example: 2735.17
+        type: number
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      links:
+        $ref: '#/definitions/v3.AccountLinks'
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+      recentEnvelopes:
+        description: Envelopes recently used with this account
+        items:
+          type: string
+        type: array
+      reconciledBalance:
+        description: Balance of the account, including all reconciled transactions
+          referencing it
+        example: 2539.57
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.AccountCreateResponse:
+    properties:
+      data:
+        description: List of created Accounts
+        items:
+          $ref: '#/definitions/v3.AccountResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.AccountEditable:
+    properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+    type: object
+  v3.AccountLinks:
+    properties:
+      self:
+        description: The account itself
+        example: https://example.com/api/v3/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        type: string
+      transactions:
+        description: Transactions referencing the account
+        example: https://example.com/api/v3/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        type: string
+    type: object
+  v3.AccountListResponse:
+    properties:
+      data:
+        description: List of accounts
+        items:
+          $ref: '#/definitions/v3.Account'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v3.Pagination'
+        description: Pagination information
+    type: object
+  v3.AccountResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.Account'
+        description: Data for the account
+      error:
+        description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.AllocationMode:
+    enum:
+    - ALLOCATE_LAST_MONTH_BUDGET
+    - ALLOCATE_LAST_MONTH_SPEND
+    type: string
+    x-enum-varnames:
+    - AllocateLastMonthBudget
+    - AllocateLastMonthSpend
+  v3.Budget:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          accounts:
+            description: Accounts for this budget
+            example: https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          categories:
+            description: Categories for this budget
+            example: https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          envelopes:
+            description: Envelopes for this budget
+            example: https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          month:
+            description: This uses 'YYYY-MM' for clients to replace with the actual
+              year and month.
+            example: https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+            type: string
+          self:
+            description: The budget itself
+            example: https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+          transactions:
+            description: Transactions for this budget
+            example: https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+            type: string
+        type: object
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.BudgetAllocationMode:
+    properties:
+      mode:
+        allOf:
+        - $ref: '#/definitions/v3.AllocationMode'
+        description: Mode to allocate budget with
+        example: ALLOCATE_LAST_MONTH_SPEND
+    type: object
+  v3.BudgetCreateResponse:
+    properties:
+      data:
+        description: List of created Budgets
+        items:
+          $ref: '#/definitions/v3.BudgetResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.BudgetListResponse:
+    properties:
+      data:
+        description: List of budgets
+        items:
+          $ref: '#/definitions/v3.Budget'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v3.Pagination'
+        description: Pagination information
+    type: object
+  v3.BudgetResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.Budget'
+        description: Data for the budget
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.Category:
+    properties:
+      archived:
+        default: false
+        description: Is the category archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopes:
+        description: Envelopes for the category
+        items:
+          $ref: '#/definitions/v3.Envelope'
+        type: array
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          envelopes:
+            description: Envelopes for this category
+            example: https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+          self:
+            description: The category itself
+            example: https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f
+            type: string
+        type: object
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.CategoryCreate:
+    properties:
+      archived:
+        default: false
+        description: Is the category archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+    type: object
+  v3.CategoryCreateResponse:
+    properties:
+      data:
+        description: List of the created Categories or their respective error
+        items:
+          $ref: '#/definitions/v3.CategoryResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.CategoryEnvelopes:
+    properties:
+      allocation:
+        description: Sum of allocations for the envelopes
+        example: 90
+        type: number
+      archived:
+        default: false
+        description: Is the category archived?
+        example: true
+        type: boolean
+      balance:
+        description: Sum of the balances of the envelopes
+        example: -10.13
+        type: number
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopes:
+        description: Slice of all envelopes
+        items:
+          $ref: '#/definitions/v3.EnvelopeMonth'
+        type: array
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+      spent:
+        description: Sum spent for all envelopes
+        example: 100.13
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.CategoryListResponse:
+    properties:
+      data:
+        description: List of Categories
+        items:
+          $ref: '#/definitions/v3.Category'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v3.Pagination'
+        description: Pagination information
+    type: object
+  v3.CategoryResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.Category'
+        description: Data for the Category
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.Envelope:
+    properties:
+      archived:
+        default: false
+        description: Is the envelope archived?
+        example: true
+        type: boolean
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        allOf:
+        - $ref: '#/definitions/v3.EnvelopeLinks'
+        description: Links to related resources
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.EnvelopeCreate:
+    properties:
+      archived:
+        default: false
+        description: Is the envelope archived?
+        example: true
+        type: boolean
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+    type: object
+  v3.EnvelopeCreateResponse:
+    properties:
+      data:
+        description: Data for the Envelope
+        items:
+          $ref: '#/definitions/v3.EnvelopeResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.EnvelopeLinks:
+    properties:
+      month:
+        description: The MonthConfig for the envelope
+        example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
+        type: string
+      self:
+        description: The envelope itself
+        example: https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
+        type: string
+      transactions:
+        description: The envelope's transactions
+        example: https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
+        type: string
+    type: object
+  v3.EnvelopeListResponse:
+    properties:
+      data:
+        description: List of Envelopes
+        items:
+          $ref: '#/definitions/v3.Envelope'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v3.Pagination'
+        description: Pagination information
+    type: object
+  v3.EnvelopeMonth:
+    properties:
+      allocation:
+        description: The amount of money allocated
+        example: 85.44
+        type: number
+      archived:
+        default: false
+        description: Is the envelope archived?
+        example: true
+        type: boolean
+      balance:
+        description: The balance at the end of the monht
+        example: 12.32
+        type: number
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v3.EnvelopeLinks'
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      spent:
+        description: The amount spent over the whole month
+        example: 73.12
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.EnvelopeResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.Envelope'
+        description: Data for the Envelope
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.Goal:
+    properties:
+      amount:
+        default: 0
+        description: How much money should be saved for this goal?
+        example: 750
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      archived:
+        default: false
+        description: If this goal is still in use or not
+        example: true
+        type: boolean
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        description: The ID of the envelope this goal is for
+        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v3.GoalLinks'
+      month:
+        description: The month the goal should be reached
+        example: "2024-07-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: Name of the goal
+        example: New TV
+        type: string
+      note:
+        description: Note about the goal
+        example: We want to replace the old CRT TV soon-ish
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.GoalCreateResponse:
+    properties:
+      data:
+        description: List of created resources
+        items:
+          $ref: '#/definitions/v3.GoalResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.GoalEditable:
+    properties:
+      amount:
+        default: 0
+        description: How much money should be saved for this goal?
+        example: 750
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      archived:
+        default: false
+        description: If this goal is still in use or not
+        example: true
+        type: boolean
+      envelopeId:
+        description: The ID of the envelope this goal is for
+        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
+        type: string
+      month:
+        description: The month the goal should be reached
+        example: "2024-07-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: Name of the goal
+        example: New TV
+        type: string
+      note:
+        description: Note about the goal
+        example: We want to replace the old CRT TV soon-ish
+        type: string
+    type: object
+  v3.GoalLinks:
+    properties:
+      envelope:
+        description: The Envelope this goal references
+        example: https://example.com/api/v3/envelopes/c1a96ae4-80e3-4827-8ed0-c7656f224fee
+        type: string
+      self:
+        description: The Goal itself
+        example: https://example.com/api/v3/goals/438cc6c0-9baf-49fd-a75a-d76bd5cab19c
+        type: string
+    type: object
+  v3.GoalListResponse:
+    properties:
+      data:
+        description: List of resources
+        items:
+          $ref: '#/definitions/v3.Goal'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v3.Pagination'
+        description: Pagination information
+    type: object
+  v3.GoalResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.Goal'
+        description: The resource
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.ImportLinks:
+    properties:
+      matchRules:
+        description: URL of YNAB Import preview endpoint
+        example: https://example.com/api/v3/import/ynab-import-preview
+        type: string
+      transactions:
+        description: URL of YNAB4 import endpoint
+        example: https://example.com/api/v3/import/ynab4
+        type: string
+    type: object
+  v3.ImportPreviewList:
+    properties:
+      data:
+        description: List of transaction previews
+        items:
+          $ref: '#/definitions/v3.TransactionPreview'
+        type: array
+      error:
+        description: The error, if any occurred for this Match Rule
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.ImportResponse:
     properties:
       links:
         allOf:
-        - $ref: '#/definitions/router.RootLinks'
-        description: URLs of API endpoints
+        - $ref: '#/definitions/v3.ImportLinks'
+        description: Links for the v3 API
     type: object
-  router.V3Links:
+  v3.Links:
     properties:
       accounts:
         description: URL of Account collection endpoint
@@ -1470,25 +1049,444 @@ definitions:
         example: https://example.com/api/v3/transactions
         type: string
     type: object
-  router.V3Response:
+  v3.MatchRule:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        properties:
+          self:
+            description: The match rule itself
+            example: https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21
+            type: string
+        type: object
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.MatchRuleCreateResponse:
+    properties:
+      data:
+        description: List of created Match Rules
+        items:
+          $ref: '#/definitions/v3.MatchRuleResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.MatchRuleListResponse:
+    properties:
+      data:
+        description: List of Match Rules
+        items:
+          $ref: '#/definitions/v3.MatchRule'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v3.Pagination'
+        description: Pagination information
+    type: object
+  v3.MatchRuleResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.MatchRule'
+        description: The Match Rule data, if creation was successful
+      error:
+        description: The error, if any occurred for this Match Rule
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.Month:
+    properties:
+      allocation:
+        description: The sum of all allocations for this month
+        example: 1200.5
+        type: number
+      available:
+        description: The amount available to budget
+        example: 217.34
+        type: number
+      balance:
+        description: The sum of all envelope balances
+        example: 5231.37
+        type: number
+      categories:
+        description: A list of envelope month calculations grouped by category
+        items:
+          $ref: '#/definitions/v3.CategoryEnvelopes'
+        type: array
+      id:
+        description: The ID of the Budget
+        example: 1e777d24-3f5b-4c43-8000-04f65f895578
+        type: string
+      income:
+        description: The total income for the month (sum of all incoming transactions
+          without an Envelope)
+        example: 2317.34
+        type: number
+      month:
+        description: The month
+        example: "2006-05-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: The name of the Budget
+        example: Zero budget
+        type: string
+      spent:
+        description: The amount of money spent in this month
+        example: 133.7
+        type: number
+    type: object
+  v3.MonthConfig:
+    properties:
+      allocation:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      links:
+        properties:
+          envelope:
+            description: The Envelope this config belongs to
+            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
+            type: string
+          self:
+            description: The Month Config itself
+            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
+            type: string
+        type: object
+      month:
+        description: The month. This is always set to 00:00 UTC on the first of the
+          month.
+        example: "1969-06-01T00:00:00.000000Z"
+        type: string
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.MonthConfigCreate:
+    properties:
+      allocation:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+    type: object
+  v3.MonthConfigResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.MonthConfig'
+        description: Config for the month
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.MonthResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.Month'
+        description: Data for the month
+      error:
+        description: The error, if any occurred
+        type: string
+    type: object
+  v3.Pagination:
+    properties:
+      count:
+        description: The amount of records returned in this response
+        example: 25
+        type: integer
+      limit:
+        description: The maximum amount of resources to return for this request
+        example: 25
+        type: integer
+      offset:
+        description: The offset for the first record returned
+        example: 50
+        type: integer
+      total:
+        description: The total number of resources matching the query
+        example: 827
+        type: integer
+    type: object
+  v3.Response:
     properties:
       links:
         allOf:
-        - $ref: '#/definitions/router.V3Links'
+        - $ref: '#/definitions/v3.Links'
         description: Links for the v3 API
     type: object
-  router.VersionObject:
+  v3.Transaction:
+    properties:
+      amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 14.03
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      availableFrom:
+        description: The date from which on the transaction amount is available for
+          budgeting. Only used for income transactions. Defaults to the transaction
+          date.
+        example: "2021-11-17T00:00:00Z"
+        type: string
+      budgetId:
+        description: ID of the budget
+        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      date:
+        description: Date of the transaction. Time is currently only used for sorting
+        example: "1815-12-10T18:43:00.271152Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      destinationAccountId:
+        description: ID of the destination account
+        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 2649c965-7999-4873-ae16-89d5d5fa972e
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      links:
+        $ref: '#/definitions/v3.TransactionLinks'
+      note:
+        description: A note
+        example: Lunch
+        type: string
+      reconciledDestination:
+        default: false
+        description: Is the transaction reconciled in the destination account?
+        example: true
+        type: boolean
+      reconciledSource:
+        default: false
+        description: Is the transaction reconciled in the source account?
+        example: true
+        type: boolean
+      sourceAccountId:
+        description: ID of the source account
+        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.TransactionCreateResponse:
+    properties:
+      data:
+        description: List of created Transactions
+        items:
+          $ref: '#/definitions/v3.TransactionResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.TransactionEditable:
+    properties:
+      amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 14.03
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      availableFrom:
+        description: The date from which on the transaction amount is available for
+          budgeting. Only used for income transactions. Defaults to the transaction
+          date.
+        example: "2021-11-17T00:00:00Z"
+        type: string
+      budgetId:
+        description: ID of the budget
+        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
+        type: string
+      date:
+        description: Date of the transaction. Time is currently only used for sorting
+        example: "1815-12-10T18:43:00.271152Z"
+        type: string
+      destinationAccountId:
+        description: ID of the destination account
+        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 2649c965-7999-4873-ae16-89d5d5fa972e
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      note:
+        description: A note
+        example: Lunch
+        type: string
+      reconciledDestination:
+        default: false
+        description: Is the transaction reconciled in the destination account?
+        example: true
+        type: boolean
+      reconciledSource:
+        default: false
+        description: Is the transaction reconciled in the source account?
+        example: true
+        type: boolean
+      sourceAccountId:
+        description: ID of the source account
+        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
+        type: string
+    type: object
+  v3.TransactionLinks:
+    properties:
+      self:
+        description: The transaction itself
+        example: https://example.com/api/v3/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
+        type: string
+    type: object
+  v3.TransactionListResponse:
+    properties:
+      data:
+        description: List of transactions
+        items:
+          $ref: '#/definitions/v3.Transaction'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v3.Pagination'
+        description: Pagination information
+    type: object
+  v3.TransactionPreview:
+    properties:
+      destinationAccountName:
+        description: Name of the destination account from the CSV file
+        example: Deutsche Bahn
+        type: string
+      duplicateTransactionIds:
+        description: IDs of transactions that this transaction duplicates
+        items:
+          type: string
+        type: array
+      matchRuleId:
+        description: ID of the match rule that was applied to this transaction preview
+        example: 042d101d-f1de-4403-9295-59dc0ea58677
+        type: string
+      sourceAccountName:
+        description: Name of the source account from the CSV file
+        example: Employer
+        type: string
+      transaction:
+        $ref: '#/definitions/models.Transaction'
+    type: object
+  v3.TransactionResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v3.Transaction'
+        description: The Transaction data, if creation was successful
+      error:
+        description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  version.Object:
     properties:
       version:
         description: the running version of the Envelope Zero backend
         example: 1.1.0
         type: string
     type: object
-  router.VersionResponse:
+  version.Response:
     properties:
       data:
         allOf:
-        - $ref: '#/definitions/router.VersionObject'
+        - $ref: '#/definitions/version.Object'
         description: Data object for the version endpoint
     type: object
 info:
@@ -1501,7 +1499,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.RootResponse'
+            $ref: '#/definitions/root.Response'
       summary: API root
       tags:
       - General
@@ -1566,7 +1564,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.V3Response'
+            $ref: '#/definitions/v3.Response'
       summary: v3 API
       tags:
       - v3
@@ -1625,15 +1623,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.AccountListResponseV3'
+            $ref: '#/definitions/v3.AccountListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.AccountListResponseV3'
+            $ref: '#/definitions/v3.AccountListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.AccountListResponseV3'
+            $ref: '#/definitions/v3.AccountListResponse'
       summary: List accounts
       tags:
       - Accounts
@@ -1655,7 +1653,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/controllers.AccountV3Editable'
+            $ref: '#/definitions/v3.AccountEditable'
           type: array
       produces:
       - application/json
@@ -1663,19 +1661,19 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+            $ref: '#/definitions/v3.AccountCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+            $ref: '#/definitions/v3.AccountCreateResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+            $ref: '#/definitions/v3.AccountCreateResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.AccountCreateResponseV3'
+            $ref: '#/definitions/v3.AccountCreateResponse'
       summary: Creates accounts
       tags:
       - Accounts
@@ -1722,19 +1720,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
       summary: Get account
       tags:
       - Accounts
@@ -1778,26 +1776,26 @@ paths:
         name: account
         required: true
         schema:
-          $ref: '#/definitions/controllers.AccountV3Editable'
+          $ref: '#/definitions/v3.AccountEditable'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.AccountResponseV3'
+            $ref: '#/definitions/v3.AccountResponse'
       summary: Update account
       tags:
       - Accounts
@@ -1835,11 +1833,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.BudgetListResponseV3'
+            $ref: '#/definitions/v3.BudgetListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.BudgetListResponseV3'
+            $ref: '#/definitions/v3.BudgetListResponse'
       summary: List budgets
       tags:
       - Budgets
@@ -1869,15 +1867,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.BudgetCreateResponseV3'
+            $ref: '#/definitions/v3.BudgetCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.BudgetCreateResponseV3'
+            $ref: '#/definitions/v3.BudgetCreateResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.BudgetCreateResponseV3'
+            $ref: '#/definitions/v3.BudgetCreateResponse'
       summary: Create budget
       tags:
       - Budgets
@@ -1922,19 +1920,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
       summary: Get budget
       tags:
       - Budgets
@@ -1988,19 +1986,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
       summary: Update budget
       tags:
       - Budgets
@@ -2042,15 +2040,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.CategoryListResponseV3'
+            $ref: '#/definitions/v3.CategoryListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.CategoryListResponseV3'
+            $ref: '#/definitions/v3.CategoryListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.CategoryListResponseV3'
+            $ref: '#/definitions/v3.CategoryListResponse'
       summary: Get categories
       tags:
       - Categories
@@ -2072,7 +2070,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/controllers.CategoryCreateV3'
+            $ref: '#/definitions/v3.CategoryCreate'
           type: array
       produces:
       - application/json
@@ -2080,19 +2078,19 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+            $ref: '#/definitions/v3.CategoryCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+            $ref: '#/definitions/v3.CategoryCreateResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+            $ref: '#/definitions/v3.CategoryCreateResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.CategoryCreateResponseV3'
+            $ref: '#/definitions/v3.CategoryCreateResponse'
       summary: Create category
       tags:
       - Categories
@@ -2137,19 +2135,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
       summary: Get category
       tags:
       - Categories
@@ -2196,26 +2194,26 @@ paths:
         name: category
         required: true
         schema:
-          $ref: '#/definitions/controllers.CategoryCreateV3'
+          $ref: '#/definitions/v3.CategoryCreate'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.CategoryResponseV3'
+            $ref: '#/definitions/v3.CategoryResponse'
       summary: Update category
       tags:
       - Categories
@@ -2257,15 +2255,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.EnvelopeListResponseV3'
+            $ref: '#/definitions/v3.EnvelopeListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.EnvelopeListResponseV3'
+            $ref: '#/definitions/v3.EnvelopeListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.EnvelopeListResponseV3'
+            $ref: '#/definitions/v3.EnvelopeListResponse'
       summary: Get envelopes
       tags:
       - Envelopes
@@ -2287,7 +2285,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/controllers.EnvelopeCreateV3'
+            $ref: '#/definitions/v3.EnvelopeCreate'
           type: array
       produces:
       - application/json
@@ -2295,19 +2293,19 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+            $ref: '#/definitions/v3.EnvelopeCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+            $ref: '#/definitions/v3.EnvelopeCreateResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+            $ref: '#/definitions/v3.EnvelopeCreateResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.EnvelopeCreateResponseV3'
+            $ref: '#/definitions/v3.EnvelopeCreateResponse'
       summary: Create envelope
       tags:
       - Envelopes
@@ -2352,19 +2350,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
       summary: Get Envelope
       tags:
       - Envelopes
@@ -2411,26 +2409,26 @@ paths:
         name: envelope
         required: true
         schema:
-          $ref: '#/definitions/controllers.EnvelopeCreateV3'
+          $ref: '#/definitions/v3.EnvelopeCreate'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.EnvelopeResponseV3'
+            $ref: '#/definitions/v3.EnvelopeResponse'
       summary: Update envelope
       tags:
       - Envelopes
@@ -2454,19 +2452,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
       summary: Get MonthConfig
       tags:
       - Envelopes
@@ -2513,26 +2511,26 @@ paths:
         name: monthConfig
         required: true
         schema:
-          $ref: '#/definitions/controllers.MonthConfigCreateV3'
+          $ref: '#/definitions/v3.MonthConfigCreate'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.MonthConfigResponseV3'
+            $ref: '#/definitions/v3.MonthConfigResponse'
       summary: Update MonthConfig
       tags:
       - Envelopes
@@ -2601,15 +2599,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.GoalListResponseV3'
+            $ref: '#/definitions/v3.GoalListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.GoalListResponseV3'
+            $ref: '#/definitions/v3.GoalListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.GoalListResponseV3'
+            $ref: '#/definitions/v3.GoalListResponse'
       summary: Get goals
       tags:
       - Goals
@@ -2631,7 +2629,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/controllers.GoalV3Editable'
+            $ref: '#/definitions/v3.GoalEditable'
           type: array
       produces:
       - application/json
@@ -2639,19 +2637,19 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+            $ref: '#/definitions/v3.GoalCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+            $ref: '#/definitions/v3.GoalCreateResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+            $ref: '#/definitions/v3.GoalCreateResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.GoalCreateResponseV3'
+            $ref: '#/definitions/v3.GoalCreateResponse'
       summary: Create goals
       tags:
       - Goals
@@ -2696,19 +2694,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
       summary: Get goal
       tags:
       - Goals
@@ -2755,26 +2753,26 @@ paths:
         name: goal
         required: true
         schema:
-          $ref: '#/definitions/controllers.GoalV3Editable'
+          $ref: '#/definitions/v3.GoalEditable'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.GoalResponseV3'
+            $ref: '#/definitions/v3.GoalResponse'
       summary: Update goal
       tags:
       - Goals
@@ -2785,7 +2783,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.ImportV3Response'
+            $ref: '#/definitions/v3.ImportResponse'
       summary: Import API overview
       tags:
       - Import
@@ -2829,19 +2827,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.ImportPreviewListV3'
+            $ref: '#/definitions/v3.ImportPreviewList'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.ImportPreviewListV3'
+            $ref: '#/definitions/v3.ImportPreviewList'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.ImportPreviewListV3'
+            $ref: '#/definitions/v3.ImportPreviewList'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.ImportPreviewListV3'
+            $ref: '#/definitions/v3.ImportPreviewList'
       summary: Transaction Import Preview
       tags:
       - Import
@@ -2875,15 +2873,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.BudgetResponseV3'
+            $ref: '#/definitions/v3.BudgetResponse'
       summary: Import YNAB 4 budget
       tags:
       - Import
@@ -2917,15 +2915,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.MatchRuleListResponseV3'
+            $ref: '#/definitions/v3.MatchRuleListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.MatchRuleListResponseV3'
+            $ref: '#/definitions/v3.MatchRuleListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.MatchRuleListResponseV3'
+            $ref: '#/definitions/v3.MatchRuleListResponse'
       summary: Get matchRules
       tags:
       - MatchRules
@@ -2958,19 +2956,19 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+            $ref: '#/definitions/v3.MatchRuleCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+            $ref: '#/definitions/v3.MatchRuleCreateResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+            $ref: '#/definitions/v3.MatchRuleCreateResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.MatchRuleCreateResponseV3'
+            $ref: '#/definitions/v3.MatchRuleCreateResponse'
       summary: Create matchRules
       tags:
       - MatchRules
@@ -3015,19 +3013,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
       summary: Get matchRule
       tags:
       - MatchRules
@@ -3080,19 +3078,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.MatchRuleResponseV3'
+            $ref: '#/definitions/v3.MatchRuleResponse'
       summary: Update matchRule
       tags:
       - MatchRules
@@ -3147,19 +3145,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.MonthResponseV3'
+            $ref: '#/definitions/v3.MonthResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.MonthResponseV3'
+            $ref: '#/definitions/v3.MonthResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.MonthResponseV3'
+            $ref: '#/definitions/v3.MonthResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.MonthResponseV3'
+            $ref: '#/definitions/v3.MonthResponse'
       summary: Get data about a month
       tags:
       - Months
@@ -3191,7 +3189,7 @@ paths:
         name: mode
         required: true
         schema:
-          $ref: '#/definitions/controllers.BudgetAllocationMode'
+          $ref: '#/definitions/v3.BudgetAllocationMode'
       responses:
         "204":
           description: No Content
@@ -3288,15 +3286,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.TransactionListResponseV3'
+            $ref: '#/definitions/v3.TransactionListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.TransactionListResponseV3'
+            $ref: '#/definitions/v3.TransactionListResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.TransactionListResponseV3'
+            $ref: '#/definitions/v3.TransactionListResponse'
       summary: Get transactions
       tags:
       - Transactions
@@ -3321,7 +3319,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/controllers.TransactionV3Editable'
+            $ref: '#/definitions/v3.TransactionEditable'
           type: array
       produces:
       - application/json
@@ -3329,19 +3327,19 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+            $ref: '#/definitions/v3.TransactionCreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+            $ref: '#/definitions/v3.TransactionCreateResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+            $ref: '#/definitions/v3.TransactionCreateResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.TransactionCreateResponseV3'
+            $ref: '#/definitions/v3.TransactionCreateResponse'
       summary: Create transactions
       tags:
       - Transactions
@@ -3386,19 +3384,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
       summary: Get transaction
       tags:
       - Transactions
@@ -3445,26 +3443,26 @@ paths:
         name: transaction
         required: true
         schema:
-          $ref: '#/definitions/controllers.TransactionV3Editable'
+          $ref: '#/definitions/v3.TransactionEditable'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.TransactionResponseV3'
+            $ref: '#/definitions/v3.TransactionResponse'
       summary: Update transaction
       tags:
       - Transactions
@@ -3475,7 +3473,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.VersionResponse'
+            $ref: '#/definitions/version.Response'
       summary: API version
       tags:
       - General

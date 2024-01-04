@@ -45,7 +45,7 @@ You can run the backend on any Kubernetes cluster with a supported version using
 ```yaml
 image:
   repository: ghcr.io/envelope-zero/backend
-  tag: v3.3.4
+  tag: v4.1.0
 
 # All data is stored to a sqlite database in /data.
 # Make sure to persist and backup this directory.

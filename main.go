@@ -10,8 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/pkg/controllers"
-	"github.com/envelope-zero/backend/v4/pkg/database"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/pkg/router"
 	"github.com/gin-gonic/gin"
@@ -56,26 +54,16 @@ func main() {
 		log.Fatal().Msg("environment variable API_URL must be a valid URL")
 	}
 
-	// Create data directory
-	err = database.CreateDir("data")
+	// Create the data directory if it does not exist yet
+	err = os.MkdirAll("data", os.ModePerm)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create database directory")
+	}
+
+	err = models.Connect("data/gorm.db?_pragma=foreign_keys(1)")
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
-
-	db, err := database.Connect("data/gorm.db?_pragma=foreign_keys(1)")
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-
-	err = models.Migrate(db)
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-
-	// Set the DB context and add it to the controller
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, database.ContextURL, url)
-	controller := controllers.Controller{DB: db.WithContext(ctx)}
 
 	r, teardown, err := router.Config(url)
 	defer teardown()
@@ -85,7 +73,7 @@ func main() {
 	}
 
 	// Attach the routes to the root URL
-	router.AttachRoutes(controller, r.Group("/"))
+	router.AttachRoutes(r.Group("/"))
 
 	// Set the port to the env variable, default to 8080
 	port := os.Getenv("PORT")

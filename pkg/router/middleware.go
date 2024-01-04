@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/pkg/database"
+	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 func URLMiddleware(url *url.URL) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set(string(database.ContextURL), url.String())
+		c.Set(string(models.DBContextURL), url.String())
 		c.Next()
 	}
 }

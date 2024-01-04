@@ -3,42 +3,49 @@ package models_test
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/database"
 	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v4/test"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func (suite *TestSuiteStandard) TestMigrate() {
-	suite.CloseDB()
-	err := models.Migrate(suite.db)
-	suite.Assert().NotNil(err)
-	suite.Assert().Contains(err.Error(), "error during DB migration")
+func TestMigrateWithExistingDB(t *testing.T) {
+	testDB := test.TmpFile(t)
+
+	// Migrate the database once
+	require.Nil(t, models.Connect(fmt.Sprintf("%s?_pragma=foreign_keys(1)", testDB)))
+
+	// Close the connection
+	sqlDB, err := models.DB.DB()
+	require.Nil(t, err)
+	sqlDB.Close()
+
+	// Migrate it again
+	require.Nil(t, models.Connect(fmt.Sprintf("%s?_pragma=foreign_keys(1)", testDB)))
 }
 
-func (suite *TestSuiteStandard) TestMigrateWithExistingDB() {
-	// Initialize the database to have all tables
-	err := suite.db.AutoMigrate()
-	suite.Assert().Nil(err, err)
+func TestMigrateAllocation(t *testing.T) {
+	testDB := test.TmpFile(t)
 
-	// Execute the migration again
-	err = models.Migrate(suite.db)
-	suite.Assert().Nil(err)
-}
+	// Test database
+	require.Nil(t, models.Connect(fmt.Sprintf("%s?_pragma=foreign_keys(1)", testDB)))
 
-func (suite *TestSuiteStandard) TestMigrateAllocation() {
-	err := suite.db.Raw("CREATE TABLE allocations (`id` text,`created_at` datetime,`updated_at` datetime,`deleted_at` datetime,`month` date,`amount` DECIMAL(20,8),`envelope_id` text,PRIMARY KEY (`id`))").Scan(nil).Error
-	suite.Assert().Nil(err)
+	require.Nil(t, models.DB.Raw("CREATE TABLE allocations (`id` text,`created_at` datetime,`updated_at` datetime,`deleted_at` datetime,`month` date,`amount` DECIMAL(20,8),`envelope_id` text,PRIMARY KEY (`id`))").Scan(nil).Error)
 
-	err = suite.db.Raw("INSERT INTO allocations (id, envelope_id, month, amount) VALUES ('3afd1b7f-6bae-4256-aa78-89ef5dac7775', '41efaa99-1737-4dc6-818b-5d5f2ac65138', '2023-12-01 00:00:00+00:00', '10')").Scan(nil).Error
-	suite.Assert().Nil(err)
+	require.Nil(t, models.DB.Raw("INSERT INTO allocations (id, envelope_id, month, amount) VALUES ('3afd1b7f-6bae-4256-aa78-89ef5dac7775', '41efaa99-1737-4dc6-818b-5d5f2ac65138', '2023-12-01 00:00:00+00:00', '10')").Scan(nil).Error)
 
-	err = models.Migrate(suite.db)
-	suite.Assert().Nil(err)
+	// Close the connection
+	sqlDB, err := models.DB.DB()
+	require.Nil(t, err)
+	sqlDB.Close()
+
+	// Set up the database connection again. This also migrates, so the allocations
+	// should now be migrated
+	require.Nil(t, models.Connect(fmt.Sprintf("%s?_pragma=foreign_keys(1)", testDB)))
 
 	type monthConfig struct {
 		EnvelopeID string          `gorm:"column:envelope_id"`
@@ -47,21 +54,18 @@ func (suite *TestSuiteStandard) TestMigrateAllocation() {
 	}
 
 	var monthConfigs []monthConfig
-	err = suite.db.Raw("SELECT envelope_id, month, allocation FROM month_configs WHERE envelope_id = '41efaa99-1737-4dc6-818b-5d5f2ac65138'").Scan(&monthConfigs).Error
-	suite.Assert().Nil(err)
-	suite.Assert().Len(monthConfigs, 1)
-	suite.Assert().True(monthConfigs[0].Allocation.Equal(decimal.NewFromFloat(10)))
+	require.Nil(t, models.DB.Raw("SELECT envelope_id, month, allocation FROM month_configs WHERE envelope_id = '41efaa99-1737-4dc6-818b-5d5f2ac65138'").Scan(&monthConfigs).Error)
+	assert.Len(t, monthConfigs, 1)
+	assert.True(t, monthConfigs[0].Allocation.Equal(decimal.NewFromFloat(10)))
 
 	var count int
-	err = suite.db.Raw("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='allocations'").Scan(&count).Error
-	suite.Assert().Nil(err)
-	suite.Assert().Equal(0, count)
+	require.Nil(t, models.DB.Raw("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='allocations'").Scan(&count).Error)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, count)
 }
 
 func TestOverspendMigration(t *testing.T) {
-	// Copy test database to a temporary file
-	dir := t.TempDir()
-	dbFile := filepath.Join(dir, "overspend-handling.db")
+	dbFile := test.TmpFile(t)
 
 	input, err := os.ReadFile("../../testdata/migrations/overspend-handling.db")
 	if err != nil {
@@ -73,14 +77,9 @@ func TestOverspendMigration(t *testing.T) {
 	}
 
 	// Connect to the database
-	db, err := database.Connect(fmt.Sprintf("%s?_pragma=foreign_keys(1)", dbFile))
+	err = models.Connect(fmt.Sprintf("%s?_pragma=foreign_keys(1)", dbFile))
 	if err != nil {
 		t.Errorf("Database connection failed with: %#v", err)
-	}
-
-	err = models.Migrate(db)
-	if err != nil {
-		t.Errorf("Database migration failed with: %s", err)
 	}
 
 	// The envelope are hard-coded here because the test database file does not change
@@ -114,12 +113,12 @@ func TestOverspendMigration(t *testing.T) {
 		t.Run(fmt.Sprintf("%s - %s", tt.envelopeID, tt.month), func(t *testing.T) {
 			// Get the number of records matching the month config. This must always be 1
 			var count int
-			db.Raw("SELECT count(*) FROM month_configs WHERE envelope_id = ? AND month = ? AND allocation = ?", tt.envelopeID, tt.month, tt.allocation).Scan(&count)
+			models.DB.Raw("SELECT count(*) FROM month_configs WHERE envelope_id = ? AND month = ? AND allocation = ?", tt.envelopeID, tt.month, tt.allocation).Scan(&count)
 			assert.Equal(t, 1, count)
 		})
 	}
 
-	if db.Migrator().HasColumn(&models.MonthConfig{}, "overspend_mode") {
+	if models.DB.Migrator().HasColumn(&models.MonthConfig{}, "overspend_mode") {
 		t.Error("column overspend_mode has not been deleted")
 	}
 }
