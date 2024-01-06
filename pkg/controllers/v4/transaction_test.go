@@ -16,15 +16,25 @@ import (
 )
 
 // createTestTransaction creates a test transactions via the v4 API.
-func (suite *TestSuiteStandard) createTestTransaction(t *testing.T, transaction models.Transaction, expectedStatus ...int) v4.TransactionResponse {
-	transaction = suite.defaultTransactionCreate(transaction)
+func (suite *TestSuiteStandard) createTestTransaction(t *testing.T, transaction v4.TransactionEditable, expectedStatus ...int) v4.TransactionResponse {
+	if transaction.SourceAccountID == uuid.Nil {
+		transaction.SourceAccountID = suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "Source Account"}).Data.ID
+	}
+
+	if transaction.DestinationAccountID == uuid.Nil {
+		transaction.DestinationAccountID = suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "Destination Account"}).Data.ID
+	}
+
+	if transaction.EnvelopeID == &uuid.Nil {
+		*transaction.EnvelopeID = suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{Name: "Transaction Test Envelope"}).Data.ID
+	}
 
 	// Default to 201 Created as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	reqBody := []models.Transaction{transaction}
+	reqBody := []v4.TransactionEditable{transaction}
 
 	r := test.Request(t, http.MethodPost, "http://example.com/v4/transactions", reqBody)
 	test.AssertHTTPStatus(t, &r, expectedStatus...)
@@ -60,7 +70,7 @@ func (suite *TestSuiteStandard) TestTransactionsOptions() {
 			http.StatusNoContent,
 			"",
 			func() string {
-				return suite.createTestTransaction(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
+				return suite.createTestTransaction(suite.T(), v4.TransactionEditable{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
 			},
 		},
 	}
@@ -118,12 +128,12 @@ func (suite *TestSuiteStandard) TestTransactionsDatabaseError() {
 // not correctly sorted when multiple transactions occurred on a day. In that case, the
 // oldest transaction would be at the bottom and not at the top.
 func (suite *TestSuiteStandard) TestTransactionsGet() {
-	t1 := suite.createTestTransaction(suite.T(), models.Transaction{
+	t1 := suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Amount: decimal.NewFromFloat(17.23),
 		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
 	})
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Amount: decimal.NewFromFloat(23.42),
 		Date:   time.Date(2023, 11, 10, 11, 12, 13, 0, time.UTC),
 	})
@@ -131,7 +141,7 @@ func (suite *TestSuiteStandard) TestTransactionsGet() {
 	// Need to sleep 1 second because SQLite datetime only has second precision
 	time.Sleep(1 * time.Second)
 
-	t3 := suite.createTestTransaction(suite.T(), models.Transaction{
+	t3 := suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Amount: decimal.NewFromFloat(44.05),
 		Date:   time.Date(2023, 11, 10, 10, 11, 12, 0, time.UTC),
 	})
@@ -156,9 +166,9 @@ func (suite *TestSuiteStandard) TestTransactionsGet() {
 func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 	b := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	a1 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 1"})
-	a2 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 2"})
-	a3 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 3"})
+	a1 := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 1"})
+	a2 := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 2"})
+	a3 := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 3"})
 
 	c := suite.createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b.Data.ID})
 
@@ -168,11 +178,10 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 	e1ID := &e1.Data.ID
 	e2ID := &e2.Data.ID
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                  time.Date(2018, 9, 5, 17, 13, 29, 45256, time.UTC),
 		Amount:                decimal.NewFromFloat(2.718),
 		Note:                  "This was an important expense",
-		BudgetID:              b.Data.ID,
 		EnvelopeID:            e1ID,
 		SourceAccountID:       a1.Data.ID,
 		DestinationAccountID:  a2.Data.ID,
@@ -180,11 +189,10 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		ReconciledDestination: false,
 	})
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                  time.Date(2016, 5, 1, 14, 13, 25, 584575, time.UTC),
 		Amount:                decimal.NewFromFloat(11235.813),
 		Note:                  "Not important",
-		BudgetID:              b.Data.ID,
 		EnvelopeID:            e2ID,
 		SourceAccountID:       a2.Data.ID,
 		DestinationAccountID:  a1.Data.ID,
@@ -192,11 +200,10 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		ReconciledDestination: true,
 	})
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                  time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC),
 		Amount:                decimal.NewFromFloat(2.718),
 		Note:                  "",
-		BudgetID:              b.Data.ID,
 		EnvelopeID:            e1ID,
 		SourceAccountID:       a3.Data.ID,
 		DestinationAccountID:  a2.Data.ID,
@@ -306,8 +313,8 @@ func (suite *TestSuiteStandard) TestTransactionsCreateInvalidBody() {
 // TestTransactionsCreate verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestTransactionsCreate() {
 	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	internalAccount := suite.createTestAccount(suite.T(), models.Account{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate Internal"})
-	externalAccount := suite.createTestAccount(suite.T(), models.Account{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate External"})
+	internalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{External: false, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate Internal"})
+	externalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{External: true, BudgetID: budget.Data.ID, Name: "TestTransactionsCreate External"})
 
 	tests := []struct {
 		name           string
@@ -394,7 +401,7 @@ func (suite *TestSuiteStandard) TestTransactionsGetSingle() {
 			http.StatusOK,
 			"",
 			func() string {
-				return suite.createTestTransaction(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(13.71)}).Data.Links.Self
+				return suite.createTestTransaction(suite.T(), v4.TransactionEditable{Amount: decimal.NewFromFloat(13.71)}).Data.Links.Self
 			},
 		},
 		{
@@ -431,7 +438,7 @@ func (suite *TestSuiteStandard) TestTransactionsDelete() {
 		{
 			"Standard deletion",
 			http.StatusNoContent,
-			suite.createTestTransaction(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(123.12)}).Data.ID.String(),
+			suite.createTestTransaction(suite.T(), v4.TransactionEditable{Amount: decimal.NewFromFloat(123.12)}).Data.ID.String(),
 		},
 		{
 			"Does not exist",
@@ -457,7 +464,7 @@ func (suite *TestSuiteStandard) TestTransactionsDelete() {
 
 // TestTransactionsUpdateFail verifies that transaction updates fail where they should.
 func (suite *TestSuiteStandard) TestTransactionsUpdateFail() {
-	transaction := suite.createTestTransaction(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(584.42), Note: "Test note for transaction"})
+	transaction := suite.createTestTransaction(suite.T(), v4.TransactionEditable{Amount: decimal.NewFromFloat(584.42), Note: "Test note for transaction"})
 
 	tests := []struct {
 		name   string // Name for the test
@@ -522,12 +529,11 @@ func (suite *TestSuiteStandard) TestUpdateNonExistingTransaction() {
 // TestTransactionsUpdate verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestTransactionsUpdate() {
 	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
-	transaction := suite.createTestTransaction(suite.T(), models.Transaction{
+	transaction := suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Amount:               decimal.NewFromFloat(23.14),
 		Note:                 "Test note for transaction",
-		BudgetID:             suite.createTestBudget(suite.T(), v4.BudgetEditable{Name: "Testing budget for updating of outgoing transfer"}).Data.ID,
-		SourceAccountID:      suite.createTestAccount(suite.T(), models.Account{Name: "Internal Source Account", External: false}).Data.ID,
-		DestinationAccountID: suite.createTestAccount(suite.T(), models.Account{Name: "External destination account", External: true}).Data.ID,
+		SourceAccountID:      suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "Internal Source Account", External: false}).Data.ID,
+		DestinationAccountID: suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "External destination account", External: true}).Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
 	})
 

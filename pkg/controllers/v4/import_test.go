@@ -34,7 +34,7 @@ func (suite *TestSuiteStandard) parseCSV(t *testing.T, accountID uuid.UUID, file
 
 // TestImportSuccess verifies successful imports for all import types.
 func (suite *TestSuiteStandard) TestImportSuccess() {
-	accountID := suite.createTestAccount(suite.T(), models.Account{Name: "TestImport"}).Data.ID.String()
+	accountID := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "TestImport"}).Data.ID.String()
 
 	tests := []struct {
 		name   string
@@ -151,7 +151,7 @@ func (suite *TestSuiteStandard) TestImportYnab4Fails() {
 
 // TestImportYnabImportPreviewFails tests failing requests for the YNAB import format preview endpoint.
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewFails() {
-	accountID := suite.createTestAccount(suite.T(), models.Account{Name: "TestImportYnabImportPreviewFails"}).Data.ID.String()
+	accountID := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "TestImportYnabImportPreviewFails"}).Data.ID.String()
 
 	tests := []struct {
 		name          string
@@ -190,19 +190,19 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFails() {
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewDuplicateDetection() {
 	// Create test account
-	account := suite.createTestAccount(suite.T(), models.Account{Name: "TestImportYnabImportPreviewDuplicateDetection"})
+	account := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "TestImportYnabImportPreviewDuplicateDetection"})
 
 	// Get the import hash of the first transaction and create one with the same import hash
 	preview := suite.parseCSV(suite.T(), account.Data.ID, "comdirect-ynap.csv")
 
-	transaction := suite.createTestTransaction(suite.T(), models.Transaction{
+	transaction := suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		SourceAccountID: account.Data.ID,
 		ImportHash:      preview.Data[0].Transaction.ImportHash,
 		Amount:          decimal.NewFromFloat(1.13),
 	})
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
-		SourceAccountID: suite.createTestAccount(suite.T(), models.Account{Note: "This account is in a different Budget, but has the same ImportHash", Name: "TestYnabImportPreviewDuplicateDetection Different Budget"}).Data.ID,
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+		SourceAccountID: suite.createTestAccount(suite.T(), v4.AccountEditable{Note: "This account is in a different Budget, but has the same ImportHash", Name: "TestYnabImportPreviewDuplicateDetection Different Budget"}).Data.ID,
 		ImportHash:      preview.Data[0].Transaction.ImportHash,
 		Amount:          decimal.NewFromFloat(42.23),
 	})
@@ -215,7 +215,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewDuplicateDetection() 
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewAvailableFrom() {
 	// Create test account
-	account := suite.createTestAccount(suite.T(), models.Account{Name: "TestImportYnabImportPreviewAvailableFrom"})
+	account := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "TestImportYnabImportPreviewAvailableFrom"})
 	preview := suite.parseCSV(suite.T(), account.Data.ID, "available-from-test.csv")
 
 	dates := []types.Month{
@@ -232,19 +232,19 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewAvailableFrom() {
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewFindAccounts() {
 	// Create a budget and two existing accounts to use
 	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	edeka := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
+	edeka := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
 
 	// Create an account named "Edeka" in another budget to ensure it is not found. If it were found, the tests for the non-archived
 	// Edeka account being found would fail since we do not use an account if we find more than one with the same name
-	_ = suite.createTestAccount(suite.T(), models.Account{Name: "Edeka"})
+	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "Edeka"})
 
 	// Account we import to
-	internalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
+	internalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
 	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: suite.createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
 	tests := []struct {
 		name                    string       // Name of the test
@@ -292,16 +292,16 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFindAccounts() {
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 	// Create a budget and two existing accounts to use
 	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	edeka := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
-	bahn := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Deutsche Bahn", External: true})
+	edeka := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
+	bahn := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, Name: "Deutsche Bahn", External: true})
 
 	// Account we import to
-	internalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
+	internalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
 	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: suite.createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
 	tests := []struct {
 		name                  string                        // Name of the test
@@ -316,7 +316,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 			[]uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestMatchRule(t, models.MatchRule{
+				edeka := suite.createTestMatchRule(t, v4.MatchRuleEditable{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
@@ -330,12 +330,12 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 			[]uuid.UUID{edeka.Data.ID, bahn.Data.ID, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestMatchRule(t, models.MatchRule{
+				edeka := suite.createTestMatchRule(t, v4.MatchRuleEditable{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
 
-				db := suite.createTestMatchRule(t, models.MatchRule{
+				db := suite.createTestMatchRule(t, v4.MatchRuleEditable{
 					Match:     "DB Vertrieb GmbH",
 					AccountID: bahn.Data.ID,
 				})

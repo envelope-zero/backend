@@ -8,7 +8,6 @@ import (
 
 	"github.com/envelope-zero/backend/v4/internal/types"
 	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -16,12 +15,12 @@ import (
 
 func (suite *TestSuiteStandard) TestCleanup() {
 	_ = suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	account := suite.createTestAccount(suite.T(), models.Account{Name: "TestCleanup"})
+	account := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "TestCleanup"})
 	_ = suite.createTestCategory(suite.T(), v4.CategoryEditable{})
 	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(17.32)})
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{Amount: decimal.NewFromFloat(17.32)})
 	_ = suite.patchTestMonthConfig(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), v4.MonthConfigEditable{})
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{AccountID: account.Data.ID, Match: "Delete me"})
+	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{AccountID: account.Data.ID, Match: "Delete me"})
 
 	tests := []string{
 		"http://example.com/v4/accounts",

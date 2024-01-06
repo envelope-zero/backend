@@ -8,19 +8,18 @@ import (
 	"testing"
 
 	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestAccount(t *testing.T, account models.Account, expectedStatus ...int) v4.AccountResponse {
+func (suite *TestSuiteStandard) createTestAccount(t *testing.T, account v4.AccountEditable, expectedStatus ...int) v4.AccountResponse {
 	if account.BudgetID == uuid.Nil {
 		account.BudgetID = suite.createTestBudget(t, v4.BudgetEditable{Name: "Testing budget"}).Data.ID
 	}
 
-	body := []models.Account{
+	body := []v4.AccountEditable{
 		account,
 	}
 
@@ -54,7 +53,7 @@ func (suite *TestSuiteStandard) TestAccountsDBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestAccount(t, models.Account{BudgetID: b.Data.ID}, http.StatusInternalServerError)
+				suite.createTestAccount(t, v4.AccountEditable{BudgetID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -85,7 +84,7 @@ func (suite *TestSuiteStandard) TestAccountsOptions() {
 	}{
 		{"No account with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Account exists", suite.createTestAccount(suite.T(), models.Account{}).Data.ID.String(), http.StatusNoContent},
+		{"Account exists", suite.createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -104,7 +103,7 @@ func (suite *TestSuiteStandard) TestAccountsOptions() {
 // TestAccountGetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestAccountsGetSingle() {
-	a := suite.createTestAccount(suite.T(), models.Account{})
+	a := suite.createTestAccount(suite.T(), v4.AccountEditable{})
 
 	tests := []struct {
 		name   string
@@ -140,7 +139,7 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 	b1 := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
 	b2 := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	_ = suite.createTestAccount(suite.T(), models.Account{
+	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "Exact Account Match",
 		Note:     "This is a specific note",
 		BudgetID: b1.Data.ID,
@@ -148,7 +147,7 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 		External: false,
 	})
 
-	_ = suite.createTestAccount(suite.T(), models.Account{
+	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "External Account Filter",
 		Note:     "This is a specific note",
 		BudgetID: b2.Data.ID,
@@ -156,7 +155,7 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 		External: true,
 	})
 
-	_ = suite.createTestAccount(suite.T(), models.Account{
+	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "External Account Filter",
 		Note:     "A different note",
 		BudgetID: b1.Data.ID,
@@ -165,13 +164,13 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 		Archived: true,
 	})
 
-	_ = suite.createTestAccount(suite.T(), models.Account{
+	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "",
 		Note:     "specific note",
 		BudgetID: b1.Data.ID,
 	})
 
-	_ = suite.createTestAccount(suite.T(), models.Account{
+	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "Name only",
 		Note:     "",
 		BudgetID: b1.Data.ID,
@@ -239,7 +238,7 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 
 func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 	// Test account for uniqueness
-	a := suite.createTestAccount(suite.T(), models.Account{
+	a := suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Unique Account Name for Budget",
 	})
 
@@ -276,7 +275,7 @@ func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 		},
 		{
 			"Duplicate name for budget",
-			[]models.Account{
+			[]v4.AccountEditable{
 				{
 					Name:     a.Data.Name,
 					BudgetID: a.Data.BudgetID,
@@ -307,7 +306,7 @@ func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 // Verify that updating accounts works as desired
 func (suite *TestSuiteStandard) TestAccountsUpdate() {
 	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	account := suite.createTestAccount(suite.T(), models.Account{Name: "Original name", BudgetID: budget.Data.ID})
+	account := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "Original name", BudgetID: budget.Data.ID})
 
 	tests := []struct {
 		name     string                                   // name of the test
@@ -382,7 +381,7 @@ func (suite *TestSuiteStandard) TestAccountsUpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				account := suite.createTestAccount(suite.T(), models.Account{
+				account := suite.createTestAccount(suite.T(), v4.AccountEditable{
 					Name: "New Budget",
 					Note: "More tests something something",
 				})
@@ -414,7 +413,7 @@ func (suite *TestSuiteStandard) TestAccountsDelete() {
 
 			if tt.id == "" {
 				// Create test Account
-				a := suite.createTestAccount(t, models.Account{})
+				a := suite.createTestAccount(t, v4.AccountEditable{})
 				tt.id = a.Data.ID.String()
 			}
 
@@ -427,19 +426,19 @@ func (suite *TestSuiteStandard) TestAccountsDelete() {
 
 // TestAccountsGetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestAccountsGetSorted() {
-	a1 := suite.createTestAccount(suite.T(), models.Account{
+	a1 := suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Alphabetically first",
 	})
 
-	a2 := suite.createTestAccount(suite.T(), models.Account{
+	a2 := suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Second in creation, third in list",
 	})
 
-	a3 := suite.createTestAccount(suite.T(), models.Account{
+	a3 := suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "First is alphabetically second",
 	})
 
-	a4 := suite.createTestAccount(suite.T(), models.Account{
+	a4 := suite.createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Zulu is the last one",
 	})
 
@@ -461,7 +460,7 @@ func (suite *TestSuiteStandard) TestAccountsGetSorted() {
 
 func (suite *TestSuiteStandard) TestAccountsPagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestAccount(suite.T(), models.Account{Name: fmt.Sprint(i)})
+		suite.createTestAccount(suite.T(), v4.AccountEditable{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

@@ -10,7 +10,6 @@ import (
 
 	"github.com/envelope-zero/backend/v4/internal/types"
 	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -221,8 +220,8 @@ func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 
 func (suite *TestSuiteStandard) TestMonthsAllocateSpend() {
 	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	cashAccount := suite.createTestAccount(suite.T(), models.Account{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
-	externalAccount := suite.createTestAccount(suite.T(), models.Account{External: true, Name: "TestSetMonthSpend External"})
+	cashAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
+	externalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{External: true, Name: "TestSetMonthSpend External"})
 	category := suite.createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: budget.Data.ID})
 	envelope1 := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: category.Data.ID})
 	envelope2 := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: category.Data.ID})
@@ -240,10 +239,9 @@ func (suite *TestSuiteStandard) TestMonthsAllocateSpend() {
 	)
 
 	eID := &envelope1.Data.ID
-	transaction1 := suite.createTestTransaction(suite.T(), models.Transaction{
+	transaction1 := suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2022, 1, 15, 14, 43, 27, 0, time.UTC),
 		EnvelopeID:           eID,
-		BudgetID:             budget.Data.ID,
 		SourceAccountID:      cashAccount.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		Amount:               decimal.NewFromFloat(15),
@@ -331,8 +329,8 @@ func (suite *TestSuiteStandard) TestMonths() {
 	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
 	category := suite.createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: budget.Data.ID, Name: "Upkeep"})
 	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: category.Data.ID, Name: "Utilities"})
-	account := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
-	externalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, External: true})
+	account := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
+	externalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, External: true})
 
 	// Allocate funds to the months
 	allocations := []struct {
@@ -350,41 +348,37 @@ func (suite *TestSuiteStandard) TestMonths() {
 		})
 	}
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2022, 1, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(10.0),
 		Note:                 "Water bill for January",
-		BudgetID:             budget.Data.ID,
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2022, 2, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(5.0),
 		Note:                 "Water bill for February",
-		BudgetID:             budget.Data.ID,
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2022, 3, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(15.0),
 		Note:                 "Water bill for March",
-		BudgetID:             budget.Data.ID,
 		SourceAccountID:      account.Data.ID,
 		DestinationAccountID: externalAccount.Data.ID,
 		EnvelopeID:           &envelope.Data.ID,
 	})
 
-	_ = suite.createTestTransaction(suite.T(), models.Transaction{
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2022, 3, 1, 7, 38, 17, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(1500),
 		Note:                 "Income for march",
-		BudgetID:             budget.Data.ID,
 		SourceAccountID:      externalAccount.Data.ID,
 		DestinationAccountID: account.Data.ID,
 		EnvelopeID:           nil,
