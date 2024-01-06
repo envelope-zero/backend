@@ -8651,7 +8651,12 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "$ref": "#/definitions/v4.EnvelopeLinks"
+                    "description": "Links to related resources",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v4.EnvelopeLinks"
+                        }
+                    ]
                 },
                 "name": {
                     "description": "Name of the envelope",

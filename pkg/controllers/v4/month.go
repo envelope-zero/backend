@@ -45,7 +45,6 @@ type EnvelopeMonth struct {
 	Spent      decimal.Decimal `json:"spent" example:"73.12"`      // The amount spent over the whole month
 	Balance    decimal.Decimal `json:"balance" example:"12.32"`    // The balance at the end of the monht
 	Allocation decimal.Decimal `json:"allocation" example:"85.44"` // The amount of money allocated
-	Links      EnvelopeLinks   `json:"links"`
 }
 
 // RegisterMonthRoutes registers the routes for months with
@@ -402,10 +401,6 @@ func envelopeMonth(c *gin.Context, db *gorm.DB, e models.Envelope, month types.M
 	}
 
 	envelopeMonth.Allocation = monthConfig.Allocation
-
-	// Set the links
-	// TODO: Remove this with v4
-	envelopeMonth.Links = envelopeMonth.Envelope.Links
 	return envelopeMonth, nil
 }
 

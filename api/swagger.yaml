@@ -2113,7 +2113,9 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        $ref: '#/definitions/v4.EnvelopeLinks'
+        allOf:
+        - $ref: '#/definitions/v4.EnvelopeLinks'
+        description: Links to related resources
       name:
         description: Name of the envelope
         example: Groceries
