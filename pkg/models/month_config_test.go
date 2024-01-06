@@ -15,9 +15,7 @@ func (suite *TestSuiteStandard) TestMonthConfigTrimWhitespace() {
 	note := " Some more whitespace in the notes    "
 
 	account := suite.createTestMonthConfig(models.MonthConfig{
-		MonthConfigCreate: models.MonthConfigCreate{
-			Note: note,
-		},
+		Note: note,
 		EnvelopeID: suite.createTestEnvelope(models.Envelope{
 			CategoryID: suite.createTestCategory(models.Category{
 				BudgetID: suite.createTestBudget(models.Budget{}).ID,

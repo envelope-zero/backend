@@ -1202,44 +1202,26 @@ definitions:
         minimum: 1e-08
         multipleOf: 1e-08
         type: number
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
+      envelopeID:
+        description: We do not use the default model here, we use envelope ID and
+          month
         type: string
       envelopeId:
         description: ID of the envelope
         example: 10b9705d-3356-459e-9d5a-28d42a6c4547
         type: string
       links:
-        properties:
-          envelope:
-            description: The Envelope this config belongs to
-            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
-            type: string
-          self:
-            description: The Month Config itself
-            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
-            type: string
-        type: object
+        $ref: '#/definitions/v3.MonthConfigLinks'
       month:
-        description: The month. This is always set to 00:00 UTC on the first of the
-          month.
-        example: "1969-06-01T00:00:00.000000Z"
+        description: We do not use the default model here, we use envelope ID and
+          month
         type: string
       note:
         description: A note for the month config
         example: Added 200€ here because we replaced Tim's expensive vase
         type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
     type: object
-  v3.MonthConfigCreate:
+  v3.MonthConfigEditable:
     properties:
       allocation:
         description: The maximum value is "999999999999.99999999", swagger unfortunately
@@ -1249,9 +1231,29 @@ definitions:
         minimum: 1e-08
         multipleOf: 1e-08
         type: number
+      envelopeId:
+        description: ID of the envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      month:
+        description: The month. This is always set to 00:00 UTC on the first of the
+          month.
+        example: "1969-06-01T00:00:00.000000Z"
+        type: string
       note:
         description: A note for the month config
         example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+    type: object
+  v3.MonthConfigLinks:
+    properties:
+      envelope:
+        description: The Envelope this config belongs to
+        example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
+        type: string
+      self:
+        description: The Month Config itself
+        example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
         type: string
     type: object
   v3.MonthConfigResponse:
@@ -2537,7 +2539,7 @@ paths:
         name: monthConfig
         required: true
         schema:
-          $ref: '#/definitions/v3.MonthConfigCreate'
+          $ref: '#/definitions/v3.MonthConfigEditable'
       produces:
       - application/json
       responses:

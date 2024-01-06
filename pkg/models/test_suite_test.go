@@ -97,13 +97,13 @@ func (suite *TestSuiteStandard) createTestTransaction(transaction models.Transac
 	return transaction
 }
 
-func (suite *TestSuiteStandard) createTestMonthConfig(c models.MonthConfig) models.MonthConfig {
-	err := models.DB.Save(&c).Error
+func (suite *TestSuiteStandard) createTestMonthConfig(monthConfig models.MonthConfig) models.MonthConfig {
+	err := models.DB.Save(&monthConfig).Error
 	if err != nil {
-		suite.Assert().FailNow("MonthConfig could not be saved", "Error: %s, Transaction: %#v", err, c)
+		suite.Assert().FailNow("MonthConfig could not be saved", "Error: %s, Transaction: %#v", err, monthConfig)
 	}
 
-	return c
+	return monthConfig
 }
 
 func (suite *TestSuiteStandard) createTestGoal(goal models.Goal) models.Goal {

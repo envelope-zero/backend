@@ -477,10 +477,8 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 
 			monthConfig := importer.MonthConfig{
 				Model: models.MonthConfig{
-					Month: monthBudget.Month,
-					MonthConfigCreate: models.MonthConfigCreate{
-						Allocation: subCategoryBudget.Budgeted,
-					},
+					Month:      monthBudget.Month,
+					Allocation: subCategoryBudget.Budgeted,
 				},
 				Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
 				Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,

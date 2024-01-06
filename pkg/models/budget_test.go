@@ -82,33 +82,25 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      marchTwentyTwentyTwo.AddDate(0, -2),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(17.42),
-		},
+		Allocation: decimal.NewFromFloat(17.42),
 	})
 
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      marchTwentyTwentyTwo.AddDate(0, -1),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(24.58),
-		},
+		Allocation: decimal.NewFromFloat(24.58),
 	})
 
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      marchTwentyTwentyTwo,
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(25),
-		},
+		Allocation: decimal.NewFromFloat(25),
 	})
 
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      types.NewMonth(2170, 2),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(24.58),
-		},
+		Allocation: decimal.NewFromFloat(24.58),
 	})
 
 	_ = suite.createTestTransaction(models.Transaction{

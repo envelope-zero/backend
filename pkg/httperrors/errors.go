@@ -32,7 +32,7 @@ var (
 	ErrInvalidQueryString            = errors.New("the query string contains unparseable data. Please check the values")
 	ErrInvalidUUID                   = errors.New("the specified resource ID is not a valid UUID")
 	ErrMonthNotSetInQuery            = errors.New("the month query parameter must be set")
-	ErrMultipleAllocations           = errors.New("you can not create multiple allocations for the same month")
+	ErrMultipleMonthConfigs          = errors.New("you can not create multiple month configs for the same envelope and month")
 	ErrNoFilePost                    = errors.New("you must send a file to this endpoint")
 	ErrNoResource                    = errors.New("there is no resource for the ID you specified")
 	ErrReferenceResourceDoesNotExist = errors.New("a resource you are referencing in another resource does not exist")
@@ -117,6 +117,10 @@ func DBError(c *gin.Context, err error) Error {
 	// Unique envelope names per category
 	if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.category_id, envelopes.name") {
 		return Error{Status: http.StatusBadRequest, Err: ErrEnvelopeNameNotUniqe}
+	}
+
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: month_configs.envelope_id, month_configs.month") {
+		return Error{Status: http.StatusBadRequest, Err: ErrMultipleMonthConfigs}
 	}
 
 	// Source and destination accounts need to be different

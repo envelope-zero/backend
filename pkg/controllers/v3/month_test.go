@@ -34,7 +34,7 @@ func (suite *TestSuiteStandard) TestMonthsGetEnvelopeAllocationLink() {
 	_ = suite.patchTestMonthConfig(suite.T(),
 		envelope.Data.ID,
 		types.NewMonth(2022, 1),
-		models.MonthConfigCreate{
+		v3.MonthConfigEditable{
 			Allocation: decimal.NewFromFloat(10),
 		})
 
@@ -118,13 +118,13 @@ func (suite *TestSuiteStandard) TestMonthsGetDelete() {
 	monthConfig1 := suite.patchTestMonthConfig(suite.T(),
 		envelope1.Data.ID,
 		types.NewMonth(2022, 1),
-		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(15.42)},
+		v3.MonthConfigEditable{Allocation: decimal.NewFromFloat(15.42)},
 	)
 
 	monthConfig2 := suite.patchTestMonthConfig(suite.T(),
 		envelope2.Data.ID,
 		types.NewMonth(2022, 1),
-		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(15.42)},
+		v3.MonthConfigEditable{Allocation: decimal.NewFromFloat(15.42)},
 	)
 
 	// Clear allocations
@@ -186,7 +186,7 @@ func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 	}
 
 	for _, allocation := range allocations {
-		suite.patchTestMonthConfig(suite.T(), allocation.envelopeID, allocation.month, models.MonthConfigCreate{
+		suite.patchTestMonthConfig(suite.T(), allocation.envelopeID, allocation.month, v3.MonthConfigEditable{
 			Allocation: allocation.amount,
 		})
 	}
@@ -230,13 +230,13 @@ func (suite *TestSuiteStandard) TestMonthsAllocateSpend() {
 	_ = suite.patchTestMonthConfig(suite.T(),
 		envelope1.Data.ID,
 		types.NewMonth(2022, 1),
-		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(30)},
+		v3.MonthConfigEditable{Allocation: decimal.NewFromFloat(30)},
 	)
 
 	_ = suite.patchTestMonthConfig(suite.T(),
 		envelope2.Data.ID,
 		types.NewMonth(2022, 1),
-		models.MonthConfigCreate{Allocation: decimal.NewFromFloat(40)},
+		v3.MonthConfigEditable{Allocation: decimal.NewFromFloat(40)},
 	)
 
 	eID := &envelope1.Data.ID
@@ -345,7 +345,7 @@ func (suite *TestSuiteStandard) TestMonths() {
 	}
 
 	for _, allocation := range allocations {
-		suite.patchTestMonthConfig(suite.T(), envelope.Data.ID, allocation.month, models.MonthConfigCreate{
+		suite.patchTestMonthConfig(suite.T(), envelope.Data.ID, allocation.month, v3.MonthConfigEditable{
 			Allocation: allocation.amount,
 		})
 	}

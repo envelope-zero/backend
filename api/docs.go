@@ -1534,7 +1534,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v3.MonthConfigCreate"
+                            "$ref": "#/definitions/v3.MonthConfigEditable"
                         }
                     }
                 ],
@@ -4586,15 +4586,9 @@ const docTemplate = `{
                     "multipleOf": 1e-8,
                     "example": 22.01
                 },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
+                "envelopeID": {
+                    "description": "We do not use the default model here, we use envelope ID and month",
+                    "type": "string"
                 },
                 "envelopeId": {
                     "description": "ID of the envelope",
@@ -4602,38 +4596,20 @@ const docTemplate = `{
                     "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelope": {
-                            "description": "The Envelope this config belongs to",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
-                        },
-                        "self": {
-                            "description": "The Month Config itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.MonthConfigLinks"
                 },
                 "month": {
-                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
-                    "type": "string",
-                    "example": "1969-06-01T00:00:00.000000Z"
+                    "description": "We do not use the default model here, we use envelope ID and month",
+                    "type": "string"
                 },
                 "note": {
                     "description": "A note for the month config",
                     "type": "string",
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
-        "v3.MonthConfigCreate": {
+        "v3.MonthConfigEditable": {
             "type": "object",
             "properties": {
                 "allocation": {
@@ -4644,10 +4620,35 @@ const docTemplate = `{
                     "multipleOf": 1e-8,
                     "example": 22.01
                 },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                },
+                "month": {
+                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
+                },
                 "note": {
                     "description": "A note for the month config",
                     "type": "string",
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
+                }
+            }
+        },
+        "v3.MonthConfigLinks": {
+            "type": "object",
+            "properties": {
+                "envelope": {
+                    "description": "The Envelope this config belongs to",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
+                },
+                "self": {
+                    "description": "The Month Config itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
                 }
             }
         },

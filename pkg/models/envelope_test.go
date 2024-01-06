@@ -157,18 +157,14 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      january,
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(50),
-		},
+		Allocation: decimal.NewFromFloat(50),
 	})
 
 	// Allocation in February
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      january.AddDate(0, 1),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(40),
-		},
+		Allocation: decimal.NewFromFloat(40),
 	})
 
 	// Transaction in January

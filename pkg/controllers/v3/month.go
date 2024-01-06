@@ -360,9 +360,9 @@ func SetAllocations(c *gin.Context) {
 		err = query(c, models.DB.Where(models.MonthConfig{
 			Month:      month,
 			EnvelopeID: allocation.EnvelopeID,
-		}).Assign(models.MonthConfig{MonthConfigCreate: models.MonthConfigCreate{
+		}).Assign(models.MonthConfig{
 			Allocation: amount,
-		}}).FirstOrCreate(&models.MonthConfig{}))
+		}).FirstOrCreate(&models.MonthConfig{}))
 		if !err.Nil() {
 			c.JSON(err.Status, httperrors.HTTPError{
 				Error: err.Error(),
