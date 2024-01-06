@@ -10,10 +10,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// getResourceByID gets a resources of a specified type by its ID.
+// getModelByID gets a resources of a specified type by its ID.
 //
 // If the resources does not exist or the ID is the zero UUID, an appropriate error is returned.
-func getResourceByID[T models.Model](c *gin.Context, id uuid.UUID) (resource T, err httperrors.Error) {
+func getModelByID[T models.Model](c *gin.Context, id uuid.UUID) (resource T, err httperrors.Error) {
 	if id == uuid.Nil {
 		return resource, httperrors.Error{Err: fmt.Errorf("no %s ID specified", resource.Self()), Status: http.StatusBadRequest}
 	}

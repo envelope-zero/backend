@@ -77,7 +77,7 @@ func (r *MatchRule) links(c *gin.Context) {
 }
 
 func getMatchRule(c *gin.Context, id uuid.UUID) (MatchRule, httperrors.Error) {
-	m, err := getResourceByID[models.MatchRule](c, id)
+	m, err := getModelByID[models.MatchRule](c, id)
 	if !err.Nil() {
 		return MatchRule{}, err
 	}
@@ -133,7 +133,7 @@ func OptionsMatchRuleDetail(c *gin.Context) {
 		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
 	}
 
-	_, err = getResourceByID[models.MatchRule](c, id)
+	_, err = getModelByID[models.MatchRule](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
 		return
@@ -344,7 +344,7 @@ func UpdateMatchRule(c *gin.Context) {
 		return
 	}
 
-	matchRule, err := getResourceByID[models.MatchRule](c, id)
+	matchRule, err := getModelByID[models.MatchRule](c, id)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, MatchRuleResponse{
@@ -374,7 +374,7 @@ func UpdateMatchRule(c *gin.Context) {
 
 	// Check that the referenced account exists
 	if slices.Contains(updateFields, "AccountID") {
-		_, err = getResourceByID[models.Account](c, data.AccountID)
+		_, err = getModelByID[models.Account](c, data.AccountID)
 		if !err.Nil() {
 			e := err.Error()
 			c.JSON(err.Status, MatchRuleResponse{
@@ -422,7 +422,7 @@ func DeleteMatchRule(c *gin.Context) {
 		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
 		return
 	}
-	matchRule, err := getResourceByID[models.MatchRule](c, id)
+	matchRule, err := getModelByID[models.MatchRule](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
 		return
@@ -444,7 +444,7 @@ func createMatchRule(c *gin.Context, create models.MatchRuleCreate) (models.Matc
 	}
 
 	// Check that the referenced account exists
-	_, err := getResourceByID[models.Account](c, r.AccountID)
+	_, err := getModelByID[models.Account](c, r.AccountID)
 	if !err.Nil() {
 		return r, err
 	}

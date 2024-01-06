@@ -71,11 +71,11 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		External: true,
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category.ID,
 	})
 

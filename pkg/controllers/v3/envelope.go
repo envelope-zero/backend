@@ -1,119 +1,14 @@
 package v3
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 )
-
-// EnvelopeCreate represents all user configurable parameters
-type EnvelopeCreate struct {
-	Name       string    `json:"name" gorm:"uniqueIndex:envelope_category_name" example:"Groceries" default:""`                       // Name of the envelope
-	CategoryID uuid.UUID `json:"categoryId" gorm:"uniqueIndex:envelope_category_name" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"` // ID of the category the envelope belongs to
-	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`                           // Notes about the envelope
-	Archived   bool      `json:"archived" example:"true" default:"false"`                                                             // Is the envelope archived?
-}
-
-// ToCreate transforms the API representation into the model representation
-func (e EnvelopeCreate) ToCreate() models.EnvelopeCreate {
-	return models.EnvelopeCreate{
-		Name:       e.Name,
-		CategoryID: e.CategoryID,
-		Note:       e.Note,
-		Archived:   e.Archived,
-	}
-}
-
-type EnvelopeLinks struct {
-	Self         string `json:"self" example:"https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166"`                     // The envelope itself
-	Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166"` // The envelope's transactions
-	Month        string `json:"month" example:"https://example.com/api/v3/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM"`            // The MonthConfig for the envelope
-}
-
-func (l *EnvelopeLinks) links(c *gin.Context, e models.Envelope) {
-	url := c.GetString(string(models.DBContextURL))
-	self := fmt.Sprintf("%s/v3/envelopes/%s", url, e.ID)
-
-	l.Self = self
-	l.Transactions = fmt.Sprintf("%s/v3/transactions?envelope=%s", url, e.ID)
-	l.Month = fmt.Sprintf("%s/v3/envelopes/%s/YYYY-MM", url, e.ID)
-}
-
-type Envelope struct {
-	models.Envelope
-	Links EnvelopeLinks `json:"links"` // Links to related resources
-}
-
-func getEnvelope(c *gin.Context, id uuid.UUID) (Envelope, httperrors.Error) {
-	m, err := getResourceByID[models.Envelope](c, id)
-	if !err.Nil() {
-		return Envelope{}, httperrors.Error{}
-	}
-
-	r := Envelope{
-		Envelope: m,
-	}
-
-	r.Links.links(c, m)
-	return r, httperrors.Error{}
-}
-
-type EnvelopeListResponse struct {
-	Data       []Envelope  `json:"data"`                                                          // List of Envelopes
-	Error      *string     `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Pagination *Pagination `json:"pagination"`                                                    // Pagination information
-}
-
-type EnvelopeCreateResponse struct {
-	Data  []EnvelopeResponse `json:"data"`                                                          // Data for the Envelope
-	Error *string            `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-}
-
-// appendError appends an EnvelopeResponse with the error and returns the updated HTTP status
-func (e *EnvelopeCreateResponse) appendError(err httperrors.Error, status int) int {
-	s := err.Error()
-	e.Data = append(e.Data, EnvelopeResponse{Error: &s})
-
-	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
-	}
-
-	return status
-}
-
-type EnvelopeResponse struct {
-	Data  *Envelope `json:"data"`                                                          // Data for the Envelope
-	Error *string   `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-}
-
-type EnvelopeQueryFilter struct {
-	Name       string `form:"name" filterField:"false"`   // By name
-	CategoryID string `form:"category"`                   // By the ID of the category
-	Note       string `form:"note" filterField:"false"`   // By the note
-	Archived   bool   `form:"archived"`                   // Is the envelope archived?
-	Search     string `form:"search" filterField:"false"` // By string in name or note
-	Offset     uint   `form:"offset" filterField:"false"` // The offset of the first Envelope returned. Defaults to 0.
-	Limit      int    `form:"limit" filterField:"false"`  // Maximum number of Envelopes to return. Defaults to 50.
-}
-
-func (f EnvelopeQueryFilter) ToCreate() (models.EnvelopeCreate, httperrors.Error) {
-	categoryID, err := httputil.UUIDFromString(f.CategoryID)
-	if !err.Nil() {
-		return models.EnvelopeCreate{}, err
-	}
-
-	return models.EnvelopeCreate{
-		CategoryID: categoryID,
-		Archived:   f.Archived,
-	}, httperrors.Error{}
-}
 
 // RegisterEnvelopeRoutes registers the routes for envelopes with
 // the RouterGroup that is passed.
@@ -161,7 +56,7 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getResourceByID[models.Envelope](c, id)
+	_, err = getModelByID[models.Envelope](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -180,10 +75,10 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 // @Failure		400			{object}	EnvelopeCreateResponse
 // @Failure		404			{object}	EnvelopeCreateResponse
 // @Failure		500			{object}	EnvelopeCreateResponse
-// @Param			envelope	body		[]v3.EnvelopeCreate	true	"Envelopes"
+// @Param			envelope	body		[]v3.EnvelopeEditable	true	"Envelopes"
 // @Router			/v3/envelopes [post]
 func CreateEnvelopes(c *gin.Context) {
-	var envelopes []EnvelopeCreate
+	var envelopes []EnvelopeEditable
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &envelopes)
@@ -199,33 +94,26 @@ func CreateEnvelopes(c *gin.Context) {
 	status := http.StatusCreated
 	r := EnvelopeCreateResponse{}
 
-	for _, create := range envelopes {
-		e := models.Envelope{
-			EnvelopeCreate: create.ToCreate(),
-		}
+	for _, editable := range envelopes {
+		envelope := editable.model()
 
 		// Verify that the category exists. If not, append the error
 		// and move to the next envelope
-		_, err := getResourceByID[models.Category](c, create.CategoryID)
+		_, err := getModelByID[models.Category](c, editable.CategoryID)
 		if !err.Nil() {
 			status = r.appendError(err, status)
 			continue
 		}
 
-		dbErr := models.DB.Create(&e).Error
+		dbErr := models.DB.Create(&envelope).Error
 		if dbErr != nil {
-			err := httperrors.GenericDBError[models.Envelope](e, c, dbErr)
+			err := httperrors.Parse(c, dbErr)
 			status = r.appendError(err, status)
 			continue
 		}
 
-		eObject, err := getEnvelope(c, e.ID)
-		if !err.Nil() {
-			status = r.appendError(err, status)
-			continue
-		}
-
-		r.Data = append(r.Data, EnvelopeResponse{Data: &eObject})
+		data := newEnvelope(c, envelope)
+		r.Data = append(r.Data, EnvelopeResponse{Data: &data})
 	}
 
 	c.JSON(status, r)
@@ -255,7 +143,7 @@ func GetEnvelopes(c *gin.Context) {
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	// Convert the QueryFilter to a Create struct
-	create, err := filter.ToCreate()
+	model, err := filter.model()
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeListResponse{
@@ -266,9 +154,7 @@ func GetEnvelopes(c *gin.Context) {
 
 	q := models.DB.
 		Order("name ASC").
-		Where(&models.Envelope{
-			EnvelopeCreate: create,
-		}, queryFields...)
+		Where(&model, queryFields...)
 
 	q = stringFilters(models.DB, q, setFields, filter.Name, filter.Note, filter.Search)
 
@@ -303,24 +189,15 @@ func GetEnvelopes(c *gin.Context) {
 		return
 	}
 
-	r := make([]Envelope, 0, len(envelopes))
-	for _, e := range envelopes {
-		o, err := getEnvelope(c, e.ID)
-		if !err.Nil() {
-			s := err.Error()
-			c.JSON(err.Status, EnvelopeListResponse{
-				Error: &s,
-			})
-			return
-		}
-
-		r = append(r, o)
+	data := make([]Envelope, 0, len(envelopes))
+	for _, envelope := range envelopes {
+		data = append(data, newEnvelope(c, envelope))
 	}
 
 	c.JSON(http.StatusOK, EnvelopeListResponse{
-		Data: r,
+		Data: data,
 		Pagination: &Pagination{
-			Count:  len(r),
+			Count:  len(data),
 			Total:  count,
 			Offset: filter.Offset,
 			Limit:  limit,
@@ -348,7 +225,7 @@ func GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	m, err := getResourceByID[models.Envelope](c, id)
+	model, err := getModelByID[models.Envelope](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeResponse{
@@ -357,16 +234,8 @@ func GetEnvelope(c *gin.Context) {
 		return
 	}
 
-	r, err := getEnvelope(c, m.ID)
-	if !err.Nil() {
-		s := err.Error()
-		c.JSON(err.Status, EnvelopeResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, EnvelopeResponse{Data: &r})
+	data := newEnvelope(c, model)
+	c.JSON(http.StatusOK, EnvelopeResponse{Data: &data})
 }
 
 // @Summary		Update envelope
@@ -379,7 +248,7 @@ func GetEnvelope(c *gin.Context) {
 // @Failure		404			{object}	EnvelopeResponse
 // @Failure		500			{object}	EnvelopeResponse
 // @Param			id			path		string				true	"ID formatted as string"
-// @Param			envelope	body		v3.EnvelopeCreate	true	"Envelope"
+// @Param			envelope	body		v3.EnvelopeEditable	true	"Envelope"
 // @Router			/v3/envelopes/{id} [patch]
 func UpdateEnvelope(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -391,7 +260,7 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, err := getResourceByID[models.Envelope](c, id)
+	envelope, err := getModelByID[models.Envelope](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeResponse{
@@ -400,7 +269,7 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, EnvelopeCreate{})
+	updateFields, err := httputil.GetBodyFields(c, EnvelopeEditable{})
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeResponse{
@@ -409,7 +278,7 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	var data EnvelopeCreate
+	var data EnvelopeEditable
 	err = httputil.BindData(c, &data)
 	if !err.Nil() {
 		s := err.Error()
@@ -419,12 +288,7 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	// Transform the API representation to the model representation
-	e := models.Envelope{
-		EnvelopeCreate: data.ToCreate(),
-	}
-
-	err = query(c, models.DB.Model(&envelope).Select("", updateFields...).Updates(e))
+	err = query(c, models.DB.Model(&envelope).Select("", updateFields...).Updates(data.model()))
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, EnvelopeResponse{
@@ -433,16 +297,8 @@ func UpdateEnvelope(c *gin.Context) {
 		return
 	}
 
-	r, err := getEnvelope(c, envelope.ID)
-	if !err.Nil() {
-		s := err.Error()
-		c.JSON(err.Status, EnvelopeResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, EnvelopeResponse{Data: &r})
+	apiResource := newEnvelope(c, envelope)
+	c.JSON(http.StatusOK, EnvelopeResponse{Data: &apiResource})
 }
 
 // @Summary		Delete envelope
@@ -463,7 +319,7 @@ func DeleteEnvelope(c *gin.Context) {
 		return
 	}
 
-	envelope, err := getResourceByID[models.Envelope](c, id)
+	envelope, err := getModelByID[models.Envelope](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),

@@ -318,7 +318,7 @@ func UpdateTransaction(c *gin.Context) {
 	}
 
 	// Get the transaction resource
-	transaction, err := getResourceByID[models.Transaction](c, id)
+	transaction, err := getModelByID[models.Transaction](c, id)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponse{
@@ -359,7 +359,7 @@ func UpdateTransaction(c *gin.Context) {
 	if update.SourceAccountID != uuid.Nil {
 		sourceAccountID = update.SourceAccountID
 	}
-	sourceAccount, err := getResourceByID[models.Account](c, sourceAccountID)
+	sourceAccount, err := getModelByID[models.Account](c, sourceAccountID)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponse{
@@ -373,7 +373,7 @@ func UpdateTransaction(c *gin.Context) {
 	if update.DestinationAccountID != uuid.Nil {
 		destinationAccountID = update.DestinationAccountID
 	}
-	destinationAccount, err := getResourceByID[models.Account](c, destinationAccountID)
+	destinationAccount, err := getModelByID[models.Account](c, destinationAccountID)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, TransactionResponse{
@@ -423,7 +423,7 @@ func DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, err := getResourceByID[models.Transaction](c, id)
+	transaction, err := getModelByID[models.Transaction](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -444,19 +444,19 @@ func DeleteTransaction(c *gin.Context) {
 
 // createTransaction creates a single transaction after verifying it is a valid transaction.
 func createTransaction(c *gin.Context, model *models.Transaction) httperrors.Error {
-	_, err := getResourceByID[models.Budget](c, model.BudgetID)
+	_, err := getModelByID[models.Budget](c, model.BudgetID)
 	if !err.Nil() {
 		return err
 	}
 
 	// Check the source account
-	sourceAccount, err := getResourceByID[models.Account](c, model.SourceAccountID)
+	sourceAccount, err := getModelByID[models.Account](c, model.SourceAccountID)
 	if !err.Nil() {
 		return err
 	}
 
 	// Check the destination account
-	destinationAccount, err := getResourceByID[models.Account](c, model.DestinationAccountID)
+	destinationAccount, err := getModelByID[models.Account](c, model.DestinationAccountID)
 	if !err.Nil() {
 		return err
 	}
@@ -496,7 +496,7 @@ func checkTransaction(c *gin.Context, transaction models.Transaction, source, de
 			// TODO: Verify this state in the model hooks
 			return httperrors.Error{Err: errors.New("transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible"), Status: http.StatusBadRequest}
 		}
-		_, err := getResourceByID[models.Envelope](c, *transaction.EnvelopeID)
+		_, err := getModelByID[models.Envelope](c, *transaction.EnvelopeID)
 		return err
 	}
 

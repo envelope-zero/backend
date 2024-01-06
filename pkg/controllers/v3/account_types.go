@@ -52,7 +52,7 @@ type Account struct {
 	AccountEditable
 	Links AccountLinks `json:"links"`
 
-	// These fields are calculated
+	// These fields are computed
 	Balance           decimal.Decimal `json:"balance" example:"2735.17"`           // Balance of the account, including all transactions referencing it
 	ReconciledBalance decimal.Decimal `json:"reconciledBalance" example:"2539.57"` // Balance of the account, including all reconciled transactions referencing it
 	RecentEnvelopes   []*uuid.UUID    `json:"recentEnvelopes"`                     // Envelopes recently used with this account

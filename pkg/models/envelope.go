@@ -14,15 +14,11 @@ import (
 // Envelope represents an envelope in your budget.
 type Envelope struct {
 	DefaultModel
-	EnvelopeCreate
-	Category Category `json:"-"`
-}
-
-type EnvelopeCreate struct {
-	Name       string    `json:"name" gorm:"uniqueIndex:envelope_category_name" example:"Groceries" default:""`                       // Name of the envelope
-	CategoryID uuid.UUID `json:"categoryId" gorm:"uniqueIndex:envelope_category_name" example:"878c831f-af99-4a71-b3ca-80deb7d793c1"` // ID of the category the envelope belongs to
-	Note       string    `json:"note" example:"For stuff bought at supermarkets and drugstores" default:""`                           // Notes about the envelope
-	Archived   bool      `json:"archived" example:"true" default:"false"`                                                             // Is the envelope archived?
+	Category   Category
+	CategoryID uuid.UUID `gorm:"uniqueIndex:envelope_category_name"`
+	Name       string    `gorm:"uniqueIndex:envelope_category_name"`
+	Note       string
+	Archived   bool
 }
 
 func (e Envelope) Self() string {

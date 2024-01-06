@@ -71,16 +71,13 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  models.Envelope:
+  models.Category:
     properties:
       archived:
-        default: false
-        description: Is the envelope archived?
-        example: true
         type: boolean
-      categoryId:
-        description: ID of the category the envelope belongs to
-        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+      budget:
+        $ref: '#/definitions/models.Budget'
+      budgetID:
         type: string
       createdAt:
         description: Time the resource was created
@@ -95,12 +92,37 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       name:
-        description: Name of the envelope
-        example: Groceries
         type: string
       note:
-        description: Notes about the envelope
-        example: For stuff bought at supermarkets and drugstores
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  models.Envelope:
+    properties:
+      archived:
+        type: boolean
+      category:
+        $ref: '#/definitions/models.Category'
+      categoryID:
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        type: string
+      note:
         type: string
       updatedAt:
         description: Last time the resource was updated
@@ -215,7 +237,7 @@ definitions:
         example: true
         type: boolean
       balance:
-        description: These fields are calculated
+        description: These fields are computed
         example: 2735.17
         type: number
       budgetId:
@@ -536,7 +558,7 @@ definitions:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopes:
-        description: Envelopes for the category
+        description: These fields are computed
         items:
           $ref: '#/definitions/v3.Envelope'
         type: array
@@ -545,16 +567,7 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        properties:
-          envelopes:
-            description: Envelopes for this category
-            example: https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-          self:
-            description: The category itself
-            example: https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-        type: object
+        $ref: '#/definitions/v3.CategoryLinks'
       name:
         description: Name of the category
         example: Saving
@@ -568,7 +581,19 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  v3.CategoryCreate:
+  v3.CategoryCreateResponse:
+    properties:
+      data:
+        description: List of the created Categories or their respective error
+        items:
+          $ref: '#/definitions/v3.CategoryResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.CategoryEditable:
     properties:
       archived:
         default: false
@@ -586,18 +611,6 @@ definitions:
       note:
         description: Notes about the category
         example: All envelopes for long-term saving
-        type: string
-    type: object
-  v3.CategoryCreateResponse:
-    properties:
-      data:
-        description: List of the created Categories or their respective error
-        items:
-          $ref: '#/definitions/v3.CategoryResponse'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
         type: string
     type: object
   v3.CategoryEnvelopes:
@@ -636,6 +649,8 @@ definitions:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
+      links:
+        $ref: '#/definitions/v3.CategoryLinks'
       name:
         description: Name of the category
         example: Saving
@@ -651,6 +666,17 @@ definitions:
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.CategoryLinks:
+    properties:
+      envelopes:
+        description: Envelopes for this category
+        example: https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+        type: string
+      self:
+        description: The category itself
+        example: https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f
         type: string
     type: object
   v3.CategoryListResponse:
@@ -720,7 +746,19 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  v3.EnvelopeCreate:
+  v3.EnvelopeCreateResponse:
+    properties:
+      data:
+        description: Data for the Envelope
+        items:
+          $ref: '#/definitions/v3.EnvelopeResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.EnvelopeEditable:
     properties:
       archived:
         default: false
@@ -738,18 +776,6 @@ definitions:
       note:
         description: Notes about the envelope
         example: For stuff bought at supermarkets and drugstores
-        type: string
-    type: object
-  v3.EnvelopeCreateResponse:
-    properties:
-      data:
-        description: Data for the Envelope
-        items:
-          $ref: '#/definitions/v3.EnvelopeResponse'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
         type: string
     type: object
   v3.EnvelopeLinks:
@@ -2068,7 +2094,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/v3.CategoryCreate'
+            $ref: '#/definitions/v3.CategoryEditable'
           type: array
       produces:
       - application/json
@@ -2192,7 +2218,7 @@ paths:
         name: category
         required: true
         schema:
-          $ref: '#/definitions/v3.CategoryCreate'
+          $ref: '#/definitions/v3.CategoryEditable'
       produces:
       - application/json
       responses:
@@ -2283,7 +2309,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/v3.EnvelopeCreate'
+            $ref: '#/definitions/v3.EnvelopeEditable'
           type: array
       produces:
       - application/json
@@ -2407,7 +2433,7 @@ paths:
         name: envelope
         required: true
         schema:
-          $ref: '#/definitions/v3.EnvelopeCreate'
+          $ref: '#/definitions/v3.EnvelopeEditable'
       produces:
       - application/json
       responses:

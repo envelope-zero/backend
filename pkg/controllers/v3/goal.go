@@ -52,7 +52,7 @@ func OptionsGoalDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getResourceByID[models.Goal](c, id)
+	_, err = getModelByID[models.Goal](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -94,7 +94,7 @@ func CreateGoals(c *gin.Context) {
 		goal := create.model()
 
 		// Verify that the envelope exists. If not, append the error and move to the next goal
-		_, err := getResourceByID[models.Envelope](c, create.EnvelopeID)
+		_, err := getModelByID[models.Envelope](c, create.EnvelopeID)
 		if !err.Nil() {
 			status = r.appendError(err, status)
 			continue
@@ -302,7 +302,7 @@ func UpdateGoal(c *gin.Context) {
 		return
 	}
 
-	goal, err := getResourceByID[models.Goal](c, id)
+	goal, err := getModelByID[models.Goal](c, id)
 	if !err.Nil() {
 		e := err.Error()
 		c.JSON(err.Status, GoalResponse{
@@ -334,7 +334,7 @@ func UpdateGoal(c *gin.Context) {
 
 	// Check that the referenced envelope exists
 	if slices.Contains(updateFields, "EnvelopeID") {
-		_, err = getResourceByID[models.Envelope](c, data.EnvelopeID)
+		_, err = getModelByID[models.Envelope](c, data.EnvelopeID)
 		if !err.Nil() {
 			e := err.Error()
 			c.JSON(err.Status, GoalResponse{
@@ -375,7 +375,7 @@ func DeleteGoal(c *gin.Context) {
 		return
 	}
 
-	goal, err := getResourceByID[models.Goal](c, id)
+	goal, err := getModelByID[models.Goal](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),

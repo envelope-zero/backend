@@ -185,13 +185,11 @@ func parseCategories(resources *importer.ParsedResources, categories []Category)
 		// Add the category
 		tCategories[category.Name] = importer.Category{
 			Model: models.Category{
-				CategoryCreate: models.CategoryCreate{
-					Name: category.Name,
-					Note: category.Note,
-					// we use category.Deleted here since the original data format does not have an "archived" field. If the category is not referenced anywhere,
-					// it will not be imported anyway
-					Archived: category.Deleted,
-				},
+				Name: category.Name,
+				Note: category.Note,
+				// we use category.Deleted here since the original data format does not have an "archived" field. If the category is not referenced anywhere,
+				// it will not be imported anyway
+				Archived: category.Deleted,
 			},
 			Envelopes: make(map[string]importer.Envelope),
 		}
@@ -225,11 +223,9 @@ func parseCategories(resources *importer.ParsedResources, categories []Category)
 			tEnvelopes = append(tEnvelopes, tEnvelope{
 				importer.Envelope{
 					Model: models.Envelope{
-						EnvelopeCreate: models.EnvelopeCreate{
-							Name:     mapping.Envelope,
-							Note:     envelope.Note,
-							Archived: archived,
-						},
+						Name:     mapping.Envelope,
+						Note:     envelope.Note,
+						Archived: archived,
 					},
 				},
 				mapping.Category,

@@ -56,8 +56,7 @@ func OptionsAccountDetail(c *gin.Context) {
 		return
 	}
 
-	var account models.Account
-	err = query(c, models.DB.First(&account, id))
+	_, err = getModelByID[models.Account](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -99,7 +98,7 @@ func CreateAccounts(c *gin.Context) {
 
 		// Verify that budget exists. If not, append the error
 		// and move to the next account
-		_, err := getResourceByID[models.Budget](c, editable.BudgetID)
+		_, err := getModelByID[models.Budget](c, editable.BudgetID)
 		if !err.Nil() {
 			status = r.appendError(err, status)
 			continue
@@ -243,12 +242,10 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
-	var account models.Account
-	err = query(c, models.DB.First(&account, id))
+	account, err := getModelByID[models.Account](c, id)
 	if !err.Nil() {
-		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
-			Error: &s,
+		c.JSON(err.Status, httperrors.HTTPError{
+			Error: err.Error(),
 		})
 		return
 	}
@@ -286,7 +283,7 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	account, err := getResourceByID[models.Account](c, id)
+	account, err := getModelByID[models.Account](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, AccountResponse{
@@ -354,7 +351,7 @@ func DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	account, err := getResourceByID[models.Account](c, id)
+	account, err := getModelByID[models.Account](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),

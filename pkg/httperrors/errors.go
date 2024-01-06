@@ -105,23 +105,18 @@ func DBError(c *gin.Context, err error) Error {
 	}
 
 	// Account name must be unique per Budget
-	if strings.Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id") {
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: accounts.budget_id, accounts.name") {
 		return Error{Status: http.StatusBadRequest, Err: ErrAccountNameNotUnique}
 	}
 
 	// Category names need to be unique per budget
-	if strings.Contains(err.Error(), "UNIQUE constraint failed: categories.name, categories.budget_id") {
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: categories.budget_id, categories.name") {
 		return Error{Status: http.StatusBadRequest, Err: ErrCategoryNameNotUnique}
 	}
 
 	// Unique envelope names per category
-	if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.name, envelopes.category_id") {
+	if strings.Contains(err.Error(), "UNIQUE constraint failed: envelopes.category_id, envelopes.name") {
 		return Error{Status: http.StatusBadRequest, Err: ErrEnvelopeNameNotUniqe}
-	}
-
-	// Only one allocation per envelope per month
-	if strings.Contains(err.Error(), "UNIQUE constraint failed: allocations.month, allocations.envelope_id") {
-		return Error{Status: http.StatusBadRequest, Err: ErrMultipleAllocations}
 	}
 
 	// Source and destination accounts need to be different

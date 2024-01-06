@@ -18,8 +18,8 @@ func (suite *TestSuiteStandard) TestMonthConfigTrimWhitespace() {
 		MonthConfigCreate: models.MonthConfigCreate{
 			Note: note,
 		},
-		EnvelopeID: suite.createTestEnvelope(models.EnvelopeCreate{
-			CategoryID: suite.createTestCategory(models.CategoryCreate{
+		EnvelopeID: suite.createTestEnvelope(models.Envelope{
+			CategoryID: suite.createTestCategory(models.Category{
 				BudgetID: suite.createTestBudget(models.Budget{}).ID,
 			}).ID,
 		}).ID,

@@ -870,7 +870,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/v3.CategoryCreate"
+                                "$ref": "#/definitions/v3.CategoryEditable"
                             }
                         }
                     }
@@ -1065,7 +1065,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v3.CategoryCreate"
+                            "$ref": "#/definitions/v3.CategoryEditable"
                         }
                     }
                 ],
@@ -1190,7 +1190,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/v3.EnvelopeCreate"
+                                "$ref": "#/definitions/v3.EnvelopeEditable"
                             }
                         }
                     }
@@ -1385,7 +1385,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v3.EnvelopeCreate"
+                            "$ref": "#/definitions/v3.EnvelopeEditable"
                         }
                     }
                 ],
@@ -3060,19 +3060,17 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Envelope": {
+        "models.Category": {
             "type": "object",
             "properties": {
                 "archived": {
-                    "description": "Is the envelope archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "type": "boolean"
                 },
-                "categoryId": {
-                    "description": "ID of the category the envelope belongs to",
-                    "type": "string",
-                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                "budget": {
+                    "$ref": "#/definitions/models.Budget"
+                },
+                "budgetID": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "description": "Time the resource was created",
@@ -3090,14 +3088,50 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "name": {
-                    "description": "Name of the envelope",
-                    "type": "string",
-                    "example": "Groceries"
+                    "type": "string"
                 },
                 "note": {
-                    "description": "Notes about the envelope",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
                     "type": "string",
-                    "example": "For stuff bought at supermarkets and drugstores"
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "models.Envelope": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
+                "category": {
+                    "$ref": "#/definitions/models.Category"
+                },
+                "categoryID": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "description": "Last time the resource was updated",
@@ -3249,7 +3283,7 @@ const docTemplate = `{
                     "example": true
                 },
                 "balance": {
-                    "description": "These fields are calculated",
+                    "description": "These fields are computed",
                     "type": "number",
                     "example": 2735.17
                 },
@@ -3676,7 +3710,7 @@ const docTemplate = `{
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "envelopes": {
-                    "description": "Envelopes for the category",
+                    "description": "These fields are computed",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/v3.Envelope"
@@ -3688,19 +3722,7 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelopes": {
-                            "description": "Envelopes for this category",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
-                        },
-                        "self": {
-                            "description": "The category itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.CategoryLinks"
                 },
                 "name": {
                     "description": "Name of the category",
@@ -3719,7 +3741,24 @@ const docTemplate = `{
                 }
             }
         },
-        "v3.CategoryCreate": {
+        "v3.CategoryCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of the created Categories or their respective error",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.CategoryResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.CategoryEditable": {
             "type": "object",
             "properties": {
                 "archived": {
@@ -3742,23 +3781,6 @@ const docTemplate = `{
                     "description": "Notes about the category",
                     "type": "string",
                     "example": "All envelopes for long-term saving"
-                }
-            }
-        },
-        "v3.CategoryCreateResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of the created Categories or their respective error",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v3.CategoryResponse"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
                 }
             }
         },
@@ -3808,6 +3830,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
+                "links": {
+                    "$ref": "#/definitions/v3.CategoryLinks"
+                },
                 "name": {
                     "description": "Name of the category",
                     "type": "string",
@@ -3827,6 +3852,21 @@ const docTemplate = `{
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.CategoryLinks": {
+            "type": "object",
+            "properties": {
+                "envelopes": {
+                    "description": "Envelopes for this category",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                },
+                "self": {
+                    "description": "The category itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
                 }
             }
         },
@@ -3927,7 +3967,24 @@ const docTemplate = `{
                 }
             }
         },
-        "v3.EnvelopeCreate": {
+        "v3.EnvelopeCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Envelope",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.EnvelopeResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.EnvelopeEditable": {
             "type": "object",
             "properties": {
                 "archived": {
@@ -3950,23 +4007,6 @@ const docTemplate = `{
                     "description": "Notes about the envelope",
                     "type": "string",
                     "example": "For stuff bought at supermarkets and drugstores"
-                }
-            }
-        },
-        "v3.EnvelopeCreateResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the Envelope",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v3.EnvelopeResponse"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
                 }
             }
         },

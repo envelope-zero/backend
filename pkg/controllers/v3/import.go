@@ -278,7 +278,7 @@ func ImportYnabImportPreview(c *gin.Context) {
 	}
 
 	// Verify that the account exists
-	account, e := getResourceByID[models.Account](c, accountID)
+	account, e := getModelByID[models.Account](c, accountID)
 	if !e.Nil() {
 		s := e.Error()
 		c.JSON(e.Status, ImportPreviewList{

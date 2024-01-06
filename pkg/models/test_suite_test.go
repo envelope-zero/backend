@@ -57,10 +57,7 @@ func (suite *TestSuiteStandard) createTestBudget(budget models.Budget) models.Bu
 	return budget
 }
 
-func (suite *TestSuiteStandard) createTestCategory(c models.CategoryCreate) models.Category {
-	category := models.Category{
-		CategoryCreate: c,
-	}
+func (suite *TestSuiteStandard) createTestCategory(category models.Category) models.Category {
 	err := models.DB.Save(&category).Error
 	if err != nil {
 		suite.Assert().FailNow("category could not be saved", "Error: %s, Budget: %#v", err, category)
@@ -69,10 +66,7 @@ func (suite *TestSuiteStandard) createTestCategory(c models.CategoryCreate) mode
 	return category
 }
 
-func (suite *TestSuiteStandard) createTestEnvelope(c models.EnvelopeCreate) models.Envelope {
-	envelope := models.Envelope{
-		EnvelopeCreate: c,
-	}
+func (suite *TestSuiteStandard) createTestEnvelope(envelope models.Envelope) models.Envelope {
 	err := models.DB.Save(&envelope).Error
 	if err != nil {
 		suite.Assert().FailNow("Envelope could not be saved", "Error: %s, Envelope: %#v", err, envelope)

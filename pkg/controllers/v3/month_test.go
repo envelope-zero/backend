@@ -28,8 +28,8 @@ func (suite *TestSuiteStandard) TestMonthsGetEnvelopeAllocationLink() {
 	var month v3.MonthResponse
 
 	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
-	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
+	category := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID})
 
 	_ = suite.patchTestMonthConfig(suite.T(),
 		envelope.Data.ID,
@@ -60,7 +60,7 @@ func (suite *TestSuiteStandard) TestMonthsGetNotNil() {
 	suite.Assert().Empty(month.Data.Categories)
 
 	// Verify that the envelopes list is empty, not nil
-	_ = suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
+	_ = suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID})
 
 	r = test.Request(suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", 1), "")
 	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
@@ -111,9 +111,9 @@ func (suite *TestSuiteStandard) TestMonthsGetDBFail() {
 
 func (suite *TestSuiteStandard) TestMonthsGetDelete() {
 	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
-	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
-	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
+	category := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID})
+	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID})
+	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID})
 
 	monthConfig1 := suite.patchTestMonthConfig(suite.T(),
 		envelope1.Data.ID,
@@ -162,10 +162,10 @@ func (suite *TestSuiteStandard) TestMonthsDeleteFail() {
 
 func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
-	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
-	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
-	archivedEnvelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID, Archived: true})
+	category := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID})
+	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID})
+	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID})
+	archivedEnvelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID, Archived: true})
 
 	e1Amount := decimal.NewFromFloat(30)
 	e2Amount := decimal.NewFromFloat(40)
@@ -223,9 +223,9 @@ func (suite *TestSuiteStandard) TestMonthsAllocateSpend() {
 	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	cashAccount := suite.createTestAccount(suite.T(), models.Account{External: false, OnBudget: true, Name: "TestSetMonthSpend Cash"})
 	externalAccount := suite.createTestAccount(suite.T(), models.Account{External: true, Name: "TestSetMonthSpend External"})
-	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID})
-	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
-	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID})
+	category := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID})
+	envelope1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID})
+	envelope2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID})
 
 	_ = suite.patchTestMonthConfig(suite.T(),
 		envelope1.Data.ID,
@@ -300,13 +300,13 @@ func (suite *TestSuiteStandard) TestMonthsPostFails() {
 // TestMonthsSorting verifies that categories and months are sorted correctly
 func (suite *TestSuiteStandard) TestMonthsSorting() {
 	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
-	categoryU := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID, Name: "Upkeep"})
-	envelopeU := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: categoryU.Data.ID, Name: "Utilities"})
-	envelopeM := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: categoryU.Data.ID, Name: "Muppets"})
+	categoryU := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID, Name: "Upkeep"})
+	envelopeU := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: categoryU.Data.ID, Name: "Utilities"})
+	envelopeM := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: categoryU.Data.ID, Name: "Muppets"})
 
-	categoryA := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID, Name: "Alphabetically first"})
-	envelopeB := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: categoryA.Data.ID, Name: "Batteries"})
-	envelopeC := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: categoryA.Data.ID, Name: "Chargers"})
+	categoryA := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID, Name: "Alphabetically first"})
+	envelopeB := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: categoryA.Data.ID, Name: "Batteries"})
+	envelopeC := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: categoryA.Data.ID, Name: "Chargers"})
 
 	// Get month data
 	recorder := test.Request(suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", types.MonthOf(time.Now()).String(), 1), "")
@@ -329,8 +329,8 @@ func (suite *TestSuiteStandard) TestMonthsSorting() {
 // TestMonths verifies that the monthly calculations are correct.
 func (suite *TestSuiteStandard) TestMonths() {
 	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
-	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID, Name: "Upkeep"})
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: category.Data.ID, Name: "Utilities"})
+	category := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID, Name: "Upkeep"})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: category.Data.ID, Name: "Utilities"})
 	account := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, OnBudget: true, Name: "TestMonth"})
 	externalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, External: true})
 
@@ -405,13 +405,13 @@ func (suite *TestSuiteStandard) TestMonths() {
 				Available:  decimal.NewFromFloat(-20.99),
 				Categories: []v3.CategoryEnvelopes{
 					{
-						Category:   category.Data.Category,
+						Category:   *category.Data,
 						Balance:    decimal.NewFromFloat(10.99),
 						Spent:      decimal.NewFromFloat(-10),
 						Allocation: decimal.NewFromFloat(20.99),
 						Envelopes: []v3.EnvelopeMonth{
 							{
-								Envelope:   envelope.Data.Envelope,
+								Envelope:   *envelope.Data,
 								Spent:      decimal.NewFromFloat(-10),
 								Balance:    decimal.NewFromFloat(10.99),
 								Allocation: decimal.NewFromFloat(20.99),
@@ -432,13 +432,13 @@ func (suite *TestSuiteStandard) TestMonths() {
 				Available:  decimal.NewFromFloat(-68.11),
 				Categories: []v3.CategoryEnvelopes{
 					{
-						Category:   category.Data.Category,
+						Category:   *category.Data,
 						Balance:    decimal.NewFromFloat(53.11),
 						Spent:      decimal.NewFromFloat(-5),
 						Allocation: decimal.NewFromFloat(47.12),
 						Envelopes: []v3.EnvelopeMonth{
 							{
-								Envelope:   envelope.Data.Envelope,
+								Envelope:   *envelope.Data,
 								Balance:    decimal.NewFromFloat(53.11),
 								Spent:      decimal.NewFromFloat(-5),
 								Allocation: decimal.NewFromFloat(47.12),
@@ -459,13 +459,13 @@ func (suite *TestSuiteStandard) TestMonths() {
 				Available:  decimal.NewFromFloat(1400.72),
 				Categories: []v3.CategoryEnvelopes{
 					{
-						Category:   category.Data.Category,
+						Category:   *category.Data,
 						Balance:    decimal.NewFromFloat(69.28),
 						Spent:      decimal.NewFromFloat(-15),
 						Allocation: decimal.NewFromFloat(31.17),
 						Envelopes: []v3.EnvelopeMonth{
 							{
-								Envelope:   envelope.Data.Envelope,
+								Envelope:   *envelope.Data,
 								Balance:    decimal.NewFromFloat(69.28),
 								Spent:      decimal.NewFromFloat(-15),
 								Allocation: decimal.NewFromFloat(31.17),

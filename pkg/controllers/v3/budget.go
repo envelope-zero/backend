@@ -56,7 +56,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getResourceByID[models.Budget](c, id)
+	_, err = getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -207,7 +207,7 @@ func GetBudget(c *gin.Context) {
 		return
 	}
 
-	m, err := getResourceByID[models.Budget](c, id)
+	m, err := getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, BudgetResponse{
@@ -242,7 +242,7 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	budget, err := getResourceByID[models.Budget](c, id)
+	budget, err := getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, BudgetResponse{
@@ -301,7 +301,7 @@ func DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	budget, err := getResourceByID[models.Budget](c, id)
+	budget, err := getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),

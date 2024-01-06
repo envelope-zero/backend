@@ -148,7 +148,7 @@ func GetMonthConfig(c *gin.Context) {
 		return
 	}
 
-	_, err = getResourceByID[models.Envelope](c, id)
+	_, err = getModelByID[models.Envelope](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, MonthConfigResponse{
@@ -228,7 +228,7 @@ func UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	_, err = getResourceByID[models.Envelope](c, id)
+	_, err = getModelByID[models.Envelope](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, MonthConfigResponse{

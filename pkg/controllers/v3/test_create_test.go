@@ -20,7 +20,7 @@ func (suite *TestSuiteStandard) defaultTransactionCreate(c models.Transaction) m
 	}
 
 	if c.EnvelopeID == &uuid.Nil {
-		*c.EnvelopeID = suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
+		*c.EnvelopeID = suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{Name: "Transaction Test Envelope"}).Data.ID
 	}
 
 	return c

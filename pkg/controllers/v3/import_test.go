@@ -242,7 +242,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFindAccounts() {
 	internalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
 	_ = suite.createTestTransaction(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
@@ -299,7 +299,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 	internalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
 	_ = suite.createTestTransaction(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
