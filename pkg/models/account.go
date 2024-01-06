@@ -14,10 +14,10 @@ import (
 // Account represents an asset account, e.g. a bank account.
 type Account struct {
 	DefaultModel
-	Name               string `gorm:"uniqueIndex:account_name_budget_id"`
-	Note               string
 	Budget             Budget
 	BudgetID           uuid.UUID `gorm:"uniqueIndex:account_name_budget_id"`
+	Name               string    `gorm:"uniqueIndex:account_name_budget_id"`
+	Note               string
 	OnBudget           bool
 	External           bool
 	InitialBalance     decimal.Decimal `gorm:"type:DECIMAL(20,8)"`

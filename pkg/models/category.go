@@ -10,15 +10,11 @@ import (
 // Category represents a category of envelopes.
 type Category struct {
 	DefaultModel
-	CategoryCreate
-	Budget Budget `json:"-"`
-}
-
-type CategoryCreate struct {
-	Name     string    `json:"name" gorm:"uniqueIndex:category_budget_name" example:"Saving" default:""`                        // Name of the category
-	BudgetID uuid.UUID `json:"budgetId" gorm:"uniqueIndex:category_budget_name" example:"52d967d3-33f4-4b04-9ba7-772e5ab9d0ce"` // ID of the budget the category belongs to
-	Note     string    `json:"note" example:"All envelopes for long-term saving" default:""`                                    // Notes about the category
-	Archived bool      `json:"archived" example:"true" default:"false"`                                                         // Is the category archived?
+	Budget   Budget
+	BudgetID uuid.UUID `gorm:"uniqueIndex:category_budget_name"`
+	Name     string    `gorm:"uniqueIndex:category_budget_name"`
+	Note     string
+	Archived bool
 }
 
 func (c Category) Self() string {
@@ -36,9 +32,9 @@ func (c *Category) BeforeSave(_ *gorm.DB) error {
 func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 	if tx.Statement.Changed("Archived") && !c.Archived {
 		var envelopes []Envelope
-		err = tx.Where(&Envelope{EnvelopeCreate: EnvelopeCreate{
+		err = tx.Where(&Envelope{
 			CategoryID: c.ID,
-		}}).
+		}).
 			Find(&envelopes).Error
 		if err != nil {
 			return
@@ -58,7 +54,7 @@ func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 
 func (c *Category) Envelopes(tx *gorm.DB) ([]Envelope, error) {
 	var envelopes []Envelope
-	err := tx.Where(&Envelope{EnvelopeCreate: EnvelopeCreate{CategoryID: c.ID}}).Find(&envelopes).Error
+	err := tx.Where(&Envelope{CategoryID: c.ID}).Find(&envelopes).Error
 	if err != nil {
 		return []Envelope{}, err
 	}

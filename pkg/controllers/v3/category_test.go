@@ -7,15 +7,14 @@ import (
 	"testing"
 
 	v3 "github.com/envelope-zero/backend/v4/pkg/controllers/v3"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v3.CategoryCreate, expectedStatus ...int) v3.CategoryResponse {
+func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v3.CategoryEditable, expectedStatus ...int) v3.CategoryResponse {
 	if c.BudgetID == uuid.Nil {
-		c.BudgetID = suite.createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
+		c.BudgetID = suite.createTestBudget(t, v3.BudgetEditable{Name: "Testing budget"}).Data.ID
 	}
 
 	if c.Name == "" {
@@ -27,7 +26,7 @@ func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v3.CategoryCr
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	body := []v3.CategoryCreate{c}
+	body := []v3.CategoryEditable{c}
 
 	r := test.Request(t, http.MethodPost, "http://example.com/v3/categories", body)
 	test.AssertHTTPStatus(t, &r, expectedStatus...)
@@ -45,7 +44,7 @@ func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v3.CategoryCr
 // TestCategoriesDBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestCategoriesDBClosed() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -54,7 +53,7 @@ func (suite *TestSuiteStandard) TestCategoriesDBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestCategory(t, v3.CategoryCreate{BudgetID: b.Data.ID}, http.StatusInternalServerError)
+				suite.createTestCategory(t, v3.CategoryEditable{BudgetID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -85,7 +84,7 @@ func (suite *TestSuiteStandard) TestCategoriesOptions() {
 	}{
 		{"No Category with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Category exists", suite.createTestCategory(suite.T(), v3.CategoryCreate{}).Data.ID.String(), http.StatusNoContent},
+		{"Category exists", suite.createTestCategory(suite.T(), v3.CategoryEditable{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -104,7 +103,7 @@ func (suite *TestSuiteStandard) TestCategoriesOptions() {
 // TestCategoriesGetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestCategoriesGetSingle() {
-	c := suite.createTestCategory(suite.T(), v3.CategoryCreate{})
+	c := suite.createTestCategory(suite.T(), v3.CategoryEditable{})
 
 	tests := []struct {
 		name   string
@@ -138,23 +137,23 @@ func (suite *TestSuiteStandard) TestCategoriesGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestCategoriesGetFilter() {
-	b1 := suite.createTestBudget(suite.T(), models.BudgetCreate{})
-	b2 := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b1 := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
+	b2 := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
-	_ = suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	_ = suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name:     "Category Name",
 		Note:     "A note for this category",
 		BudgetID: b1.Data.ID,
 		Archived: true,
 	})
 
-	_ = suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	_ = suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name:     "Groceries",
 		Note:     "For Groceries",
 		BudgetID: b2.Data.ID,
 	})
 
-	_ = suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	_ = suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name:     "Daily stuff",
 		Note:     "Groceries, Drug Store, …",
 		BudgetID: b2.Data.ID,
@@ -208,7 +207,7 @@ func (suite *TestSuiteStandard) TestCategoriesGetFilter() {
 
 func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 	// Test category for uniqueness
-	c := suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	c := suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name: "Unique Category Name for Budget",
 	})
 
@@ -221,7 +220,7 @@ func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 		{
 			"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest,
 			func(t *testing.T, c v3.CategoryCreateResponse) {
-				assert.Equal(t, "json: cannot unmarshal number into Go struct field CategoryCreate.note of type string", *c.Error)
+				assert.Equal(t, "json: cannot unmarshal number into Go struct field CategoryEditable.note of type string", *c.Error)
 			},
 		},
 		{
@@ -248,7 +247,7 @@ func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 		},
 		{
 			"Duplicate name in Budget",
-			[]v3.CategoryCreate{
+			[]v3.CategoryEditable{
 				{
 					BudgetID: c.Data.BudgetID,
 					Name:     c.Data.Name,
@@ -278,8 +277,8 @@ func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 
 // Verify that updating categories works as desired
 func (suite *TestSuiteStandard) TestCategoriesUpdate() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
-	category := suite.createTestCategory(suite.T(), v3.CategoryCreate{Name: "Name of the category", BudgetID: budget.Data.ID})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
+	category := suite.createTestCategory(suite.T(), v3.CategoryEditable{Name: "Name of the category", BudgetID: budget.Data.ID})
 
 	tests := []struct {
 		name     string                                    // name of the test
@@ -333,7 +332,7 @@ func (suite *TestSuiteStandard) TestCategoriesUpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing Category", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set Budget to uuid.Nil", "", v3.CategoryCreate{}, http.StatusBadRequest},
+		{"Set Budget to uuid.Nil", "", v3.CategoryEditable{}, http.StatusBadRequest},
 	}
 
 	for _, tt := range tests {
@@ -341,7 +340,7 @@ func (suite *TestSuiteStandard) TestCategoriesUpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				envelope := suite.createTestCategory(suite.T(), v3.CategoryCreate{
+				envelope := suite.createTestCategory(suite.T(), v3.CategoryEditable{
 					Name: "New Envelope",
 					Note: "Auto-created for test",
 				})
@@ -372,7 +371,7 @@ func (suite *TestSuiteStandard) TestCategoriesDelete() {
 
 			if tt.id == "" {
 				// Create test Account
-				e := suite.createTestCategory(t, v3.CategoryCreate{})
+				e := suite.createTestCategory(t, v3.CategoryEditable{})
 				tt.id = e.Data.ID.String()
 			}
 
@@ -385,19 +384,19 @@ func (suite *TestSuiteStandard) TestCategoriesDelete() {
 
 // TestCategoriesGetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestCategoriesGetSorted() {
-	c1 := suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	c1 := suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name: "Alphabetically first",
 	})
 
-	c2 := suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	c2 := suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name: "Second in creation, third in list",
 	})
 
-	c3 := suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	c3 := suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name: "First is alphabetically second",
 	})
 
-	c4 := suite.createTestCategory(suite.T(), v3.CategoryCreate{
+	c4 := suite.createTestCategory(suite.T(), v3.CategoryEditable{
 		Name: "Zulu is the last one",
 	})
 
@@ -419,7 +418,7 @@ func (suite *TestSuiteStandard) TestCategoriesGetSorted() {
 
 func (suite *TestSuiteStandard) TestCategoriesPagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestCategory(suite.T(), v3.CategoryCreate{Name: fmt.Sprint(i)})
+		suite.createTestCategory(suite.T(), v3.CategoryEditable{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

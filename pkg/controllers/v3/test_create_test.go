@@ -8,7 +8,7 @@ import (
 
 func (suite *TestSuiteStandard) defaultTransactionCreate(c models.Transaction) models.Transaction {
 	if c.BudgetID == uuid.Nil {
-		c.BudgetID = suite.createTestBudget(suite.T(), models.BudgetCreate{Name: "Testing budget"}).Data.ID
+		c.BudgetID = suite.createTestBudget(suite.T(), v3.BudgetEditable{Name: "Testing budget"}).Data.ID
 	}
 
 	if c.SourceAccountID == uuid.Nil {
@@ -20,7 +20,7 @@ func (suite *TestSuiteStandard) defaultTransactionCreate(c models.Transaction) m
 	}
 
 	if c.EnvelopeID == &uuid.Nil {
-		*c.EnvelopeID = suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{Name: "Transaction Test Envelope"}).Data.ID
+		*c.EnvelopeID = suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{Name: "Transaction Test Envelope"}).Data.ID
 	}
 
 	return c

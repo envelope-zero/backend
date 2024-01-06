@@ -278,7 +278,7 @@ func ImportYnabImportPreview(c *gin.Context) {
 	}
 
 	// Verify that the account exists
-	account, e := getResourceByID[models.Account](c, accountID)
+	account, e := getModelByID[models.Account](c, accountID)
 	if !e.Nil() {
 		s := e.Error()
 		c.JSON(e.Status, ImportPreviewList{
@@ -380,9 +380,7 @@ func ImportYnab4(c *gin.Context) {
 	// as we only allow imports to new budgets
 	var budget models.Budget
 	err := models.DB.Where(&models.Budget{
-		BudgetCreate: models.BudgetCreate{
-			Name: query.BudgetName,
-		},
+		Name: query.BudgetName,
 	}).First(&budget).Error
 
 	if err == nil {
@@ -414,7 +412,7 @@ func ImportYnab4(c *gin.Context) {
 
 	// Set the budget name explicitly since YNAB 4 files
 	// do not contain it
-	resources.Budget.BudgetCreate.Name = query.BudgetName
+	resources.Budget.Name = query.BudgetName
 
 	budget, err = importer.Create(models.DB, resources)
 	if err != nil {
@@ -422,14 +420,6 @@ func ImportYnab4(c *gin.Context) {
 		return
 	}
 
-	r, e := getBudget(c, budget.ID)
-	if !e.Nil() {
-		s := e.Error()
-		c.JSON(e.Status, BudgetResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, BudgetResponse{Data: &r})
+	data := newBudget(c, budget)
+	c.JSON(http.StatusCreated, BudgetResponse{Data: &data})
 }

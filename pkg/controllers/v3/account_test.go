@@ -17,7 +17,7 @@ import (
 
 func (suite *TestSuiteStandard) createTestAccount(t *testing.T, account models.Account, expectedStatus ...int) v3.AccountResponse {
 	if account.BudgetID == uuid.Nil {
-		account.BudgetID = suite.createTestBudget(t, models.BudgetCreate{Name: "Testing budget"}).Data.ID
+		account.BudgetID = suite.createTestBudget(t, v3.BudgetEditable{Name: "Testing budget"}).Data.ID
 	}
 
 	body := []models.Account{
@@ -45,7 +45,7 @@ func (suite *TestSuiteStandard) createTestAccount(t *testing.T, account models.A
 // TestAccountsDBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestAccountsDBClosed() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -137,8 +137,8 @@ func (suite *TestSuiteStandard) TestAccountsGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestAccountsGetFilter() {
-	b1 := suite.createTestBudget(suite.T(), models.BudgetCreate{})
-	b2 := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b1 := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
+	b2 := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
 	_ = suite.createTestAccount(suite.T(), models.Account{
 		Name:     "Exact Account Match",
@@ -306,7 +306,7 @@ func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 
 // Verify that updating accounts works as desired
 func (suite *TestSuiteStandard) TestAccountsUpdate() {
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	account := suite.createTestAccount(suite.T(), models.Account{Name: "Original name", BudgetID: budget.Data.ID})
 
 	tests := []struct {

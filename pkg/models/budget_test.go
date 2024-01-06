@@ -15,7 +15,7 @@ func (suite *TestSuiteStandard) TestBudgetTrimWhitespace() {
 	note := " Some more whitespace in the notes    "
 	currency := "  €"
 
-	budget := suite.createTestBudget(models.BudgetCreate{
+	budget := suite.createTestBudget(models.Budget{
 		Name:     name,
 		Note:     note,
 		Currency: currency,
@@ -27,7 +27,7 @@ func (suite *TestSuiteStandard) TestBudgetTrimWhitespace() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetAfterFind() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	err := budget.AfterFind(models.DB)
 	assert.Nil(suite.T(), err)
 }
@@ -43,8 +43,8 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Allocations for Grocery Envelope - Outgoing transactions = -43.62
 	marchTwentyTwentyTwo := types.NewMonth(2022, 3)
 
-	budget := suite.createTestBudget(models.BudgetCreate{})
-	emptyBudget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
+	emptyBudget := suite.createTestBudget(models.Budget{})
 
 	bankAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
@@ -71,44 +71,36 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		External: true,
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category.ID,
 	})
 
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      marchTwentyTwentyTwo.AddDate(0, -2),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(17.42),
-		},
+		Allocation: decimal.NewFromFloat(17.42),
 	})
 
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      marchTwentyTwentyTwo.AddDate(0, -1),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(24.58),
-		},
+		Allocation: decimal.NewFromFloat(24.58),
 	})
 
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      marchTwentyTwentyTwo,
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(25),
-		},
+		Allocation: decimal.NewFromFloat(25),
 	})
 
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      types.NewMonth(2170, 2),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(24.58),
-		},
+		Allocation: decimal.NewFromFloat(24.58),
 	})
 
 	_ = suite.createTestTransaction(models.Transaction{
@@ -198,7 +190,7 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 }
 
 func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	income, err := budget.Income(models.DB, types.NewMonth(2022, 3))
 	assert.Nil(suite.T(), err)
@@ -206,7 +198,7 @@ func (suite *TestSuiteStandard) TestMonthIncomeNoTransactions() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	suite.CloseDB()
 
@@ -216,7 +208,7 @@ func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	suite.CloseDB()
 

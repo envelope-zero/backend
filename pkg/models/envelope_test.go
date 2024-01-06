@@ -16,11 +16,11 @@ func (suite *TestSuiteStandard) TestEnvelopeTrimWhitespace() {
 	name := "\t Whitespace galore!   "
 	note := " Some more whitespace in the notes    "
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		Name: name,
 		Note: note,
-		CategoryID: suite.createTestCategory(models.CategoryCreate{
-			BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+		CategoryID: suite.createTestCategory(models.Category{
+			BudgetID: suite.createTestBudget(models.Budget{}).ID,
 		}).ID,
 	})
 
@@ -29,7 +29,7 @@ func (suite *TestSuiteStandard) TestEnvelopeTrimWhitespace() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
@@ -43,11 +43,11 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 		External: true,
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		Name:       "Testing envelope",
 		CategoryID: category.ID,
 	})
@@ -92,7 +92,7 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 }
 
 func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
@@ -105,7 +105,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 		External: true,
 	})
 
-	_ = suite.createTestCategory(models.CategoryCreate{
+	_ = suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
@@ -122,7 +122,7 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 // TestEnvelopeMonthBalance verifies that the monthly balance calculation for
 // envelopes is correct.
 func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	internalAccount := suite.createTestAccount(models.Account{
 		Name:     "Internal Source Account",
@@ -136,17 +136,17 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 		External: true,
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		Name:       "Testing envelope",
 		CategoryID: category.ID,
 	})
 
 	// Used to test the Envelope.Balance method without any transactions
-	envelopeWithoutTransactions := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelopeWithoutTransactions := suite.createTestEnvelope(models.Envelope{
 		Name:       "Testing envelope without any transactions",
 		CategoryID: category.ID,
 	})
@@ -157,18 +157,14 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      january,
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(50),
-		},
+		Allocation: decimal.NewFromFloat(50),
 	})
 
 	// Allocation in February
 	_ = suite.createTestMonthConfig(models.MonthConfig{
 		EnvelopeID: envelope.ID,
 		Month:      january.AddDate(0, 1),
-		MonthConfigCreate: models.MonthConfigCreate{
-			Allocation: decimal.NewFromFloat(40),
-		},
+		Allocation: decimal.NewFromFloat(40),
 	})
 
 	// Transaction in January
@@ -226,20 +222,20 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 // TestEnvelopeUnarchiveUnarchivesCategory tests that when an envelope is unarchived, but its parent category
 // is archived, the parent category is unarchived, too.
 func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
-	category := suite.createTestCategory(models.CategoryCreate{
+	budget := suite.createTestBudget(models.Budget{})
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 		Archived: true,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category.ID,
 		Name:       "TestEnvelopeUnarchiveUnarchivesCategory",
 		Archived:   true,
 	})
 
 	// Unarchive the envelope
-	data := models.Envelope{EnvelopeCreate: models.EnvelopeCreate{Archived: false}}
+	data := models.Envelope{Archived: false}
 	models.DB.Model(&envelope).Select("Archived").Updates(data)
 
 	// Reload the category

@@ -32,7 +32,7 @@ type Month struct {
 }
 
 type CategoryEnvelopes struct {
-	models.Category
+	Category
 	Envelopes  []EnvelopeMonth `json:"envelopes"`                // Slice of all envelopes
 	Balance    decimal.Decimal `json:"balance" example:"-10.13"` // Sum of the balances of the envelopes
 	Allocation decimal.Decimal `json:"allocation" example:"90"`  // Sum of allocations for the envelopes
@@ -41,7 +41,7 @@ type CategoryEnvelopes struct {
 
 // EnvelopeMonth contains data about an Envelope for a specific month.
 type EnvelopeMonth struct {
-	models.Envelope
+	Envelope
 	Spent      decimal.Decimal `json:"spent" example:"73.12"`      // The amount spent over the whole month
 	Balance    decimal.Decimal `json:"balance" example:"12.32"`    // The balance at the end of the monht
 	Allocation decimal.Decimal `json:"allocation" example:"85.44"` // The amount of money allocated
@@ -124,7 +124,7 @@ func GetMonth(c *gin.Context) {
 	// Get all categories for the budget
 	var categories []models.Category
 	err = models.DB.
-		Where(&models.Category{CategoryCreate: models.CategoryCreate{BudgetID: b.ID}}).
+		Where(&models.Category{BudgetID: b.ID}).
 		Order("name ASC").
 		Find(&categories).
 		Error
@@ -146,16 +146,23 @@ func GetMonth(c *gin.Context) {
 		var categoryEnvelopes CategoryEnvelopes
 
 		// Set the basic category values
-		categoryEnvelopes.Category = category
+		categoryResource, e := newCategory(c, models.DB, category)
+		if !e.Nil() {
+			s := e.Error()
+			c.JSON(e.Status, MonthResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		categoryEnvelopes.Category = categoryResource
 		categoryEnvelopes.Envelopes = make([]EnvelopeMonth, 0)
 
 		var envelopes []models.Envelope
 
 		err = models.DB.
 			Where(&models.Envelope{
-				EnvelopeCreate: models.EnvelopeCreate{
-					CategoryID: category.ID,
-				},
+				CategoryID: category.ID,
 			}).
 			Order("name asc").
 			Find(&envelopes).
@@ -353,9 +360,9 @@ func SetAllocations(c *gin.Context) {
 		err = query(c, models.DB.Where(models.MonthConfig{
 			Month:      month,
 			EnvelopeID: allocation.EnvelopeID,
-		}).Assign(models.MonthConfig{MonthConfigCreate: models.MonthConfigCreate{
+		}).Assign(models.MonthConfig{
 			Allocation: amount,
-		}}).FirstOrCreate(&models.MonthConfig{}))
+		}).FirstOrCreate(&models.MonthConfig{}))
 		if !err.Nil() {
 			c.JSON(err.Status, httperrors.HTTPError{
 				Error: err.Error(),
@@ -372,7 +379,7 @@ func envelopeMonth(c *gin.Context, db *gorm.DB, e models.Envelope, month types.M
 	spent := e.Spent(db, month)
 
 	envelopeMonth := EnvelopeMonth{
-		Envelope:   e,
+		Envelope:   newEnvelope(c, e),
 		Spent:      spent,
 		Balance:    decimal.NewFromFloat(0),
 		Allocation: decimal.NewFromFloat(0),
@@ -397,7 +404,8 @@ func envelopeMonth(c *gin.Context, db *gorm.DB, e models.Envelope, month types.M
 	envelopeMonth.Allocation = monthConfig.Allocation
 
 	// Set the links
-	envelopeMonth.Links.links(c, e)
+	// TODO: Remove this with v4
+	envelopeMonth.Links = envelopeMonth.Envelope.Links
 	return envelopeMonth, nil
 }
 
@@ -427,7 +435,7 @@ func parseMonthQuery(c *gin.Context) (types.Month, models.Budget, httperrors.Err
 		return types.Month{}, models.Budget{}, httperrors.Parse(c, err)
 	}
 
-	budget, e := getResourceByID[models.Budget](c, budgetID)
+	budget, e := getModelByID[models.Budget](c, budgetID)
 	if !e.Nil() {
 		return types.Month{}, models.Budget{}, e
 	}

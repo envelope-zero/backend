@@ -39,9 +39,7 @@ func Parse(f io.Reader) (importer.ParsedResources, error) {
 	// Set options for the budget
 	cur, _ := currency.FromTag(budget.BudgetMetaData.CurrencyLocale)
 	resources.Budget = models.Budget{
-		BudgetCreate: models.BudgetCreate{
-			Currency: fmt.Sprintf("%s", currency.Symbol(cur)),
-		},
+		Currency: fmt.Sprintf("%s", currency.Symbol(cur)),
 	}
 
 	// Parse accounts and payees
@@ -150,10 +148,8 @@ func parsePayees(resources *importer.ParsedResources, payees []Payee) IDToName {
 			resources.MatchRules = append(resources.MatchRules, importer.MatchRule{
 				Account: payee.Name,
 				MatchRule: models.MatchRule{
-					MatchRuleCreate: models.MatchRuleCreate{
-						Priority: 0,
-						Match:    match,
-					},
+					Priority: 0,
+					Match:    match,
 				},
 			})
 		}
@@ -187,13 +183,11 @@ func parseCategories(resources *importer.ParsedResources, categories []Category)
 		// Add the category
 		tCategories[category.Name] = importer.Category{
 			Model: models.Category{
-				CategoryCreate: models.CategoryCreate{
-					Name: category.Name,
-					Note: category.Note,
-					// we use category.Deleted here since the original data format does not have an "archived" field. If the category is not referenced anywhere,
-					// it will not be imported anyway
-					Archived: category.Deleted,
-				},
+				Name: category.Name,
+				Note: category.Note,
+				// we use category.Deleted here since the original data format does not have an "archived" field. If the category is not referenced anywhere,
+				// it will not be imported anyway
+				Archived: category.Deleted,
 			},
 			Envelopes: make(map[string]importer.Envelope),
 		}
@@ -227,11 +221,9 @@ func parseCategories(resources *importer.ParsedResources, categories []Category)
 			tEnvelopes = append(tEnvelopes, tEnvelope{
 				importer.Envelope{
 					Model: models.Envelope{
-						EnvelopeCreate: models.EnvelopeCreate{
-							Name:     mapping.Envelope,
-							Note:     envelope.Note,
-							Archived: archived,
-						},
+						Name:     mapping.Envelope,
+						Note:     envelope.Note,
+						Archived: archived,
 					},
 				},
 				mapping.Category,
@@ -485,10 +477,8 @@ func parseMonthlyBudgets(resources *importer.ParsedResources, monthlyBudgets []M
 
 			monthConfig := importer.MonthConfig{
 				Model: models.MonthConfig{
-					Month: monthBudget.Month,
-					MonthConfigCreate: models.MonthConfigCreate{
-						Allocation: subCategoryBudget.Budgeted,
-					},
+					Month:      monthBudget.Month,
+					Allocation: subCategoryBudget.Budgeted,
 				},
 				Category: envelopeIDNames[subCategoryBudget.CategoryID].Category,
 				Envelope: envelopeIDNames[subCategoryBudget.CategoryID].Envelope,

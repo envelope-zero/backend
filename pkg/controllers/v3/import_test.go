@@ -120,7 +120,7 @@ func (suite *TestSuiteStandard) TestImportYnab4Fails() {
 		{"Wrong file name", "same", "this endpoint only supports .yfull files", http.StatusBadRequest, "importer/wrong-name.json", func() {}},
 		{"Empty file", "same", "not a valid YNAB4 Budget.yfull file: unexpected end of JSON input", http.StatusBadRequest, "importer/EmptyFile.yfull", func() {}},
 		{"Duplicate budget name", "Import Test", "This budget name is already in use", http.StatusBadRequest, "", func() {
-			_ = suite.createTestBudget(suite.T(), models.BudgetCreate{Name: "Import Test"})
+			_ = suite.createTestBudget(suite.T(), v3.BudgetEditable{Name: "Import Test"})
 		}},
 		{"Database error. This test must be the last one.", "Nope. DB is closed.", "there is a problem with the database connection", http.StatusInternalServerError, "", func() {
 			suite.CloseDB()
@@ -231,7 +231,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewAvailableFrom() {
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewFindAccounts() {
 	// Create a budget and two existing accounts to use
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	edeka := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
 
 	// Create an account named "Edeka" in another budget to ensure it is not found. If it were found, the tests for the non-archived
@@ -242,7 +242,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFindAccounts() {
 	internalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
 	_ = suite.createTestTransaction(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
@@ -291,7 +291,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFindAccounts() {
 
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 	// Create a budget and two existing accounts to use
-	budget := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	budget := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	edeka := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Edeka", External: true})
 	bahn := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Deutsche Bahn", External: true})
 
@@ -299,7 +299,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 	internalAccount := suite.createTestAccount(suite.T(), models.Account{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
 
 	// Test envelope and  test transaction to the Edeka account with an envelope to test the envelope prefill
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: budget.Data.ID}).Data.ID})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: budget.Data.ID}).Data.ID})
 	envelopeID := envelope.Data.ID
 	_ = suite.createTestTransaction(suite.T(), models.Transaction{BudgetID: budget.Data.ID, SourceAccountID: internalAccount.Data.ID, DestinationAccountID: edeka.Data.ID, EnvelopeID: &envelopeID, Amount: decimal.NewFromFloat(12.00)})
 
@@ -316,7 +316,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 			[]uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestMatchRule(t, models.MatchRuleCreate{
+				edeka := suite.createTestMatchRule(t, models.MatchRule{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
@@ -330,12 +330,12 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 			[]uuid.UUID{edeka.Data.ID, bahn.Data.ID, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestMatchRule(t, models.MatchRuleCreate{
+				edeka := suite.createTestMatchRule(t, models.MatchRule{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
 
-				db := suite.createTestMatchRule(t, models.MatchRuleCreate{
+				db := suite.createTestMatchRule(t, models.MatchRule{
 					Match:     "DB Vertrieb GmbH",
 					AccountID: bahn.Data.ID,
 				})

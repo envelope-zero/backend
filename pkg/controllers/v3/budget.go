@@ -1,94 +1,14 @@
 package v3
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 )
-
-type BudgetQueryFilter struct {
-	Name     string `form:"name" filterField:"false"`   // By name
-	Note     string `form:"note" filterField:"false"`   // By note
-	Currency string `form:"currency"`                   // By currency
-	Search   string `form:"search" filterField:"false"` // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Budget returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Budgets to return. Defaults to 50.
-}
-
-// Budget is the API v3 representation of a Budget.
-type Budget struct {
-	models.Budget
-	Links struct {
-		Self         string `json:"self" example:"https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"`                      // The budget itself
-		Accounts     string `json:"accounts" example:"https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`          // Accounts for this budget
-		Categories   string `json:"categories" example:"https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`      // Categories for this budget
-		Envelopes    string `json:"envelopes" example:"https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`        // Envelopes for this budget
-		Transactions string `json:"transactions" example:"https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`  // Transactions for this budget
-		Month        string `json:"month" example:"https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
-	} `json:"links"`
-}
-
-// links sets all links for the Budget.
-func (b *Budget) links(c *gin.Context) {
-	url := c.GetString(string(models.DBContextURL))
-
-	b.Links.Self = fmt.Sprintf("%s/v3/budgets/%s", url, b.ID)
-	b.Links.Accounts = fmt.Sprintf("%s/v3/accounts?budget=%s", url, b.ID)
-	b.Links.Categories = fmt.Sprintf("%s/v3/categories?budget=%s", url, b.ID)
-	b.Links.Envelopes = fmt.Sprintf("%s/v3/envelopes?budget=%s", url, b.ID)
-	b.Links.Transactions = fmt.Sprintf("%s/v3/transactions?budget=%s", url, b.ID)
-	b.Links.Month = fmt.Sprintf("%s/v3/months?budget=%s&month=YYYY-MM", url, b.ID)
-}
-
-// getBudget returns a budget with all fields set.
-func getBudget(c *gin.Context, id uuid.UUID) (Budget, httperrors.Error) {
-	m, err := getResourceByID[models.Budget](c, id)
-	if !err.Nil() {
-		return Budget{}, err
-	}
-
-	b := Budget{
-		Budget: m,
-	}
-
-	b.links(c)
-
-	return b, httperrors.Error{}
-}
-
-type BudgetListResponse struct {
-	Data       []Budget    `json:"data"`                                                          // List of budgets
-	Error      *string     `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Pagination *Pagination `json:"pagination"`                                                    // Pagination information
-}
-
-type BudgetCreateResponse struct {
-	Error *string          `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-	Data  []BudgetResponse `json:"data"`                                                          // List of created Budgets
-}
-
-func (b *BudgetCreateResponse) appendError(err httperrors.Error, status int) int {
-	s := err.Error()
-	b.Data = append(b.Data, BudgetResponse{Error: &s})
-
-	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
-	}
-
-	return status
-}
-
-type BudgetResponse struct {
-	Data  *Budget `json:"data"`                                                          // Data for the budget
-	Error *string `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
-}
 
 // RegisterBudgetRoutes registers the routes for Budgets with
 // the RouterGroup that is passed.
@@ -136,7 +56,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 		return
 	}
 
-	_, err = getResourceByID[models.Budget](c, id)
+	_, err = getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),
@@ -155,10 +75,10 @@ func OptionsBudgetDetail(c *gin.Context) {
 // @Success		201		{object}	BudgetCreateResponse
 // @Failure		400		{object}	BudgetCreateResponse
 // @Failure		500		{object}	BudgetCreateResponse
-// @Param			budget	body		models.BudgetCreate	true	"Budget"
+// @Param			budget	body		[]BudgetEditable	true	"Budget"
 // @Router			/v3/budgets [post]
 func CreateBudgets(c *gin.Context) {
-	var budgets []models.BudgetCreate
+	var budgets []BudgetEditable
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &budgets)
@@ -174,25 +94,18 @@ func CreateBudgets(c *gin.Context) {
 	status := http.StatusCreated
 	r := BudgetCreateResponse{}
 
-	for _, create := range budgets {
-		b := models.Budget{
-			BudgetCreate: create,
-		}
+	for _, editable := range budgets {
+		budget := editable.model()
 
-		dbErr := models.DB.Create(&b).Error
+		dbErr := models.DB.Create(&budget).Error
 		if dbErr != nil {
-			err := httperrors.GenericDBError[models.Budget](b, c, dbErr)
+			err := httperrors.GenericDBError[models.Budget](budget, c, dbErr)
 			status = r.appendError(err, status)
 			continue
 		}
 
-		// Append the budget
-		bObject, err := getBudget(c, b.ID)
-		if !err.Nil() {
-			status = r.appendError(err, status)
-			continue
-		}
-		r.Data = append(r.Data, BudgetResponse{Data: &bObject})
+		data := newBudget(c, budget)
+		r.Data = append(r.Data, BudgetResponse{Data: &data})
 	}
 
 	c.JSON(status, r)
@@ -225,14 +138,7 @@ func GetBudgets(c *gin.Context) {
 	// Always sort by name
 	q := models.DB.
 		Order("name ASC").
-		Where(&models.Budget{
-			BudgetCreate: models.BudgetCreate{
-				Name:     filter.Name,
-				Note:     filter.Note,
-				Currency: filter.Currency,
-			},
-		},
-			queryFields...)
+		Where(filter.model(), queryFields...)
 
 	q = stringFilters(models.DB, q, setFields, filter.Name, filter.Note, filter.Search)
 
@@ -265,23 +171,15 @@ func GetBudgets(c *gin.Context) {
 		return
 	}
 
-	budgetResources := make([]Budget, 0)
+	apiResources := make([]Budget, 0)
 	for _, budget := range budgets {
-		r, err := getBudget(c, budget.ID)
-		if !err.Nil() {
-			s := err.Error()
-			c.JSON(err.Status, BudgetListResponse{
-				Error: &s,
-			})
-			return
-		}
-		budgetResources = append(budgetResources, r)
+		apiResources = append(apiResources, newBudget(c, budget))
 	}
 
 	c.JSON(http.StatusOK, BudgetListResponse{
-		Data: budgetResources,
+		Data: apiResources,
 		Pagination: &Pagination{
-			Count:  len(budgetResources),
+			Count:  len(apiResources),
 			Total:  count,
 			Offset: filter.Offset,
 			Limit:  limit,
@@ -309,7 +207,7 @@ func GetBudget(c *gin.Context) {
 		return
 	}
 
-	m, err := getResourceByID[models.Budget](c, id)
+	m, err := getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, BudgetResponse{
@@ -318,16 +216,8 @@ func GetBudget(c *gin.Context) {
 		return
 	}
 
-	r, err := getBudget(c, m.ID)
-	if !err.Nil() {
-		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, BudgetResponse{Data: &r})
+	apiResource := newBudget(c, m)
+	c.JSON(http.StatusOK, BudgetResponse{Data: &apiResource})
 }
 
 // @Summary		Update budget
@@ -339,8 +229,8 @@ func GetBudget(c *gin.Context) {
 // @Failure		400		{object}	BudgetResponse
 // @Failure		404		{object}	BudgetResponse
 // @Failure		500		{object}	BudgetResponse
-// @Param			id		path		string				true	"ID formatted as string"
-// @Param			budget	body		models.BudgetCreate	true	"Budget"
+// @Param			id		path		string			true	"ID formatted as string"
+// @Param			budget	body		BudgetEditable	true	"Budget"
 // @Router			/v3/budgets/{id} [patch]
 func UpdateBudget(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -352,7 +242,7 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	budget, err := getResourceByID[models.Budget](c, id)
+	budget, err := getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, BudgetResponse{
@@ -361,7 +251,7 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	updateFields, err := httputil.GetBodyFields(c, models.BudgetCreate{})
+	updateFields, err := httputil.GetBodyFields(c, BudgetEditable{})
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, BudgetResponse{
@@ -370,8 +260,8 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	var data models.Budget
-	err = httputil.BindData(c, &data.BudgetCreate)
+	var data BudgetEditable
+	err = httputil.BindData(c, &data)
 	if !err.Nil() {
 		s := err.Error()
 		c.JSON(err.Status, BudgetResponse{
@@ -389,16 +279,8 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	r, err := getBudget(c, budget.ID)
-	if !err.Nil() {
-		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, BudgetResponse{Data: &r})
+	apiResource := newBudget(c, budget)
+	c.JSON(http.StatusOK, BudgetResponse{Data: &apiResource})
 }
 
 // @Summary		Delete budget
@@ -419,7 +301,7 @@ func DeleteBudget(c *gin.Context) {
 		return
 	}
 
-	budget, err := getResourceByID[models.Budget](c, id)
+	budget, err := getModelByID[models.Budget](c, id)
 	if !err.Nil() {
 		c.JSON(err.Status, httperrors.HTTPError{
 			Error: err.Error(),

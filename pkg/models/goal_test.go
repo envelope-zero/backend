@@ -33,9 +33,9 @@ func (suite *TestSuiteStandard) TestGoalAfterSave() {
 }
 
 func (suite *TestSuiteStandard) TestGoalTrimWhitespace() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
-	category := suite.createTestCategory(models.CategoryCreate{BudgetID: budget.ID})
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.ID})
+	budget := suite.createTestBudget(models.Budget{})
+	category := suite.createTestCategory(models.Category{BudgetID: budget.ID})
+	envelope := suite.createTestEnvelope(models.Envelope{CategoryID: category.ID})
 
 	note := " Whitespace    "
 	name := "  There is whitespace here  \t"

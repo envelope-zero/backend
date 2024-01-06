@@ -8,7 +8,6 @@ import (
 	"github.com/envelope-zero/backend/v4/internal/types"
 	v3 "github.com/envelope-zero/backend/v4/pkg/controllers/v3"
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -22,7 +21,7 @@ func (suite *TestSuiteStandard) createTestGoal(t *testing.T, c v3.GoalEditable, 
 	}
 
 	if c.EnvelopeID == uuid.Nil {
-		c.EnvelopeID = suite.createTestEnvelope(t, v3.EnvelopeCreate{}).Data.ID
+		c.EnvelopeID = suite.createTestEnvelope(t, v3.EnvelopeEditable{}).Data.ID
 	}
 
 	requestBody := []v3.GoalEditable{c}
@@ -151,12 +150,12 @@ func (suite *TestSuiteStandard) TestGoalsGet() {
 
 // TestGoalsGetFilter verifies that filtering goals works as expected.
 func (suite *TestSuiteStandard) TestGoalsGetFilter() {
-	b := suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 
-	c := suite.createTestCategory(suite.T(), v3.CategoryCreate{BudgetID: b.Data.ID})
+	c := suite.createTestCategory(suite.T(), v3.CategoryEditable{BudgetID: b.Data.ID})
 
-	e1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: c.Data.ID})
-	e2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{CategoryID: c.Data.ID})
+	e1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: c.Data.ID})
+	e2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{CategoryID: c.Data.ID})
 
 	_ = suite.createTestGoal(suite.T(), v3.GoalEditable{
 		Name:       "Test Goal",
@@ -267,7 +266,7 @@ func (suite *TestSuiteStandard) TestGoalsCreateInvalidBody() {
 
 // TestGoalsCreate verifies that transaction goal works.
 func (suite *TestSuiteStandard) TestGoalsCreate() {
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{Name: "An envelope for this test"})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{Name: "An envelope for this test"})
 
 	tests := []struct {
 		name           string
@@ -488,7 +487,7 @@ func (suite *TestSuiteStandard) TestUpdateNonExistingGoal() {
 
 // TestGoalsUpdate verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestGoalsUpdate() {
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{})
 
 	goal := suite.createTestGoal(suite.T(), v3.GoalEditable{
 		Amount:     decimal.NewFromFloat(23.14),

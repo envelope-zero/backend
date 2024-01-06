@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestEnvelope(t *testing.T, c v3.EnvelopeCreate, expectedStatus ...int) v3.EnvelopeResponse {
+func (suite *TestSuiteStandard) createTestEnvelope(t *testing.T, c v3.EnvelopeEditable, expectedStatus ...int) v3.EnvelopeResponse {
 	if c.CategoryID == uuid.Nil {
-		c.CategoryID = suite.createTestCategory(suite.T(), v3.CategoryCreate{}).Data.ID
+		c.CategoryID = suite.createTestCategory(suite.T(), v3.CategoryEditable{}).Data.ID
 	}
 
 	if c.Name == "" {
@@ -26,7 +26,7 @@ func (suite *TestSuiteStandard) createTestEnvelope(t *testing.T, c v3.EnvelopeCr
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	body := []v3.EnvelopeCreate{c}
+	body := []v3.EnvelopeEditable{c}
 
 	r := test.Request(t, http.MethodPost, "http://example.com/v3/envelopes", body)
 	test.AssertHTTPStatus(t, &r, expectedStatus...)
@@ -44,7 +44,7 @@ func (suite *TestSuiteStandard) createTestEnvelope(t *testing.T, c v3.EnvelopeCr
 // TestEnvelopesDBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestEnvelopesDBClosed() {
-	b := suite.createTestCategory(suite.T(), v3.CategoryCreate{})
+	b := suite.createTestCategory(suite.T(), v3.CategoryEditable{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -53,7 +53,7 @@ func (suite *TestSuiteStandard) TestEnvelopesDBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestEnvelope(t, v3.EnvelopeCreate{CategoryID: b.Data.ID}, http.StatusInternalServerError)
+				suite.createTestEnvelope(t, v3.EnvelopeEditable{CategoryID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -84,7 +84,7 @@ func (suite *TestSuiteStandard) TestEnvelopesOptions() {
 	}{
 		{"No Envelope with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Envelope exists", suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{}).Data.ID.String(), http.StatusNoContent},
+		{"Envelope exists", suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -103,7 +103,7 @@ func (suite *TestSuiteStandard) TestEnvelopesOptions() {
 // TestEnvelopesGetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestEnvelopesGetSingle() {
-	e := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{})
+	e := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{})
 
 	tests := []struct {
 		name   string
@@ -137,23 +137,23 @@ func (suite *TestSuiteStandard) TestEnvelopesGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopesGetFilter() {
-	c1 := suite.createTestCategory(suite.T(), v3.CategoryCreate{})
-	c2 := suite.createTestCategory(suite.T(), v3.CategoryCreate{})
+	c1 := suite.createTestCategory(suite.T(), v3.CategoryEditable{})
+	c2 := suite.createTestCategory(suite.T(), v3.CategoryEditable{})
 
-	_ = suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	_ = suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name:       "Groceries",
 		Note:       "For the stuff bought in supermarkets",
 		CategoryID: c1.Data.ID,
 	})
 
-	_ = suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	_ = suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name:       "Hairdresser",
 		Note:       "Because… Hair!",
 		CategoryID: c2.Data.ID,
 		Archived:   true,
 	})
 
-	_ = suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	_ = suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name:       "Stamps",
 		Note:       "Because each stamp needs to go on an envelope. Hopefully it's not hairy",
 		CategoryID: c2.Data.ID,
@@ -206,7 +206,7 @@ func (suite *TestSuiteStandard) TestEnvelopesGetFilter() {
 
 func (suite *TestSuiteStandard) TestEnvelopesCreateFails() {
 	// Test envelope for uniqueness
-	e := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	e := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name: "Unique Envelope Name for Category",
 	})
 
@@ -219,7 +219,7 @@ func (suite *TestSuiteStandard) TestEnvelopesCreateFails() {
 		{
 			"Broken Body", `[{ "note": 2 }]`, http.StatusBadRequest,
 			func(t *testing.T, e v3.EnvelopeCreateResponse) {
-				assert.Equal(t, "json: cannot unmarshal number into Go struct field EnvelopeCreate.note of type string", *e.Error)
+				assert.Equal(t, "json: cannot unmarshal number into Go struct field EnvelopeEditable.note of type string", *e.Error)
 			},
 		},
 		{"No body", "", http.StatusBadRequest, func(t *testing.T, e v3.EnvelopeCreateResponse) {
@@ -241,7 +241,7 @@ func (suite *TestSuiteStandard) TestEnvelopesCreateFails() {
 		},
 		{
 			"Duplicate name in Category",
-			[]v3.EnvelopeCreate{
+			[]v3.EnvelopeEditable{
 				{
 					CategoryID: e.Data.CategoryID,
 					Name:       e.Data.Name,
@@ -271,7 +271,7 @@ func (suite *TestSuiteStandard) TestEnvelopesCreateFails() {
 
 // Verify that updating envelopes works as desired
 func (suite *TestSuiteStandard) TestEnvelopesUpdate() {
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{})
 
 	tests := []struct {
 		name     string                                    // name of the test
@@ -325,7 +325,7 @@ func (suite *TestSuiteStandard) TestEnvelopesUpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing Envelope", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set Category to uuid.Nil", "", v3.EnvelopeCreate{}, http.StatusBadRequest},
+		{"Set Category to uuid.Nil", "", v3.EnvelopeEditable{}, http.StatusBadRequest},
 	}
 
 	for _, tt := range tests {
@@ -333,7 +333,7 @@ func (suite *TestSuiteStandard) TestEnvelopesUpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+				envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 					Name: "New Envelope",
 					Note: "Auto-created for test",
 				})
@@ -364,7 +364,7 @@ func (suite *TestSuiteStandard) TestEnvelopesDelete() {
 
 			if tt.id == "" {
 				// Create test Account
-				e := suite.createTestEnvelope(t, v3.EnvelopeCreate{})
+				e := suite.createTestEnvelope(t, v3.EnvelopeEditable{})
 				tt.id = e.Data.ID.String()
 			}
 
@@ -377,19 +377,19 @@ func (suite *TestSuiteStandard) TestEnvelopesDelete() {
 
 // TestEnvelopesGetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestEnvelopesGetSorted() {
-	e1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	e1 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name: "Alphabetically first",
 	})
 
-	e2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	e2 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name: "Second in creation, third in list",
 	})
 
-	e3 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	e3 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name: "First is alphabetically second",
 	})
 
-	e4 := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{
+	e4 := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{
 		Name: "Zulu is the last one",
 	})
 
@@ -411,7 +411,7 @@ func (suite *TestSuiteStandard) TestEnvelopesGetSorted() {
 
 func (suite *TestSuiteStandard) TestEnvelopesPagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{Name: fmt.Sprint(i)})
+		suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

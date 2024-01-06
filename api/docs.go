@@ -554,7 +554,10 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.BudgetCreate"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v3.BudgetEditable"
+                            }
                         }
                     }
                 ],
@@ -742,7 +745,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.BudgetCreate"
+                            "$ref": "#/definitions/v3.BudgetEditable"
                         }
                     }
                 ],
@@ -867,7 +870,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/v3.CategoryCreate"
+                                "$ref": "#/definitions/v3.CategoryEditable"
                             }
                         }
                     }
@@ -1062,7 +1065,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v3.CategoryCreate"
+                            "$ref": "#/definitions/v3.CategoryEditable"
                         }
                     }
                 ],
@@ -1187,7 +1190,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/v3.EnvelopeCreate"
+                                "$ref": "#/definitions/v3.EnvelopeEditable"
                             }
                         }
                     }
@@ -1382,7 +1385,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v3.EnvelopeCreate"
+                            "$ref": "#/definitions/v3.EnvelopeEditable"
                         }
                     }
                 ],
@@ -1531,7 +1534,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v3.MonthConfigCreate"
+                            "$ref": "#/definitions/v3.MonthConfigEditable"
                         }
                     }
                 ],
@@ -2159,7 +2162,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.MatchRuleCreate"
+                                "$ref": "#/definitions/v3.MatchRuleEditable"
                             }
                         }
                     }
@@ -2354,7 +2357,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.MatchRuleCreate"
+                            "$ref": "#/definitions/v3.MatchRuleEditable"
                         }
                     }
                 ],
@@ -3032,9 +3035,7 @@ const docTemplate = `{
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
                 "currency": {
-                    "description": "The currency for the budget",
-                    "type": "string",
-                    "example": "€"
+                    "type": "string"
                 },
                 "deletedAt": {
                     "description": "Time the resource was marked as deleted",
@@ -3047,14 +3048,10 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "name": {
-                    "description": "Name of the budget",
-                    "type": "string",
-                    "example": "Morre's Budget"
+                    "type": "string"
                 },
                 "note": {
-                    "description": "A longer description of the budget",
-                    "type": "string",
-                    "example": "My personal expenses"
+                    "type": "string"
                 },
                 "updatedAt": {
                     "description": "Last time the resource was updated",
@@ -3063,39 +3060,17 @@ const docTemplate = `{
                 }
             }
         },
-        "models.BudgetCreate": {
-            "type": "object",
-            "properties": {
-                "currency": {
-                    "description": "The currency for the budget",
-                    "type": "string",
-                    "example": "€"
-                },
-                "name": {
-                    "description": "Name of the budget",
-                    "type": "string",
-                    "example": "Morre's Budget"
-                },
-                "note": {
-                    "description": "A longer description of the budget",
-                    "type": "string",
-                    "example": "My personal expenses"
-                }
-            }
-        },
-        "models.Envelope": {
+        "models.Category": {
             "type": "object",
             "properties": {
                 "archived": {
-                    "description": "Is the envelope archived?",
-                    "type": "boolean",
-                    "default": false,
-                    "example": true
+                    "type": "boolean"
                 },
-                "categoryId": {
-                    "description": "ID of the category the envelope belongs to",
-                    "type": "string",
-                    "example": "878c831f-af99-4a71-b3ca-80deb7d793c1"
+                "budget": {
+                    "$ref": "#/definitions/models.Budget"
+                },
+                "budgetID": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "description": "Time the resource was created",
@@ -3113,14 +3088,10 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "name": {
-                    "description": "Name of the envelope",
-                    "type": "string",
-                    "example": "Groceries"
+                    "type": "string"
                 },
                 "note": {
-                    "description": "Notes about the envelope",
-                    "type": "string",
-                    "example": "For stuff bought at supermarkets and drugstores"
+                    "type": "string"
                 },
                 "updatedAt": {
                     "description": "Last time the resource was updated",
@@ -3129,23 +3100,43 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MatchRuleCreate": {
+        "models.Envelope": {
             "type": "object",
             "properties": {
-                "accountId": {
-                    "description": "The account to map matching transactions to",
-                    "type": "string",
-                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                "archived": {
+                    "type": "boolean"
                 },
-                "match": {
-                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
-                    "type": "string",
-                    "example": "Bank*"
+                "category": {
+                    "$ref": "#/definitions/models.Category"
                 },
-                "priority": {
-                    "description": "The priority of the match rule",
-                    "type": "integer",
-                    "example": 3
+                "categoryID": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "Time the resource was created",
+                    "type": "string",
+                    "example": "2022-04-02T19:28:44.491514Z"
+                },
+                "deletedAt": {
+                    "description": "Time the resource was marked as deleted",
+                    "type": "string",
+                    "example": "2022-04-22T21:01:05.058161Z"
+                },
+                "id": {
+                    "description": "UUID for the resource",
+                    "type": "string",
+                    "example": "65392deb-5e92-4268-b114-297faad6cdce"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
@@ -3272,7 +3263,7 @@ const docTemplate = `{
                     "example": true
                 },
                 "balance": {
-                    "description": "These fields are calculated",
+                    "description": "These fields are computed",
                     "type": "number",
                     "example": 2735.17
                 },
@@ -3526,39 +3517,7 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "accounts": {
-                            "description": "Accounts for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "categories": {
-                            "description": "Categories for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "envelopes": {
-                            "description": "Envelopes for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "month": {
-                            "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
-                        },
-                        "self": {
-                            "description": "The budget itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        },
-                        "transactions": {
-                            "description": "Transactions for this budget",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.BudgetLinks"
                 },
                 "name": {
                     "description": "Name of the budget",
@@ -3605,6 +3564,61 @@ const docTemplate = `{
                     "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.BudgetEditable": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "description": "The currency for the budget",
+                    "type": "string",
+                    "example": "€"
+                },
+                "name": {
+                    "description": "Name of the budget",
+                    "type": "string",
+                    "example": "Morre's Budget"
+                },
+                "note": {
+                    "description": "A longer description of the budget",
+                    "type": "string",
+                    "example": "My personal expenses"
+                }
+            }
+        },
+        "v3.BudgetLinks": {
+            "type": "object",
+            "properties": {
+                "accounts": {
+                    "description": "Accounts for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "categories": {
+                    "description": "Categories for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "envelopes": {
+                    "description": "Envelopes for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "month": {
+                    "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf\u0026month=YYYY-MM"
+                },
+                "self": {
+                    "description": "The budget itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "transactions": {
+                    "description": "Transactions for this budget",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 }
             }
         },
@@ -3676,7 +3690,7 @@ const docTemplate = `{
                     "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "envelopes": {
-                    "description": "Envelopes for the category",
+                    "description": "These fields are computed",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/v3.Envelope"
@@ -3688,19 +3702,7 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelopes": {
-                            "description": "Envelopes for this category",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
-                        },
-                        "self": {
-                            "description": "The category itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.CategoryLinks"
                 },
                 "name": {
                     "description": "Name of the category",
@@ -3719,7 +3721,24 @@ const docTemplate = `{
                 }
             }
         },
-        "v3.CategoryCreate": {
+        "v3.CategoryCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "List of the created Categories or their respective error",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.CategoryResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.CategoryEditable": {
             "type": "object",
             "properties": {
                 "archived": {
@@ -3742,23 +3761,6 @@ const docTemplate = `{
                     "description": "Notes about the category",
                     "type": "string",
                     "example": "All envelopes for long-term saving"
-                }
-            }
-        },
-        "v3.CategoryCreateResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "List of the created Categories or their respective error",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v3.CategoryResponse"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
                 }
             }
         },
@@ -3808,6 +3810,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
+                "links": {
+                    "$ref": "#/definitions/v3.CategoryLinks"
+                },
                 "name": {
                     "description": "Name of the category",
                     "type": "string",
@@ -3827,6 +3832,21 @@ const docTemplate = `{
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v3.CategoryLinks": {
+            "type": "object",
+            "properties": {
+                "envelopes": {
+                    "description": "Envelopes for this category",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f"
+                },
+                "self": {
+                    "description": "The category itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f"
                 }
             }
         },
@@ -3927,7 +3947,24 @@ const docTemplate = `{
                 }
             }
         },
-        "v3.EnvelopeCreate": {
+        "v3.EnvelopeCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the Envelope",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v3.EnvelopeResponse"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.EnvelopeEditable": {
             "type": "object",
             "properties": {
                 "archived": {
@@ -3950,23 +3987,6 @@ const docTemplate = `{
                     "description": "Notes about the envelope",
                     "type": "string",
                     "example": "For stuff bought at supermarkets and drugstores"
-                }
-            }
-        },
-        "v3.EnvelopeCreateResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "description": "Data for the Envelope",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v3.EnvelopeResponse"
-                    }
-                },
-                "error": {
-                    "description": "The error, if any occurred",
-                    "type": "string",
-                    "example": "the specified resource ID is not a valid UUID"
                 }
             }
         },
@@ -4394,14 +4414,7 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The match rule itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.MatchRuleLinks"
                 },
                 "match": {
                     "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
@@ -4434,6 +4447,36 @@ const docTemplate = `{
                     "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.MatchRuleEditable": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                }
+            }
+        },
+        "v3.MatchRuleLinks": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "description": "The match rule itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
                 }
             }
         },
@@ -4543,15 +4586,9 @@ const docTemplate = `{
                     "multipleOf": 1e-8,
                     "example": 22.01
                 },
-                "createdAt": {
-                    "description": "Time the resource was created",
-                    "type": "string",
-                    "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
+                "envelopeID": {
+                    "description": "We do not use the default model here, we use envelope ID and month",
+                    "type": "string"
                 },
                 "envelopeId": {
                     "description": "ID of the envelope",
@@ -4559,38 +4596,20 @@ const docTemplate = `{
                     "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "envelope": {
-                            "description": "The Envelope this config belongs to",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
-                        },
-                        "self": {
-                            "description": "The Month Config itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.MonthConfigLinks"
                 },
                 "month": {
-                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
-                    "type": "string",
-                    "example": "1969-06-01T00:00:00.000000Z"
+                    "description": "We do not use the default model here, we use envelope ID and month",
+                    "type": "string"
                 },
                 "note": {
                     "description": "A note for the month config",
                     "type": "string",
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
-                },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
                 }
             }
         },
-        "v3.MonthConfigCreate": {
+        "v3.MonthConfigEditable": {
             "type": "object",
             "properties": {
                 "allocation": {
@@ -4601,10 +4620,35 @@ const docTemplate = `{
                     "multipleOf": 1e-8,
                     "example": 22.01
                 },
+                "envelopeId": {
+                    "description": "ID of the envelope",
+                    "type": "string",
+                    "example": "10b9705d-3356-459e-9d5a-28d42a6c4547"
+                },
+                "month": {
+                    "description": "The month. This is always set to 00:00 UTC on the first of the month.",
+                    "type": "string",
+                    "example": "1969-06-01T00:00:00.000000Z"
+                },
                 "note": {
                     "description": "A note for the month config",
                     "type": "string",
                     "example": "Added 200€ here because we replaced Tim's expensive vase"
+                }
+            }
+        },
+        "v3.MonthConfigLinks": {
+            "type": "object",
+            "properties": {
+                "envelope": {
+                    "description": "The Envelope this config belongs to",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b"
+                },
+                "self": {
+                    "description": "The Month Config itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10"
                 }
             }
         },

@@ -53,8 +53,6 @@ definitions:
         example: "2022-04-02T19:28:44.491514Z"
         type: string
       currency:
-        description: The currency for the budget
-        example: €
         type: string
       deletedAt:
         description: Time the resource was marked as deleted
@@ -65,43 +63,21 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       name:
-        description: Name of the budget
-        example: Morre's Budget
         type: string
       note:
-        description: A longer description of the budget
-        example: My personal expenses
         type: string
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  models.BudgetCreate:
-    properties:
-      currency:
-        description: The currency for the budget
-        example: €
-        type: string
-      name:
-        description: Name of the budget
-        example: Morre's Budget
-        type: string
-      note:
-        description: A longer description of the budget
-        example: My personal expenses
-        type: string
-    type: object
-  models.Envelope:
+  models.Category:
     properties:
       archived:
-        default: false
-        description: Is the envelope archived?
-        example: true
         type: boolean
-      categoryId:
-        description: ID of the category the envelope belongs to
-        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+      budget:
+        $ref: '#/definitions/models.Budget'
+      budgetID:
         type: string
       createdAt:
         description: Time the resource was created
@@ -116,33 +92,42 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       name:
-        description: Name of the envelope
-        example: Groceries
         type: string
       note:
-        description: Notes about the envelope
-        example: For stuff bought at supermarkets and drugstores
         type: string
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  models.MatchRuleCreate:
+  models.Envelope:
     properties:
-      accountId:
-        description: The account to map matching transactions to
-        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+      archived:
+        type: boolean
+      category:
+        $ref: '#/definitions/models.Category'
+      categoryID:
         type: string
-      match:
-        description: The matching applied to the opposite account. This is a glob
-          pattern. Multiple globs are allowed. Globbing is case sensitive.
-        example: Bank*
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
         type: string
-      priority:
-        description: The priority of the match rule
-        example: 3
-        type: integer
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      name:
+        type: string
+      note:
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
     type: object
   models.Transaction:
     properties:
@@ -236,7 +221,7 @@ definitions:
         example: true
         type: boolean
       balance:
-        description: These fields are calculated
+        description: These fields are computed
         example: 2735.17
         type: number
       budgetId:
@@ -433,33 +418,7 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        properties:
-          accounts:
-            description: Accounts for this budget
-            example: https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          categories:
-            description: Categories for this budget
-            example: https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          envelopes:
-            description: Envelopes for this budget
-            example: https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          month:
-            description: This uses 'YYYY-MM' for clients to replace with the actual
-              year and month.
-            example: https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
-            type: string
-          self:
-            description: The budget itself
-            example: https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-          transactions:
-            description: Transactions for this budget
-            example: https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
-            type: string
-        type: object
+        $ref: '#/definitions/v3.BudgetLinks'
       name:
         description: Name of the budget
         example: Morre's Budget
@@ -491,6 +450,49 @@ definitions:
       error:
         description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.BudgetEditable:
+    properties:
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+    type: object
+  v3.BudgetLinks:
+    properties:
+      accounts:
+        description: Accounts for this budget
+        example: https://example.com/api/v3/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      categories:
+        description: Categories for this budget
+        example: https://example.com/api/v3/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      envelopes:
+        description: Envelopes for this budget
+        example: https://example.com/api/v3/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      month:
+        description: This uses 'YYYY-MM' for clients to replace with the actual year
+          and month.
+        example: https://example.com/api/v3/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+        type: string
+      self:
+        description: The budget itself
+        example: https://example.com/api/v3/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      transactions:
+        description: Transactions for this budget
+        example: https://example.com/api/v3/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
         type: string
     type: object
   v3.BudgetListResponse:
@@ -540,7 +542,7 @@ definitions:
         example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopes:
-        description: Envelopes for the category
+        description: These fields are computed
         items:
           $ref: '#/definitions/v3.Envelope'
         type: array
@@ -549,16 +551,7 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        properties:
-          envelopes:
-            description: Envelopes for this category
-            example: https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-          self:
-            description: The category itself
-            example: https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f
-            type: string
-        type: object
+        $ref: '#/definitions/v3.CategoryLinks'
       name:
         description: Name of the category
         example: Saving
@@ -572,7 +565,19 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  v3.CategoryCreate:
+  v3.CategoryCreateResponse:
+    properties:
+      data:
+        description: List of the created Categories or their respective error
+        items:
+          $ref: '#/definitions/v3.CategoryResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.CategoryEditable:
     properties:
       archived:
         default: false
@@ -590,18 +595,6 @@ definitions:
       note:
         description: Notes about the category
         example: All envelopes for long-term saving
-        type: string
-    type: object
-  v3.CategoryCreateResponse:
-    properties:
-      data:
-        description: List of the created Categories or their respective error
-        items:
-          $ref: '#/definitions/v3.CategoryResponse'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
         type: string
     type: object
   v3.CategoryEnvelopes:
@@ -640,6 +633,8 @@ definitions:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
+      links:
+        $ref: '#/definitions/v3.CategoryLinks'
       name:
         description: Name of the category
         example: Saving
@@ -655,6 +650,17 @@ definitions:
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v3.CategoryLinks:
+    properties:
+      envelopes:
+        description: Envelopes for this category
+        example: https://example.com/api/v3/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+        type: string
+      self:
+        description: The category itself
+        example: https://example.com/api/v3/categories/3b1ea324-d438-4419-882a-2fc91d71772f
         type: string
     type: object
   v3.CategoryListResponse:
@@ -724,7 +730,19 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  v3.EnvelopeCreate:
+  v3.EnvelopeCreateResponse:
+    properties:
+      data:
+        description: Data for the Envelope
+        items:
+          $ref: '#/definitions/v3.EnvelopeResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.EnvelopeEditable:
     properties:
       archived:
         default: false
@@ -742,18 +760,6 @@ definitions:
       note:
         description: Notes about the envelope
         example: For stuff bought at supermarkets and drugstores
-        type: string
-    type: object
-  v3.EnvelopeCreateResponse:
-    properties:
-      data:
-        description: Data for the Envelope
-        items:
-          $ref: '#/definitions/v3.EnvelopeResponse'
-        type: array
-      error:
-        description: The error, if any occurred
-        example: the specified resource ID is not a valid UUID
         type: string
     type: object
   v3.EnvelopeLinks:
@@ -1068,12 +1074,7 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        properties:
-          self:
-            description: The match rule itself
-            example: https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21
-            type: string
-        type: object
+        $ref: '#/definitions/v3.MatchRuleLinks'
       match:
         description: The matching applied to the opposite account. This is a glob
           pattern. Multiple globs are allowed. Globbing is case sensitive.
@@ -1098,6 +1099,29 @@ definitions:
       error:
         description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.MatchRuleEditable:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+    type: object
+  v3.MatchRuleLinks:
+    properties:
+      self:
+        description: The match rule itself
+        example: https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21
         type: string
     type: object
   v3.MatchRuleListResponse:
@@ -1178,44 +1202,26 @@ definitions:
         minimum: 1e-08
         multipleOf: 1e-08
         type: number
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
+      envelopeID:
+        description: We do not use the default model here, we use envelope ID and
+          month
         type: string
       envelopeId:
         description: ID of the envelope
         example: 10b9705d-3356-459e-9d5a-28d42a6c4547
         type: string
       links:
-        properties:
-          envelope:
-            description: The Envelope this config belongs to
-            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
-            type: string
-          self:
-            description: The Month Config itself
-            example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
-            type: string
-        type: object
+        $ref: '#/definitions/v3.MonthConfigLinks'
       month:
-        description: The month. This is always set to 00:00 UTC on the first of the
-          month.
-        example: "1969-06-01T00:00:00.000000Z"
+        description: We do not use the default model here, we use envelope ID and
+          month
         type: string
       note:
         description: A note for the month config
         example: Added 200€ here because we replaced Tim's expensive vase
         type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
     type: object
-  v3.MonthConfigCreate:
+  v3.MonthConfigEditable:
     properties:
       allocation:
         description: The maximum value is "999999999999.99999999", swagger unfortunately
@@ -1225,9 +1231,29 @@ definitions:
         minimum: 1e-08
         multipleOf: 1e-08
         type: number
+      envelopeId:
+        description: ID of the envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      month:
+        description: The month. This is always set to 00:00 UTC on the first of the
+          month.
+        example: "1969-06-01T00:00:00.000000Z"
+        type: string
       note:
         description: A note for the month config
         example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+    type: object
+  v3.MonthConfigLinks:
+    properties:
+      envelope:
+        description: The Envelope this config belongs to
+        example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
+        type: string
+      self:
+        description: The Month Config itself
+        example: https://example.com/api/v3/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
         type: string
     type: object
   v3.MonthConfigResponse:
@@ -1860,7 +1886,9 @@ paths:
         name: budget
         required: true
         schema:
-          $ref: '#/definitions/models.BudgetCreate'
+          items:
+            $ref: '#/definitions/v3.BudgetEditable'
+          type: array
       produces:
       - application/json
       responses:
@@ -1979,7 +2007,7 @@ paths:
         name: budget
         required: true
         schema:
-          $ref: '#/definitions/models.BudgetCreate'
+          $ref: '#/definitions/v3.BudgetEditable'
       produces:
       - application/json
       responses:
@@ -2070,7 +2098,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/v3.CategoryCreate'
+            $ref: '#/definitions/v3.CategoryEditable'
           type: array
       produces:
       - application/json
@@ -2194,7 +2222,7 @@ paths:
         name: category
         required: true
         schema:
-          $ref: '#/definitions/v3.CategoryCreate'
+          $ref: '#/definitions/v3.CategoryEditable'
       produces:
       - application/json
       responses:
@@ -2285,7 +2313,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/v3.EnvelopeCreate'
+            $ref: '#/definitions/v3.EnvelopeEditable'
           type: array
       produces:
       - application/json
@@ -2409,7 +2437,7 @@ paths:
         name: envelope
         required: true
         schema:
-          $ref: '#/definitions/v3.EnvelopeCreate'
+          $ref: '#/definitions/v3.EnvelopeEditable'
       produces:
       - application/json
       responses:
@@ -2511,7 +2539,7 @@ paths:
         name: monthConfig
         required: true
         schema:
-          $ref: '#/definitions/v3.MonthConfigCreate'
+          $ref: '#/definitions/v3.MonthConfigEditable'
       produces:
       - application/json
       responses:
@@ -2948,7 +2976,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/models.MatchRuleCreate'
+            $ref: '#/definitions/v3.MatchRuleEditable'
           type: array
       produces:
       - application/json
@@ -3071,7 +3099,7 @@ paths:
         name: matchRule
         required: true
         schema:
-          $ref: '#/definitions/models.MatchRuleCreate'
+          $ref: '#/definitions/v3.MatchRuleEditable'
       produces:
       - application/json
       responses:

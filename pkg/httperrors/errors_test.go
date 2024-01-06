@@ -177,10 +177,10 @@ func TestDatabaseErrorMessages(t *testing.T) {
 		{http.StatusBadRequest, "availability month must not be earlier than the month of the transaction, transaction date: 2023-10-22, available month 2023-09", "availability month must not be earlier than the month of the transaction, transaction date: 2023-10-22, available month 2023-09"},
 		{http.StatusBadRequest, "the account cannot be set to on budget because the following transactions have an envelope set", "the account cannot be set to on budget because the following transactions have an envelope set"},
 		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "source and destination accounts for a transaction must be different"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: accounts.name, accounts.budget_id", "the account name must be unique for the budget"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "the envelope name must be unique for the category"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "you can not create multiple allocations for the same month"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: accounts.budget_id, accounts.name", "the account name must be unique for the budget"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: categories.budget_id, categories.name", "the category name must be unique for the budget"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.category_id, envelopes.name", "the envelope name must be unique for the category"},
+		{http.StatusBadRequest, "UNIQUE constraint failed: month_configs.envelope_id, month_configs.month (1555)", "you can not create multiple month configs for the same envelope and month"},
 		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "a resource you are referencing in another resource does not exist"},
 		{http.StatusInternalServerError, "This is a very weird error", "an error occurred on the server during your request, please contact your server administrator. The request id is '', send this to your server administrator to help them finding the problem"},
 		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "the database is currently in read-only mode, please try again later"},
@@ -223,34 +223,6 @@ func TestParse(t *testing.T) {
 			status := httperrors.Parse(c, tt.parseError)
 			assert.Equal(t, tt.code, status.Status)
 			assert.Contains(t, status.Err.Error(), tt.err)
-		})
-	}
-}
-
-func TestDatabaseNo(t *testing.T) {
-	tests := []struct {
-		code int
-		err  string
-		msg  string
-	}{
-		{http.StatusBadRequest, "CHECK constraint failed: source_destination_different", "source and destination accounts for a transaction must be different"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: categories.name, categories.budget_id", "the category name must be unique for the budget"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: envelopes.name, envelopes.category_id", "the envelope name must be unique for the category"},
-		{http.StatusBadRequest, "UNIQUE constraint failed: allocations.month, allocations.envelope_id", "you can not create multiple allocations for the same month"},
-		{http.StatusBadRequest, "constraint failed: FOREIGN KEY constraint failed", "a resource you are referencing in another resource does not exist"},
-		{http.StatusInternalServerError, "This is a very weird error", "an error occurred on the server during your request, please contact your server administrator. The request id is '', send this to your server administrator to help them finding the problem"},
-		{http.StatusInternalServerError, "attempt to write a readonly database (1032)", "the database is currently in read-only mode, please try again later"},
-	}
-
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-
-	for _, tt := range tests {
-		t.Run(tt.msg, func(t *testing.T) {
-			err := errors.New(tt.err)
-			status := httperrors.DBError(c, err)
-			assert.Equal(t, tt.code, status.Status)
-			assert.Equal(t, tt.msg, status.Error())
 		})
 	}
 }

@@ -154,9 +154,9 @@ func migrateAllocationToMonthConfig(db *gorm.DB) (err error) {
 		err = tx.Where(MonthConfig{
 			Month:      allocation.Month,
 			EnvelopeID: id,
-		}).Assign(MonthConfig{MonthConfigCreate: MonthConfigCreate{
+		}).Assign(MonthConfig{
 			Allocation: allocation.Amount,
-		}}).FirstOrCreate(&MonthConfig{}).Error
+		}).FirstOrCreate(&MonthConfig{}).Error
 
 		if err != nil {
 			tx.Rollback()

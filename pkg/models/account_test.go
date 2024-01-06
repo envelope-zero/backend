@@ -21,7 +21,7 @@ func (suite *TestSuiteStandard) TestAccountTrimWhitespace() {
 		Name:       name,
 		Note:       note,
 		ImportHash: importHash,
-		BudgetID:   suite.createTestBudget(models.BudgetCreate{}).ID,
+		BudgetID:   suite.createTestBudget(models.Budget{}).ID,
 	})
 
 	assert.Equal(suite.T(), strings.TrimSpace(name), account.Name)
@@ -30,7 +30,7 @@ func (suite *TestSuiteStandard) TestAccountTrimWhitespace() {
 }
 
 func (suite *TestSuiteStandard) TestAccountCalculations() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 	initialBalanceDate := time.Now()
 
 	account := suite.createTestAccount(models.Account{
@@ -47,11 +47,11 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 		External: true,
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category.ID,
 	})
 
@@ -166,7 +166,7 @@ func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
 
 // TestAccountDuplicateNames ensures that two accounts cannot have the same name.
 func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	_ = suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
@@ -184,11 +184,11 @@ func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
 		return
 	}
 
-	suite.Assert().Contains(err.Error(), "UNIQUE constraint failed: accounts.name, accounts.budget_id", "Error message for account creation fail does not match expected message")
+	suite.Assert().Contains(err.Error(), "UNIQUE constraint failed: accounts.budget_id, accounts.name", "Error message for account creation fail does not match expected message")
 }
 
 func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes() {
-	budget := suite.createTestBudget(models.BudgetCreate{
+	budget := suite.createTestBudget(models.Budget{
 		Name: "TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes",
 	})
 
@@ -206,11 +206,11 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 		Name:     "TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes:Target",
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category.ID,
 	})
 
@@ -242,7 +242,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 }
 
 func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes() {
-	budget := suite.createTestBudget(models.BudgetCreate{
+	budget := suite.createTestBudget(models.Budget{
 		Name: "TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes",
 	})
 
@@ -260,11 +260,11 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 		Name:     "TestAccountOffBudgetToOnBudgetTransactionsNoEnvelopes:Target",
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category.ID,
 	})
 
@@ -288,7 +288,7 @@ func (suite *TestSuiteStandard) TestAccountSelf() {
 }
 
 func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
+	budget := suite.createTestBudget(models.Budget{})
 
 	account := suite.createTestAccount(models.Account{
 		BudgetID:       budget.ID,
@@ -304,13 +304,13 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		External: true,
 	})
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
 	envelopeIDs := []*uuid.UUID{}
 	for i := 0; i < 3; i++ {
-		envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+		envelope := suite.createTestEnvelope(models.Envelope{
 			CategoryID: category.ID,
 			Name:       strconv.Itoa(i),
 		})

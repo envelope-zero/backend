@@ -11,10 +11,10 @@ func (suite *TestSuiteStandard) TestCategoryTrimWhitespace() {
 	name := "\t Whitespace galore!   "
 	note := " Some more whitespace in the notes    "
 
-	category := suite.createTestCategory(models.CategoryCreate{
+	category := suite.createTestCategory(models.Category{
 		Name:     name,
 		Note:     note,
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
 
 	assert.Equal(suite.T(), strings.TrimSpace(name), category.Name)
@@ -22,18 +22,18 @@ func (suite *TestSuiteStandard) TestCategoryTrimWhitespace() {
 }
 
 func (suite *TestSuiteStandard) TestCategoryArchiveArchivesEnvelopes() {
-	category := suite.createTestCategory(models.CategoryCreate{
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+	category := suite.createTestCategory(models.Category{
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category.ID,
 		Archived:   false,
 	})
 	assert.False(suite.T(), envelope.Archived, "Envelope archived on creation, it should not be")
 
 	// Archive the category
-	err := models.DB.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
+	err := models.DB.Model(&category).Select("Archived").Updates(models.Category{Archived: true}).Error
 	assert.Nil(suite.T(), err)
 
 	// Verify that the envelope is archived
@@ -43,24 +43,24 @@ func (suite *TestSuiteStandard) TestCategoryArchiveArchivesEnvelopes() {
 }
 
 func (suite *TestSuiteStandard) TestCategoryArchiveNoEnvelopes() {
-	budget := suite.createTestBudget(models.BudgetCreate{})
-	category := suite.createTestCategory(models.CategoryCreate{
+	budget := suite.createTestBudget(models.Budget{})
+	category := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 		Name:     "TestCategoryArchiveNoEnvelopes",
 	})
 
-	category2 := suite.createTestCategory(models.CategoryCreate{
+	category2 := suite.createTestCategory(models.Category{
 		BudgetID: budget.ID,
 	})
 
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{
+	envelope := suite.createTestEnvelope(models.Envelope{
 		CategoryID: category2.ID,
 		Archived:   false,
 	})
 	assert.False(suite.T(), envelope.Archived, "Envelope archived on creation, it should not be")
 
 	// Archive the empty category
-	err := models.DB.Model(&category).Select("Archived").Updates(models.Category{CategoryCreate: models.CategoryCreate{Archived: true}}).Error
+	err := models.DB.Model(&category).Select("Archived").Updates(models.Category{Archived: true}).Error
 	assert.Nil(suite.T(), err)
 
 	// Verify that the envelope is not archived
@@ -70,10 +70,10 @@ func (suite *TestSuiteStandard) TestCategoryArchiveNoEnvelopes() {
 }
 
 func (suite *TestSuiteStandard) TestCategorySetEnvelopes() {
-	category := suite.createTestCategory(models.CategoryCreate{
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+	category := suite.createTestCategory(models.Category{
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
-	envelope := suite.createTestEnvelope(models.EnvelopeCreate{CategoryID: category.ID})
+	envelope := suite.createTestEnvelope(models.Envelope{CategoryID: category.ID})
 
 	// Set envelopes and verify
 	envelopes, err := category.Envelopes(models.DB)
@@ -83,8 +83,8 @@ func (suite *TestSuiteStandard) TestCategorySetEnvelopes() {
 }
 
 func (suite *TestSuiteStandard) TestCategorySetEnvelopesDBFail() {
-	category := suite.createTestCategory(models.CategoryCreate{
-		BudgetID: suite.createTestBudget(models.BudgetCreate{}).ID,
+	category := suite.createTestCategory(models.Category{
+		BudgetID: suite.createTestBudget(models.Budget{}).ID,
 	})
 	suite.CloseDB()
 

@@ -15,13 +15,13 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestCleanup() {
-	_ = suite.createTestBudget(suite.T(), models.BudgetCreate{})
+	_ = suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	account := suite.createTestAccount(suite.T(), models.Account{Name: "TestCleanup"})
-	_ = suite.createTestCategory(suite.T(), v3.CategoryCreate{})
-	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeCreate{})
+	_ = suite.createTestCategory(suite.T(), v3.CategoryEditable{})
+	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{})
 	_ = suite.createTestTransaction(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(17.32)})
-	_ = suite.patchTestMonthConfig(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{AccountID: account.Data.ID, Match: "Delete me"})
+	_ = suite.patchTestMonthConfig(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), v3.MonthConfigEditable{})
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{AccountID: account.Data.ID, Match: "Delete me"})
 
 	tests := []string{
 		"http://example.com/v3/accounts",
