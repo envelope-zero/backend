@@ -10,6 +10,7 @@ import (
 	"github.com/envelope-zero/backend/v4/pkg/controllers/healthz"
 	"github.com/envelope-zero/backend/v4/pkg/controllers/root"
 	v3 "github.com/envelope-zero/backend/v4/pkg/controllers/v3"
+	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
 	version_controller "github.com/envelope-zero/backend/v4/pkg/controllers/version"
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/gin-contrib/cors"
@@ -139,5 +140,20 @@ func AttachRoutes(group *gin.RouterGroup) {
 		v3.RegisterMonthConfigRoutes(v3Group.Group("/envelopes"))
 		v3.RegisterMonthRoutes(v3Group.Group("/months"))
 		v3.RegisterTransactionRoutes(v3Group.Group("/transactions"))
+	}
+
+	{
+		v4Group := group.Group("/v4")
+		v4.RegisterRootRoutes(v4Group.Group(""))
+		v4.RegisterAccountRoutes(v4Group.Group("/accounts"))
+		v4.RegisterBudgetRoutes(v4Group.Group("/budgets"))
+		v4.RegisterCategoryRoutes(v4Group.Group("/categories"))
+		v4.RegisterEnvelopeRoutes(v4Group.Group("/envelopes"))
+		v4.RegisterGoalRoutes(v4Group.Group("/goals"))
+		v4.RegisterImportRoutes(v4Group.Group("/import"))
+		v4.RegisterMatchRuleRoutes(v4Group.Group("/match-rules"))
+		v4.RegisterMonthConfigRoutes(v4Group.Group("/envelopes"))
+		v4.RegisterMonthRoutes(v4Group.Group("/months"))
+		v4.RegisterTransactionRoutes(v4Group.Group("/transactions"))
 	}
 }
