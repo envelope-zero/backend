@@ -9317,11 +9317,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2021-11-17T00:00:00Z"
                 },
-                "budgetId": {
-                    "description": "ID of the budget",
-                    "type": "string",
-                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
-                },
                 "createdAt": {
                     "description": "Time the resource was created",
                     "type": "string",
@@ -9421,11 +9416,6 @@ const docTemplate = `{
                     "description": "The date from which on the transaction amount is available for budgeting. Only used for income transactions. Defaults to the transaction date.",
                     "type": "string",
                     "example": "2021-11-17T00:00:00Z"
-                },
-                "budgetId": {
-                    "description": "ID of the budget",
-                    "type": "string",
-                    "example": "55eecbd8-7c46-4b06-ada9-f287802fb05e"
                 },
                 "date": {
                     "description": "Date of the transaction. Time is currently only used for sorting",

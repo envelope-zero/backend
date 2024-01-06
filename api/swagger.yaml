@@ -2607,10 +2607,6 @@ definitions:
           date.
         example: "2021-11-17T00:00:00Z"
         type: string
-      budgetId:
-        description: ID of the budget
-        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
-        type: string
       createdAt:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
@@ -2692,10 +2688,6 @@ definitions:
           budgeting. Only used for income transactions. Defaults to the transaction
           date.
         example: "2021-11-17T00:00:00Z"
-        type: string
-      budgetId:
-        description: ID of the budget
-        example: 55eecbd8-7c46-4b06-ada9-f287802fb05e
         type: string
       date:
         description: Date of the transaction. Time is currently only used for sorting

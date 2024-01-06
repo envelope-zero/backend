@@ -20,7 +20,6 @@ type TransactionEditable struct {
 	Amount decimal.Decimal `json:"amount" example:"14.03" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001"` // The amount for the transaction
 
 	Note                  string     `json:"note" example:"Lunch" default:""`                                     // A note
-	BudgetID              uuid.UUID  `json:"budgetId" example:"55eecbd8-7c46-4b06-ada9-f287802fb05e"`             // ID of the budget
 	SourceAccountID       uuid.UUID  `json:"sourceAccountId" example:"fd81dc45-a3a2-468e-a6fa-b2618f30aa45"`      // ID of the source account
 	DestinationAccountID  uuid.UUID  `json:"destinationAccountId" example:"8e16b456-a719-48ce-9fec-e115cfa7cbcc"` // ID of the destination account
 	EnvelopeID            *uuid.UUID `json:"envelopeId" example:"2649c965-7999-4873-ae16-89d5d5fa972e"`           // ID of the envelope
@@ -38,7 +37,6 @@ func (editable TransactionEditable) model() models.Transaction {
 		Date:                  editable.Date,
 		Amount:                editable.Amount,
 		Note:                  editable.Note,
-		BudgetID:              editable.BudgetID,
 		SourceAccountID:       editable.SourceAccountID,
 		DestinationAccountID:  editable.DestinationAccountID,
 		EnvelopeID:            editable.EnvelopeID,
@@ -70,7 +68,6 @@ func newTransaction(c *gin.Context, model models.Transaction) Transaction {
 			Date:                  model.Date,
 			Amount:                model.Amount,
 			Note:                  model.Note,
-			BudgetID:              model.BudgetID,
 			SourceAccountID:       model.SourceAccountID,
 			DestinationAccountID:  model.DestinationAccountID,
 			EnvelopeID:            model.EnvelopeID,
@@ -121,7 +118,7 @@ type TransactionQueryFilter struct {
 	AmountLessOrEqual     decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
 	AmountMoreOrEqual     decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
 	Note                  string          `form:"note" filterField:"false"`              // Note contains this string
-	BudgetID              string          `form:"budget"`                                // ID of the budget
+	BudgetID              string          `form:"budget" filterField:"false"`            // ID of the budget
 	SourceAccountID       string          `form:"source"`                                // ID of the source account
 	DestinationAccountID  string          `form:"destination"`                           // ID of the destination account
 	EnvelopeID            string          `form:"envelope"`                              // ID of the envelope
@@ -133,11 +130,6 @@ type TransactionQueryFilter struct {
 }
 
 func (f TransactionQueryFilter) model() (models.Transaction, httperrors.Error) {
-	budgetID, err := httputil.UUIDFromString(f.BudgetID)
-	if !err.Nil() {
-		return models.Transaction{}, err
-	}
-
 	sourceAccountID, err := httputil.UUIDFromString(f.SourceAccountID)
 	if !err.Nil() {
 		return models.Transaction{}, err
@@ -163,7 +155,6 @@ func (f TransactionQueryFilter) model() (models.Transaction, httperrors.Error) {
 	// handled in the controller function
 	return TransactionEditable{
 		Amount:                f.Amount,
-		BudgetID:              budgetID,
 		SourceAccountID:       sourceAccountID,
 		DestinationAccountID:  destinationAccountID,
 		EnvelopeID:            eID,

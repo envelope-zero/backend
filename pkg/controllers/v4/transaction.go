@@ -156,7 +156,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	var q *gorm.DB
-	q = models.DB.Order("datetime(date) DESC, datetime(created_at) DESC").Where(&model, queryFields...)
+	q = models.DB.Order("datetime(transactions.date) DESC, datetime(transactions.created_at) DESC").Where(&model, queryFields...)
 
 	// Filter for the transaction being at the same date
 	if !filter.Date.IsZero() {
@@ -170,6 +170,24 @@ func GetTransactions(c *gin.Context) {
 
 	if !filter.UntilDate.IsZero() {
 		q = q.Where("transactions.date < date(?)", time.Date(filter.UntilDate.Year(), filter.UntilDate.Month(), filter.UntilDate.Day()+1, 0, 0, 0, 0, time.UTC))
+	}
+
+	if filter.BudgetID != "" {
+		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
+		if !err.Nil() {
+			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
+			c.JSON(err.Status, TransactionListResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		// We join on the source account ID since all resources need to belong to the
+		// same budget anyways
+		q = q.
+			Joins("JOIN accounts on accounts.id = transactions.source_account_id ").
+			Joins("JOIN budgets on budgets.id = accounts.budget_id").
+			Where("budgets.id = ?", budgetID)
 	}
 
 	if filter.AccountID != "" {
@@ -444,11 +462,6 @@ func DeleteTransaction(c *gin.Context) {
 
 // createTransaction creates a single transaction after verifying it is a valid transaction.
 func createTransaction(c *gin.Context, model *models.Transaction) httperrors.Error {
-	_, err := getModelByID[models.Budget](c, model.BudgetID)
-	if !err.Nil() {
-		return err
-	}
-
 	// Check the source account
 	sourceAccount, err := getModelByID[models.Account](c, model.SourceAccountID)
 	if !err.Nil() {
@@ -466,6 +479,13 @@ func createTransaction(c *gin.Context, model *models.Transaction) httperrors.Err
 	if !err.Nil() {
 		return err
 	}
+
+	// Set the transaction's budget ID to the budget id of the source account
+	// Since they need to be in the same budget, this can easily be done.
+	//
+	// This is needed because we're removing the budgetId field in API v4, see
+	// https://github.com/envelope-zero/backend/issues/922
+	model.BudgetID = sourceAccount.BudgetID
 
 	dbErr := models.DB.Create(&model).Error
 	if dbErr != nil {
