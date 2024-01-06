@@ -148,10 +148,8 @@ func parsePayees(resources *importer.ParsedResources, payees []Payee) IDToName {
 			resources.MatchRules = append(resources.MatchRules, importer.MatchRule{
 				Account: payee.Name,
 				MatchRule: models.MatchRule{
-					MatchRuleCreate: models.MatchRuleCreate{
-						Priority: 0,
-						Match:    match,
-					},
+					Priority: 0,
+					Match:    match,
 				},
 			})
 		}

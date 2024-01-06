@@ -21,7 +21,7 @@ func (suite *TestSuiteStandard) TestCleanup() {
 	envelope := suite.createTestEnvelope(suite.T(), v3.EnvelopeEditable{})
 	_ = suite.createTestTransaction(suite.T(), models.Transaction{Amount: decimal.NewFromFloat(17.32)})
 	_ = suite.patchTestMonthConfig(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), models.MonthConfigCreate{})
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{AccountID: account.Data.ID, Match: "Delete me"})
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{AccountID: account.Data.ID, Match: "Delete me"})
 
 	tests := []string{
 		"http://example.com/v3/accounts",

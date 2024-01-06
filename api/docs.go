@@ -2162,7 +2162,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.MatchRuleCreate"
+                                "$ref": "#/definitions/v3.MatchRuleEditable"
                             }
                         }
                     }
@@ -2357,7 +2357,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.MatchRuleCreate"
+                            "$ref": "#/definitions/v3.MatchRuleEditable"
                         }
                     }
                 ],
@@ -3137,26 +3137,6 @@ const docTemplate = `{
                     "description": "Last time the resource was updated",
                     "type": "string",
                     "example": "2022-04-17T20:14:01.048145Z"
-                }
-            }
-        },
-        "models.MatchRuleCreate": {
-            "type": "object",
-            "properties": {
-                "accountId": {
-                    "description": "The account to map matching transactions to",
-                    "type": "string",
-                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
-                },
-                "match": {
-                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
-                    "type": "string",
-                    "example": "Bank*"
-                },
-                "priority": {
-                    "description": "The priority of the match rule",
-                    "type": "integer",
-                    "example": 3
                 }
             }
         },
@@ -4434,14 +4414,7 @@ const docTemplate = `{
                     "example": "65392deb-5e92-4268-b114-297faad6cdce"
                 },
                 "links": {
-                    "type": "object",
-                    "properties": {
-                        "self": {
-                            "description": "The match rule itself",
-                            "type": "string",
-                            "example": "https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
-                        }
-                    }
+                    "$ref": "#/definitions/v3.MatchRuleLinks"
                 },
                 "match": {
                     "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
@@ -4474,6 +4447,36 @@ const docTemplate = `{
                     "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v3.MatchRuleEditable": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "description": "The account to map matching transactions to",
+                    "type": "string",
+                    "example": "f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5"
+                },
+                "match": {
+                    "description": "The matching applied to the opposite account. This is a glob pattern. Multiple globs are allowed. Globbing is case sensitive.",
+                    "type": "string",
+                    "example": "Bank*"
+                },
+                "priority": {
+                    "description": "The priority of the match rule",
+                    "type": "integer",
+                    "example": 3
+                }
+            }
+        },
+        "v3.MatchRuleLinks": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "description": "The match rule itself",
+                    "type": "string",
+                    "example": "https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21"
                 }
             }
         },

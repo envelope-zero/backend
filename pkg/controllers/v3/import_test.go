@@ -316,7 +316,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 			[]uuid.UUID{edeka.Data.ID, uuid.Nil, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestMatchRule(t, models.MatchRuleCreate{
+				edeka := suite.createTestMatchRule(t, models.MatchRule{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
@@ -330,12 +330,12 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 			[]uuid.UUID{edeka.Data.ID, bahn.Data.ID, internalAccount.Data.ID},
 			[]*uuid.UUID{&envelopeID, nil, nil},
 			func(t *testing.T) [3]uuid.UUID {
-				edeka := suite.createTestMatchRule(t, models.MatchRuleCreate{
+				edeka := suite.createTestMatchRule(t, models.MatchRule{
 					Match:     "EDEKA*",
 					AccountID: edeka.Data.ID,
 				})
 
-				db := suite.createTestMatchRule(t, models.MatchRuleCreate{
+				db := suite.createTestMatchRule(t, models.MatchRule{
 					Match:     "DB Vertrieb GmbH",
 					AccountID: bahn.Data.ID,
 				})

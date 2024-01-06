@@ -14,13 +14,13 @@ import (
 )
 
 // TODO: migrate all createTest* methods to functions with *testing.T as first argument.
-func (suite *TestSuiteStandard) createTestMatchRule(t *testing.T, c models.MatchRuleCreate, expectedStatus ...int) v3.MatchRuleResponse {
+func (suite *TestSuiteStandard) createTestMatchRule(t *testing.T, c models.MatchRule, expectedStatus ...int) v3.MatchRuleResponse {
 	// Default to 201 Creted as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
-	rules := []models.MatchRuleCreate{c}
+	rules := []models.MatchRule{c}
 
 	r := test.Request(t, http.MethodPost, "http://example.com/v3/match-rules", rules)
 	test.AssertHTTPStatus(t, &r, expectedStatus...)
@@ -36,13 +36,13 @@ func (suite *TestSuiteStandard) TestMatchRuleCreate() {
 
 	tests := []struct {
 		name           string
-		create         []models.MatchRuleCreate
+		create         []models.MatchRule
 		expectedErrors []string
 		expectedStatus int
 	}{
 		{
 			"All successful",
-			[]models.MatchRuleCreate{
+			[]models.MatchRule{
 				{
 					Priority:  10,
 					Match:     "Some Match*",
@@ -62,7 +62,7 @@ func (suite *TestSuiteStandard) TestMatchRuleCreate() {
 		},
 		{
 			"Second fails",
-			[]models.MatchRuleCreate{
+			[]models.MatchRule{
 				{
 					Priority:  10,
 					Match:     "Bank*",
@@ -126,7 +126,7 @@ func (suite *TestSuiteStandard) TestMatchRulesOptions() {
 			http.StatusNoContent,
 			"",
 			func(t *testing.T) string {
-				return suite.createTestMatchRule(t, models.MatchRuleCreate{
+				return suite.createTestMatchRule(t, models.MatchRule{
 					AccountID: suite.createTestAccount(t, models.Account{}).Data.ID,
 					Match:     "TestMatch*",
 				}).Data.Links.Self
@@ -188,19 +188,19 @@ func (suite *TestSuiteStandard) TestMatchRulesGetFilter() {
 	a1 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
 	a2 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
 
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  1,
 		Match:     "Testing A Match*",
 		AccountID: a1.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  2,
 		Match:     "*Match the Second Account",
 		AccountID: a2.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  1,
 		Match:     "Exact match",
 		AccountID: a2.Data.ID,
@@ -240,19 +240,19 @@ func (suite *TestSuiteStandard) TestMatchRulesGetFilterErrors() {
 	a1 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
 	a2 := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
 
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  1,
 		Match:     "Testing A Match*",
 		AccountID: a1.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  2,
 		Match:     "*Match the Second Account",
 		AccountID: a2.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	_ = suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  1,
 		Match:     "Exact match",
 		AccountID: a2.Data.ID,
@@ -297,14 +297,14 @@ func (suite *TestSuiteStandard) TestMatchRulesCreate() {
 
 	tests := []struct {
 		name           string
-		matchRules     []models.MatchRuleCreate
+		matchRules     []models.MatchRule
 		expectedStatus int
 		expectedError  *error   // Error expected in the response
 		expectedErrors []string // Errors expected for the individual transactions
 	}{
 		{
 			"One success, one fail",
-			[]models.MatchRuleCreate{
+			[]models.MatchRule{
 				{
 					AccountID: internalAccount.Data.ID,
 				},
@@ -321,7 +321,7 @@ func (suite *TestSuiteStandard) TestMatchRulesCreate() {
 		},
 		{
 			"Two success",
-			[]models.MatchRuleCreate{
+			[]models.MatchRule{
 				{
 					AccountID: internalAccount.Data.ID,
 					Match:     "* glob glob glob *",
@@ -374,7 +374,7 @@ func (suite *TestSuiteStandard) TestMatchRulesGetSingle() {
 			http.StatusOK,
 			"",
 			func(t *testing.T) string {
-				return suite.createTestMatchRule(t, models.MatchRuleCreate{AccountID: suite.createTestAccount(t, models.Account{}).Data.ID}).Data.Links.Self
+				return suite.createTestMatchRule(t, models.MatchRule{AccountID: suite.createTestAccount(t, models.Account{}).Data.ID}).Data.Links.Self
 			},
 		},
 		{
@@ -402,7 +402,7 @@ func (suite *TestSuiteStandard) TestMatchRulesGetSingle() {
 
 // TestMatchRulesUpdateFail verifies that transaction updates fail where they should.
 func (suite *TestSuiteStandard) TestMatchRulesUpdateFail() {
-	m := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	m := suite.createTestMatchRule(suite.T(), models.MatchRule{
 		AccountID: suite.createTestAccount(suite.T(), models.Account{}).Data.ID,
 		Match:     "Some match*",
 	})
@@ -451,7 +451,7 @@ func (suite *TestSuiteStandard) TestMatchRulesUpdateFail() {
 
 // TestMatchRulesUpdate verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestMatchRulesUpdate() {
-	m := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	m := suite.createTestMatchRule(suite.T(), models.MatchRule{
 		AccountID: suite.createTestAccount(suite.T(), models.Account{}).Data.ID,
 		Match:     "Some match*",
 	})
@@ -502,7 +502,7 @@ func (suite *TestSuiteStandard) TestMatchRulesDelete() {
 		{
 			"Standard deletion",
 			http.StatusNoContent,
-			suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+			suite.createTestMatchRule(suite.T(), models.MatchRule{
 				AccountID: suite.createTestAccount(suite.T(), models.Account{}).Data.ID,
 				Match:     "Some match*",
 			}).Data.ID.String(),
@@ -539,31 +539,31 @@ func (suite *TestSuiteStandard) TestMatchRulesGetSorted() {
 	b := suite.createTestBudget(suite.T(), v3.BudgetEditable{})
 	a := suite.createTestAccount(suite.T(), models.Account{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
 
-	m1 := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	m1 := suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  1,
 		Match:     "Testing A Match*",
 		AccountID: a.Data.ID,
 	})
 
-	m2 := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	m2 := suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  2,
 		Match:     "*Match the Second Account",
 		AccountID: a.Data.ID,
 	})
 
-	m3 := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	m3 := suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  1,
 		Match:     "Exact match",
 		AccountID: a.Data.ID,
 	})
 
-	m4 := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	m4 := suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  3,
 		Match:     "Coffee Shop*",
 		AccountID: a.Data.ID,
 	})
 
-	m5 := suite.createTestMatchRule(suite.T(), models.MatchRuleCreate{
+	m5 := suite.createTestMatchRule(suite.T(), models.MatchRule{
 		Priority:  3,
 		Match:     "Coffee Shop",
 		AccountID: a.Data.ID,

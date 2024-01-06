@@ -129,22 +129,6 @@ definitions:
         example: "2022-04-17T20:14:01.048145Z"
         type: string
     type: object
-  models.MatchRuleCreate:
-    properties:
-      accountId:
-        description: The account to map matching transactions to
-        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
-        type: string
-      match:
-        description: The matching applied to the opposite account. This is a glob
-          pattern. Multiple globs are allowed. Globbing is case sensitive.
-        example: Bank*
-        type: string
-      priority:
-        description: The priority of the match rule
-        example: 3
-        type: integer
-    type: object
   models.Transaction:
     properties:
       amount:
@@ -1090,12 +1074,7 @@ definitions:
         example: 65392deb-5e92-4268-b114-297faad6cdce
         type: string
       links:
-        properties:
-          self:
-            description: The match rule itself
-            example: https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21
-            type: string
-        type: object
+        $ref: '#/definitions/v3.MatchRuleLinks'
       match:
         description: The matching applied to the opposite account. This is a glob
           pattern. Multiple globs are allowed. Globbing is case sensitive.
@@ -1120,6 +1099,29 @@ definitions:
       error:
         description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v3.MatchRuleEditable:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+    type: object
+  v3.MatchRuleLinks:
+    properties:
+      self:
+        description: The match rule itself
+        example: https://example.com/api/v3/match-rules/95685c82-53c6-455d-b235-f49960b73b21
         type: string
     type: object
   v3.MatchRuleListResponse:
@@ -2972,7 +2974,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/models.MatchRuleCreate'
+            $ref: '#/definitions/v3.MatchRuleEditable'
           type: array
       produces:
       - application/json
@@ -3095,7 +3097,7 @@ paths:
         name: matchRule
         required: true
         schema:
-          $ref: '#/definitions/models.MatchRuleCreate'
+          $ref: '#/definitions/v3.MatchRuleEditable'
       produces:
       - application/json
       responses:
