@@ -1508,10 +1508,6 @@ definitions:
         description: Is the account archived?
         example: true
         type: boolean
-      balance:
-        description: These fields are computed
-        example: 2735.17
-        type: number
       budgetId:
         description: ID of the budget this account belongs to
         example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
@@ -1566,19 +1562,35 @@ definitions:
           when external: true'
         example: true
         type: boolean
-      recentEnvelopes:
-        description: Envelopes recently used with this account
-        items:
-          type: string
-        type: array
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.AccountComputedData:
+    properties:
+      balance:
+        description: Balance of the account, including all transactions referencing
+          it
+        example: 2735.17
+        type: number
+      id:
+        description: ID of the account
+        example: 95018a69-758b-46c6-8bab-db70d9614f9d
+        type: string
       reconciledBalance:
         description: Balance of the account, including all reconciled transactions
           referencing it
         example: 2539.57
         type: number
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
+    type: object
+  v4.AccountComputedDataResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/v4.AccountComputedData'
+        type: array
+      error:
         type: string
     type: object
   v4.AccountCreateResponse:
@@ -1643,6 +1655,14 @@ definitions:
     type: object
   v4.AccountLinks:
     properties:
+      computedData:
+        description: Envelopes in recent transactions where this account was the target
+        example: https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/{time}
+        type: string
+      recentEnvelopes:
+        description: Envelopes in recent transactions where this account was the target
+        example: https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/recent-envelopes
+        type: string
       self:
         description: The account itself
         example: https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
@@ -2585,6 +2605,25 @@ definitions:
         description: The total number of resources matching the query
         example: 827
         type: integer
+    type: object
+  v4.RecentEnvelope:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  v4.RecentEnvelopesResponse:
+    properties:
+      data:
+        description: Data for the account
+        items:
+          $ref: '#/definitions/v4.RecentEnvelope'
+        type: array
+      error:
+        description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
+        type: string
     type: object
   v4.Response:
     properties:
@@ -5037,6 +5076,76 @@ paths:
           schema:
             $ref: '#/definitions/v4.AccountResponse'
       summary: Update account
+      tags:
+      - Accounts
+  /v4/accounts/{id}/recent-envelopes:
+    get:
+      description: Returns a list of objects representing recent envelopes
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+      summary: Get recent envelopes
+      tags:
+      - Accounts
+  /v4/accounts/data/{time}/{ids}:
+    get:
+      description: Returns calculated data for the account, e.g. balances
+      parameters:
+      - description: The time in RFC3339 format
+        in: path
+        name: time
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: IDs of the Accounts. Separated by comma
+        in: path
+        items:
+          type: string
+        name: ids
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+      summary: Get Account data
       tags:
       - Accounts
   /v4/budgets:

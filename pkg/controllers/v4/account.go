@@ -2,6 +2,7 @@ package v4
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
@@ -24,6 +25,8 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 	{
 		r.OPTIONS("/:id", OptionsAccountDetail)
 		r.GET("/:id", GetAccount)
+		r.GET("/:id/recent-envelopes", GetAccountRecentEnvelopes)
+		r.GET("/data/:time/:ids", GetAccountData)
 		r.PATCH("/:id", UpdateAccount)
 		r.DELETE("/:id", DeleteAccount)
 	}
@@ -111,11 +114,7 @@ func CreateAccounts(c *gin.Context) {
 			continue
 		}
 
-		data, err := newAccount(c, models.DB, account)
-		if !err.Nil() {
-			status = r.appendError(err, status)
-			continue
-		}
+		data := newAccount(c, account)
 		r.Data = append(r.Data, AccountResponse{Data: &data})
 	}
 
@@ -200,15 +199,7 @@ func GetAccounts(c *gin.Context) {
 	// which will be marshalled to an empty JSON array
 	data := make([]Account, 0)
 	for _, account := range accounts {
-		apiResource, err := newAccount(c, models.DB, account)
-		if !err.Nil() {
-			s := err.Error()
-			c.JSON(err.Status, AccountListResponse{
-				Error: &s,
-			})
-		}
-
-		data = append(data, apiResource)
+		data = append(data, newAccount(c, account))
 	}
 
 	c.JSON(http.StatusOK, AccountListResponse{
@@ -251,16 +242,149 @@ func GetAccount(c *gin.Context) {
 		return
 	}
 
-	data, err := newAccount(c, models.DB, account)
+	data := newAccount(c, account)
+	c.JSON(http.StatusOK, AccountResponse{Data: &data})
+}
+
+// @Summary		Get recent envelopes
+// @Description	Returns a list of objects representing recent envelopes
+// @Tags			Accounts
+// @Produce		json
+// @Success		200	{object}	RecentEnvelopesResponse
+// @Failure		400	{object}	RecentEnvelopesResponse
+// @Failure		404	{object}	RecentEnvelopesResponse
+// @Failure		500	{object}	RecentEnvelopesResponse
+// @Param			id	path		string	true	"ID formatted as string"
+// @Router			/v4/accounts/{id}/recent-envelopes [get]
+func GetAccountRecentEnvelopes(c *gin.Context) {
+	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(err.Status, RecentEnvelopesResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, AccountResponse{Data: &data})
+	account, err := getModelByID[models.Account](c, id)
+	if !err.Nil() {
+		s := err.Error()
+
+		c.JSON(err.Status, RecentEnvelopesResponse{
+			Error: &s,
+		})
+		return
+	}
+
+	var recentEnvelopes []RecentEnvelope
+
+	// Get the Envelope IDs for the 50 latest transactions
+	latest := models.DB.
+		Model(&models.Transaction{}).
+		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
+		Select("envelopes.id as e_id, envelopes.name as name, datetime(envelopes.created_at) as created").
+		Where(&models.Transaction{
+			DestinationAccountID: account.ID,
+		}).
+		Order("datetime(transactions.date) DESC").
+		Limit(50)
+
+	// Group by frequency
+	dbErr := models.DB.
+		Table("(?)", latest).
+		// Set the nil UUID as ID if the envelope ID is NULL, since count() only counts non-null values
+		Select("IIF(e_id IS NOT NULL, e_id, NULL) as id, name").
+		Group("id").
+		Order("count(IIF(e_id IS NOT NULL, e_id, '0')) DESC"). // Order with a different IIF since NULL is ignored for count
+		Order("created ASC").
+		Limit(5).
+		Find(&recentEnvelopes).Error
+	if dbErr != nil {
+		err = httperrors.Parse(c, err)
+		s := err.Error()
+		c.JSON(err.Status, RecentEnvelopesResponse{
+			Error: &s,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, RecentEnvelopesResponse{Data: recentEnvelopes})
+}
+
+// @Summary		Get Account data
+// @Description	Returns calculated data for the account, e.g. balances
+// @Tags			Accounts
+// @Produce		json
+// @Success		200		{object}	AccountComputedDataResponse
+// @Failure		400		{object}	AccountComputedDataResponse
+// @Failure		404		{object}	AccountComputedDataResponse
+// @Failure		500		{object}	AccountComputedDataResponse
+// @Param			time	path		string		true	"The time in RFC3339 format"
+// @Param			ids		path		[]string	true	"IDs of the Accounts. Separated by comma"
+// @Router			/v4/accounts/data/{time}/{ids} [get]
+func GetAccountData(c *gin.Context) {
+	var uriTime URITime
+	if err := c.BindUri(&uriTime); err != nil {
+		e := httperrors.Parse(c, err)
+		s := e.Error()
+		c.JSON(e.Status, AccountComputedDataResponse{
+			Error: &s,
+		})
+		return
+	}
+
+	ids := strings.Split(c.Param("ids"), ",")
+	data := make([]AccountComputedData, 0)
+
+	for _, idString := range ids {
+		id, err := httputil.UUIDFromString(idString)
+		if !err.Nil() {
+			s := err.Error()
+			c.JSON(err.Status, AccountComputedDataResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		account, err := getModelByID[models.Account](c, id)
+		if !err.Nil() {
+			s := err.Error()
+			c.JSON(err.Status, AccountComputedDataResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		// Balance
+		balance, dbErr := account.Balance(models.DB, uriTime.Time)
+		if dbErr != nil {
+			e := httperrors.Parse(c, dbErr)
+			s := e.Error()
+			c.JSON(err.Status, AccountComputedDataResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		// Reconciled Balance
+		reconciledBalance, dbErr := account.ReconciledBalance(models.DB, uriTime.Time)
+		if dbErr != nil {
+			e := httperrors.Parse(c, dbErr)
+			s := e.Error()
+			c.JSON(err.Status, AccountComputedDataResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		data = append(data, AccountComputedData{
+			ID:                id,
+			Balance:           balance,
+			ReconciledBalance: reconciledBalance,
+		})
+	}
+
+	c.JSON(http.StatusOK, AccountComputedDataResponse{Data: data})
 }
 
 // @Summary		Update account
@@ -321,15 +445,7 @@ func UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	apiResource, err := newAccount(c, models.DB, account)
-	if !err.Nil() {
-		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
-			Error: &s,
-		})
-		return
-	}
-
+	apiResource := newAccount(c, account)
 	c.JSON(http.StatusOK, AccountResponse{Data: &apiResource})
 }
 

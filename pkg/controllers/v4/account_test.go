@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
 	"github.com/envelope-zero/backend/v4/test"
@@ -232,6 +234,90 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 			if tt.checkFunc != nil {
 				tt.checkFunc(t, re.Data)
 			}
+		})
+	}
+}
+
+func (suite *TestSuiteStandard) TestAccountsGetMonth() {
+	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+
+	initialBalanceDate := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
+
+	sourceAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{
+		Name:               "Source Account",
+		BudgetID:           budget.Data.ID,
+		OnBudget:           true,
+		External:           false,
+		InitialBalance:     decimal.NewFromFloat(50),
+		InitialBalanceDate: &initialBalanceDate,
+	})
+
+	destinationAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{
+		Name:     "Destination Account",
+		BudgetID: budget.Data.ID,
+		External: true,
+	})
+
+	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	envelopeID := &envelope.Data.ID
+
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+		Date:                 time.Date(2023, 10, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(10),
+		EnvelopeID:           envelopeID,
+		SourceAccountID:      sourceAccount.Data.ID,
+		DestinationAccountID: destinationAccount.Data.ID,
+		ReconciledSource:     true,
+	})
+
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+		Date:                 time.Date(2023, 11, 15, 0, 0, 0, 0, time.UTC),
+		Amount:               decimal.NewFromFloat(10),
+		EnvelopeID:           envelopeID,
+		SourceAccountID:      sourceAccount.Data.ID,
+		DestinationAccountID: destinationAccount.Data.ID,
+		ReconciledSource:     false,
+	})
+
+	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+		Date:                  time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC),
+		Amount:                decimal.NewFromFloat(10),
+		EnvelopeID:            envelopeID,
+		SourceAccountID:       sourceAccount.Data.ID,
+		DestinationAccountID:  destinationAccount.Data.ID,
+		ReconciledSource:      true,
+		ReconciledDestination: true,
+	})
+
+	// All tests request the source account
+	tests := []struct {
+		name                         string
+		time                         time.Time
+		sourceBalance                float64
+		sourceReconciledBalance      float64
+		destinationBalance           float64
+		destinationReconciledBalance float64
+	}{
+		{"Before Initial Balance", time.Date(2023, 8, 15, 0, 0, 0, 0, time.UTC), 0, 0, 0, 0},
+		{"Only Initial Balance", time.Date(2023, 9, 15, 0, 0, 0, 0, time.UTC), 50, 50, 0, 0},
+		{"After first transaction", time.Date(2023, 10, 20, 0, 0, 0, 0, time.UTC), 40, 40, 10, 0},
+		{"After second transaction", time.Date(2023, 11, 20, 0, 0, 0, 0, time.UTC), 30, 40, 20, 0},
+		{"After third transaction", time.Date(2024, 2, 1, 0, 0, 0, 0, time.UTC), 20, 30, 30, 0}, // destinationReconciledBalance is 0 since external accounts cannot be reconciled
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			recorder := test.Request(t, http.MethodGet, fmt.Sprintf("/v4/accounts/data/%s/%s,%s", tt.time.Format(time.RFC3339), sourceAccount.Data.ID, destinationAccount.Data.ID), "")
+			test.AssertHTTPStatus(t, &recorder, http.StatusOK)
+
+			var response v4.AccountComputedDataResponse
+			test.DecodeResponse(t, &recorder, &response)
+
+			assert.True(t, response.Data[0].Balance.Equal(decimal.NewFromFloat(tt.sourceBalance)), "Source Balance is not correct, expected %f, got %s", tt.sourceBalance, response.Data[0].Balance)
+			assert.True(t, response.Data[0].ReconciledBalance.Equal(decimal.NewFromFloat(tt.sourceReconciledBalance)), "Source Reconciled Balance is not correct, expected %f, got %s", tt.sourceReconciledBalance, response.Data[0].ReconciledBalance)
+
+			assert.True(t, response.Data[1].Balance.Equal(decimal.NewFromFloat(tt.destinationBalance)), "Destination Balance is not correct, expected %f, got %s", tt.destinationBalance, response.Data[1].Balance)
+			assert.True(t, response.Data[1].ReconciledBalance.Equal(decimal.NewFromFloat(tt.destinationReconciledBalance)), "Destination Reconciled Balance is not correct, expected %f, got %s", tt.destinationReconciledBalance, response.Data[1].ReconciledBalance)
 		})
 	}
 }
@@ -490,4 +576,95 @@ func (suite *TestSuiteStandard) TestAccountsPagination() {
 			assert.Equal(suite.T(), tt.expectedTotal, accounts.Pagination.Total)
 		})
 	}
+}
+
+func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
+	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+
+	account := suite.createTestAccount(suite.T(), v4.AccountEditable{
+		BudgetID:       budget.Data.ID,
+		Name:           "Internal Account",
+		OnBudget:       true,
+		External:       false,
+		InitialBalance: decimal.NewFromFloat(170),
+	})
+
+	externalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{
+		BudgetID: budget.Data.ID,
+		Name:     "External Account",
+		External: true,
+	})
+
+	category := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+		BudgetID: budget.Data.ID,
+	})
+
+	envelopeIDs := []*uuid.UUID{}
+	for i := 0; i < 3; i++ {
+		envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{
+			CategoryID: category.Data.ID,
+			Name:       strconv.Itoa(i),
+		})
+
+		envelopeIDs = append(envelopeIDs, &envelope.Data.ID)
+
+		// Sleep for 10 milliseconds because we only save timestamps with 1 millisecond accuracy
+		// This is needed because the test runs so fast that all envelopes are sometimes created
+		// within the same millisecond, making the result non-deterministic
+		time.Sleep(1 * time.Millisecond)
+	}
+
+	// Create 15 transactions:
+	//  * 2 for the first envelope
+	//  * 2 for the second envelope
+	//  * 11 for the last envelope
+	for i := 0; i < 15; i++ {
+		eIndex := i
+		if i > 5 {
+			eIndex = 2
+		}
+		_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+			EnvelopeID:           envelopeIDs[eIndex%3],
+			SourceAccountID:      externalAccount.Data.ID,
+			DestinationAccountID: account.Data.ID,
+			Amount:               decimal.NewFromFloat(17.45),
+		})
+	}
+
+	// Create three income transactions
+	//
+	// This is a regression test for income always showing at the last
+	// position in the recent envelopes (before the LIMIT) since count(id) for
+	// income was always 0. This is due to the envelope ID for income being NULL
+	// and count() not counting NULL values.
+	//
+	// Creating three income transactions puts "income" as the second most common
+	// envelope, verifying the fix
+	for i := 0; i < 3; i++ {
+		_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+			EnvelopeID:           nil,
+			SourceAccountID:      externalAccount.Data.ID,
+			DestinationAccountID: account.Data.ID,
+			Amount:               decimal.NewFromFloat(1337.42),
+		})
+	}
+
+	r := test.Request(suite.T(), http.MethodGet, fmt.Sprintf("http://example.com/v4/accounts/%s/recent-envelopes", account.Data.ID), "")
+	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
+
+	var recentEnvelopeResponse v4.RecentEnvelopesResponse
+	test.DecodeResponse(suite.T(), &r, &recentEnvelopeResponse)
+
+	data := recentEnvelopeResponse.Data
+	suite.Require().Len(data, 4, "The number of envelopes in recentEnvelopes is not correct, expected 4, got %d", len(data))
+
+	// The last envelope needs to be the first in the sort since it
+	// has been the most common one
+	suite.Assert().Equal(envelopeIDs[2], data[0].ID)
+
+	// Income is the second one since it appears three times
+	var nilUUIDPointer *uuid.UUID
+	suite.Assert().Equal(nilUUIDPointer, data[1].ID)
+
+	// Order for envelopes with the same frequency is undefined
 }

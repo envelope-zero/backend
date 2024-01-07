@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gorm.io/gorm"
 )
 
 type AccountEditable struct {
@@ -42,8 +40,10 @@ func (editable AccountEditable) model() models.Account {
 }
 
 type AccountLinks struct {
-	Self         string `json:"self" example:"https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`                     // The account itself
-	Transactions string `json:"transactions" example:"https://example.com/api/v4/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"` // Transactions referencing the account
+	Self            string `json:"self" example:"https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`                             // The account itself
+	RecentEnvelopes string `json:"recentEnvelopes" example:"https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/recent-envelopes"` // Envelopes in recent transactions where this account was the target
+	ComputedData    string `json:"computedData" example:"https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/{time}"`              // Envelopes in recent transactions where this account was the target
+	Transactions    string `json:"transactions" example:"https://example.com/api/v4/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`         // Transactions referencing the account
 }
 
 // Account is the API v4 representation of an Account in EZ.
@@ -51,17 +51,12 @@ type Account struct {
 	models.DefaultModel
 	AccountEditable
 	Links AccountLinks `json:"links"`
-
-	// These fields are computed
-	Balance           decimal.Decimal `json:"balance" example:"2735.17"`           // Balance of the account, including all transactions referencing it
-	ReconciledBalance decimal.Decimal `json:"reconciledBalance" example:"2539.57"` // Balance of the account, including all reconciled transactions referencing it
-	RecentEnvelopes   []*uuid.UUID    `json:"recentEnvelopes"`                     // Envelopes recently used with this account
 }
 
-func newAccount(c *gin.Context, db *gorm.DB, model models.Account) (Account, httperrors.Error) {
+func newAccount(c *gin.Context, model models.Account) Account {
 	url := c.GetString(string(models.DBContextURL))
 
-	account := Account{
+	return Account{
 		DefaultModel: model.DefaultModel,
 		AccountEditable: AccountEditable{
 			Name:               model.Name,
@@ -75,36 +70,12 @@ func newAccount(c *gin.Context, db *gorm.DB, model models.Account) (Account, htt
 			ImportHash:         model.ImportHash,
 		},
 		Links: AccountLinks{
-			Self:         fmt.Sprintf("%s/v4/accounts/%s", url, model.ID),
-			Transactions: fmt.Sprintf("%s/v4/transactions?account=%s", url, model.ID),
+			Self:            fmt.Sprintf("%s/v4/accounts/%s", url, model.ID),
+			RecentEnvelopes: fmt.Sprintf("%s/v4/accounts/%s/recent-envelopes", url, model.ID),
+			ComputedData:    fmt.Sprintf("%s/v4/accounts/%s/{time}", url, model.ID),
+			Transactions:    fmt.Sprintf("%s/v4/transactions?account=%s", url, model.ID),
 		},
 	}
-
-	// Recent Envelopes
-	ids, err := model.RecentEnvelopes(db)
-	if err != nil {
-		e := httperrors.Parse(c, err)
-		return Account{}, e
-	}
-	account.RecentEnvelopes = ids
-
-	// Balance
-	balance, _, err := model.GetBalanceMonth(db, types.Month{})
-	if err != nil {
-		e := httperrors.Parse(c, err)
-		return Account{}, e
-	}
-	account.Balance = balance
-
-	// Reconciled Balance
-	reconciledBalance, err := model.SumReconciled(db)
-	if err != nil {
-		e := httperrors.Parse(c, err)
-		return Account{}, e
-	}
-	account.ReconciledBalance = reconciledBalance
-
-	return account, httperrors.Error{}
 }
 
 type AccountListResponse struct {
@@ -159,4 +130,25 @@ func (f AccountQueryFilter) model() (models.Account, httperrors.Error) {
 		External: f.External,
 		Archived: f.Archived,
 	}, httperrors.Error{}
+}
+
+type RecentEnvelopesResponse struct {
+	Data  []RecentEnvelope `json:"data"`                                                          // Data for the account
+	Error *string          `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred for this transaction
+}
+
+type RecentEnvelope struct {
+	Name string     `json:"name"`
+	ID   *uuid.UUID `json:"id"`
+}
+
+type AccountComputedData struct {
+	ID                uuid.UUID       `json:"id" example:"95018a69-758b-46c6-8bab-db70d9614f9d"` // ID of the account
+	Balance           decimal.Decimal `json:"balance" example:"2735.17"`                         // Balance of the account, including all transactions referencing it
+	ReconciledBalance decimal.Decimal `json:"reconciledBalance" example:"2539.57"`               // Balance of the account, including all reconciled transactions referencing it
+}
+
+type AccountComputedDataResponse struct {
+	Data  []AccountComputedData `json:"data"`
+	Error *string               `json:"error"`
 }

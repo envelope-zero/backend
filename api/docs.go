@@ -3141,6 +3141,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/v4/accounts/data/{time}/{ids}": {
+            "get": {
+                "description": "Returns calculated data for the account, e.g. balances",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Get Account data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The time in RFC3339 format",
+                        "name": "time",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "IDs of the Accounts. Separated by comma",
+                        "name": "ids",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v4.AccountComputedDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v4.AccountComputedDataResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v4.AccountComputedDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v4.AccountComputedDataResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v4/accounts/{id}": {
             "get": {
                 "description": "Returns a specific account",
@@ -3318,6 +3376,53 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/v4.AccountResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v4/accounts/{id}/recent-envelopes": {
+            "get": {
+                "description": "Returns a list of objects representing recent envelopes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Get recent envelopes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID formatted as string",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v4.RecentEnvelopesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v4.RecentEnvelopesResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v4.RecentEnvelopesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v4.RecentEnvelopesResponse"
                         }
                     }
                 }
@@ -7838,11 +7943,6 @@ const docTemplate = `{
                     "default": false,
                     "example": true
                 },
-                "balance": {
-                    "description": "These fields are computed",
-                    "type": "number",
-                    "example": 2735.17
-                },
                 "budgetId": {
                     "description": "ID of the budget this account belongs to",
                     "type": "string",
@@ -7907,22 +8007,44 @@ const docTemplate = `{
                     "default": false,
                     "example": true
                 },
-                "recentEnvelopes": {
-                    "description": "Envelopes recently used with this account",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "updatedAt": {
+                    "description": "Last time the resource was updated",
+                    "type": "string",
+                    "example": "2022-04-17T20:14:01.048145Z"
+                }
+            }
+        },
+        "v4.AccountComputedData": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "Balance of the account, including all transactions referencing it",
+                    "type": "number",
+                    "example": 2735.17
+                },
+                "id": {
+                    "description": "ID of the account",
+                    "type": "string",
+                    "example": "95018a69-758b-46c6-8bab-db70d9614f9d"
                 },
                 "reconciledBalance": {
                     "description": "Balance of the account, including all reconciled transactions referencing it",
                     "type": "number",
                     "example": 2539.57
+                }
+            }
+        },
+        "v4.AccountComputedDataResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v4.AccountComputedData"
+                    }
                 },
-                "updatedAt": {
-                    "description": "Last time the resource was updated",
-                    "type": "string",
-                    "example": "2022-04-17T20:14:01.048145Z"
+                "error": {
+                    "type": "string"
                 }
             }
         },
@@ -8003,6 +8125,16 @@ const docTemplate = `{
         "v4.AccountLinks": {
             "type": "object",
             "properties": {
+                "computedData": {
+                    "description": "Envelopes in recent transactions where this account was the target",
+                    "type": "string",
+                    "example": "https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/{time}"
+                },
+                "recentEnvelopes": {
+                    "description": "Envelopes in recent transactions where this account was the target",
+                    "type": "string",
+                    "example": "https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/recent-envelopes"
+                },
                 "self": {
                     "description": "The account itself",
                     "type": "string",
@@ -9290,6 +9422,34 @@ const docTemplate = `{
                     "description": "The total number of resources matching the query",
                     "type": "integer",
                     "example": 827
+                }
+            }
+        },
+        "v4.RecentEnvelope": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "v4.RecentEnvelopesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Data for the account",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v4.RecentEnvelope"
+                    }
+                },
+                "error": {
+                    "description": "The error, if any occurred for this transaction",
+                    "type": "string",
+                    "example": "the specified resource ID is not a valid UUID"
                 }
             }
         },

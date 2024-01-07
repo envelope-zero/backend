@@ -165,6 +165,72 @@ func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, avail
 	return
 }
 
+// Balance calculates the balance of the account at a specific point in time, including all transactions
+func (a Account) Balance(db *gorm.DB, time time.Time) (balance decimal.Decimal, err error) {
+	var transactions []Transaction
+
+	query := db.
+		Preload("DestinationAccount").
+		Preload("SourceAccount").
+		Where(
+			db.Where(Transaction{DestinationAccountID: a.ID}).
+				Or(db.Where(Transaction{SourceAccountID: a.ID}))).
+		Where("datetime(transactions.date) < datetime(?)", time)
+
+	err = query.Find(&transactions).Error
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	if a.InitialBalanceDate != nil && time.After(*a.InitialBalanceDate) {
+		balance = a.InitialBalance
+	}
+
+	// Add incoming transactions, subtract outgoing transactions
+	for _, transaction := range transactions {
+		if transaction.DestinationAccountID == a.ID {
+			balance = balance.Add(transaction.Amount)
+		} else {
+			balance = balance.Sub(transaction.Amount)
+		}
+	}
+
+	return
+}
+
+// ReconciledBalance calculates the reconciled balance at a specific point in time
+func (a Account) ReconciledBalance(db *gorm.DB, time time.Time) (balance decimal.Decimal, err error) {
+	var transactions []Transaction
+
+	err = db.
+		Preload("DestinationAccount").
+		Preload("SourceAccount").
+		Where(
+			db.Where(Transaction{DestinationAccountID: a.ID, ReconciledDestination: true}).
+				Or(db.Where(Transaction{SourceAccountID: a.ID, ReconciledSource: true}))).
+		Where("datetime(transactions.date) < datetime(?)", time).
+		Find(&transactions).Error
+
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	if a.InitialBalanceDate != nil && time.After(*a.InitialBalanceDate) {
+		balance = a.InitialBalance
+	}
+
+	// Add incoming transactions, subtract outgoing transactions
+	for _, t := range transactions {
+		if t.DestinationAccountID == a.ID {
+			balance = balance.Add(t.Amount)
+		} else {
+			balance = balance.Sub(t.Amount)
+		}
+	}
+
+	return
+}
+
 // SetRecentEnvelopes returns the most common envelopes used in the last 50
 // transactions where the account is the destination account.
 //
