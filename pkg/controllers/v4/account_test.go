@@ -16,9 +16,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestAccount(t *testing.T, account v4.AccountEditable, expectedStatus ...int) v4.AccountResponse {
+func createTestAccount(t *testing.T, account v4.AccountEditable, expectedStatus ...int) v4.AccountResponse {
 	if account.BudgetID == uuid.Nil {
-		account.BudgetID = suite.createTestBudget(t, v4.BudgetEditable{Name: "Testing budget"}).Data.ID
+		account.BudgetID = createTestBudget(t, v4.BudgetEditable{Name: "Testing budget"}).Data.ID
 	}
 
 	body := []v4.AccountEditable{
@@ -46,7 +46,7 @@ func (suite *TestSuiteStandard) createTestAccount(t *testing.T, account v4.Accou
 // TestAccountsDBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestAccountsDBClosed() {
-	b := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	b := createTestBudget(suite.T(), v4.BudgetEditable{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -55,7 +55,7 @@ func (suite *TestSuiteStandard) TestAccountsDBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestAccount(t, v4.AccountEditable{BudgetID: b.Data.ID}, http.StatusInternalServerError)
+				createTestAccount(t, v4.AccountEditable{BudgetID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -86,7 +86,7 @@ func (suite *TestSuiteStandard) TestAccountsOptions() {
 	}{
 		{"No account with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Account exists", suite.createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID.String(), http.StatusNoContent},
+		{"Account exists", createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -105,7 +105,7 @@ func (suite *TestSuiteStandard) TestAccountsOptions() {
 // TestAccountGetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestAccountsGetSingle() {
-	a := suite.createTestAccount(suite.T(), v4.AccountEditable{})
+	a := createTestAccount(suite.T(), v4.AccountEditable{})
 
 	tests := []struct {
 		name   string
@@ -138,10 +138,10 @@ func (suite *TestSuiteStandard) TestAccountsGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestAccountsGetFilter() {
-	b1 := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	b2 := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	b1 := createTestBudget(suite.T(), v4.BudgetEditable{})
+	b2 := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
+	_ = createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "Exact Account Match",
 		Note:     "This is a specific note",
 		BudgetID: b1.Data.ID,
@@ -149,7 +149,7 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 		External: false,
 	})
 
-	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
+	_ = createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "External Account Filter",
 		Note:     "This is a specific note",
 		BudgetID: b2.Data.ID,
@@ -157,7 +157,7 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 		External: true,
 	})
 
-	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
+	_ = createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "External Account Filter",
 		Note:     "A different note",
 		BudgetID: b1.Data.ID,
@@ -166,13 +166,13 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 		Archived: true,
 	})
 
-	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
+	_ = createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "",
 		Note:     "specific note",
 		BudgetID: b1.Data.ID,
 	})
 
-	_ = suite.createTestAccount(suite.T(), v4.AccountEditable{
+	_ = createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "Name only",
 		Note:     "",
 		BudgetID: b1.Data.ID,
@@ -239,11 +239,11 @@ func (suite *TestSuiteStandard) TestAccountsGetFilter() {
 }
 
 func (suite *TestSuiteStandard) TestAccountsGetMonth() {
-	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
 
 	initialBalanceDate := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
 
-	sourceAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	sourceAccount := createTestAccount(suite.T(), v4.AccountEditable{
 		Name:               "Source Account",
 		BudgetID:           budget.Data.ID,
 		OnBudget:           true,
@@ -252,16 +252,16 @@ func (suite *TestSuiteStandard) TestAccountsGetMonth() {
 		InitialBalanceDate: &initialBalanceDate,
 	})
 
-	destinationAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	destinationAccount := createTestAccount(suite.T(), v4.AccountEditable{
 		Name:     "Destination Account",
 		BudgetID: budget.Data.ID,
 		External: true,
 	})
 
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
 	envelopeID := &envelope.Data.ID
 
-	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+	_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2023, 10, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(10),
 		EnvelopeID:           envelopeID,
@@ -270,7 +270,7 @@ func (suite *TestSuiteStandard) TestAccountsGetMonth() {
 		ReconciledSource:     true,
 	})
 
-	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+	_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2023, 11, 15, 0, 0, 0, 0, time.UTC),
 		Amount:               decimal.NewFromFloat(10),
 		EnvelopeID:           envelopeID,
@@ -279,7 +279,7 @@ func (suite *TestSuiteStandard) TestAccountsGetMonth() {
 		ReconciledSource:     false,
 	})
 
-	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+	_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                  time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC),
 		Amount:                decimal.NewFromFloat(10),
 		EnvelopeID:            envelopeID,
@@ -306,7 +306,7 @@ func (suite *TestSuiteStandard) TestAccountsGetMonth() {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		suite.T().Run(tt.name, func(t *testing.T) {
 			recorder := test.Request(t, http.MethodGet, fmt.Sprintf("/v4/accounts/data/%s/%s,%s", tt.time.Format(time.RFC3339), sourceAccount.Data.ID, destinationAccount.Data.ID), "")
 			test.AssertHTTPStatus(t, &recorder, http.StatusOK)
 
@@ -324,7 +324,7 @@ func (suite *TestSuiteStandard) TestAccountsGetMonth() {
 
 func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 	// Test account for uniqueness
-	a := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	a := createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Unique Account Name for Budget",
 	})
 
@@ -391,8 +391,8 @@ func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 
 // Verify that updating accounts works as desired
 func (suite *TestSuiteStandard) TestAccountsUpdate() {
-	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	account := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "Original name", BudgetID: budget.Data.ID})
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
+	account := createTestAccount(suite.T(), v4.AccountEditable{Name: "Original name", BudgetID: budget.Data.ID})
 
 	tests := []struct {
 		name     string                                   // name of the test
@@ -467,7 +467,7 @@ func (suite *TestSuiteStandard) TestAccountsUpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				account := suite.createTestAccount(suite.T(), v4.AccountEditable{
+				account := createTestAccount(suite.T(), v4.AccountEditable{
 					Name: "New Budget",
 					Note: "More tests something something",
 				})
@@ -499,7 +499,7 @@ func (suite *TestSuiteStandard) TestAccountsDelete() {
 
 			if tt.id == "" {
 				// Create test Account
-				a := suite.createTestAccount(t, v4.AccountEditable{})
+				a := createTestAccount(t, v4.AccountEditable{})
 				tt.id = a.Data.ID.String()
 			}
 
@@ -512,19 +512,19 @@ func (suite *TestSuiteStandard) TestAccountsDelete() {
 
 // TestAccountsGetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestAccountsGetSorted() {
-	a1 := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	a1 := createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Alphabetically first",
 	})
 
-	a2 := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	a2 := createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Second in creation, third in list",
 	})
 
-	a3 := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	a3 := createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "First is alphabetically second",
 	})
 
-	a4 := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	a4 := createTestAccount(suite.T(), v4.AccountEditable{
 		Name: "Zulu is the last one",
 	})
 
@@ -546,7 +546,7 @@ func (suite *TestSuiteStandard) TestAccountsGetSorted() {
 
 func (suite *TestSuiteStandard) TestAccountsPagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestAccount(suite.T(), v4.AccountEditable{Name: fmt.Sprint(i)})
+		createTestAccount(suite.T(), v4.AccountEditable{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {
@@ -579,9 +579,9 @@ func (suite *TestSuiteStandard) TestAccountsPagination() {
 }
 
 func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
-	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	account := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	account := createTestAccount(suite.T(), v4.AccountEditable{
 		BudgetID:       budget.Data.ID,
 		Name:           "Internal Account",
 		OnBudget:       true,
@@ -589,19 +589,19 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		InitialBalance: decimal.NewFromFloat(170),
 	})
 
-	externalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{
+	externalAccount := createTestAccount(suite.T(), v4.AccountEditable{
 		BudgetID: budget.Data.ID,
 		Name:     "External Account",
 		External: true,
 	})
 
-	category := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	category := createTestCategory(suite.T(), v4.CategoryEditable{
 		BudgetID: budget.Data.ID,
 	})
 
 	envelopeIDs := []*uuid.UUID{}
 	for i := 0; i < 3; i++ {
-		envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{
+		envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{
 			CategoryID: category.Data.ID,
 			Name:       strconv.Itoa(i),
 		})
@@ -623,7 +623,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		if i > 5 {
 			eIndex = 2
 		}
-		_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+		_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 			EnvelopeID:           envelopeIDs[eIndex%3],
 			SourceAccountID:      externalAccount.Data.ID,
 			DestinationAccountID: account.Data.ID,
@@ -641,7 +641,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	// Creating three income transactions puts "income" as the second most common
 	// envelope, verifying the fix
 	for i := 0; i < 3; i++ {
-		_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{
+		_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 			EnvelopeID:           nil,
 			SourceAccountID:      externalAccount.Data.ID,
 			DestinationAccountID: account.Data.ID,

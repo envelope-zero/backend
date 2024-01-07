@@ -14,14 +14,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestGoal(t *testing.T, c v4.GoalEditable, expectedStatus ...int) v4.GoalResponse {
+func createTestGoal(t *testing.T, c v4.GoalEditable, expectedStatus ...int) v4.GoalResponse {
 	// Default to 201 Created as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
 	}
 
 	if c.EnvelopeID == uuid.Nil {
-		c.EnvelopeID = suite.createTestEnvelope(t, v4.EnvelopeEditable{}).Data.ID
+		c.EnvelopeID = createTestEnvelope(t, v4.EnvelopeEditable{}).Data.ID
 	}
 
 	requestBody := []v4.GoalEditable{c}
@@ -60,7 +60,7 @@ func (suite *TestSuiteStandard) TestGoalsOptions() {
 			http.StatusNoContent,
 			"",
 			func() string {
-				return suite.createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
+				return createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(31)}).Data.Links.Self
 			},
 		},
 	}
@@ -115,19 +115,19 @@ func (suite *TestSuiteStandard) TestGoalsDatabaseError() {
 // TestGoalsGet verifies that goals can be read from the API and
 // that the default sorting is correct.
 func (suite *TestSuiteStandard) TestGoalsGet() {
-	g1 := suite.createTestGoal(suite.T(), v4.GoalEditable{
+	g1 := createTestGoal(suite.T(), v4.GoalEditable{
 		Amount: decimal.NewFromFloat(100),
 		Month:  types.NewMonth(2024, 1),
 		Name:   "Irrelevant",
 	})
 
-	_ = suite.createTestGoal(suite.T(), v4.GoalEditable{
+	_ = createTestGoal(suite.T(), v4.GoalEditable{
 		Amount: decimal.NewFromFloat(300),
 		Month:  types.NewMonth(2024, 2),
 		Name:   "First",
 	})
 
-	g3 := suite.createTestGoal(suite.T(), v4.GoalEditable{
+	g3 := createTestGoal(suite.T(), v4.GoalEditable{
 		Amount: decimal.NewFromFloat(50),
 		Month:  types.NewMonth(2024, 2),
 		Name:   "Before g2",
@@ -150,14 +150,14 @@ func (suite *TestSuiteStandard) TestGoalsGet() {
 
 // TestGoalsGetFilter verifies that filtering goals works as expected.
 func (suite *TestSuiteStandard) TestGoalsGetFilter() {
-	b := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	b := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	c := suite.createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b.Data.ID})
+	c := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b.Data.ID})
 
-	e1 := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c.Data.ID})
-	e2 := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c.Data.ID})
+	e1 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c.Data.ID})
+	e2 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c.Data.ID})
 
-	_ = suite.createTestGoal(suite.T(), v4.GoalEditable{
+	_ = createTestGoal(suite.T(), v4.GoalEditable{
 		Name:       "Test Goal",
 		Note:       "So that we can go to X",
 		EnvelopeID: e1.Data.ID,
@@ -166,7 +166,7 @@ func (suite *TestSuiteStandard) TestGoalsGetFilter() {
 		Archived:   false,
 	})
 
-	_ = suite.createTestGoal(suite.T(), v4.GoalEditable{
+	_ = createTestGoal(suite.T(), v4.GoalEditable{
 		Name:       "Goal for something else",
 		EnvelopeID: e1.Data.ID,
 		Amount:     decimal.NewFromFloat(200),
@@ -174,7 +174,7 @@ func (suite *TestSuiteStandard) TestGoalsGetFilter() {
 		Archived:   true,
 	})
 
-	_ = suite.createTestGoal(suite.T(), v4.GoalEditable{
+	_ = createTestGoal(suite.T(), v4.GoalEditable{
 		Name:       "testing the filters",
 		Note:       "so that I know they work",
 		EnvelopeID: e2.Data.ID,
@@ -266,7 +266,7 @@ func (suite *TestSuiteStandard) TestGoalsCreateInvalidBody() {
 
 // TestGoalsCreate verifies that transaction goal works.
 func (suite *TestSuiteStandard) TestGoalsCreate() {
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{Name: "An envelope for this test"})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{Name: "An envelope for this test"})
 
 	tests := []struct {
 		name           string
@@ -353,7 +353,7 @@ func (suite *TestSuiteStandard) TestGoalsGetSingle() {
 			http.StatusOK,
 			"",
 			func() string {
-				return suite.createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(42)}).Data.Links.Self
+				return createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(42)}).Data.Links.Self
 			},
 		},
 		{
@@ -390,7 +390,7 @@ func (suite *TestSuiteStandard) TestGoalsDelete() {
 		{
 			"Standard deletion",
 			http.StatusNoContent,
-			suite.createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(2100)}).Data.ID.String(),
+			createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(2100)}).Data.ID.String(),
 		},
 		{
 			"Does not exist",
@@ -421,7 +421,7 @@ func (suite *TestSuiteStandard) TestGoalsDelete() {
 
 // TestGoalsUpdateFail verifies that goal updates fail where they should.
 func (suite *TestSuiteStandard) TestGoalsUpdateFail() {
-	goal := suite.createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(170), Note: "Test note for goal"})
+	goal := createTestGoal(suite.T(), v4.GoalEditable{Amount: decimal.NewFromFloat(170), Note: "Test note for goal"})
 
 	tests := []struct {
 		name   string // Name for the test
@@ -487,9 +487,9 @@ func (suite *TestSuiteStandard) TestUpdateNonExistingGoal() {
 
 // TestGoalsUpdate verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestGoalsUpdate() {
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
 
-	goal := suite.createTestGoal(suite.T(), v4.GoalEditable{
+	goal := createTestGoal(suite.T(), v4.GoalEditable{
 		Amount:     decimal.NewFromFloat(23.14),
 		Note:       "Test note for transaction",
 		Archived:   true,

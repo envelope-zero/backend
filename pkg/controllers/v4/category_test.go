@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v4.CategoryEditable, expectedStatus ...int) v4.CategoryResponse {
+func createTestCategory(t *testing.T, c v4.CategoryEditable, expectedStatus ...int) v4.CategoryResponse {
 	if c.BudgetID == uuid.Nil {
-		c.BudgetID = suite.createTestBudget(t, v4.BudgetEditable{Name: "Testing budget"}).Data.ID
+		c.BudgetID = createTestBudget(t, v4.BudgetEditable{Name: "Testing budget"}).Data.ID
 	}
 
 	if c.Name == "" {
@@ -44,7 +44,7 @@ func (suite *TestSuiteStandard) createTestCategory(t *testing.T, c v4.CategoryEd
 // TestCategoriesDBClosed verifies that errors are processed correctly when
 // the database is closed.
 func (suite *TestSuiteStandard) TestCategoriesDBClosed() {
-	b := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	b := createTestBudget(suite.T(), v4.BudgetEditable{})
 
 	tests := []struct {
 		name string             // Name of the test
@@ -53,7 +53,7 @@ func (suite *TestSuiteStandard) TestCategoriesDBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestCategory(t, v4.CategoryEditable{BudgetID: b.Data.ID}, http.StatusInternalServerError)
+				createTestCategory(t, v4.CategoryEditable{BudgetID: b.Data.ID}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -84,7 +84,7 @@ func (suite *TestSuiteStandard) TestCategoriesOptions() {
 	}{
 		{"No Category with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Category exists", suite.createTestCategory(suite.T(), v4.CategoryEditable{}).Data.ID.String(), http.StatusNoContent},
+		{"Category exists", createTestCategory(suite.T(), v4.CategoryEditable{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -103,7 +103,7 @@ func (suite *TestSuiteStandard) TestCategoriesOptions() {
 // TestCategoriesGetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestCategoriesGetSingle() {
-	c := suite.createTestCategory(suite.T(), v4.CategoryEditable{})
+	c := createTestCategory(suite.T(), v4.CategoryEditable{})
 
 	tests := []struct {
 		name   string
@@ -137,23 +137,23 @@ func (suite *TestSuiteStandard) TestCategoriesGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestCategoriesGetFilter() {
-	b1 := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	b2 := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	b1 := createTestBudget(suite.T(), v4.BudgetEditable{})
+	b2 := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	_ = suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	_ = createTestCategory(suite.T(), v4.CategoryEditable{
 		Name:     "Category Name",
 		Note:     "A note for this category",
 		BudgetID: b1.Data.ID,
 		Archived: true,
 	})
 
-	_ = suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	_ = createTestCategory(suite.T(), v4.CategoryEditable{
 		Name:     "Groceries",
 		Note:     "For Groceries",
 		BudgetID: b2.Data.ID,
 	})
 
-	_ = suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	_ = createTestCategory(suite.T(), v4.CategoryEditable{
 		Name:     "Daily stuff",
 		Note:     "Groceries, Drug Store, …",
 		BudgetID: b2.Data.ID,
@@ -207,7 +207,7 @@ func (suite *TestSuiteStandard) TestCategoriesGetFilter() {
 
 func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 	// Test category for uniqueness
-	c := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	c := createTestCategory(suite.T(), v4.CategoryEditable{
 		Name: "Unique Category Name for Budget",
 	})
 
@@ -277,8 +277,8 @@ func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 
 // Verify that updating categories works as desired
 func (suite *TestSuiteStandard) TestCategoriesUpdate() {
-	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	category := suite.createTestCategory(suite.T(), v4.CategoryEditable{Name: "Name of the category", BudgetID: budget.Data.ID})
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
+	category := createTestCategory(suite.T(), v4.CategoryEditable{Name: "Name of the category", BudgetID: budget.Data.ID})
 
 	tests := []struct {
 		name     string                                    // name of the test
@@ -340,7 +340,7 @@ func (suite *TestSuiteStandard) TestCategoriesUpdateFails() {
 			var recorder httptest.ResponseRecorder
 
 			if tt.id == "" {
-				envelope := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+				envelope := createTestCategory(suite.T(), v4.CategoryEditable{
 					Name: "New Envelope",
 					Note: "Auto-created for test",
 				})
@@ -371,7 +371,7 @@ func (suite *TestSuiteStandard) TestCategoriesDelete() {
 
 			if tt.id == "" {
 				// Create test Account
-				e := suite.createTestCategory(t, v4.CategoryEditable{})
+				e := createTestCategory(t, v4.CategoryEditable{})
 				tt.id = e.Data.ID.String()
 			}
 
@@ -384,19 +384,19 @@ func (suite *TestSuiteStandard) TestCategoriesDelete() {
 
 // TestCategoriesGetSorted verifies that Accounts are sorted by name.
 func (suite *TestSuiteStandard) TestCategoriesGetSorted() {
-	c1 := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	c1 := createTestCategory(suite.T(), v4.CategoryEditable{
 		Name: "Alphabetically first",
 	})
 
-	c2 := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	c2 := createTestCategory(suite.T(), v4.CategoryEditable{
 		Name: "Second in creation, third in list",
 	})
 
-	c3 := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	c3 := createTestCategory(suite.T(), v4.CategoryEditable{
 		Name: "First is alphabetically second",
 	})
 
-	c4 := suite.createTestCategory(suite.T(), v4.CategoryEditable{
+	c4 := createTestCategory(suite.T(), v4.CategoryEditable{
 		Name: "Zulu is the last one",
 	})
 
@@ -418,7 +418,7 @@ func (suite *TestSuiteStandard) TestCategoriesGetSorted() {
 
 func (suite *TestSuiteStandard) TestCategoriesPagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestCategory(suite.T(), v4.CategoryEditable{Name: fmt.Sprint(i)})
+		createTestCategory(suite.T(), v4.CategoryEditable{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

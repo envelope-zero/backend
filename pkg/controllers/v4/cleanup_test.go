@@ -14,13 +14,13 @@ import (
 )
 
 func (suite *TestSuiteStandard) TestCleanup() {
-	_ = suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	account := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "TestCleanup"})
-	_ = suite.createTestCategory(suite.T(), v4.CategoryEditable{})
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
-	_ = suite.createTestTransaction(suite.T(), v4.TransactionEditable{Amount: decimal.NewFromFloat(17.32)})
-	_ = suite.patchTestMonthConfig(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), v4.MonthConfigEditable{})
-	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{AccountID: account.Data.ID, Match: "Delete me"})
+	_ = createTestBudget(suite.T(), v4.BudgetEditable{})
+	account := createTestAccount(suite.T(), v4.AccountEditable{Name: "TestCleanup"})
+	_ = createTestCategory(suite.T(), v4.CategoryEditable{})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	_ = createTestTransaction(suite.T(), v4.TransactionEditable{Amount: decimal.NewFromFloat(17.32)})
+	_ = patchTestMonthConfig(suite.T(), envelope.Data.ID, types.NewMonth(time.Now().Year(), time.Now().Month()), v4.MonthConfigEditable{})
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{AccountID: account.Data.ID, Match: "Delete me"})
 
 	tests := []string{
 		"http://example.com/v4/accounts",

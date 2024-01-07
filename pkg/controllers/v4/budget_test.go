@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) createTestBudget(t *testing.T, c v4.BudgetEditable, expectedStatus ...int) v4.BudgetResponse {
+func createTestBudget(t *testing.T, c v4.BudgetEditable, expectedStatus ...int) v4.BudgetResponse {
 	// Default to 201 Created as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
@@ -45,7 +45,7 @@ func (suite *TestSuiteStandard) TestBudgetsDBClosed() {
 		{
 			"Creation fails",
 			func(t *testing.T) {
-				suite.createTestBudget(t, v4.BudgetEditable{}, http.StatusInternalServerError)
+				createTestBudget(t, v4.BudgetEditable{}, http.StatusInternalServerError)
 			},
 		},
 		{
@@ -76,7 +76,7 @@ func (suite *TestSuiteStandard) TestBudgetOptions() {
 	}{
 		{"No budget with this ID", uuid.New().String(), http.StatusNotFound},
 		{"Not a valid UUID", "NotParseableAsUUID", http.StatusBadRequest},
-		{"Budget exists", suite.createTestBudget(suite.T(), v4.BudgetEditable{}).Data.ID.String(), http.StatusNoContent},
+		{"Budget exists", createTestBudget(suite.T(), v4.BudgetEditable{}).Data.ID.String(), http.StatusNoContent},
 	}
 
 	for _, tt := range tests {
@@ -95,7 +95,7 @@ func (suite *TestSuiteStandard) TestBudgetOptions() {
 // TestBudgetsGetSingle verifies that requests for the resource endpoints are
 // handled correctly.
 func (suite *TestSuiteStandard) TestBudgetsGetSingle() {
-	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
 
 	tests := []struct {
 		name   string
@@ -129,19 +129,19 @@ func (suite *TestSuiteStandard) TestBudgetsGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetsGetFilter() {
-	_ = suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	_ = createTestBudget(suite.T(), v4.BudgetEditable{
 		Name:     "Exact String Match",
 		Note:     "This is a specific note",
 		Currency: "",
 	})
 
-	_ = suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	_ = createTestBudget(suite.T(), v4.BudgetEditable{
 		Name:     "",
 		Note:     "This is a specific note",
 		Currency: "$",
 	})
 
-	_ = suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	_ = createTestBudget(suite.T(), v4.BudgetEditable{
 		Name:     "Another String",
 		Note:     "A different note",
 		Currency: "€",
@@ -207,7 +207,7 @@ func (suite *TestSuiteStandard) TestBudgetsCreateFails() {
 }
 
 func (suite *TestSuiteStandard) TestBudgetsUpdate() {
-	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{
 		Name: "New Budget",
 		Note: "More tests something something",
 	})
@@ -242,7 +242,7 @@ func (suite *TestSuiteStandard) TestBudgetsUpdateFails() {
 
 			if tt.id == "" {
 				// Create test budget
-				budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{
+				budget := createTestBudget(suite.T(), v4.BudgetEditable{
 					Name: "New Budget",
 					Note: "More tests something something",
 				})
@@ -274,7 +274,7 @@ func (suite *TestSuiteStandard) TestBudgetsDelete() {
 
 			if tt.id == "" {
 				// Create test budget
-				b := suite.createTestBudget(t, v4.BudgetEditable{})
+				b := createTestBudget(t, v4.BudgetEditable{})
 				tt.id = b.Data.ID.String()
 			}
 
@@ -287,19 +287,19 @@ func (suite *TestSuiteStandard) TestBudgetsDelete() {
 
 // TestBudgetsGetSorted verifies that budgets are sorted by name.
 func (suite *TestSuiteStandard) TestBudgetsGetSorted() {
-	b1 := suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	b1 := createTestBudget(suite.T(), v4.BudgetEditable{
 		Name: "Alphabetically first",
 	})
 
-	b2 := suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	b2 := createTestBudget(suite.T(), v4.BudgetEditable{
 		Name: "Second in creation, third in list",
 	})
 
-	b3 := suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	b3 := createTestBudget(suite.T(), v4.BudgetEditable{
 		Name: "First is alphabetically second",
 	})
 
-	b4 := suite.createTestBudget(suite.T(), v4.BudgetEditable{
+	b4 := createTestBudget(suite.T(), v4.BudgetEditable{
 		Name: "Zulu is the last one",
 	})
 
@@ -321,7 +321,7 @@ func (suite *TestSuiteStandard) TestBudgetsGetSorted() {
 
 func (suite *TestSuiteStandard) TestBudgetsPagination() {
 	for i := 0; i < 10; i++ {
-		suite.createTestBudget(suite.T(), v4.BudgetEditable{Name: fmt.Sprint(i)})
+		createTestBudget(suite.T(), v4.BudgetEditable{Name: fmt.Sprint(i)})
 	}
 
 	tests := []struct {

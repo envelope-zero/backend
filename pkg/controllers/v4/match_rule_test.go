@@ -13,8 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: migrate all createTest* methods to functions with *testing.T as first argument.
-func (suite *TestSuiteStandard) createTestMatchRule(t *testing.T, matchRule v4.MatchRuleEditable, expectedStatus ...int) v4.MatchRuleResponse {
+func createTestMatchRule(t *testing.T, matchRule v4.MatchRuleEditable, expectedStatus ...int) v4.MatchRuleResponse {
 	// Default to 201 Creted as expected status
 	if len(expectedStatus) == 0 {
 		expectedStatus = append(expectedStatus, http.StatusCreated)
@@ -32,7 +31,7 @@ func (suite *TestSuiteStandard) createTestMatchRule(t *testing.T, matchRule v4.M
 }
 
 func (suite *TestSuiteStandard) TestMatchRuleCreate() {
-	a := suite.createTestAccount(suite.T(), v4.AccountEditable{Name: "TestMatchRuleCreate"})
+	a := createTestAccount(suite.T(), v4.AccountEditable{Name: "TestMatchRuleCreate"})
 
 	tests := []struct {
 		name           string
@@ -126,8 +125,8 @@ func (suite *TestSuiteStandard) TestMatchRulesOptions() {
 			http.StatusNoContent,
 			"",
 			func(t *testing.T) string {
-				return suite.createTestMatchRule(t, v4.MatchRuleEditable{
-					AccountID: suite.createTestAccount(t, v4.AccountEditable{}).Data.ID,
+				return createTestMatchRule(t, v4.MatchRuleEditable{
+					AccountID: createTestAccount(t, v4.AccountEditable{}).Data.ID,
 					Match:     "TestMatch*",
 				}).Data.Links.Self
 			},
@@ -183,24 +182,24 @@ func (suite *TestSuiteStandard) TestMatchRulesDatabaseError() {
 
 // TestMatchRulesGetFilter verifies that filtering Match Rules works as expected.
 func (suite *TestSuiteStandard) TestMatchRulesGetFilter() {
-	b := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	b := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	a1 := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
-	a2 := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
+	a1 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
+	a2 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
 
-	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  1,
 		Match:     "Testing A Match*",
 		AccountID: a1.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  2,
 		Match:     "*Match the Second Account",
 		AccountID: a2.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  1,
 		Match:     "Exact match",
 		AccountID: a2.Data.ID,
@@ -235,24 +234,24 @@ func (suite *TestSuiteStandard) TestMatchRulesGetFilter() {
 
 // TestMatchRulesGetFilterErrors verifies that filtering Match Rules returns errors as expected.
 func (suite *TestSuiteStandard) TestMatchRulesGetFilterErrors() {
-	b := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
+	b := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	a1 := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
-	a2 := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
+	a1 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
+	a2 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
 
-	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  1,
 		Match:     "Testing A Match*",
 		AccountID: a1.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  2,
 		Match:     "*Match the Second Account",
 		AccountID: a2.Data.ID,
 	})
 
-	_ = suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  1,
 		Match:     "Exact match",
 		AccountID: a2.Data.ID,
@@ -292,8 +291,8 @@ func (suite *TestSuiteStandard) TestMatchRulesCreateInvalidBody() {
 
 // TestMatchRulesCreate verifies that transaction creation works.
 func (suite *TestSuiteStandard) TestMatchRulesCreate() {
-	budget := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	internalAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{External: false, BudgetID: budget.Data.ID, Name: "TestMatchRulesCreate Internal"})
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
+	internalAccount := createTestAccount(suite.T(), v4.AccountEditable{External: false, BudgetID: budget.Data.ID, Name: "TestMatchRulesCreate Internal"})
 
 	tests := []struct {
 		name           string
@@ -374,7 +373,7 @@ func (suite *TestSuiteStandard) TestMatchRulesGetSingle() {
 			http.StatusOK,
 			"",
 			func(t *testing.T) string {
-				return suite.createTestMatchRule(t, v4.MatchRuleEditable{AccountID: suite.createTestAccount(t, v4.AccountEditable{}).Data.ID}).Data.Links.Self
+				return createTestMatchRule(t, v4.MatchRuleEditable{AccountID: createTestAccount(t, v4.AccountEditable{}).Data.ID}).Data.Links.Self
 			},
 		},
 		{
@@ -402,8 +401,8 @@ func (suite *TestSuiteStandard) TestMatchRulesGetSingle() {
 
 // TestMatchRulesUpdateFail verifies that transaction updates fail where they should.
 func (suite *TestSuiteStandard) TestMatchRulesUpdateFail() {
-	m := suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
-		AccountID: suite.createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID,
+	m := createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+		AccountID: createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID,
 		Match:     "Some match*",
 	})
 
@@ -451,12 +450,12 @@ func (suite *TestSuiteStandard) TestMatchRulesUpdateFail() {
 
 // TestMatchRulesUpdate verifies that transaction updates are successful.
 func (suite *TestSuiteStandard) TestMatchRulesUpdate() {
-	m := suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
-		AccountID: suite.createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID,
+	m := createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+		AccountID: createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID,
 		Match:     "Some match*",
 	})
 
-	newAccount := suite.createTestAccount(suite.T(), v4.AccountEditable{})
+	newAccount := createTestAccount(suite.T(), v4.AccountEditable{})
 
 	tests := []struct {
 		name string // Name for the test
@@ -502,8 +501,8 @@ func (suite *TestSuiteStandard) TestMatchRulesDelete() {
 		{
 			"Standard deletion",
 			http.StatusNoContent,
-			suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
-				AccountID: suite.createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID,
+			createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+				AccountID: createTestAccount(suite.T(), v4.AccountEditable{}).Data.ID,
 				Match:     "Some match*",
 			}).Data.ID.String(),
 		},
@@ -536,34 +535,34 @@ func (suite *TestSuiteStandard) TestMatchRulesDelete() {
 
 // TestMatchRulesGetSorted verifies that Match Rules are sorted as expected.
 func (suite *TestSuiteStandard) TestMatchRulesGetSorted() {
-	b := suite.createTestBudget(suite.T(), v4.BudgetEditable{})
-	a := suite.createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
+	b := createTestBudget(suite.T(), v4.BudgetEditable{})
+	a := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
 
-	m1 := suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	m1 := createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  1,
 		Match:     "Testing A Match*",
 		AccountID: a.Data.ID,
 	})
 
-	m2 := suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	m2 := createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  2,
 		Match:     "*Match the Second Account",
 		AccountID: a.Data.ID,
 	})
 
-	m3 := suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	m3 := createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  1,
 		Match:     "Exact match",
 		AccountID: a.Data.ID,
 	})
 
-	m4 := suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	m4 := createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  3,
 		Match:     "Coffee Shop*",
 		AccountID: a.Data.ID,
 	})
 
-	m5 := suite.createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+	m5 := createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  3,
 		Match:     "Coffee Shop",
 		AccountID: a.Data.ID,

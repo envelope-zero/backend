@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuiteStandard) patchTestMonthConfig(t *testing.T, envelopeID uuid.UUID, month types.Month, c v4.MonthConfigEditable, expectedStatus ...int) v4.MonthConfigResponse {
+func patchTestMonthConfig(t *testing.T, envelopeID uuid.UUID, month types.Month, c v4.MonthConfigEditable, expectedStatus ...int) v4.MonthConfigResponse {
 	if envelopeID == uuid.Nil {
-		envelopeID = suite.createTestEnvelope(t, v4.EnvelopeEditable{Name: "Transaction Test Envelope"}).Data.ID
+		envelopeID = createTestEnvelope(t, v4.EnvelopeEditable{Name: "Transaction Test Envelope"}).Data.ID
 	}
 
 	// Default to 200 OK as expected status
@@ -25,8 +25,8 @@ func (suite *TestSuiteStandard) patchTestMonthConfig(t *testing.T, envelopeID uu
 	}
 
 	path := fmt.Sprintf("http://example.com/v4/envelopes/%s/%s", envelopeID, month.String())
-	r := test.Request(suite.T(), http.MethodPatch, path, c)
-	test.AssertHTTPStatus(suite.T(), &r, expectedStatus...)
+	r := test.Request(t, http.MethodPatch, path, c)
+	test.AssertHTTPStatus(t, &r, expectedStatus...)
 
 	var mc v4.MonthConfigResponse
 	test.DecodeResponse(t, &r, &mc)
@@ -35,7 +35,7 @@ func (suite *TestSuiteStandard) patchTestMonthConfig(t *testing.T, envelopeID uu
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsGetSingle() {
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
 	someMonth := types.NewMonth(2020, 3)
 
 	models.DB.Create(&models.MonthConfig{
@@ -79,7 +79,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsOptions() {
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
 
 	tests := []struct {
 		name     string
@@ -109,7 +109,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsOptions() {
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsUpdate() {
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
 	month := types.NewMonth(time.Now().Year(), time.Now().Month())
 
 	recorder := test.Request(suite.T(), http.MethodPatch, fmt.Sprintf("http://example.com/v4/envelopes/%s/%s", envelope.Data.ID, month), v4.MonthConfigEditable{
@@ -123,7 +123,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsUpdate() {
 }
 
 func (suite *TestSuiteStandard) TestMonthConfigsUpdateFails() {
-	envelope := suite.createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
+	envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{})
 	month := types.NewMonth(2022, 3)
 
 	tests := []struct {
