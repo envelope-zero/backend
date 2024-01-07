@@ -219,7 +219,8 @@ func GetMatchRule(c *gin.Context) {
 
 	model, err := getModelByID[models.MatchRule](c, id)
 	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+		s := err.Error()
+		c.JSON(err.Status, MatchRuleResponse{Error: &s})
 		return
 	}
 	data := newMatchRule(c, model)

@@ -389,7 +389,7 @@ func ImportYnab4(c *gin.Context) {
 	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		e := httperrors.Parse(c, err)
 		s := e.Error()
-		c.JSON(e.Status, ImportPreviewList{
+		c.JSON(e.Status, BudgetResponse{
 			Error: &s,
 		})
 		return
@@ -397,8 +397,9 @@ func ImportYnab4(c *gin.Context) {
 
 	f, e := getUploadedFile(c, ".yfull")
 	if !e.Nil() {
-		c.JSON(e.Status, httperrors.HTTPError{
-			Error: e.Error(),
+		s := e.Error()
+		c.JSON(e.Status, BudgetResponse{
+			Error: &s,
 		})
 		return
 	}

@@ -239,8 +239,9 @@ func GetCategory(c *gin.Context) {
 
 	category, err := getModelByID[models.Category](c, id)
 	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
-			Error: err.Error(),
+		s := err.Error()
+		c.JSON(err.Status, CategoryResponse{
+			Error: &s,
 		})
 		return
 	}

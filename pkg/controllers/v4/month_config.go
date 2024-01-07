@@ -72,8 +72,9 @@ func GetMonthConfig(c *gin.Context) {
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
 		e := httperrors.Parse(c, err)
-		c.JSON(e.Status, httperrors.HTTPError{
-			Error: e.Error(),
+		s := e.Error()
+		c.JSON(e.Status, MonthConfigResponse{
+			Error: &s,
 		})
 		return
 	}

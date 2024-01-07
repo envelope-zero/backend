@@ -84,7 +84,7 @@ func CreateAccounts(c *gin.Context) {
 	err := httputil.BindData(c, &editables)
 	if !err.Nil() {
 		e := err.Error()
-		c.JSON(err.Status, TransactionCreateResponse{
+		c.JSON(err.Status, AccountCreateResponse{
 			Error: &e,
 		})
 		return
@@ -244,8 +244,9 @@ func GetAccount(c *gin.Context) {
 
 	account, err := getModelByID[models.Account](c, id)
 	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
-			Error: err.Error(),
+		s := err.Error()
+		c.JSON(err.Status, AccountResponse{
+			Error: &s,
 		})
 		return
 	}
