@@ -8133,9 +8133,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "computedData": {
-                    "description": "Envelopes in recent transactions where this account was the target",
+                    "description": "Computed data endpoint for accounts",
                     "type": "string",
-                    "example": "https://example.com/api/v4/accounts/data/{time}/{ids}"
+                    "example": "https://example.com/api/v4/accounts/computed"
                 },
                 "recentEnvelopes": {
                     "description": "Envelopes in recent transactions where this account was the target",

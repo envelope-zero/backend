@@ -1667,8 +1667,8 @@ definitions:
   v4.AccountLinks:
     properties:
       computedData:
-        description: Envelopes in recent transactions where this account was the target
-        example: https://example.com/api/v4/accounts/data/{time}/{ids}
+        description: Computed data endpoint for accounts
+        example: https://example.com/api/v4/accounts/computed
         type: string
       recentEnvelopes:
         description: Envelopes in recent transactions where this account was the target

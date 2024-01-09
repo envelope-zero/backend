@@ -42,7 +42,7 @@ func (editable AccountEditable) model() models.Account {
 type AccountLinks struct {
 	Self            string `json:"self" example:"https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`                             // The account itself
 	RecentEnvelopes string `json:"recentEnvelopes" example:"https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/recent-envelopes"` // Envelopes in recent transactions where this account was the target
-	ComputedData    string `json:"computedData" example:"https://example.com/api/v4/accounts/data/{time}/{ids}"`                                        // Envelopes in recent transactions where this account was the target
+	ComputedData    string `json:"computedData" example:"https://example.com/api/v4/accounts/computed"`                                                 // Computed data endpoint for accounts
 	Transactions    string `json:"transactions" example:"https://example.com/api/v4/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2"`         // Transactions referencing the account
 }
 
@@ -72,7 +72,7 @@ func newAccount(c *gin.Context, model models.Account) Account {
 		Links: AccountLinks{
 			Self:            fmt.Sprintf("%s/v4/accounts/%s", url, model.ID),
 			RecentEnvelopes: fmt.Sprintf("%s/v4/accounts/%s/recent-envelopes", url, model.ID),
-			ComputedData:    fmt.Sprintf("%s/v4/accounts/data/{time}/{ids}", url),
+			ComputedData:    fmt.Sprintf("%s/v4/accounts/computed", url),
 			Transactions:    fmt.Sprintf("%s/v4/transactions?account=%s", url, model.ID),
 		},
 	}
