@@ -87,6 +87,7 @@ func (a Account) Transactions(db *gorm.DB) []Transaction {
 }
 
 // Transactions returns all transactions for this account.
+// TODO: Remove in favor of ReconciledBalance
 func (a Account) SumReconciled(db *gorm.DB) (balance decimal.Decimal, err error) {
 	var transactions []Transaction
 
@@ -120,6 +121,8 @@ func (a Account) SumReconciled(db *gorm.DB) (balance decimal.Decimal, err error)
 //
 // The balance Decimal is the actual account balance, factoring in all transactions before the end of the month.
 // The available Decimal is the sum that is available for budgeting at the end of the specified month.
+//
+// TODO: Get rid of this in favor of Balance()
 func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, available decimal.Decimal, err error) {
 	var transactions []Transaction
 
