@@ -3142,7 +3142,7 @@ const docTemplate = `{
             }
         },
         "/v4/accounts/computed": {
-            "get": {
+            "post": {
                 "description": "Returns calculated data for the account, e.g. balances",
                 "produces": [
                     "application/json"

@@ -307,7 +307,7 @@ func (suite *TestSuiteStandard) TestAccountsGetMonth() {
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			recorder := test.Request(t, http.MethodGet, "/v4/accounts/computed", map[string]any{
+			recorder := test.Request(t, http.MethodPost, "/v4/accounts/computed", map[string]any{
 				"time": tt.time.Format(time.RFC3339),
 				"ids":  []string{sourceAccount.Data.ID.String(), destinationAccount.Data.ID.String()},
 			},

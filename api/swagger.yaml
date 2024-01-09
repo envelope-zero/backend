@@ -5121,7 +5121,7 @@ paths:
       tags:
       - Accounts
   /v4/accounts/computed:
-    get:
+    post:
       description: Returns calculated data for the account, e.g. balances
       parameters:
       - description: Time and IDs of requested accounts

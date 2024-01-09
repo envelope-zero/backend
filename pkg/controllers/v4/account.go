@@ -25,7 +25,7 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 		r.OPTIONS("/:id", OptionsAccountDetail)
 		r.GET("/:id", GetAccount)
 		r.GET("/:id/recent-envelopes", GetAccountRecentEnvelopes)
-		r.GET("/computed", GetAccountData)
+		r.POST("/computed", GetAccountData) // This is a POST endpoints because some clients don't allow GET requests to have bodies
 		r.PATCH("/:id", UpdateAccount)
 		r.DELETE("/:id", DeleteAccount)
 	}
@@ -319,7 +319,7 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 // @Failure		404		{object}	AccountComputedDataResponse
 // @Failure		500		{object}	AccountComputedDataResponse
 // @Param			request	body		AccountComputedRequest	true	"Time and IDs of requested accounts"
-// @Router			/v4/accounts/computed [get]
+// @Router			/v4/accounts/computed [post]
 func GetAccountData(c *gin.Context) {
 	var request AccountComputedRequest
 
