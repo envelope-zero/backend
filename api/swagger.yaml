@@ -1501,6 +1501,1338 @@ definitions:
         example: the specified resource ID is not a valid UUID
         type: string
     type: object
+  v4.Account:
+    properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      links:
+        $ref: '#/definitions/v4.AccountLinks'
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.AccountComputedData:
+    properties:
+      balance:
+        description: Balance of the account, including all transactions referencing
+          it
+        example: 2735.17
+        type: number
+      id:
+        description: ID of the account
+        example: 95018a69-758b-46c6-8bab-db70d9614f9d
+        type: string
+      reconciledBalance:
+        description: Balance of the account, including all reconciled transactions
+          referencing it
+        example: 2539.57
+        type: number
+    type: object
+  v4.AccountComputedDataResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/v4.AccountComputedData'
+        type: array
+      error:
+        type: string
+    type: object
+  v4.AccountComputedRequest:
+    properties:
+      ids:
+        description: A list of UUIDs for the accounts
+        items:
+          type: string
+        type: array
+      time:
+        description: The time for which the computation is requested
+        type: string
+    type: object
+  v4.AccountCreateResponse:
+    properties:
+      data:
+        description: List of created Accounts
+        items:
+          $ref: '#/definitions/v4.AccountResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.AccountEditable:
+    properties:
+      archived:
+        default: false
+        description: Is the account archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget this account belongs to
+        example: 550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      external:
+        default: false
+        description: Does the account belong to the budget owner or not?
+        example: false
+        type: boolean
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection for imports
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      initialBalance:
+        default: 0
+        description: Balance of the account before any transactions were recorded
+        example: 173.12
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      initialBalanceDate:
+        description: Date of the initial balance
+        example: "2017-05-12T00:00:00Z"
+        type: string
+      name:
+        description: Name of the account
+        example: Cash
+        type: string
+      note:
+        description: A longer description for the account
+        example: Money in my wallet
+        type: string
+      onBudget:
+        default: false
+        description: 'Does the account factor into the available budget? Always false
+          when external: true'
+        example: true
+        type: boolean
+    type: object
+  v4.AccountLinks:
+    properties:
+      computedData:
+        description: Computed data endpoint for accounts
+        example: https://example.com/api/v4/accounts/computed
+        type: string
+      recentEnvelopes:
+        description: Envelopes in recent transactions where this account was the target
+        example: https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2/recent-envelopes
+        type: string
+      self:
+        description: The account itself
+        example: https://example.com/api/v4/accounts/af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        type: string
+      transactions:
+        description: Transactions referencing the account
+        example: https://example.com/api/v4/transactions?account=af892e10-7e0a-4fb8-b1bc-4b6d88401ed2
+        type: string
+    type: object
+  v4.AccountListResponse:
+    properties:
+      data:
+        description: List of accounts
+        items:
+          $ref: '#/definitions/v4.Account'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v4.Pagination'
+        description: Pagination information
+    type: object
+  v4.AccountResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.Account'
+        description: Data for the account
+      error:
+        description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.AllocationMode:
+    enum:
+    - ALLOCATE_LAST_MONTH_BUDGET
+    - ALLOCATE_LAST_MONTH_SPEND
+    type: string
+    x-enum-varnames:
+    - AllocateLastMonthBudget
+    - AllocateLastMonthSpend
+  v4.Budget:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v4.BudgetLinks'
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.BudgetAllocationMode:
+    properties:
+      mode:
+        allOf:
+        - $ref: '#/definitions/v4.AllocationMode'
+        description: Mode to allocate budget with
+        example: ALLOCATE_LAST_MONTH_SPEND
+    type: object
+  v4.BudgetCreateResponse:
+    properties:
+      data:
+        description: List of created Budgets
+        items:
+          $ref: '#/definitions/v4.BudgetResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.BudgetEditable:
+    properties:
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+    type: object
+  v4.BudgetLinks:
+    properties:
+      accounts:
+        description: Accounts for this budget
+        example: https://example.com/api/v4/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      categories:
+        description: Categories for this budget
+        example: https://example.com/api/v4/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      envelopes:
+        description: Envelopes for this budget
+        example: https://example.com/api/v4/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      month:
+        description: This uses 'YYYY-MM' for clients to replace with the actual year
+          and month.
+        example: https://example.com/api/v4/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+        type: string
+      self:
+        description: The budget itself
+        example: https://example.com/api/v4/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      transactions:
+        description: Transactions for this budget
+        example: https://example.com/api/v4/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+    type: object
+  v4.BudgetListResponse:
+    properties:
+      data:
+        description: List of budgets
+        items:
+          $ref: '#/definitions/v4.Budget'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v4.Pagination'
+        description: Pagination information
+    type: object
+  v4.BudgetResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.Budget'
+        description: Data for the budget
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.Category:
+    properties:
+      archived:
+        default: false
+        description: Is the category archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopes:
+        description: These fields are computed
+        items:
+          $ref: '#/definitions/v4.Envelope'
+        type: array
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v4.CategoryLinks'
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.CategoryCreateResponse:
+    properties:
+      data:
+        description: List of the created Categories or their respective error
+        items:
+          $ref: '#/definitions/v4.CategoryResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.CategoryEditable:
+    properties:
+      archived:
+        default: false
+        description: Is the category archived?
+        example: true
+        type: boolean
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+    type: object
+  v4.CategoryEnvelopes:
+    properties:
+      allocation:
+        description: Sum of allocations for the envelopes
+        example: 90
+        type: number
+      archived:
+        default: false
+        description: Is the category archived?
+        example: true
+        type: boolean
+      balance:
+        description: Sum of the balances of the envelopes
+        example: -10.13
+        type: number
+      budgetId:
+        description: ID of the budget the category belongs to
+        example: 52d967d3-33f4-4b04-9ba7-772e5ab9d0ce
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopes:
+        description: Slice of all envelopes
+        items:
+          $ref: '#/definitions/v4.EnvelopeMonth'
+        type: array
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v4.CategoryLinks'
+      name:
+        description: Name of the category
+        example: Saving
+        type: string
+      note:
+        description: Notes about the category
+        example: All envelopes for long-term saving
+        type: string
+      spent:
+        description: Sum spent for all envelopes
+        example: 100.13
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.CategoryLinks:
+    properties:
+      envelopes:
+        description: Envelopes for this category
+        example: https://example.com/api/v4/envelopes?category=3b1ea324-d438-4419-882a-2fc91d71772f
+        type: string
+      self:
+        description: The category itself
+        example: https://example.com/api/v4/categories/3b1ea324-d438-4419-882a-2fc91d71772f
+        type: string
+    type: object
+  v4.CategoryListResponse:
+    properties:
+      data:
+        description: List of Categories
+        items:
+          $ref: '#/definitions/v4.Category'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v4.Pagination'
+        description: Pagination information
+    type: object
+  v4.CategoryResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.Category'
+        description: Data for the Category
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.Envelope:
+    properties:
+      archived:
+        default: false
+        description: Is the envelope archived?
+        example: true
+        type: boolean
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        allOf:
+        - $ref: '#/definitions/v4.EnvelopeLinks'
+        description: Links to related resources
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.EnvelopeCreateResponse:
+    properties:
+      data:
+        description: Data for the Envelope
+        items:
+          $ref: '#/definitions/v4.EnvelopeResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.EnvelopeEditable:
+    properties:
+      archived:
+        default: false
+        description: Is the envelope archived?
+        example: true
+        type: boolean
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+    type: object
+  v4.EnvelopeLinks:
+    properties:
+      month:
+        description: The MonthConfig for the envelope
+        example: https://example.com/api/v4/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166/YYYY-MM
+        type: string
+      self:
+        description: The envelope itself
+        example: https://example.com/api/v4/envelopes/45b6b5b9-f746-4ae9-b77b-7688b91f8166
+        type: string
+      transactions:
+        description: The envelope's transactions
+        example: https://example.com/api/v4/transactions?envelope=45b6b5b9-f746-4ae9-b77b-7688b91f8166
+        type: string
+    type: object
+  v4.EnvelopeListResponse:
+    properties:
+      data:
+        description: List of Envelopes
+        items:
+          $ref: '#/definitions/v4.Envelope'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v4.Pagination'
+        description: Pagination information
+    type: object
+  v4.EnvelopeMonth:
+    properties:
+      allocation:
+        description: The amount of money allocated
+        example: 85.44
+        type: number
+      archived:
+        default: false
+        description: Is the envelope archived?
+        example: true
+        type: boolean
+      balance:
+        description: The balance at the end of the monht
+        example: 12.32
+        type: number
+      categoryId:
+        description: ID of the category the envelope belongs to
+        example: 878c831f-af99-4a71-b3ca-80deb7d793c1
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        allOf:
+        - $ref: '#/definitions/v4.EnvelopeLinks'
+        description: Links to related resources
+      name:
+        description: Name of the envelope
+        example: Groceries
+        type: string
+      note:
+        description: Notes about the envelope
+        example: For stuff bought at supermarkets and drugstores
+        type: string
+      spent:
+        description: The amount spent over the whole month
+        example: 73.12
+        type: number
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.EnvelopeResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.Envelope'
+        description: Data for the Envelope
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.Goal:
+    properties:
+      amount:
+        default: 0
+        description: How much money should be saved for this goal?
+        example: 750
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      archived:
+        default: false
+        description: If this goal is still in use or not
+        example: true
+        type: boolean
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      envelopeId:
+        description: The ID of the envelope this goal is for
+        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v4.GoalLinks'
+      month:
+        description: The month the goal should be reached
+        example: "2024-07-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: Name of the goal
+        example: New TV
+        type: string
+      note:
+        description: Note about the goal
+        example: We want to replace the old CRT TV soon-ish
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.GoalCreateResponse:
+    properties:
+      data:
+        description: List of created resources
+        items:
+          $ref: '#/definitions/v4.GoalResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.GoalEditable:
+    properties:
+      amount:
+        default: 0
+        description: How much money should be saved for this goal?
+        example: 750
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      archived:
+        default: false
+        description: If this goal is still in use or not
+        example: true
+        type: boolean
+      envelopeId:
+        description: The ID of the envelope this goal is for
+        example: f81566d9-af4d-4f13-9830-c62c4b5e4c7e
+        type: string
+      month:
+        description: The month the goal should be reached
+        example: "2024-07-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: Name of the goal
+        example: New TV
+        type: string
+      note:
+        description: Note about the goal
+        example: We want to replace the old CRT TV soon-ish
+        type: string
+    type: object
+  v4.GoalLinks:
+    properties:
+      envelope:
+        description: The Envelope this goal references
+        example: https://example.com/api/v4/envelopes/c1a96ae4-80e3-4827-8ed0-c7656f224fee
+        type: string
+      self:
+        description: The Goal itself
+        example: https://example.com/api/v4/goals/438cc6c0-9baf-49fd-a75a-d76bd5cab19c
+        type: string
+    type: object
+  v4.GoalListResponse:
+    properties:
+      data:
+        description: List of resources
+        items:
+          $ref: '#/definitions/v4.Goal'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v4.Pagination'
+        description: Pagination information
+    type: object
+  v4.GoalResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.Goal'
+        description: The resource
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.ImportLinks:
+    properties:
+      matchRules:
+        description: URL of YNAB Import preview endpoint
+        example: https://example.com/api/v4/import/ynab-import-preview
+        type: string
+      transactions:
+        description: URL of YNAB4 import endpoint
+        example: https://example.com/api/v4/import/ynab4
+        type: string
+    type: object
+  v4.ImportPreviewList:
+    properties:
+      data:
+        description: List of transaction previews
+        items:
+          $ref: '#/definitions/v4.TransactionPreview'
+        type: array
+      error:
+        description: The error, if any occurred for this Match Rule
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.ImportResponse:
+    properties:
+      links:
+        allOf:
+        - $ref: '#/definitions/v4.ImportLinks'
+        description: Links for the v4 API
+    type: object
+  v4.Links:
+    properties:
+      accounts:
+        description: URL of Account collection endpoint
+        example: https://example.com/api/v4/accounts
+        type: string
+      budgets:
+        description: URL of Budget collection endpoint
+        example: https://example.com/api/v4/budgets
+        type: string
+      categories:
+        description: URL of Category collection endpoint
+        example: https://example.com/api/v4/categories
+        type: string
+      envelopes:
+        description: URL of Envelope collection endpoint
+        example: https://example.com/api/v4/envelopes
+        type: string
+      goals:
+        description: URL of goal collection endpoint
+        example: https://example.com/api/v4/goals
+        type: string
+      import:
+        description: URL of import list endpoint
+        example: https://example.com/api/v4/import
+        type: string
+      matchRules:
+        description: URL of Match Rule collection endpoint
+        example: https://example.com/api/v4/match-rules
+        type: string
+      months:
+        description: URL of Month endpoint
+        example: https://example.com/api/v4/months
+        type: string
+      transactions:
+        description: URL of Transaction collection endpoint
+        example: https://example.com/api/v4/transactions
+        type: string
+    type: object
+  v4.MatchRule:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v4.MatchRuleLinks'
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.MatchRuleCreateResponse:
+    properties:
+      data:
+        description: List of created Match Rules
+        items:
+          $ref: '#/definitions/v4.MatchRuleResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.MatchRuleEditable:
+    properties:
+      accountId:
+        description: The account to map matching transactions to
+        example: f9e873c2-fb96-4367-bfb6-7ecd9bf4a6b5
+        type: string
+      match:
+        description: The matching applied to the opposite account. This is a glob
+          pattern. Multiple globs are allowed. Globbing is case sensitive.
+        example: Bank*
+        type: string
+      priority:
+        description: The priority of the match rule
+        example: 3
+        type: integer
+    type: object
+  v4.MatchRuleLinks:
+    properties:
+      self:
+        description: The match rule itself
+        example: https://example.com/api/v4/match-rules/95685c82-53c6-455d-b235-f49960b73b21
+        type: string
+    type: object
+  v4.MatchRuleListResponse:
+    properties:
+      data:
+        description: List of Match Rules
+        items:
+          $ref: '#/definitions/v4.MatchRule'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v4.Pagination'
+        description: Pagination information
+    type: object
+  v4.MatchRuleResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.MatchRule'
+        description: The Match Rule data, if creation was successful
+      error:
+        description: The error, if any occurred for this Match Rule
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.Month:
+    properties:
+      allocation:
+        description: The sum of all allocations for this month
+        example: 1200.5
+        type: number
+      available:
+        description: The amount available to budget
+        example: 217.34
+        type: number
+      balance:
+        description: The sum of all envelope balances
+        example: 5231.37
+        type: number
+      categories:
+        description: A list of envelope month calculations grouped by category
+        items:
+          $ref: '#/definitions/v4.CategoryEnvelopes'
+        type: array
+      id:
+        description: The ID of the Budget
+        example: 1e777d24-3f5b-4c43-8000-04f65f895578
+        type: string
+      income:
+        description: The total income for the month (sum of all incoming transactions
+          without an Envelope)
+        example: 2317.34
+        type: number
+      month:
+        description: The month
+        example: "2006-05-01T00:00:00.000000Z"
+        type: string
+      name:
+        description: The name of the Budget
+        example: Zero budget
+        type: string
+      spent:
+        description: The amount of money spent in this month
+        example: 133.7
+        type: number
+    type: object
+  v4.MonthConfig:
+    properties:
+      allocation:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      envelopeID:
+        description: We do not use the default model here, we use envelope ID and
+          month
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      links:
+        $ref: '#/definitions/v4.MonthConfigLinks'
+      month:
+        description: We do not use the default model here, we use envelope ID and
+          month
+        type: string
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+    type: object
+  v4.MonthConfigEditable:
+    properties:
+      allocation:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 22.01
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      envelopeId:
+        description: ID of the envelope
+        example: 10b9705d-3356-459e-9d5a-28d42a6c4547
+        type: string
+      month:
+        description: The month. This is always set to 00:00 UTC on the first of the
+          month.
+        example: "1969-06-01T00:00:00.000000Z"
+        type: string
+      note:
+        description: A note for the month config
+        example: Added 200€ here because we replaced Tim's expensive vase
+        type: string
+    type: object
+  v4.MonthConfigLinks:
+    properties:
+      envelope:
+        description: The Envelope this config belongs to
+        example: https://example.com/api/v4/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b
+        type: string
+      self:
+        description: The Month Config itself
+        example: https://example.com/api/v4/envelopes/61027ebb-ab75-4a49-9e23-a104ddd9ba6b/2017-10
+        type: string
+    type: object
+  v4.MonthConfigResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.MonthConfig'
+        description: Config for the month
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.MonthResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.Month'
+        description: Data for the month
+      error:
+        description: The error, if any occurred
+        type: string
+    type: object
+  v4.Pagination:
+    properties:
+      count:
+        description: The amount of records returned in this response
+        example: 25
+        type: integer
+      limit:
+        description: The maximum amount of resources to return for this request
+        example: 25
+        type: integer
+      offset:
+        description: The offset for the first record returned
+        example: 50
+        type: integer
+      total:
+        description: The total number of resources matching the query
+        example: 827
+        type: integer
+    type: object
+  v4.RecentEnvelope:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  v4.RecentEnvelopesResponse:
+    properties:
+      data:
+        description: Data for the account
+        items:
+          $ref: '#/definitions/v4.RecentEnvelope'
+        type: array
+      error:
+        description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.Response:
+    properties:
+      links:
+        allOf:
+        - $ref: '#/definitions/v4.Links'
+        description: Links for the v4 API
+    type: object
+  v4.Transaction:
+    properties:
+      amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 14.03
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      availableFrom:
+        description: The date from which on the transaction amount is available for
+          budgeting. Only used for income transactions. Defaults to the transaction
+          date.
+        example: "2021-11-17T00:00:00Z"
+        type: string
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      date:
+        description: Date of the transaction. Time is currently only used for sorting
+        example: "1815-12-10T18:43:00.271152Z"
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      destinationAccountId:
+        description: ID of the destination account
+        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 2649c965-7999-4873-ae16-89d5d5fa972e
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      links:
+        $ref: '#/definitions/v4.TransactionLinks'
+      note:
+        description: A note
+        example: Lunch
+        type: string
+      reconciledDestination:
+        default: false
+        description: Is the transaction reconciled in the destination account?
+        example: true
+        type: boolean
+      reconciledSource:
+        default: false
+        description: Is the transaction reconciled in the source account?
+        example: true
+        type: boolean
+      sourceAccountId:
+        description: ID of the source account
+        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v4.TransactionCreateResponse:
+    properties:
+      data:
+        description: List of created Transactions
+        items:
+          $ref: '#/definitions/v4.TransactionResponse'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.TransactionEditable:
+    properties:
+      amount:
+        description: The maximum value is "999999999999.99999999", swagger unfortunately
+          rounds this.
+        example: 14.03
+        maximum: 1000000000000
+        minimum: 1e-08
+        multipleOf: 1e-08
+        type: number
+      availableFrom:
+        description: The date from which on the transaction amount is available for
+          budgeting. Only used for income transactions. Defaults to the transaction
+          date.
+        example: "2021-11-17T00:00:00Z"
+        type: string
+      date:
+        description: Date of the transaction. Time is currently only used for sorting
+        example: "1815-12-10T18:43:00.271152Z"
+        type: string
+      destinationAccountId:
+        description: ID of the destination account
+        example: 8e16b456-a719-48ce-9fec-e115cfa7cbcc
+        type: string
+      envelopeId:
+        description: ID of the envelope
+        example: 2649c965-7999-4873-ae16-89d5d5fa972e
+        type: string
+      importHash:
+        description: The SHA256 hash of a unique combination of values to use in duplicate
+          detection
+        example: 867e3a26dc0baf73f4bff506f31a97f6c32088917e9e5cf1a5ed6f3f84a6fa70
+        type: string
+      note:
+        description: A note
+        example: Lunch
+        type: string
+      reconciledDestination:
+        default: false
+        description: Is the transaction reconciled in the destination account?
+        example: true
+        type: boolean
+      reconciledSource:
+        default: false
+        description: Is the transaction reconciled in the source account?
+        example: true
+        type: boolean
+      sourceAccountId:
+        description: ID of the source account
+        example: fd81dc45-a3a2-468e-a6fa-b2618f30aa45
+        type: string
+    type: object
+  v4.TransactionLinks:
+    properties:
+      self:
+        description: The transaction itself
+        example: https://example.com/api/v4/transactions/d430d7c3-d14c-4712-9336-ee56965a6673
+        type: string
+    type: object
+  v4.TransactionListResponse:
+    properties:
+      data:
+        description: List of transactions
+        items:
+          $ref: '#/definitions/v4.Transaction'
+        type: array
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v4.Pagination'
+        description: Pagination information
+    type: object
+  v4.TransactionPreview:
+    properties:
+      destinationAccountName:
+        description: Name of the destination account from the CSV file
+        example: Deutsche Bahn
+        type: string
+      duplicateTransactionIds:
+        description: IDs of transactions that this transaction duplicates
+        items:
+          type: string
+        type: array
+      matchRuleId:
+        description: ID of the match rule that was applied to this transaction preview
+        example: 042d101d-f1de-4403-9295-59dc0ea58677
+        type: string
+      sourceAccountName:
+        description: Name of the source account from the CSV file
+        example: Employer
+        type: string
+      transaction:
+        $ref: '#/definitions/models.Transaction'
+    type: object
+  v4.TransactionResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v4.Transaction'
+        description: The Transaction data, if creation was successful
+      error:
+        description: The error, if any occurred for this transaction
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
   version.Object:
     properties:
       version:
@@ -3491,6 +4823,2001 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/v3.TransactionResponse'
+      summary: Update transaction
+      tags:
+      - Transactions
+  /v4:
+    delete:
+      description: Permanently deletes all resources
+      parameters:
+      - description: Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'
+        in: query
+        name: confirm
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete everything
+      tags:
+      - v4
+    get:
+      description: Returns general information about the v4 API
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.Response'
+      summary: v4 API
+      tags:
+      - v4
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - v4
+  /v4/accounts:
+    get:
+      description: Returns a list of accounts
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Is the account on-budget?
+        in: query
+        name: onBudget
+        type: boolean
+      - description: Is the account external?
+        in: query
+        name: external
+        type: boolean
+      - description: Is the account archived?
+        in: query
+        name: archived
+        type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Account returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Accounts to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.AccountListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.AccountListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.AccountListResponse'
+      summary: List accounts
+      tags:
+      - Accounts
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+    post:
+      description: Creates new accounts
+      parameters:
+      - description: Accounts
+        in: body
+        name: accounts
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v4.AccountEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.AccountCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.AccountCreateResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.AccountCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.AccountCreateResponse'
+      summary: Creates accounts
+      tags:
+      - Accounts
+  /v4/accounts/{id}:
+    delete:
+      description: Deletes an account
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete account
+      tags:
+      - Accounts
+    get:
+      description: Returns a specific account
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+      summary: Get account
+      tags:
+      - Accounts
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Accounts
+    patch:
+      description: Updates an account. Only values to be updated need to be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/v4.AccountEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.AccountResponse'
+      summary: Update account
+      tags:
+      - Accounts
+  /v4/accounts/{id}/recent-envelopes:
+    get:
+      description: Returns a list of objects representing recent envelopes
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.RecentEnvelopesResponse'
+      summary: Get recent envelopes
+      tags:
+      - Accounts
+  /v4/accounts/computed:
+    post:
+      description: Returns calculated data for the account, e.g. balances
+      parameters:
+      - description: Time and IDs of requested accounts
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v4.AccountComputedRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.AccountComputedDataResponse'
+      summary: Get Account data
+      tags:
+      - Accounts
+  /v4/budgets:
+    get:
+      description: Returns a list of budgets
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by currency
+        in: query
+        name: currency
+        type: string
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Budget returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Budgets to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.BudgetListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.BudgetListResponse'
+      summary: List budgets
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    post:
+      consumes:
+      - application/json
+      description: Creates a new budget
+      parameters:
+      - description: Budget
+        in: body
+        name: budget
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v4.BudgetEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.BudgetCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.BudgetCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.BudgetCreateResponse'
+      summary: Create budget
+      tags:
+      - Budgets
+  /v4/budgets/{id}:
+    delete:
+      description: Deletes a budget
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete budget
+      tags:
+      - Budgets
+    get:
+      description: Returns a specific budget
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+      summary: Get budget
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing budget. Only values to be updated need to be
+        specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Budget
+        in: body
+        name: budget
+        required: true
+        schema:
+          $ref: '#/definitions/v4.BudgetEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+      summary: Update budget
+      tags:
+      - Budgets
+  /v4/categories:
+    get:
+      description: Returns a list of categories
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Is the category archived?
+        in: query
+        name: archived
+        type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Category returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Categories to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.CategoryListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.CategoryListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.CategoryListResponse'
+      summary: Get categories
+      tags:
+      - Categories
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Categories
+    post:
+      description: Creates a new category
+      parameters:
+      - description: Categories
+        in: body
+        name: categories
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v4.CategoryEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.CategoryCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.CategoryCreateResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.CategoryCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.CategoryCreateResponse'
+      summary: Create category
+      tags:
+      - Categories
+  /v4/categories/{id}:
+    delete:
+      description: Deletes a category
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete category
+      tags:
+      - Categories
+    get:
+      description: Returns a specific category
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+      summary: Get category
+      tags:
+      - Categories
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Categories
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing category. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/v4.CategoryEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.CategoryResponse'
+      summary: Update category
+      tags:
+      - Categories
+  /v4/envelopes:
+    get:
+      description: Returns a list of envelopes
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category
+        type: string
+      - description: Is the envelope archived?
+        in: query
+        name: archived
+        type: boolean
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Envelope returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Envelopes to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.EnvelopeListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.EnvelopeListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.EnvelopeListResponse'
+      summary: Get envelopes
+      tags:
+      - Envelopes
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+    post:
+      description: Creates a new envelope
+      parameters:
+      - description: Envelopes
+        in: body
+        name: envelope
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v4.EnvelopeEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.EnvelopeCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.EnvelopeCreateResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.EnvelopeCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.EnvelopeCreateResponse'
+      summary: Create envelope
+      tags:
+      - Envelopes
+  /v4/envelopes/{id}:
+    delete:
+      description: Deletes an envelope
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete envelope
+      tags:
+      - Envelopes
+    get:
+      description: Returns a specific Envelope
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+      summary: Get Envelope
+      tags:
+      - Envelopes
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing envelope. Only values to be updated need to
+        be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Envelope
+        in: body
+        name: envelope
+        required: true
+        schema:
+          $ref: '#/definitions/v4.EnvelopeEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.EnvelopeResponse'
+      summary: Update envelope
+      tags:
+      - Envelopes
+  /v4/envelopes/{id}/{month}:
+    get:
+      description: Returns configuration for a specific month
+      parameters:
+      - description: ID of the Envelope
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+      summary: Get MonthConfig
+      tags:
+      - Envelopes
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the Envelope
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Envelopes
+    patch:
+      description: Changes configuration for a Month. If there is no configuration
+        for the month yet, this endpoint transparently creates a configuration resource.
+      parameters:
+      - description: ID of the Envelope
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: path
+        name: month
+        required: true
+        type: string
+      - description: MonthConfig
+        in: body
+        name: monthConfig
+        required: true
+        schema:
+          $ref: '#/definitions/v4.MonthConfigEditable'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.MonthConfigResponse'
+      summary: Update MonthConfig
+      tags:
+      - Envelopes
+  /v4/goals:
+    get:
+      description: Returns a list of goals
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: Is the goal archived?
+        in: query
+        name: archived
+        type: boolean
+      - description: Filter by envelope ID
+        in: query
+        name: envelope
+        type: string
+      - description: Month of the goal. Ignores exact time, matches on the month of
+          the RFC3339 timestamp provided.
+        in: query
+        name: month
+        type: string
+      - description: Goals for this and later months. Ignores exact time, matches
+          on the month of the RFC3339 timestamp provided.
+        in: query
+        name: fromMonth
+        type: string
+      - description: Goals for this and earlier months. Ignores exact time, matches
+          on the month of the RFC3339 timestamp provided.
+        in: query
+        name: untilMonth
+        type: string
+      - description: Filter by amount
+        in: query
+        name: amount
+        type: string
+      - description: Amount less than or equal to this
+        in: query
+        name: amountLessOrEqual
+        type: string
+      - description: Amount more than or equal to this
+        in: query
+        name: amountMoreOrEqual
+        type: string
+      - description: The offset of the first goal returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of goal to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.GoalListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.GoalListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.GoalListResponse'
+      summary: Get goals
+      tags:
+      - Goals
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Goals
+    post:
+      description: Creates new goals
+      parameters:
+      - description: Goals
+        in: body
+        name: goals
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v4.GoalEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.GoalCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.GoalCreateResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.GoalCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.GoalCreateResponse'
+      summary: Create goals
+      tags:
+      - Goals
+  /v4/goals/{id}:
+    delete:
+      description: Deletes a goal
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete goal
+      tags:
+      - Goals
+    get:
+      description: Returns a specific goal
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+      summary: Get goal
+      tags:
+      - Goals
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Goals
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing goal. Only values to be updated need to be
+        specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Goal
+        in: body
+        name: goal
+        required: true
+        schema:
+          $ref: '#/definitions/v4.GoalEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.GoalResponse'
+      summary: Update goal
+      tags:
+      - Goals
+  /v4/import:
+    get:
+      description: Returns general information about the v4 API
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.ImportResponse'
+      summary: Import API overview
+      tags:
+      - Import
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs.
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+  /v4/import/ynab-import-preview:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+    post:
+      consumes:
+      - multipart/form-data
+      description: Returns a preview of transactions to be imported after parsing
+        a YNAB Import format csv file
+      parameters:
+      - description: File to import
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: ID of the account to import transactions for
+        in: query
+        name: accountId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.ImportPreviewList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.ImportPreviewList'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.ImportPreviewList'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.ImportPreviewList'
+      summary: Transaction Import Preview
+      tags:
+      - Import
+  /v4/import/ynab4:
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Import
+    post:
+      consumes:
+      - multipart/form-data
+      description: Imports budgets from YNAB 4
+      parameters:
+      - description: File to import
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Name of the Budget to create
+        in: query
+        name: budgetName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.BudgetResponse'
+      summary: Import YNAB 4 budget
+      tags:
+      - Import
+  /v4/match-rules:
+    get:
+      description: Returns a list of matchRules
+      parameters:
+      - description: Filter by priority
+        in: query
+        name: priority
+        type: integer
+      - description: Filter by match
+        in: query
+        name: match
+        type: string
+      - description: Filter by account ID
+        in: query
+        name: account
+        type: string
+      - description: The offset of the first Match Rule returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Match Rules to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.MatchRuleListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.MatchRuleListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.MatchRuleListResponse'
+      summary: Get matchRules
+      tags:
+      - MatchRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - MatchRules
+    post:
+      description: Creates matchRules from the list of submitted matchRule data. The
+        response code is the highest response code number that a single matchRule
+        creation would have caused. If it is not equal to 201, at least one matchRule
+        has an error.
+      parameters:
+      - description: MatchRules
+        in: body
+        name: matchRules
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v4.MatchRuleEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.MatchRuleCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.MatchRuleCreateResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.MatchRuleCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.MatchRuleCreateResponse'
+      summary: Create matchRules
+      tags:
+      - MatchRules
+  /v4/match-rules/{id}:
+    delete:
+      description: Deletes an matchRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete matchRule
+      tags:
+      - MatchRules
+    get:
+      description: Returns a specific matchRule
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+      summary: Get matchRule
+      tags:
+      - MatchRules
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - MatchRules
+    patch:
+      consumes:
+      - application/json
+      description: Update a matchRule. Only values to be updated need to be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: MatchRule
+        in: body
+        name: matchRule
+        required: true
+        schema:
+          $ref: '#/definitions/v4.MatchRuleEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.MatchRuleResponse'
+      summary: Update matchRule
+      tags:
+      - MatchRules
+  /v4/months:
+    delete:
+      description: Deletes all allocation for the specified month
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete allocations for a month
+      tags:
+      - Months
+    get:
+      description: Returns data about a specific month.
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.MonthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.MonthResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.MonthResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.MonthResponse'
+      summary: Get data about a month
+      tags:
+      - Months
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs.
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Months
+    post:
+      description: Sets allocations for a month for all envelopes that do not have
+        an allocation yet
+      parameters:
+      - description: ID formatted as string
+        in: query
+        name: budget
+        required: true
+        type: string
+      - description: The month in YYYY-MM format
+        in: query
+        name: month
+        required: true
+        type: string
+      - description: Budget
+        in: body
+        name: mode
+        required: true
+        schema:
+          $ref: '#/definitions/v4.BudgetAllocationMode'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Set allocations for a month
+      tags:
+      - Months
+  /v4/transactions:
+    get:
+      description: Returns a list of transactions
+      parameters:
+      - description: Date of the transaction. Ignores exact time, matches on the day
+          of the RFC3339 timestamp provided.
+        in: query
+        name: date
+        type: string
+      - description: Transactions at and after this date. Ignores exact time, matches
+          on the day of the RFC3339 timestamp provided.
+        in: query
+        name: fromDate
+        type: string
+      - description: Transactions before and at this date. Ignores exact time, matches
+          on the day of the RFC3339 timestamp provided.
+        in: query
+        name: untilDate
+        type: string
+      - description: Filter by amount
+        in: query
+        name: amount
+        type: string
+      - description: Amount less than or equal to this
+        in: query
+        name: amountLessOrEqual
+        type: string
+      - description: Amount more than or equal to this
+        in: query
+        name: amountMoreOrEqual
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by budget ID
+        in: query
+        name: budget
+        type: string
+      - description: Filter by ID of associated account, regardeless of source or
+          destination
+        in: query
+        name: account
+        type: string
+      - description: Filter by source account ID
+        in: query
+        name: source
+        type: string
+      - description: Filter by destination account ID
+        in: query
+        name: destination
+        type: string
+      - description: Filter by envelope ID
+        in: query
+        name: envelope
+        type: string
+      - description: Reconcilication state in source account
+        in: query
+        name: reconciledSource
+        type: boolean
+      - description: Reconcilication state in destination account
+        in: query
+        name: reconciledDestination
+        type: boolean
+      - description: The offset of the first Transaction returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Transactions to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.TransactionListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.TransactionListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.TransactionListResponse'
+      summary: Get transactions
+      tags:
+      - Transactions
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Transactions
+    post:
+      description: Creates transactions from the list of submitted transaction data.
+        The response code is the highest response code number that a single transaction
+        creation would have caused. If it is not equal to 201, at least one transaction
+        has an error.
+      parameters:
+      - description: Transactions
+        in: body
+        name: transactions
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v4.TransactionEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v4.TransactionCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.TransactionCreateResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.TransactionCreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.TransactionCreateResponse'
+      summary: Create transactions
+      tags:
+      - Transactions
+  /v4/transactions/{id}:
+    delete:
+      description: Deletes a transaction
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Delete transaction
+      tags:
+      - Transactions
+    get:
+      description: Returns a specific transaction
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
+      summary: Get transaction
+      tags:
+      - Transactions
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperrors.HTTPError'
+      summary: Allowed HTTP verbs
+      tags:
+      - Transactions
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing transaction. Only values to be updated need
+        to be specified.
+      parameters:
+      - description: ID formatted as string
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Transaction
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/v4.TransactionEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.TransactionResponse'
       summary: Update transaction
       tags:
       - Transactions

@@ -114,11 +114,19 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	reconciled, err = account.SumReconciled(models.DB)
 	assert.Nil(suite.T(), err)
 
+	balanceOnly, err := account.Balance(models.DB, time.Now().AddDate(1, 0, 0)) // Adding a year so that we cover all transactions
+	assert.Nil(suite.T(), err)
+
+	reconciledOnly, err := account.ReconciledBalance(models.DB, time.Now())
+	assert.Nil(suite.T(), err)
+
 	expected = outgoingTransaction.Amount.Neg().Add(account.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
 	assert.True(suite.T(), balance.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, balance)
+	assert.True(suite.T(), balanceOnly.Equal(expected), "Balance for account is not correct. Should be: %v but is %v", expected, balanceOnly)
 
 	expected = decimal.NewFromFloat(0).Add(account.InitialBalance)
 	assert.True(suite.T(), reconciled.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, reconciled)
+	assert.True(suite.T(), reconciledOnly.Equal(expected), "Reconciled balance for account is not correct. Should be: %v but is %v", expected, reconciledOnly)
 }
 
 func (suite *TestSuiteStandard) TestAccountTransactions() {
