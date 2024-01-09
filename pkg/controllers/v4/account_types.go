@@ -142,6 +142,11 @@ type RecentEnvelope struct {
 	ID   *uuid.UUID `json:"id"`
 }
 
+type AccountComputedRequest struct {
+	Time time.Time `form:"time"` // The time for which the computation is requested
+	IDs  []string  `form:"ids"`  // A list of UUIDs for the accounts
+}
+
 type AccountComputedData struct {
 	ID                uuid.UUID       `json:"id" example:"95018a69-758b-46c6-8bab-db70d9614f9d"` // ID of the account
 	Balance           decimal.Decimal `json:"balance" example:"2735.17"`                         // Balance of the account, including all transactions referencing it

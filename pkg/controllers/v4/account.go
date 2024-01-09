@@ -2,7 +2,6 @@ package v4
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/envelope-zero/backend/v4/pkg/httputil"
@@ -26,7 +25,7 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 		r.OPTIONS("/:id", OptionsAccountDetail)
 		r.GET("/:id", GetAccount)
 		r.GET("/:id/recent-envelopes", GetAccountRecentEnvelopes)
-		r.GET("/data/:time/:ids", GetAccountData)
+		r.GET("/computed", GetAccountData)
 		r.PATCH("/:id", UpdateAccount)
 		r.DELETE("/:id", DeleteAccount)
 	}
@@ -319,24 +318,23 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 // @Failure		400		{object}	AccountComputedDataResponse
 // @Failure		404		{object}	AccountComputedDataResponse
 // @Failure		500		{object}	AccountComputedDataResponse
-// @Param			time	path		string		true	"The time in RFC3339 format"
-// @Param			ids		path		[]string	true	"IDs of the Accounts. Separated by comma"
-// @Router			/v4/accounts/data/{time}/{ids} [get]
+// @Param			request	body		AccountComputedRequest	true	"Time and IDs of requested accounts"
+// @Router			/v4/accounts/computed [get]
 func GetAccountData(c *gin.Context) {
-	var uriTime URITime
-	if err := c.BindUri(&uriTime); err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, AccountComputedDataResponse{
-			Error: &s,
+	var request AccountComputedRequest
+
+	// Bind data and return error if not possible
+	err := httputil.BindData(c, &request)
+	if !err.Nil() {
+		e := err.Error()
+		c.JSON(err.Status, AccountComputedDataResponse{
+			Error: &e,
 		})
 		return
 	}
 
-	ids := strings.Split(c.Param("ids"), ",")
 	data := make([]AccountComputedData, 0)
-
-	for _, idString := range ids {
+	for _, idString := range request.IDs {
 		id, err := httputil.UUIDFromString(idString)
 		if !err.Nil() {
 			s := err.Error()
@@ -356,7 +354,7 @@ func GetAccountData(c *gin.Context) {
 		}
 
 		// Balance
-		balance, dbErr := account.Balance(models.DB, uriTime.Time)
+		balance, dbErr := account.Balance(models.DB, request.Time)
 		if dbErr != nil {
 			e := httperrors.Parse(c, dbErr)
 			s := e.Error()
@@ -367,7 +365,7 @@ func GetAccountData(c *gin.Context) {
 		}
 
 		// Reconciled Balance
-		reconciledBalance, dbErr := account.ReconciledBalance(models.DB, uriTime.Time)
+		reconciledBalance, dbErr := account.ReconciledBalance(models.DB, request.Time)
 		if dbErr != nil {
 			e := httperrors.Parse(c, dbErr)
 			s := e.Error()

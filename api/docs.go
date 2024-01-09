@@ -3141,7 +3141,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v4/accounts/data/{time}/{ids}": {
+        "/v4/accounts/computed": {
             "get": {
                 "description": "Returns calculated data for the account, e.g. balances",
                 "produces": [
@@ -3153,22 +3153,13 @@ const docTemplate = `{
                 "summary": "Get Account data",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "The time in RFC3339 format",
-                        "name": "time",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "IDs of the Accounts. Separated by comma",
-                        "name": "ids",
-                        "in": "path",
-                        "required": true
+                        "description": "Time and IDs of requested accounts",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v4.AccountComputedRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -8044,6 +8035,22 @@ const docTemplate = `{
                     }
                 },
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "v4.AccountComputedRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "description": "A list of UUIDs for the accounts",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "time": {
+                    "description": "The time for which the computation is requested",
                     "type": "string"
                 }
             }

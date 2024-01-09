@@ -1593,6 +1593,17 @@ definitions:
       error:
         type: string
     type: object
+  v4.AccountComputedRequest:
+    properties:
+      ids:
+        description: A list of UUIDs for the accounts
+        items:
+          type: string
+        type: array
+      time:
+        description: The time for which the computation is requested
+        type: string
+    type: object
   v4.AccountCreateResponse:
     properties:
       data:
@@ -5109,23 +5120,16 @@ paths:
       summary: Get recent envelopes
       tags:
       - Accounts
-  /v4/accounts/data/{time}/{ids}:
+  /v4/accounts/computed:
     get:
       description: Returns calculated data for the account, e.g. balances
       parameters:
-      - description: The time in RFC3339 format
-        in: path
-        name: time
+      - description: Time and IDs of requested accounts
+        in: body
+        name: request
         required: true
-        type: string
-      - collectionFormat: csv
-        description: IDs of the Accounts. Separated by comma
-        in: path
-        items:
-          type: string
-        name: ids
-        required: true
-        type: array
+        schema:
+          $ref: '#/definitions/v4.AccountComputedRequest'
       produces:
       - application/json
       responses:
