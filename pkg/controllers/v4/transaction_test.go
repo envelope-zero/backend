@@ -231,6 +231,7 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		{"Before date", fmt.Sprintf("untilDate=%s", time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 1},
 		{"Between two dates", fmt.Sprintf("untilDate=%s&fromDate=%s", time.Date(2019, 8, 17, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano), time.Date(2015, 12, 24, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 2},
 		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 3},
+		{"Budget and Note", fmt.Sprintf("budget=%s&note=Not", b.Data.ID), 1},
 		{"Destination Account", fmt.Sprintf("destination=%s", a2.Data.ID), 2},
 		{"Envelope 2", fmt.Sprintf("envelope=%s", e2.Data.ID), 1},
 		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(2.718).String()), 2},
