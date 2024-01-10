@@ -216,9 +216,9 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	if filter.Note != "" {
-		q = q.Where("note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
+		q = q.Where("transactions.note LIKE ?", fmt.Sprintf("%%%s%%", filter.Note))
 	} else if slices.Contains(setFields, "Note") {
-		q = q.Where("note = ''")
+		q = q.Where("transactions.note = ''")
 	}
 
 	// Set the offset. Does not need checking since the default is 0
