@@ -5,186 +5,6 @@ definitions:
         example: An ID specified in the query string was not a valid UUID
         type: string
     type: object
-  models.Account:
-    properties:
-      archived:
-        type: boolean
-      budget:
-        $ref: '#/definitions/models.Budget'
-      budgetID:
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      external:
-        type: boolean
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      importHash:
-        description: A SHA256 hash of a unique combination of values to use in duplicate
-          detection for imports
-        type: string
-      initialBalance:
-        type: number
-      initialBalanceDate:
-        type: string
-      name:
-        type: string
-      note:
-        type: string
-      onBudget:
-        type: boolean
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  models.Budget:
-    properties:
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      currency:
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      name:
-        type: string
-      note:
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  models.Category:
-    properties:
-      archived:
-        type: boolean
-      budget:
-        $ref: '#/definitions/models.Budget'
-      budgetID:
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      name:
-        type: string
-      note:
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  models.Envelope:
-    properties:
-      archived:
-        type: boolean
-      category:
-        $ref: '#/definitions/models.Category'
-      categoryID:
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      name:
-        type: string
-      note:
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
-  models.Transaction:
-    properties:
-      amount:
-        type: number
-      availableFrom:
-        description: Only used for income transactions. Defaults to the transaction
-          date.
-        type: string
-      budget:
-        $ref: '#/definitions/models.Budget'
-      budgetID:
-        type: string
-      createdAt:
-        description: Time the resource was created
-        example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      date:
-        description: Time of day is currently only used for sorting
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
-      destinationAccount:
-        $ref: '#/definitions/models.Account'
-      destinationAccountID:
-        type: string
-      envelope:
-        $ref: '#/definitions/models.Envelope'
-      envelopeID:
-        type: string
-      id:
-        description: UUID for the resource
-        example: 65392deb-5e92-4268-b114-297faad6cdce
-        type: string
-      importHash:
-        description: The SHA256 hash of a unique combination of values to use in duplicate
-          detection when importing transactions
-        type: string
-      note:
-        type: string
-      reconciledDestination:
-        description: Is the transaction reconciled in the destination account?
-        type: boolean
-      reconciledSource:
-        description: Is the transaction reconciled in the source account?
-        type: boolean
-      sourceAccount:
-        $ref: '#/definitions/models.Account'
-      sourceAccountID:
-        type: string
-      updatedAt:
-        description: Last time the resource was updated
-        example: "2022-04-17T20:14:01.048145Z"
-        type: string
-    type: object
   root.Links:
     properties:
       docs:
@@ -1488,7 +1308,7 @@ definitions:
         example: Employer
         type: string
       transaction:
-        $ref: '#/definitions/models.Transaction'
+        $ref: '#/definitions/v3.Transaction'
     type: object
   v3.TransactionResponse:
     properties:
@@ -2820,7 +2640,7 @@ definitions:
         example: Employer
         type: string
       transaction:
-        $ref: '#/definitions/models.Transaction'
+        $ref: '#/definitions/v4.Transaction'
     type: object
   v4.TransactionResponse:
     properties:

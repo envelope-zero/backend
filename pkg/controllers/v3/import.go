@@ -352,7 +352,7 @@ func ImportYnabImportPreview(c *gin.Context) {
 	// We need to transform the responses for v3
 	data := make([]TransactionPreview, 0, len(transactions))
 	for _, t := range transactions {
-		data = append(data, newTransactionPreview(t))
+		data = append(data, newTransactionPreview(c, t))
 	}
 
 	c.JSON(http.StatusOK, ImportPreviewList{Data: data})
