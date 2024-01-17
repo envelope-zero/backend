@@ -10,6 +10,7 @@ import (
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) createTestBudget(t *testing.T, c v3.BudgetEditable, expectedStatus ...int) v3.BudgetResponse {
@@ -309,9 +310,7 @@ func (suite *TestSuiteStandard) TestBudgetsGetSorted() {
 	var budgets v3.BudgetListResponse
 	test.DecodeResponse(suite.T(), &r, &budgets)
 
-	if !assert.Len(suite.T(), budgets.Data, 4) {
-		assert.FailNow(suite.T(), "Budgets list has wrong length")
-	}
+	require.Len(suite.T(), budgets.Data, 4, "Budgets list has wrong length")
 
 	assert.Equal(suite.T(), b1.Data.Name, budgets.Data[0].Name)
 	assert.Equal(suite.T(), b2.Data.Name, budgets.Data[2].Name)

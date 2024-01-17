@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) TestAccountTrimWhitespace() {
@@ -234,9 +235,7 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 	data := models.Account{OnBudget: true}
 	err := models.DB.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
 
-	if !assert.NotNil(suite.T(), err, "Target account could be updated to be on budget while having transactions with envelopes being set") {
-		assert.FailNow(suite.T(), "Exiting because assertion was not met")
-	}
+	require.NotNil(suite.T(), err, "Target account could be updated to be on budget while having transactions with envelopes being set")
 	assert.Contains(suite.T(), err.Error(), "the account cannot be set to on budget because the following transactions have an envelope set: ")
 
 	// Update the envelope for the transaction
@@ -373,9 +372,7 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 		suite.Assert().FailNow("Could not compute recent envelopes", err)
 	}
 
-	if !suite.Assert().Len(ids, 4, "The number of envelopes in recentEnvelopes is not correct, expected 4, got %d", len(ids)) {
-		suite.FailNow("Incorrect envelope number")
-	}
+	suite.Require().Len(ids, 4, "The number of envelopes in recentEnvelopes is not correct, expected 4, got %d", len(ids), "Incorrect envelope number")
 
 	// The last envelope needs to be the first in the sort since it
 	// has been the most common one
