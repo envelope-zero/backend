@@ -10,6 +10,7 @@ import (
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func createTestEnvelope(t *testing.T, c v4.EnvelopeEditable, expectedStatus ...int) v4.EnvelopeResponse {
@@ -399,9 +400,7 @@ func (suite *TestSuiteStandard) TestEnvelopesGetSorted() {
 	var envelopes v4.EnvelopeListResponse
 	test.DecodeResponse(suite.T(), &r, &envelopes)
 
-	if !assert.Len(suite.T(), envelopes.Data, 4) {
-		assert.FailNow(suite.T(), "Envelope list has wrong length")
-	}
+	require.Len(suite.T(), envelopes.Data, 4, "Envelope list has wrong length")
 
 	assert.Equal(suite.T(), e1.Data.Name, envelopes.Data[0].Name)
 	assert.Equal(suite.T(), e2.Data.Name, envelopes.Data[2].Name)

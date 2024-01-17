@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) createTestAccount(t *testing.T, account models.Account, expectedStatus ...int) v3.AccountResponse {
@@ -449,9 +450,7 @@ func (suite *TestSuiteStandard) TestAccountsGetSorted() {
 	var accounts v3.AccountListResponse
 	test.DecodeResponse(suite.T(), &r, &accounts)
 
-	if !assert.Len(suite.T(), accounts.Data, 4) {
-		assert.FailNow(suite.T(), "Account list has wrong length")
-	}
+	require.Len(suite.T(), accounts.Data, 4, "Account list has wrong length")
 
 	assert.Equal(suite.T(), a1.Data.Name, accounts.Data[0].Name)
 	assert.Equal(suite.T(), a2.Data.Name, accounts.Data[2].Name)

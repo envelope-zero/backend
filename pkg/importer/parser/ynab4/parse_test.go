@@ -169,9 +169,7 @@ func testAccounts(t *testing.T, accounts []models.Account) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			idx := slices.IndexFunc(accounts, func(a models.Account) bool { return a.Name == tt.name })
-			if !assert.NotEqual(t, -1, idx, "No account with expected name") {
-				return
-			}
+			require.NotEqual(t, -1, idx, "No account with expected name")
 
 			a := accounts[idx]
 			assert.True(t, a.InitialBalance.Equal(decimal.NewFromFloat32(tt.initialBalance)), "Initial balance does not match, is %s, expected %f", a.InitialBalance, tt.initialBalance)
@@ -210,15 +208,11 @@ func testMatchRules(t *testing.T, matchRules []models.MatchRule, accounts []mode
 		t.Run(tt.match, func(t *testing.T) {
 			// Find Account
 			aIdx := slices.IndexFunc(accounts, func(a models.Account) bool { return a.Name == tt.account })
-			if !assert.NotEqual(t, -1, aIdx, "No Account with the name the Match Rule is targeting") {
-				return
-			}
+			require.NotEqual(t, -1, aIdx, "No Account with the name the Match Rule is targeting")
 
 			// Find Match Rule
 			mIdx := slices.IndexFunc(matchRules, func(m models.MatchRule) bool { return m.Match == tt.match })
-			if !assert.NotEqual(t, -1, mIdx, "No Match Rule with the match we are looking for") {
-				return
-			}
+			require.NotEqual(t, -1, mIdx, "No Match Rule with the match we are looking for")
 
 			a := accounts[aIdx]
 			m := matchRules[mIdx]
@@ -246,9 +240,7 @@ func testCategories(t *testing.T, categories []models.Category) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			idx := slices.IndexFunc(categories, func(c models.Category) bool { return c.Name == tt.name })
-			if !assert.NotEqual(t, -1, idx, "No category with expected name") {
-				return
-			}
+			require.NotEqual(t, -1, idx, "No category with expected name")
 
 			assert.Equal(t, tt.archived, categories[idx].Archived)
 			assert.Equal(t, tt.note, categories[idx].Note)
@@ -283,14 +275,10 @@ func testEnvelopes(t *testing.T, categories []models.Category, envelopes []model
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%s: %s", tt.category, tt.name), func(t *testing.T) {
 			idx := slices.IndexFunc(categories, func(c models.Category) bool { return c.Name == tt.category })
-			if !assert.NotEqual(t, -1, idx, "No category with expected name for this envelope") {
-				return
-			}
+			require.NotEqual(t, -1, idx, "No category with expected name for this envelope")
 
 			idx = slices.IndexFunc(envelopes, func(e models.Envelope) bool { return e.Name == tt.name && e.CategoryID == categories[idx].ID })
-			if !assert.NotEqual(t, -1, idx, "No envelope with expected name and category") {
-				return
-			}
+			require.NotEqual(t, -1, idx, "No envelope with expected name and category")
 			e := envelopes[idx]
 
 			assert.Equal(t, tt.note, e.Note, "Note differs, is '%s', should be '%s'", e.Note, tt.note)
@@ -344,35 +332,27 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 		t.Run(fmt.Sprintf("%s: %s -> %s - %s", tt.date, tt.sourceAccount, tt.destinationAccount, tt.note), func(t *testing.T) {
 			// Get transaction
 			idx := slices.IndexFunc(transactions, func(t models.Transaction) bool { return t.Date == tt.date && t.Note == tt.note })
-			if !assert.NotEqual(t, -1, idx, "No transaction at expected date with expected note") {
-				return
-			}
+			require.NotEqual(t, -1, idx, "No transaction at expected date with expected note")
 			tr := transactions[idx]
 
 			// Get source account
 			idx = slices.IndexFunc(accounts, func(a models.Account) bool {
 				return a.Name == tt.sourceAccount && a.External == tt.sourceAccountExternal
 			})
-			if !assert.NotEqual(t, -1, idx, "Source account not found in account list") {
-				return
-			}
+			require.NotEqual(t, -1, idx, "Source account not found in account list")
 			source := accounts[idx]
 
 			// Get destination account
 			idx = slices.IndexFunc(accounts, func(a models.Account) bool {
 				return a.Name == tt.destinationAccount && a.External == tt.destinationAccountExternal
 			})
-			if !assert.NotEqual(t, -1, idx, "Destination account not found in account list") {
-				return
-			}
+			require.NotEqual(t, -1, idx, "Destination account not found in account list")
 			destination := accounts[idx]
 
 			// Get envelope, only if set
 			if tt.envelope != "" {
 				idx = slices.IndexFunc(envelopes, func(e models.Envelope) bool { return e.Name == tt.envelope })
-				if !assert.NotEqual(t, -1, idx, "Envelope not found in envelope list") {
-					return
-				}
+				require.NotEqual(t, -1, idx, "Envelope not found in envelope list")
 				envelope := envelopes[idx]
 				assert.Equal(t, &envelope.ID, tr.EnvelopeID, "Envelope ID is not correct, is %s, should be %s", tr.EnvelopeID, &envelope.ID)
 			}

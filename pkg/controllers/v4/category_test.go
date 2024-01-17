@@ -10,6 +10,7 @@ import (
 	"github.com/envelope-zero/backend/v4/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func createTestCategory(t *testing.T, c v4.CategoryEditable, expectedStatus ...int) v4.CategoryResponse {
@@ -406,9 +407,7 @@ func (suite *TestSuiteStandard) TestCategoriesGetSorted() {
 	var categories v4.CategoryListResponse
 	test.DecodeResponse(suite.T(), &r, &categories)
 
-	if !assert.Len(suite.T(), categories.Data, 4) {
-		assert.FailNow(suite.T(), "Category list has wrong length")
-	}
+	require.Len(suite.T(), categories.Data, 4, "Category list has wrong length")
 
 	assert.Equal(suite.T(), c1.Data.Name, categories.Data[0].Name)
 	assert.Equal(suite.T(), c2.Data.Name, categories.Data[2].Name)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/envelope-zero/backend/v4/pkg/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestParse verifies that parsing is correct for valid files.
@@ -76,8 +77,7 @@ func TestErrors(t *testing.T) {
 		}
 
 		_, err = Parse(f, models.Account{})
-		if assert.NotNil(t, err, "No parsing error where an error is expected for file %s", tt.file) {
-			assert.Contains(t, err.Error(), tt.message, "Error message for file %s does not contain expected content", tt.file)
-		}
+		require.NotNil(t, err, "No parsing error where an error is expected for file %s", tt.file)
+		assert.Contains(t, err.Error(), tt.message, "Error message for file %s does not contain expected content", tt.file)
 	}
 }

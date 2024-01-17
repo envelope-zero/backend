@@ -54,9 +54,7 @@ func (suite *TestSuiteStandard) TestMonthsGetNotNil() {
 	r := test.Request(suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", 1), "")
 	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
 	test.DecodeResponse(suite.T(), &r, &month)
-	if !suite.Assert().NotNil(month.Data.Categories) {
-		suite.Assert().FailNow("Categories field is nil, cannot continue")
-	}
+	suite.Require().NotNil(month.Data.Categories, "Categories field is nil, cannot continue")
 	suite.Assert().Empty(month.Data.Categories)
 
 	// Verify that the envelopes list is empty, not nil
@@ -503,13 +501,8 @@ func (suite *TestSuiteStandard) TestMonths() {
 			// Verify month spent calculation
 			assert.True(t, month.Spent.Equal(tt.result.Spent), "Month spent is wrong. Should be %v, but is %v: %#v", tt.result.Spent, month.Spent, month)
 
-			if !suite.Assert().Len(month.Categories, 1) {
-				suite.Assert().FailNow("Response category length does not match!", "Category list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Categories))
-			}
-
-			if !suite.Assert().Len(month.Categories[0].Envelopes, 1) {
-				suite.Assert().FailNow("Response envelope length does not match!", "Envelope list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Categories[0].Envelopes))
-			}
+			suite.Require().Len(month.Categories, 1, "Response category length does not match!", "Category list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Categories))
+			suite.Require().Len(month.Categories[0].Envelopes, 1, "Response envelope length does not match!", "Envelope list does not have exactly 1 item, it has %d, Request ID: %s", len(month.Categories[0].Envelopes))
 
 			// Verify the links are set correctly
 			assert.Equal(t, envelope.Data.Links.Month, month.Categories[0].Envelopes[0].Links.Month)
