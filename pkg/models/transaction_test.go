@@ -29,45 +29,24 @@ func (suite *TestSuiteStandard) TestTransactionTrimWhitespace() {
 	assert.Equal(suite.T(), strings.TrimSpace(importHash), transaction.ImportHash)
 }
 
-func (suite *TestSuiteStandard) TestTransactionFindTimeUTC() {
-	tz, _ := time.LoadLocation("Europe/Berlin")
-
-	transaction := models.Transaction{
-		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
-	}
-
-	err := transaction.AfterFind(models.DB)
-	if err != nil {
-		assert.Fail(suite.T(), "transaction.AfterFind failed", err)
-	}
-
-	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
-}
-
-func (suite *TestSuiteStandard) TestTransactionSaveTimeUTC() {
+func (suite *TestSuiteStandard) TestTransactionSaveTime() {
 	budget := suite.createTestBudget(models.Budget{})
 	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
 	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
 
-	tz, _ := time.LoadLocation("Europe/Berlin")
+	now := time.Now()
 
-	transaction := models.Transaction{SourceAccountID: internalAccount.ID, DestinationAccountID: externalAccount.ID}
+	transaction := models.Transaction{
+		SourceAccountID:      internalAccount.ID,
+		DestinationAccountID: externalAccount.ID,
+		Date:                 now.In(time.UTC),
+	}
 	err := transaction.BeforeSave(models.DB)
 	if err != nil {
 		assert.Fail(suite.T(), "transaction.BeforeSave failed", err)
 	}
 
-	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
-
-	transaction = models.Transaction{
-		Date: time.Date(2000, 1, 2, 3, 4, 5, 6, tz),
-	}
-	err = transaction.BeforeSave(models.DB)
-	if err != nil {
-		assert.Fail(suite.T(), "transaction.BeforeSave failed", err)
-	}
-
-	assert.Equal(suite.T(), time.UTC, transaction.Date.Location(), "Timezone for model is not UTC")
+	assert.True(suite.T(), transaction.Date.Equal(now), "Transaction Date not correct!")
 }
 
 // TestTransactionReconciled verifies that the Transaction.BeforeSave method

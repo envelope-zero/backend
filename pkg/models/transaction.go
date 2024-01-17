@@ -35,24 +35,7 @@ func (t Transaction) Self() string {
 	return "Transaction"
 }
 
-// AfterFind updates the timestamps to use UTC as
-// timezone, not +0000. Yes, this is different.
-//
-// We already store them in UTC, but somehow reading
-// them from the database returns them as +0000.
-func (t *Transaction) AfterFind(tx *gorm.DB) (err error) {
-	err = t.DefaultModel.AfterFind(tx)
-	if err != nil {
-		return err
-	}
-
-	// Enforce dates to be in UTC
-	t.Date = t.Date.In(time.UTC)
-	return
-}
-
 // BeforeSave
-//   - sets the timezone for the Date for UTC
 //   - ensures that ReconciledSource and ReconciledDestination are set to valid values
 //   - trims whitespace from string fields
 func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
@@ -66,9 +49,7 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 	}
 
 	if t.Date.IsZero() {
-		t.Date = time.Now().In(time.UTC)
-	} else {
-		t.Date = t.Date.In(time.UTC)
+		t.Date = time.Now()
 	}
 
 	// Default the AvailableForBudget date to the transaction date
