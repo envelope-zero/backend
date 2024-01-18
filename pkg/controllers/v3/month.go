@@ -64,6 +64,7 @@ func RegisterMonthRoutes(r *gin.RouterGroup) {
 // @Tags			Months
 // @Success		204
 // @Router			/v3/months [options]
+// @Deprecated		true
 func OptionsMonth(c *gin.Context) {
 	httputil.OptionsGetPostDelete(c)
 }
@@ -79,6 +80,7 @@ func OptionsMonth(c *gin.Context) {
 // @Param			budget	query		string	true	"ID formatted as string"
 // @Param			month	query		string	true	"The month in YYYY-MM format"
 // @Router			/v3/months [get]
+// @Deprecated		true
 func GetMonth(c *gin.Context) {
 	qMonth, b, e := parseMonthQuery(c)
 	if !e.Nil() {
@@ -244,6 +246,7 @@ func GetMonth(c *gin.Context) {
 // @Param			budget	query		string	true	"ID formatted as string"
 // @Param			month	query		string	true	"The month in YYYY-MM format"
 // @Router			/v3/months [delete]
+// @Deprecated		true
 func DeleteAllocations(c *gin.Context) {
 	month, budget, err := parseMonthQuery(c)
 	if !err.Nil() {
@@ -296,6 +299,7 @@ func DeleteAllocations(c *gin.Context) {
 // @Param			month	query		string					true	"The month in YYYY-MM format"
 // @Param			mode	body		BudgetAllocationMode	true	"Budget"
 // @Router			/v3/months [post]
+// @Deprecated		true
 func SetAllocations(c *gin.Context) {
 	month, _, err := parseMonthQuery(c)
 	if !err.Nil() {

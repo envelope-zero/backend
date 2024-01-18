@@ -40,6 +40,7 @@ func RegisterTransactionRoutes(r *gin.RouterGroup) {
 // @Tags			Transactions
 // @Success		204
 // @Router			/v3/transactions [options]
+// @Deprecated		true
 func OptionsTransactions(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -53,6 +54,7 @@ func OptionsTransactions(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/transactions/{id} [options]
+// @Deprecated		true
 func OptionsTransactionDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -84,6 +86,7 @@ func OptionsTransactionDetail(c *gin.Context) {
 // @Failure		500	{object}	TransactionResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/transactions/{id} [get]
+// @Deprecated		true
 func GetTransaction(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -132,6 +135,7 @@ func GetTransaction(c *gin.Context) {
 // @Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
 // @Param			offset					query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
 // @Param			limit					query	int		false	"Maximum number of Transactions to return. Defaults to 50."
+// @Deprecated		true
 func GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -259,6 +263,7 @@ func GetTransactions(c *gin.Context) {
 // @Failure		500				{object}	TransactionCreateResponse
 // @Param			transactions	body		[]TransactionEditable	true	"Transactions"
 // @Router			/v3/transactions [post]
+// @Deprecated		true
 func CreateTransactions(c *gin.Context) {
 	var editables []TransactionEditable
 
@@ -306,6 +311,7 @@ func CreateTransactions(c *gin.Context) {
 // @Param			id			path		string				true	"ID formatted as string"
 // @Param			transaction	body		TransactionEditable	true	"Transaction"
 // @Router			/v3/transactions/{id} [patch]
+// @Deprecated		true
 func UpdateTransaction(c *gin.Context) {
 	// Get the resource ID
 	id, err := httputil.UUIDFromString(c.Param("id"))
@@ -414,6 +420,7 @@ func UpdateTransaction(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/transactions/{id} [delete]
+// @Deprecated		true
 func DeleteTransaction(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

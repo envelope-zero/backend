@@ -190,6 +190,7 @@ func RegisterImportRoutes(r *gin.RouterGroup) {
 // @Tags			Import
 // @Success		204
 // @Router			/v3/import [options]
+// @Deprecated		true
 func OptionsImport(c *gin.Context) {
 	httputil.OptionsGet(c)
 }
@@ -208,6 +209,7 @@ type ImportLinks struct {
 // @Tags			Import
 // @Success		200	{object}	ImportResponse
 // @Router			/v3/import [get]
+// @Deprecated		true
 func GetImport(c *gin.Context) {
 	c.JSON(http.StatusOK, ImportResponse{
 		Links: ImportLinks{
@@ -222,6 +224,7 @@ func GetImport(c *gin.Context) {
 // @Tags			Import
 // @Success		204
 // @Router			/v3/import/ynab4 [options]
+// @Deprecated		true
 func OptionsImportYnab4(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
@@ -231,6 +234,7 @@ func OptionsImportYnab4(c *gin.Context) {
 // @Tags			Import
 // @Success		204
 // @Router			/v3/import/ynab-import-preview [options]
+// @Deprecated		true
 func OptionsImportYnabImportPreview(c *gin.Context) {
 	httputil.OptionsPost(c)
 }
@@ -247,6 +251,7 @@ func OptionsImportYnabImportPreview(c *gin.Context) {
 // @Param			file		formData	file	true	"File to import"
 // @Param			accountId	query		string	false	"ID of the account to import transactions for"
 // @Router			/v3/import/ynab-import-preview [post]
+// @Deprecated		true
 func ImportYnabImportPreview(c *gin.Context) {
 	var query ImportPreviewQuery
 	err := c.BindQuery(&query)
@@ -369,6 +374,7 @@ func ImportYnabImportPreview(c *gin.Context) {
 // @Param			file		formData	file	true	"File to import"
 // @Param			budgetName	query		string	false	"Name of the Budget to create"
 // @Router			/v3/import/ynab4 [post]
+// @Deprecated		true
 func ImportYnab4(c *gin.Context) {
 	var query ImportQuery
 	if err := c.BindQuery(&query); err != nil {

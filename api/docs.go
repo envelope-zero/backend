@@ -86,6 +86,7 @@ const docTemplate = `{
                     "v3"
                 ],
                 "summary": "v3 API",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -101,6 +102,7 @@ const docTemplate = `{
                     "v3"
                 ],
                 "summary": "Delete everything",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -133,6 +135,7 @@ const docTemplate = `{
                     "v3"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -150,6 +153,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "List accounts",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -236,6 +240,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "Creates accounts",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Accounts",
@@ -283,6 +288,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -300,6 +306,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "Get account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -345,6 +352,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "Delete account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -384,6 +392,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -426,6 +435,7 @@ const docTemplate = `{
                     "Accounts"
                 ],
                 "summary": "Update account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -482,6 +492,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "List budgets",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -547,6 +558,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Create budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Budget",
@@ -588,6 +600,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -605,6 +618,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Get budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -647,6 +661,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Delete budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -686,6 +701,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -731,6 +747,7 @@ const docTemplate = `{
                     "Budgets"
                 ],
                 "summary": "Update budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -787,6 +804,7 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Get categories",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -861,6 +879,7 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Create category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Categories",
@@ -908,6 +927,7 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -925,6 +945,7 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Get category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -967,6 +988,7 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Delete category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1006,6 +1028,7 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1051,6 +1074,7 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Update category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1107,6 +1131,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Get envelopes",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1181,6 +1206,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Create envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Envelopes",
@@ -1228,6 +1254,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1245,6 +1272,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Get Envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1287,6 +1315,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Delete envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1326,6 +1355,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1371,6 +1401,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Update envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1427,6 +1458,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Get MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1476,6 +1508,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1513,6 +1546,7 @@ const docTemplate = `{
                     "Envelopes"
                 ],
                 "summary": "Update MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1576,6 +1610,7 @@ const docTemplate = `{
                     "Goals"
                 ],
                 "summary": "Get goals",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1686,6 +1721,7 @@ const docTemplate = `{
                     "Goals"
                 ],
                 "summary": "Create goals",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Goals",
@@ -1733,6 +1769,7 @@ const docTemplate = `{
                     "Goals"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1750,6 +1787,7 @@ const docTemplate = `{
                     "Goals"
                 ],
                 "summary": "Get goal",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1792,6 +1830,7 @@ const docTemplate = `{
                     "Goals"
                 ],
                 "summary": "Delete goal",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1831,6 +1870,7 @@ const docTemplate = `{
                     "Goals"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1876,6 +1916,7 @@ const docTemplate = `{
                     "Goals"
                 ],
                 "summary": "Update goal",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1929,6 +1970,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Import API overview",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1944,6 +1986,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1964,6 +2007,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Transaction Import Preview",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "file",
@@ -2012,6 +2056,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2032,6 +2077,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Import YNAB 4 budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "file",
@@ -2074,6 +2120,7 @@ const docTemplate = `{
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2091,6 +2138,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Get matchRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -2153,6 +2201,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Create matchRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "MatchRules",
@@ -2200,6 +2249,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2217,6 +2267,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Get matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2259,6 +2310,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Delete matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2298,6 +2350,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2343,6 +2396,7 @@ const docTemplate = `{
                     "MatchRules"
                 ],
                 "summary": "Update matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2399,6 +2453,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Get data about a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2448,6 +2503,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Set allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2503,6 +2559,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Delete allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2549,6 +2606,7 @@ const docTemplate = `{
                     "Months"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2566,6 +2624,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Get transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2694,6 +2753,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Create transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Transactions",
@@ -2741,6 +2801,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2758,6 +2819,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Get transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2800,6 +2862,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Delete transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2839,6 +2902,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2884,6 +2948,7 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Update transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",

@@ -75,6 +75,7 @@
                     "v3"
                 ],
                 "summary": "v3 API",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -90,6 +91,7 @@
                     "v3"
                 ],
                 "summary": "Delete everything",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -122,6 +124,7 @@
                     "v3"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -139,6 +142,7 @@
                     "Accounts"
                 ],
                 "summary": "List accounts",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -225,6 +229,7 @@
                     "Accounts"
                 ],
                 "summary": "Creates accounts",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Accounts",
@@ -272,6 +277,7 @@
                     "Accounts"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -289,6 +295,7 @@
                     "Accounts"
                 ],
                 "summary": "Get account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -334,6 +341,7 @@
                     "Accounts"
                 ],
                 "summary": "Delete account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -373,6 +381,7 @@
                     "Accounts"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -415,6 +424,7 @@
                     "Accounts"
                 ],
                 "summary": "Update account",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -471,6 +481,7 @@
                     "Budgets"
                 ],
                 "summary": "List budgets",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -536,6 +547,7 @@
                     "Budgets"
                 ],
                 "summary": "Create budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Budget",
@@ -577,6 +589,7 @@
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -594,6 +607,7 @@
                     "Budgets"
                 ],
                 "summary": "Get budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -636,6 +650,7 @@
                     "Budgets"
                 ],
                 "summary": "Delete budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -675,6 +690,7 @@
                     "Budgets"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -720,6 +736,7 @@
                     "Budgets"
                 ],
                 "summary": "Update budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -776,6 +793,7 @@
                     "Categories"
                 ],
                 "summary": "Get categories",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -850,6 +868,7 @@
                     "Categories"
                 ],
                 "summary": "Create category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Categories",
@@ -897,6 +916,7 @@
                     "Categories"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -914,6 +934,7 @@
                     "Categories"
                 ],
                 "summary": "Get category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -956,6 +977,7 @@
                     "Categories"
                 ],
                 "summary": "Delete category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -995,6 +1017,7 @@
                     "Categories"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1040,6 +1063,7 @@
                     "Categories"
                 ],
                 "summary": "Update category",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1096,6 +1120,7 @@
                     "Envelopes"
                 ],
                 "summary": "Get envelopes",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1170,6 +1195,7 @@
                     "Envelopes"
                 ],
                 "summary": "Create envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Envelopes",
@@ -1217,6 +1243,7 @@
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1234,6 +1261,7 @@
                     "Envelopes"
                 ],
                 "summary": "Get Envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1276,6 +1304,7 @@
                     "Envelopes"
                 ],
                 "summary": "Delete envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1315,6 +1344,7 @@
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1360,6 +1390,7 @@
                     "Envelopes"
                 ],
                 "summary": "Update envelope",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1416,6 +1447,7 @@
                     "Envelopes"
                 ],
                 "summary": "Get MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1465,6 +1497,7 @@
                     "Envelopes"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1502,6 +1535,7 @@
                     "Envelopes"
                 ],
                 "summary": "Update MonthConfig",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1565,6 +1599,7 @@
                     "Goals"
                 ],
                 "summary": "Get goals",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1675,6 +1710,7 @@
                     "Goals"
                 ],
                 "summary": "Create goals",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Goals",
@@ -1722,6 +1758,7 @@
                     "Goals"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1739,6 +1776,7 @@
                     "Goals"
                 ],
                 "summary": "Get goal",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1781,6 +1819,7 @@
                     "Goals"
                 ],
                 "summary": "Delete goal",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1820,6 +1859,7 @@
                     "Goals"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1865,6 +1905,7 @@
                     "Goals"
                 ],
                 "summary": "Update goal",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -1918,6 +1959,7 @@
                     "Import"
                 ],
                 "summary": "Import API overview",
+                "deprecated": true,
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1933,6 +1975,7 @@
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -1953,6 +1996,7 @@
                     "Import"
                 ],
                 "summary": "Transaction Import Preview",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "file",
@@ -2001,6 +2045,7 @@
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2021,6 +2066,7 @@
                     "Import"
                 ],
                 "summary": "Import YNAB 4 budget",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "file",
@@ -2063,6 +2109,7 @@
                     "Import"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2080,6 +2127,7 @@
                     "MatchRules"
                 ],
                 "summary": "Get matchRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -2142,6 +2190,7 @@
                     "MatchRules"
                 ],
                 "summary": "Create matchRules",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "MatchRules",
@@ -2189,6 +2238,7 @@
                     "MatchRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2206,6 +2256,7 @@
                     "MatchRules"
                 ],
                 "summary": "Get matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2248,6 +2299,7 @@
                     "MatchRules"
                 ],
                 "summary": "Delete matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2287,6 +2339,7 @@
                     "MatchRules"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2332,6 +2385,7 @@
                     "MatchRules"
                 ],
                 "summary": "Update matchRule",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2388,6 +2442,7 @@
                     "Months"
                 ],
                 "summary": "Get data about a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2437,6 +2492,7 @@
                     "Months"
                 ],
                 "summary": "Set allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2492,6 +2548,7 @@
                     "Months"
                 ],
                 "summary": "Delete allocations for a month",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2538,6 +2595,7 @@
                     "Months"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2555,6 +2613,7 @@
                     "Transactions"
                 ],
                 "summary": "Get transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2683,6 +2742,7 @@
                     "Transactions"
                 ],
                 "summary": "Create transactions",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Transactions",
@@ -2730,6 +2790,7 @@
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2747,6 +2808,7 @@
                     "Transactions"
                 ],
                 "summary": "Get transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2789,6 +2851,7 @@
                     "Transactions"
                 ],
                 "summary": "Delete transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2828,6 +2891,7 @@
                     "Transactions"
                 ],
                 "summary": "Allowed HTTP verbs",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -2873,6 +2937,7 @@
                     "Transactions"
                 ],
                 "summary": "Update transaction",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",

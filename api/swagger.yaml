@@ -2716,6 +2716,7 @@ paths:
       - General
   /v3:
     delete:
+      deprecated: true
       description: Permanently deletes all resources
       parameters:
       - description: Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'
@@ -2737,6 +2738,7 @@ paths:
       tags:
       - v3
     get:
+      deprecated: true
       description: Returns general information about the v3 API
       responses:
         "200":
@@ -2747,6 +2749,7 @@ paths:
       tags:
       - v3
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -2757,6 +2760,7 @@ paths:
       - v3
   /v3/accounts:
     get:
+      deprecated: true
       description: Returns a list of accounts
       parameters:
       - description: Filter by name
@@ -2814,6 +2818,7 @@ paths:
       tags:
       - Accounts
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -2823,6 +2828,7 @@ paths:
       tags:
       - Accounts
     post:
+      deprecated: true
       description: Creates new accounts
       parameters:
       - description: Accounts
@@ -2857,6 +2863,7 @@ paths:
       - Accounts
   /v3/accounts/{id}:
     delete:
+      deprecated: true
       description: Deletes an account
       parameters:
       - description: ID formatted as string
@@ -2885,6 +2892,7 @@ paths:
       tags:
       - Accounts
     get:
+      deprecated: true
       description: Returns a specific account
       parameters:
       - description: ID formatted as string
@@ -2915,6 +2923,7 @@ paths:
       tags:
       - Accounts
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -2942,6 +2951,7 @@ paths:
       tags:
       - Accounts
     patch:
+      deprecated: true
       description: Updates an account. Only values to be updated need to be specified.
       parameters:
       - description: ID formatted as string
@@ -2979,6 +2989,7 @@ paths:
       - Accounts
   /v3/budgets:
     get:
+      deprecated: true
       description: Returns a list of budgets
       parameters:
       - description: Filter by name
@@ -3020,6 +3031,7 @@ paths:
       tags:
       - Budgets
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3031,6 +3043,7 @@ paths:
     post:
       consumes:
       - application/json
+      deprecated: true
       description: Creates a new budget
       parameters:
       - description: Budget
@@ -3061,6 +3074,7 @@ paths:
       - Budgets
   /v3/budgets/{id}:
     delete:
+      deprecated: true
       description: Deletes a budget
       parameters:
       - description: ID formatted as string
@@ -3087,6 +3101,7 @@ paths:
       tags:
       - Budgets
     get:
+      deprecated: true
       description: Returns a specific budget
       parameters:
       - description: ID formatted as string
@@ -3117,6 +3132,7 @@ paths:
       tags:
       - Budgets
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3146,6 +3162,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update an existing budget. Only values to be updated need to be
         specified.
       parameters:
@@ -3184,6 +3201,7 @@ paths:
       - Budgets
   /v3/categories:
     get:
+      deprecated: true
       description: Returns a list of categories
       parameters:
       - description: Filter by name
@@ -3233,6 +3251,7 @@ paths:
       tags:
       - Categories
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3242,6 +3261,7 @@ paths:
       tags:
       - Categories
     post:
+      deprecated: true
       description: Creates a new category
       parameters:
       - description: Categories
@@ -3276,6 +3296,7 @@ paths:
       - Categories
   /v3/categories/{id}:
     delete:
+      deprecated: true
       description: Deletes a category
       parameters:
       - description: ID formatted as string
@@ -3302,6 +3323,7 @@ paths:
       tags:
       - Categories
     get:
+      deprecated: true
       description: Returns a specific category
       parameters:
       - description: ID formatted as string
@@ -3332,6 +3354,7 @@ paths:
       tags:
       - Categories
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3361,6 +3384,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update an existing category. Only values to be updated need to
         be specified.
       parameters:
@@ -3399,6 +3423,7 @@ paths:
       - Categories
   /v3/envelopes:
     get:
+      deprecated: true
       description: Returns a list of envelopes
       parameters:
       - description: Filter by name
@@ -3448,6 +3473,7 @@ paths:
       tags:
       - Envelopes
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3457,6 +3483,7 @@ paths:
       tags:
       - Envelopes
     post:
+      deprecated: true
       description: Creates a new envelope
       parameters:
       - description: Envelopes
@@ -3491,6 +3518,7 @@ paths:
       - Envelopes
   /v3/envelopes/{id}:
     delete:
+      deprecated: true
       description: Deletes an envelope
       parameters:
       - description: ID formatted as string
@@ -3517,6 +3545,7 @@ paths:
       tags:
       - Envelopes
     get:
+      deprecated: true
       description: Returns a specific Envelope
       parameters:
       - description: ID formatted as string
@@ -3547,6 +3576,7 @@ paths:
       tags:
       - Envelopes
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3576,6 +3606,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Updates an existing envelope. Only values to be updated need to
         be specified.
       parameters:
@@ -3614,6 +3645,7 @@ paths:
       - Envelopes
   /v3/envelopes/{id}/{month}:
     get:
+      deprecated: true
       description: Returns configuration for a specific month
       parameters:
       - description: ID of the Envelope
@@ -3649,6 +3681,7 @@ paths:
       tags:
       - Envelopes
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3673,6 +3706,7 @@ paths:
       tags:
       - Envelopes
     patch:
+      deprecated: true
       description: Changes configuration for a Month. If there is no configuration
         for the month yet, this endpoint transparently creates a configuration resource.
       parameters:
@@ -3716,6 +3750,7 @@ paths:
       - Envelopes
   /v3/goals:
     get:
+      deprecated: true
       description: Returns a list of goals
       parameters:
       - description: Filter by name
@@ -3792,6 +3827,7 @@ paths:
       tags:
       - Goals
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3801,6 +3837,7 @@ paths:
       tags:
       - Goals
     post:
+      deprecated: true
       description: Creates new goals
       parameters:
       - description: Goals
@@ -3835,6 +3872,7 @@ paths:
       - Goals
   /v3/goals/{id}:
     delete:
+      deprecated: true
       description: Deletes a goal
       parameters:
       - description: ID formatted as string
@@ -3861,6 +3899,7 @@ paths:
       tags:
       - Goals
     get:
+      deprecated: true
       description: Returns a specific goal
       parameters:
       - description: ID formatted as string
@@ -3891,6 +3930,7 @@ paths:
       tags:
       - Goals
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -3920,6 +3960,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Updates an existing goal. Only values to be updated need to be
         specified.
       parameters:
@@ -3958,6 +3999,7 @@ paths:
       - Goals
   /v3/import:
     get:
+      deprecated: true
       description: Returns general information about the v3 API
       responses:
         "200":
@@ -3968,6 +4010,7 @@ paths:
       tags:
       - Import
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs.
       responses:
@@ -3978,6 +4021,7 @@ paths:
       - Import
   /v3/import/ynab-import-preview:
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -3989,6 +4033,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Returns a preview of transactions to be imported after parsing
         a YNAB Import format csv file
       parameters:
@@ -4025,6 +4070,7 @@ paths:
       - Import
   /v3/import/ynab4:
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -4036,6 +4082,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Imports budgets from YNAB 4
       parameters:
       - description: File to import
@@ -4067,6 +4114,7 @@ paths:
       - Import
   /v3/match-rules:
     get:
+      deprecated: true
       description: Returns a list of matchRules
       parameters:
       - description: Filter by priority
@@ -4108,6 +4156,7 @@ paths:
       tags:
       - MatchRules
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -4117,6 +4166,7 @@ paths:
       tags:
       - MatchRules
     post:
+      deprecated: true
       description: Creates matchRules from the list of submitted matchRule data. The
         response code is the highest response code number that a single matchRule
         creation would have caused. If it is not equal to 201, at least one matchRule
@@ -4154,6 +4204,7 @@ paths:
       - MatchRules
   /v3/match-rules/{id}:
     delete:
+      deprecated: true
       description: Deletes an matchRule
       parameters:
       - description: ID formatted as string
@@ -4180,6 +4231,7 @@ paths:
       tags:
       - MatchRules
     get:
+      deprecated: true
       description: Returns a specific matchRule
       parameters:
       - description: ID formatted as string
@@ -4210,6 +4262,7 @@ paths:
       tags:
       - MatchRules
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -4239,6 +4292,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Update a matchRule. Only values to be updated need to be specified.
       parameters:
       - description: ID formatted as string
@@ -4276,6 +4330,7 @@ paths:
       - MatchRules
   /v3/months:
     delete:
+      deprecated: true
       description: Deletes all allocation for the specified month
       parameters:
       - description: ID formatted as string
@@ -4307,6 +4362,7 @@ paths:
       tags:
       - Months
     get:
+      deprecated: true
       description: Returns data about a specific month.
       parameters:
       - description: ID formatted as string
@@ -4342,6 +4398,7 @@ paths:
       tags:
       - Months
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs.
       responses:
@@ -4351,6 +4408,7 @@ paths:
       tags:
       - Months
     post:
+      deprecated: true
       description: Sets allocations for a month for all envelopes that do not have
         an allocation yet
       parameters:
@@ -4390,6 +4448,7 @@ paths:
       - Months
   /v3/transactions:
     get:
+      deprecated: true
       description: Returns a list of transactions
       parameters:
       - description: Date of the transaction. Ignores exact time, matches on the day
@@ -4479,6 +4538,7 @@ paths:
       tags:
       - Transactions
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       responses:
@@ -4488,6 +4548,7 @@ paths:
       tags:
       - Transactions
     post:
+      deprecated: true
       description: Creates transactions from the list of submitted transaction data.
         The response code is the highest response code number that a single transaction
         creation would have caused. If it is not equal to 201, at least one transaction
@@ -4525,6 +4586,7 @@ paths:
       - Transactions
   /v3/transactions/{id}:
     delete:
+      deprecated: true
       description: Deletes a transaction
       parameters:
       - description: ID formatted as string
@@ -4551,6 +4613,7 @@ paths:
       tags:
       - Transactions
     get:
+      deprecated: true
       description: Returns a specific transaction
       parameters:
       - description: ID formatted as string
@@ -4581,6 +4644,7 @@ paths:
       tags:
       - Transactions
     options:
+      deprecated: true
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
@@ -4610,6 +4674,7 @@ paths:
     patch:
       consumes:
       - application/json
+      deprecated: true
       description: Updates an existing transaction. Only values to be updated need
         to be specified.
       parameters:
