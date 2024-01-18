@@ -27,6 +27,7 @@ func RegisterMonthConfigRoutes(r *gin.RouterGroup) {
 // @Param			id		path		string	true	"ID of the Envelope"
 // @Param			month	path		string	true	"The month in YYYY-MM format"
 // @Router			/v3/envelopes/{id}/{month} [options]
+// @Deprecated		true
 func OptionsMonthConfigDetail(c *gin.Context) {
 	_, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -59,6 +60,7 @@ func OptionsMonthConfigDetail(c *gin.Context) {
 // @Param			id		path		string	true	"ID of the Envelope"
 // @Param			month	path		string	true	"The month in YYYY-MM format"
 // @Router			/v3/envelopes/{id}/{month} [get]
+// @Deprecated		true
 func GetMonthConfig(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -123,6 +125,7 @@ func GetMonthConfig(c *gin.Context) {
 // @Param			month		path		string				true	"The month in YYYY-MM format"
 // @Param			monthConfig	body		MonthConfigEditable	true	"MonthConfig"
 // @Router			/v3/envelopes/{id}/{month} [patch]
+// @Deprecated		true
 func UpdateMonthConfig(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

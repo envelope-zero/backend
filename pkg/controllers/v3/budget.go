@@ -34,6 +34,7 @@ func RegisterBudgetRoutes(r *gin.RouterGroup) {
 // @Tags			Budgets
 // @Success		204
 // @Router			/v3/budgets [options]
+// @Deprecated		true
 func OptionsBudgetList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -47,6 +48,7 @@ func OptionsBudgetList(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/budgets/{id} [options]
+// @Deprecated		true
 func OptionsBudgetDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -77,6 +79,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 // @Failure		500		{object}	BudgetCreateResponse
 // @Param			budget	body		[]BudgetEditable	true	"Budget"
 // @Router			/v3/budgets [post]
+// @Deprecated		true
 func CreateBudgets(c *gin.Context) {
 	var budgets []BudgetEditable
 
@@ -124,6 +127,7 @@ func CreateBudgets(c *gin.Context) {
 // @Param			search		query	string	false	"Search for this text in name and note"
 // @Param			offset		query	uint	false	"The offset of the first Budget returned. Defaults to 0."
 // @Param			limit		query	int		false	"Maximum number of Budgets to return. Defaults to 50."
+// @Deprecated		true
 func GetBudgets(c *gin.Context) {
 	var filter BudgetQueryFilter
 
@@ -197,6 +201,7 @@ func GetBudgets(c *gin.Context) {
 // @Failure		500	{object}	BudgetResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/budgets/{id} [get]
+// @Deprecated		true
 func GetBudget(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -232,6 +237,7 @@ func GetBudget(c *gin.Context) {
 // @Param			id		path		string			true	"ID formatted as string"
 // @Param			budget	body		BudgetEditable	true	"Budget"
 // @Router			/v3/budgets/{id} [patch]
+// @Deprecated		true
 func UpdateBudget(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -292,6 +298,7 @@ func UpdateBudget(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/budgets/{id} [delete]
+// @Deprecated		true
 func DeleteBudget(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

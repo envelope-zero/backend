@@ -37,6 +37,8 @@ type Links struct {
 //	@Tags			v3
 //	@Success		200	{object}	Response
 //	@Router			/v3 [get]
+//
+//	@Deprecated		true
 func Get(c *gin.Context) {
 	url := c.GetString(string(models.DBContextURL))
 
@@ -62,6 +64,8 @@ func Get(c *gin.Context) {
 //	@Tags			v3
 //	@Success		204
 //	@Router			/v3 [options]
+//
+//	@Deprecated		true
 func Options(c *gin.Context) {
 	httputil.OptionsGetDelete(c)
 }

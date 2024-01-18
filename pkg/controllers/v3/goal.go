@@ -30,6 +30,7 @@ func RegisterGoalRoutes(r *gin.RouterGroup) {
 // @Tags			Goals
 // @Success		204
 // @Router			/v3/goals [options]
+// @Deprecated		true
 func OptionsGoals(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -43,6 +44,7 @@ func OptionsGoals(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/goals/{id} [options]
+// @Deprecated		true
 func OptionsGoalDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -73,6 +75,7 @@ func OptionsGoalDetail(c *gin.Context) {
 // @Failure		500		{object}	GoalCreateResponse
 // @Param			goals	body		[]GoalEditable	true	"Goals"
 // @Router			/v3/goals [post]
+// @Deprecated		true
 func CreateGoals(c *gin.Context) {
 	var goals []GoalEditable
 
@@ -136,6 +139,7 @@ func CreateGoals(c *gin.Context) {
 // @Param			amountMoreOrEqual	query	string	false	"Amount more than or equal to this"
 // @Param			offset				query	uint	false	"The offset of the first goal returned. Defaults to 0."
 // @Param			limit				query	int		false	"Maximum number of goal to return. Defaults to 50."
+// @Deprecated		true
 func GetGoals(c *gin.Context) {
 	var filter GoalQueryFilter
 
@@ -256,6 +260,7 @@ func GetGoals(c *gin.Context) {
 // @Failure		500	{object}	GoalResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/goals/{id} [get]
+// @Deprecated		true
 func GetGoal(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -292,6 +297,7 @@ func GetGoal(c *gin.Context) {
 // @Param			id		path		string			true	"ID formatted as string"
 // @Param			goal	body		GoalEditable	true	"Goal"
 // @Router			/v3/goals/{id} [patch]
+// @Deprecated		true
 func UpdateGoal(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -366,6 +372,7 @@ func UpdateGoal(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/goals/{id} [delete]
+// @Deprecated		true
 func DeleteGoal(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

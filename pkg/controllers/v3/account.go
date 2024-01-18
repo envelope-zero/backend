@@ -33,7 +33,8 @@ func RegisterAccountRoutes(r *gin.RouterGroup) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			Accounts
 // @Success		204
-// @Router			/v3/accounts [options].
+// @Router			/v3/accounts [options]
+// @Deprecated		true
 func OptionsAccountList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -46,7 +47,8 @@ func OptionsAccountList(c *gin.Context) {
 // @Failure		404	{object}	httperrors.HTTPError
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
-// @Router			/v3/accounts/{id} [options].
+// @Router			/v3/accounts/{id} [options]
+// @Deprecated		true
 func OptionsAccountDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -77,6 +79,7 @@ func OptionsAccountDetail(c *gin.Context) {
 // @Failure		500			{object}	AccountCreateResponse
 // @Param			accounts	body		[]AccountEditable	true	"Accounts"
 // @Router			/v3/accounts [post]
+// @Deprecated		true
 func CreateAccounts(c *gin.Context) {
 	var editables []AccountEditable
 
@@ -139,6 +142,7 @@ func CreateAccounts(c *gin.Context) {
 // @Param			search		query	string	false	"Search for this text in name and note"
 // @Param			offset		query	uint	false	"The offset of the first Account returned. Defaults to 0."
 // @Param			limit		query	int		false	"Maximum number of Accounts to return. Defaults to 50."
+// @Deprecated		true
 func GetAccounts(c *gin.Context) {
 	var filter AccountQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -232,6 +236,7 @@ func GetAccounts(c *gin.Context) {
 // @Failure		500	{object}	AccountResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/accounts/{id} [get]
+// @Deprecated		true
 func GetAccount(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -273,6 +278,7 @@ func GetAccount(c *gin.Context) {
 // @Param			id		path		string			true	"ID formatted as string"
 // @Param			account	body		AccountEditable	true	"Account"
 // @Router			/v3/accounts/{id} [patch]
+// @Deprecated		true
 func UpdateAccount(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -342,6 +348,7 @@ func UpdateAccount(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/accounts/{id} [delete]
+// @Deprecated		true
 func DeleteAccount(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

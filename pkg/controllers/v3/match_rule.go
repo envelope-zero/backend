@@ -36,6 +36,7 @@ func RegisterMatchRuleRoutes(r *gin.RouterGroup) {
 // @Tags			MatchRules
 // @Success		204
 // @Router			/v3/match-rules [options]
+// @Deprecated		true
 func OptionsMatchRuleList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -49,6 +50,7 @@ func OptionsMatchRuleList(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/match-rules/{id} [options]
+// @Deprecated		true
 func OptionsMatchRuleDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -74,6 +76,7 @@ func OptionsMatchRuleDetail(c *gin.Context) {
 // @Failure		500			{object}	MatchRuleCreateResponse
 // @Param			matchRules	body		[]MatchRuleEditable	true	"MatchRules"
 // @Router			/v3/match-rules [post]
+// @Deprecated		true
 func CreateMatchRules(c *gin.Context) {
 	var matchRules []MatchRuleEditable
 
@@ -119,6 +122,7 @@ func CreateMatchRules(c *gin.Context) {
 // @Param			offset		query		uint	false	"The offset of the first Match Rule returned. Defaults to 0."
 // @Param			limit		query		int		false	"Maximum number of Match Rules to return. Defaults to 50.".
 // @Router			/v3/match-rules [get]
+// @Deprecated		true
 func GetMatchRules(c *gin.Context) {
 	var filter MatchRuleQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -207,6 +211,7 @@ func GetMatchRules(c *gin.Context) {
 // @Failure		500	{object}	MatchRuleResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/match-rules/{id} [get]
+// @Deprecated		true
 func GetMatchRule(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -241,6 +246,7 @@ func GetMatchRule(c *gin.Context) {
 // @Param			id			path		string				true	"ID formatted as string"
 // @Param			matchRule	body		MatchRuleEditable	true	"MatchRule"
 // @Router			/v3/match-rules/{id} [patch]
+// @Deprecated		true
 func UpdateMatchRule(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -315,6 +321,8 @@ func UpdateMatchRule(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/match-rules/{id} [delete]
+//
+// @Deprecated		true
 func DeleteMatchRule(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

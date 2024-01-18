@@ -34,6 +34,7 @@ func RegisterEnvelopeRoutes(r *gin.RouterGroup) {
 // @Tags			Envelopes
 // @Success		204
 // @Router			/v3/envelopes [options]
+// @Deprecated		true
 func OptionsEnvelopeList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -47,6 +48,7 @@ func OptionsEnvelopeList(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/envelopes/{id} [options]
+// @Deprecated		true
 func OptionsEnvelopeDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -77,6 +79,7 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 // @Failure		500			{object}	EnvelopeCreateResponse
 // @Param			envelope	body		[]v3.EnvelopeEditable	true	"Envelopes"
 // @Router			/v3/envelopes [post]
+// @Deprecated		true
 func CreateEnvelopes(c *gin.Context) {
 	var envelopes []EnvelopeEditable
 
@@ -134,6 +137,7 @@ func CreateEnvelopes(c *gin.Context) {
 // @Param			search		query	string	false	"Search for this text in name and note"
 // @Param			offset		query	uint	false	"The offset of the first Envelope returned. Defaults to 0."
 // @Param			limit		query	int		false	"Maximum number of Envelopes to return. Defaults to 50."
+// @Deprecated		true
 func GetEnvelopes(c *gin.Context) {
 	var filter EnvelopeQueryFilter
 
@@ -215,6 +219,7 @@ func GetEnvelopes(c *gin.Context) {
 // @Failure		500	{object}	EnvelopeResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/envelopes/{id} [get]
+// @Deprecated		true
 func GetEnvelope(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -250,6 +255,7 @@ func GetEnvelope(c *gin.Context) {
 // @Param			id			path		string				true	"ID formatted as string"
 // @Param			envelope	body		v3.EnvelopeEditable	true	"Envelope"
 // @Router			/v3/envelopes/{id} [patch]
+// @Deprecated		true
 func UpdateEnvelope(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -310,6 +316,7 @@ func UpdateEnvelope(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/envelopes/{id} [delete]
+// @Deprecated		true
 func DeleteEnvelope(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {

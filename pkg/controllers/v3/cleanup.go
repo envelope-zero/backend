@@ -16,6 +16,7 @@ import (
 // @Failure		500		{object}	httperrors.HTTPError
 // @Param			confirm	query		string	false	"Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'"
 // @Router			/v3 [delete]
+// @Deprecated		true
 func Cleanup(c *gin.Context) {
 	var params struct {
 		Confirm string `form:"confirm"`

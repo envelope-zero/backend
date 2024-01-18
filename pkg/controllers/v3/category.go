@@ -34,6 +34,7 @@ func RegisterCategoryRoutes(r *gin.RouterGroup) {
 // @Tags			Categories
 // @Success		204
 // @Router			/v3/categories [options]
+// @Deprecated		true
 func OptionsCategoryList(c *gin.Context) {
 	httputil.OptionsGetPost(c)
 }
@@ -47,6 +48,7 @@ func OptionsCategoryList(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/categories/{id} [options]
+// @Deprecated		true
 func OptionsCategoryDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -77,6 +79,7 @@ func OptionsCategoryDetail(c *gin.Context) {
 // @Failure		500			{object}	CategoryCreateResponse
 // @Param			categories	body		[]CategoryEditable	true	"Categories"
 // @Router			/v3/categories [post]
+// @Deprecated		true
 func CreateCategories(c *gin.Context) {
 	var editables []CategoryEditable
 
@@ -138,6 +141,7 @@ func CreateCategories(c *gin.Context) {
 // @Param			search		query	string	false	"Search for this text in name and note"
 // @Param			offset		query	uint	false	"The offset of the first Category returned. Defaults to 0."
 // @Param			limit		query	int		false	"Maximum number of Categories to return. Defaults to 50."
+// @Deprecated		true
 func GetCategories(c *gin.Context) {
 	var filter CategoryQueryFilter
 
@@ -227,6 +231,7 @@ func GetCategories(c *gin.Context) {
 // @Failure		500	{object}	CategoryResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/categories/{id} [get]
+// @Deprecated		true
 func GetCategory(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -269,6 +274,7 @@ func GetCategory(c *gin.Context) {
 // @Param			id			path		string				true	"ID formatted as string"
 // @Param			category	body		CategoryEditable	true	"Category"
 // @Router			/v3/categories/{id} [patch]
+// @Deprecated		true
 func UpdateCategory(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
@@ -337,6 +343,7 @@ func UpdateCategory(c *gin.Context) {
 // @Failure		500	{object}	httperrors.HTTPError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v3/categories/{id} [delete]
+// @Deprecated		true
 func DeleteCategory(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if !err.Nil() {
