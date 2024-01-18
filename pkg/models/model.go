@@ -27,22 +27,6 @@ type Timestamps struct {
 	DeletedAt *gorm.DeletedAt `json:"deletedAt" gorm:"index" example:"2022-04-22T21:01:05.058161Z" swaggertype:"primitive,string"` // Time the resource was marked as deleted
 }
 
-// AfterFind updates the timestamps to use UTC as
-// timezone, not +0000. Yes, this is different.
-//
-// We already store them in UTC, but somehow reading
-// them from the database returns them as +0000.
-func (m *DefaultModel) AfterFind(_ *gorm.DB) (err error) {
-	m.CreatedAt = m.CreatedAt.In(time.UTC)
-	m.UpdatedAt = m.UpdatedAt.In(time.UTC)
-
-	if m.DeletedAt != nil {
-		m.DeletedAt.Time = m.DeletedAt.Time.In(time.UTC)
-	}
-
-	return nil
-}
-
 // BeforeCreate is set to generate a UUID for the resource.
 func (m *DefaultModel) BeforeCreate(_ *gorm.DB) (err error) {
 	m.ID = uuid.New()

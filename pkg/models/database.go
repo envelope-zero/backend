@@ -23,10 +23,6 @@ const (
 // Connect opens the SQLite database and configures the connection pool.
 func Connect(dsn string) error {
 	config := &gorm.Config{
-		// Set generated timestamps in UTC
-		NowFunc: func() time.Time {
-			return time.Now().In(time.UTC)
-		},
 		Logger: gorm_zerolog.New(),
 	}
 

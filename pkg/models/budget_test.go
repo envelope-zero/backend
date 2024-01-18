@@ -26,12 +26,6 @@ func (suite *TestSuiteStandard) TestBudgetTrimWhitespace() {
 	assert.Equal(suite.T(), strings.TrimSpace(currency), budget.Currency)
 }
 
-func (suite *TestSuiteStandard) TestBudgetAfterFind() {
-	budget := suite.createTestBudget(models.Budget{})
-	err := budget.AfterFind(models.DB)
-	assert.Nil(suite.T(), err)
-}
-
 func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	// Sum of salary transactions: 7400
 	// Sum of income available in March: 4600
@@ -155,10 +149,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		DestinationAccountID: groceryAccount.ID,
 		Amount:               decimal.NewFromFloat(20),
 	})
-
-	// Explicitly call AfterFind since we want the calculations to be done
-	err := budget.AfterFind(models.DB)
-	assert.Nil(suite.T(), err)
 
 	shouldBalance := decimal.NewFromFloat(7269.38)
 	isBalance, err := budget.Balance(models.DB)
