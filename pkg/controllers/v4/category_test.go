@@ -6,8 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/test"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -62,7 +63,10 @@ func (suite *TestSuiteStandard) TestCategoriesDBClosed() {
 			func(t *testing.T) {
 				recorder := test.Request(t, http.MethodGet, "http://example.com/v4/categories", "")
 				test.AssertHTTPStatus(t, &recorder, http.StatusInternalServerError)
-				assert.Contains(t, test.DecodeError(t, recorder.Body.Bytes()), "there is a problem with the database connection")
+
+				var response v4.CategoryListResponse
+				test.DecodeResponse(t, &recorder, &response)
+				assert.Contains(t, *response.Error, models.ErrGeneral.Error())
 			},
 		},
 	}
@@ -113,7 +117,7 @@ func (suite *TestSuiteStandard) TestCategoriesGetSingle() {
 		method string
 	}{
 		{"GET Existing Category", c.Data.ID.String(), http.StatusOK, http.MethodGet},
-		{"GET ID nil", uuid.Nil.String(), http.StatusBadRequest, http.MethodGet},
+		{"GET ID nil", uuid.Nil.String(), http.StatusNotFound, http.MethodGet},
 		{"GET No Category with this ID", uuid.New().String(), http.StatusNotFound, http.MethodGet},
 		{"GET Invalid ID (negative number)", "-56", http.StatusBadRequest, http.MethodGet},
 		{"GET Invalid ID (positive number)", "23", http.StatusBadRequest, http.MethodGet},
@@ -233,9 +237,9 @@ func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 		{
 			"No Budget",
 			`[{ "note": "Some text" }]`,
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			func(t *testing.T, c v4.CategoryCreateResponse) {
-				assert.Equal(t, "no Budget ID specified", *c.Data[0].Error)
+				assert.Equal(t, "there is no budget matching your query", *c.Data[0].Error)
 			},
 		},
 		{
@@ -243,7 +247,7 @@ func (suite *TestSuiteStandard) TestCategoriesCreateFails() {
 			`[{ "budgetId": "ea85ad1a-3679-4ced-b83b-89566c12ece9" }]`,
 			http.StatusNotFound,
 			func(t *testing.T, c v4.CategoryCreateResponse) {
-				assert.Equal(t, "there is no Budget with this ID", *c.Data[0].Error)
+				assert.Equal(t, "there is no budget matching your query", *c.Data[0].Error)
 			},
 		},
 		{
@@ -333,7 +337,7 @@ func (suite *TestSuiteStandard) TestCategoriesUpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing Category", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set Budget to uuid.Nil", "", v4.CategoryEditable{}, http.StatusBadRequest},
+		{"Set Budget to uuid.Nil", "", v4.CategoryEditable{}, http.StatusNotFound},
 	}
 
 	for _, tt := range tests {

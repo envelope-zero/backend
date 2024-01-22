@@ -1,11 +1,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v5/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -14,8 +15,6 @@ import (
 // Transaction represents a transaction between two accounts.
 type Transaction struct {
 	DefaultModel
-	BudgetID              uuid.UUID
-	Budget                Budget
 	SourceAccountID       uuid.UUID `gorm:"check:source_destination_different,source_account_id != destination_account_id"`
 	SourceAccount         Account
 	DestinationAccountID  uuid.UUID
@@ -31,8 +30,89 @@ type Transaction struct {
 	ImportHash            string      // The SHA256 hash of a unique combination of values to use in duplicate detection when importing transactions
 }
 
-func (t Transaction) Self() string {
-	return "Transaction"
+var (
+	ErrAvailabilityMonthTooEarly                      = errors.New("availability month must not be earlier than the month of the transaction")
+	ErrSourceDoesNotEqualDestination                  = errors.New("source and destination accounts for a transaction must be different")
+	ErrTransactionAmountNotPositive                   = errors.New("the transaction amount must be positive")
+	ErrTransactionNoInternalAccounts                  = errors.New("a transaction between two external accounts is not possible")
+	ErrTransactionTransferBetweenOnBudgetWithEnvelope = errors.New("transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible")
+	ErrTransactionInvalidSourceAccount                = errors.New("invalid source account")
+	ErrTransactionInvalidDestinationAccount           = errors.New("invalid destination account")
+)
+
+func (t *Transaction) BeforeCreate(tx *gorm.DB) error {
+	_ = t.DefaultModel.BeforeCreate(tx)
+
+	toSave := tx.Statement.Dest.(*Transaction)
+
+	if !decimal.Decimal.IsPositive(toSave.Amount) {
+		return ErrTransactionAmountNotPositive
+	}
+
+	var source Account
+	err := tx.First(&source, toSave.SourceAccountID).Error
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrTransactionInvalidSourceAccount, err)
+	}
+
+	var destination Account
+	err = tx.First(&destination, toSave.DestinationAccountID).Error
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrTransactionInvalidDestinationAccount, err)
+	}
+
+	return t.checkIntegrity(tx, *toSave, source, destination)
+}
+
+func (t *Transaction) BeforeUpdate(tx *gorm.DB) (err error) {
+	toSave := tx.Statement.Dest.(Transaction)
+
+	if tx.Statement.Changed("Amount") && !decimal.Decimal.IsPositive(toSave.Amount) {
+		return ErrTransactionAmountNotPositive
+	}
+
+	var sourceAccountID uuid.UUID
+	if tx.Statement.Changed("SourceAccountID") {
+		sourceAccountID = toSave.SourceAccountID
+	} else {
+		sourceAccountID = t.SourceAccountID
+	}
+	var source Account
+	err = tx.First(&source, sourceAccountID).Error
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrTransactionInvalidSourceAccount, err)
+	}
+
+	var destinationAccountID uuid.UUID
+	if tx.Statement.Changed("DestinationAccountID") {
+		destinationAccountID = toSave.DestinationAccountID
+	} else {
+		destinationAccountID = t.DestinationAccountID
+	}
+	var destination Account
+	err = tx.First(&destination, destinationAccountID).Error
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrTransactionInvalidDestinationAccount, err)
+	}
+
+	return t.checkIntegrity(tx, toSave, source, destination)
+}
+
+func (t *Transaction) checkIntegrity(tx *gorm.DB, toSave Transaction, source, destination Account) error {
+	if source.External && destination.External {
+		return ErrTransactionNoInternalAccounts
+	}
+
+	// Check envelope being set for transfer between on-budget accounts
+	if toSave.EnvelopeID != nil && *toSave.EnvelopeID != uuid.Nil {
+		if source.OnBudget && destination.OnBudget {
+			return ErrTransactionTransferBetweenOnBudgetWithEnvelope
+		}
+		err := tx.First(&Envelope{}, *toSave.EnvelopeID).Error
+		return err
+	}
+
+	return nil
 }
 
 // BeforeSave
@@ -56,7 +136,7 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 	if t.AvailableFrom.IsZero() {
 		t.AvailableFrom = types.MonthOf(t.Date)
 	} else if t.AvailableFrom.Before(types.MonthOf(t.Date)) {
-		return fmt.Errorf("availability month must not be earlier than the month of the transaction, transaction date: %s, available month %s", t.Date.Format("2006-01-02"), t.AvailableFrom)
+		return fmt.Errorf("%w, transaction date: %s, available month %s", ErrAvailabilityMonthTooEarly, t.Date.Format("2006-01-02"), t.AvailableFrom)
 	}
 
 	// Enforce ReconciledSource = false when source account is external

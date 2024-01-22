@@ -1,17 +1,13 @@
 package v4
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
@@ -48,24 +44,24 @@ func OptionsTransactions(c *gin.Context) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			Transactions
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/transactions/{id} [options]
 func OptionsTransactionDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
 	var t models.Transaction
-	err = query(c, models.DB.First(&t, id))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.First(&t, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -86,19 +82,19 @@ func OptionsTransactionDetail(c *gin.Context) {
 // @Router			/v4/transactions/{id} [get]
 func GetTransaction(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
+		c.JSON(status(err), TransactionResponse{
 			Error: &e,
 		})
 		return
 	}
 
 	var transaction models.Transaction
-	err = query(c, models.DB.First(&transaction, id))
-	if !err.Nil() {
+	err = models.DB.First(&transaction, id).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
+		c.JSON(status(err), TransactionResponse{
 			Error: &e,
 		})
 		return
@@ -135,7 +131,7 @@ func GetTransaction(c *gin.Context) {
 func GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {
-		s := httperrors.ErrInvalidQueryString.Error()
+		s := err.Error()
 		c.JSON(http.StatusBadRequest, TransactionListResponse{
 			Error: &s,
 		})
@@ -147,9 +143,9 @@ func GetTransactions(c *gin.Context) {
 
 	// Convert the QueryFilter to a Create struct
 	model, err := filter.model()
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionListResponse{
+		c.JSON(status(err), TransactionListResponse{
 			Error: &e,
 		})
 		return
@@ -174,9 +170,9 @@ func GetTransactions(c *gin.Context) {
 
 	if filter.BudgetID != "" {
 		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
-		if !err.Nil() {
+		if err != nil {
 			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
-			c.JSON(err.Status, TransactionListResponse{
+			c.JSON(status(err), TransactionListResponse{
 				Error: &s,
 			})
 			return
@@ -192,9 +188,9 @@ func GetTransactions(c *gin.Context) {
 
 	if filter.AccountID != "" {
 		accountID, err := httputil.UUIDFromString(filter.AccountID)
-		if !err.Nil() {
+		if err != nil {
 			s := fmt.Sprintf("Error parsing Account ID for filtering: %s", err.Error())
-			c.JSON(err.Status, TransactionListResponse{
+			c.JSON(status(err), TransactionListResponse{
 				Error: &s,
 			})
 			return
@@ -232,20 +228,20 @@ func GetTransactions(c *gin.Context) {
 	q = q.Limit(limit)
 
 	var transactions []models.Transaction
-	err = query(c, q.Find(&transactions))
-	if !err.Nil() {
+	err = q.Find(&transactions).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionListResponse{
+		c.JSON(status(err), TransactionListResponse{
 			Error: &e,
 		})
 		return
 	}
 
 	var count int64
-	err = query(c, q.Limit(-1).Offset(-1).Count(&count))
-	if !err.Nil() {
+	err = q.Limit(-1).Offset(-1).Count(&count).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionListResponse{
+		c.JSON(status(err), TransactionListResponse{
 			Error: &e,
 		})
 		return
@@ -282,9 +278,9 @@ func CreateTransactions(c *gin.Context) {
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &editables)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionCreateResponse{
+		c.JSON(status(err), TransactionCreateResponse{
 			Error: &e,
 		})
 		return
@@ -296,11 +292,9 @@ func CreateTransactions(c *gin.Context) {
 
 	for _, editable := range editables {
 		transaction := editable.model()
-
-		err := createTransaction(c, &transaction)
-
+		err := models.DB.Create(&transaction).Error
 		// Append the error
-		if !err.Nil() {
+		if err != nil {
 			status = r.appendError(err, status)
 			continue
 		}
@@ -327,19 +321,20 @@ func CreateTransactions(c *gin.Context) {
 func UpdateTransaction(c *gin.Context) {
 	// Get the resource ID
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
+		c.JSON(status(err), TransactionResponse{
 			Error: &e,
 		})
 		return
 	}
 
 	// Get the transaction resource
-	transaction, err := getModelByID[models.Transaction](c, id)
-	if !err.Nil() {
+	var transaction models.Transaction
+	err = models.DB.First(&transaction, id).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
+		c.JSON(status(err), TransactionResponse{
 			Error: &e,
 		})
 		return
@@ -347,9 +342,9 @@ func UpdateTransaction(c *gin.Context) {
 
 	// Get the fields that are set to be updated
 	updateFields, err := httputil.GetBodyFields(c, TransactionEditable{})
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
+		c.JSON(status(err), TransactionResponse{
 			Error: &e,
 		})
 		return
@@ -358,9 +353,9 @@ func UpdateTransaction(c *gin.Context) {
 	// Bind the update for the patch
 	var update TransactionEditable
 	err = httputil.BindData(c, &update)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
+		c.JSON(status(err), TransactionResponse{
 			Error: &e,
 		})
 		return
@@ -372,48 +367,10 @@ func UpdateTransaction(c *gin.Context) {
 		update.Amount = transaction.Amount
 	}
 
-	// Check the source account
-	sourceAccountID := transaction.SourceAccountID
-	if update.SourceAccountID != uuid.Nil {
-		sourceAccountID = update.SourceAccountID
-	}
-	sourceAccount, err := getModelByID[models.Account](c, sourceAccountID)
-	if !err.Nil() {
+	err = models.DB.Model(&transaction).Select("", updateFields...).Updates(update.model()).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
-			Error: &e,
-		})
-		return
-	}
-
-	// Check the destination account
-	destinationAccountID := transaction.DestinationAccountID
-	if update.DestinationAccountID != uuid.Nil {
-		destinationAccountID = update.DestinationAccountID
-	}
-	destinationAccount, err := getModelByID[models.Account](c, destinationAccountID)
-	if !err.Nil() {
-		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
-			Error: &e,
-		})
-		return
-	}
-
-	// Check the transaction that is set
-	err = checkTransaction(c, update.model(), sourceAccount, destinationAccount)
-	if !err.Nil() {
-		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
-			Error: &e,
-		})
-		return
-	}
-
-	err = query(c, models.DB.Model(&transaction).Select("", updateFields...).Updates(update.model()))
-	if !err.Nil() {
-		e := err.Error()
-		c.JSON(err.Status, TransactionResponse{
+		c.JSON(status(err), TransactionResponse{
 			Error: &e,
 		})
 		return
@@ -427,98 +384,36 @@ func UpdateTransaction(c *gin.Context) {
 // @Description	Deletes a transaction
 // @Tags			Transactions
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/transactions/{id} [delete]
 func DeleteTransaction(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	transaction, err := getModelByID[models.Transaction](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	var transaction models.Transaction
+	err = models.DB.First(&transaction, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	err = query(c, models.DB.Delete(&transaction))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.Delete(&transaction).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusNoContent, nil)
-}
-
-// createTransaction creates a single transaction after verifying it is a valid transaction.
-func createTransaction(c *gin.Context, model *models.Transaction) httperrors.Error {
-	// Check the source account
-	sourceAccount, err := getModelByID[models.Account](c, model.SourceAccountID)
-	if !err.Nil() {
-		return err
-	}
-
-	// Check the destination account
-	destinationAccount, err := getModelByID[models.Account](c, model.DestinationAccountID)
-	if !err.Nil() {
-		return err
-	}
-
-	// Check the transaction
-	err = checkTransaction(c, *model, sourceAccount, destinationAccount)
-	if !err.Nil() {
-		return err
-	}
-
-	// Set the transaction's budget ID to the budget id of the source account
-	// Since they need to be in the same budget, this can easily be done.
-	//
-	// This is needed because we're removing the budgetId field in API v4, see
-	// https://github.com/envelope-zero/backend/issues/922
-	model.BudgetID = sourceAccount.BudgetID
-
-	dbErr := models.DB.Create(&model).Error
-	if dbErr != nil {
-		return httperrors.GenericDBError[models.Transaction](models.Transaction{}, c, dbErr)
-	}
-
-	return httperrors.Error{}
-}
-
-// checkTransaction verifies that the transaction is correct
-//
-// It checks that
-//   - the transaction is not between two external accounts
-//   - if an envelope is set: the transaction is not between two on-budget accounts
-//   - if an envelope is set: the envelope exists
-func checkTransaction(c *gin.Context, transaction models.Transaction, source, destination models.Account) httperrors.Error {
-	if !decimal.Decimal.IsPositive(transaction.Amount) {
-		return httperrors.Error{Err: errors.New("the transaction amount must be positive"), Status: http.StatusBadRequest}
-	}
-
-	if source.External && destination.External {
-		return httperrors.Error{Err: errors.New("a transaction between two external accounts is not possible"), Status: http.StatusBadRequest}
-	}
-
-	// Check envelope being set for transfer between on-budget accounts
-	if transaction.EnvelopeID != nil && *transaction.EnvelopeID != uuid.Nil {
-		if source.OnBudget && destination.OnBudget {
-			// TODO: Verify this state in the model hooks
-			return httperrors.Error{Err: errors.New("transfers between two on-budget accounts must not have an envelope set. Such a transaction would be incoming and outgoing for this envelope at the same time, which is not possible"), Status: http.StatusBadRequest}
-		}
-		_, err := getModelByID[models.Envelope](c, *transaction.EnvelopeID)
-		return err
-	}
-
-	return httperrors.Error{}
 }

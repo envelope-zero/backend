@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/models"
-	"github.com/envelope-zero/backend/v4/test"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -89,7 +89,7 @@ func (suite *TestSuiteStandard) TestMonthConfigsOptions() {
 		errMsg   string
 	}{
 		{"Bad Envelope ID", "Definitely-Not-A-UUID", "1984-03", http.StatusBadRequest, "not a valid UUID"},
-		{"Invalid Month", envelope.Data.ID.String(), "2000-00", http.StatusBadRequest, "could not parse: parsing time \"2000-00\": month out of range"},
+		{"Invalid Month", envelope.Data.ID.String(), "2000-00", http.StatusBadRequest, "parsing time \"2000-00\": month out of range"},
 		{"No envelope", uuid.New().String(), "1984-03", http.StatusNoContent, ""},
 		{"No MonthConfig", envelope.Data.ID.String(), "1984-03", http.StatusNoContent, ""},
 		{"Existing", envelope.Data.ID.String(), "2014-05", http.StatusNoContent, ""},
@@ -102,7 +102,11 @@ func (suite *TestSuiteStandard) TestMonthConfigsOptions() {
 			test.AssertHTTPStatus(t, &recorder, tt.status)
 
 			if tt.status != http.StatusNoContent {
-				assert.Contains(t, test.DecodeError(suite.T(), recorder.Body.Bytes()), tt.errMsg)
+				var response struct {
+					Error string `json:"error"`
+				}
+				test.DecodeResponse(t, &recorder, &response)
+				assert.Contains(t, response.Error, tt.errMsg)
 			}
 		})
 	}

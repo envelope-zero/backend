@@ -7,16 +7,14 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/importer"
-	ynabimport "github.com/envelope-zero/backend/v4/pkg/importer/parser/ynab-import"
-	"github.com/envelope-zero/backend/v4/pkg/importer/parser/ynab4"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/importer"
+	ynabimport "github.com/envelope-zero/backend/v5/pkg/importer/parser/ynab-import"
+	"github.com/envelope-zero/backend/v5/pkg/importer/parser/ynab4"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ryanuber/go-glob"
-	"gorm.io/gorm"
 )
 
 type ImportQuery struct {
@@ -28,32 +26,26 @@ type ImportPreviewQuery struct {
 }
 
 // getUploadedFile returns the form file and handles potential errors.
-func getUploadedFile(c *gin.Context, suffix string) (multipart.File, httperrors.Error) {
+func getUploadedFile(c *gin.Context, suffix string) (multipart.File, error) {
 	formFile, err := c.FormFile("file")
 	if formFile == nil {
-		return nil, httperrors.Error{
-			Status: http.StatusBadRequest,
-			Err:    httperrors.ErrNoFilePost,
-		}
+		return nil, errNoFilePost
 	}
 
 	if err != nil {
-		return nil, httperrors.Parse(c, err)
+		return nil, err
 	}
 
 	if !strings.HasSuffix(formFile.Filename, suffix) {
-		return nil, httperrors.Error{
-			Status: http.StatusBadRequest,
-			Err:    fmt.Errorf("this endpoint only supports %s files", suffix),
-		}
+		return nil, fmt.Errorf("%w: %s", errWrongFileSuffix, suffix)
 	}
 
 	f, err := formFile.Open()
 	if err != nil {
-		return nil, httperrors.Parse(c, err)
+		return nil, err
 	}
 
-	return f, httperrors.Error{}
+	return f, nil
 }
 
 // duplicateTransactions finds duplicate transactions by their import hash. For all input resources,
@@ -104,7 +96,7 @@ func findAccounts(transaction *importer.TransactionPreview, budgetID uuid.UUID) 
 	// Abort if no accounts are found, but with no error
 	// since this is an expected case - there might just
 	// not be a matching account
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, models.ErrResourceNotFound) {
 		return nil
 	}
 
@@ -252,36 +244,37 @@ func ImportYnabImportPreview(c *gin.Context) {
 	err := c.BindQuery(&query)
 	// When the binding fails, it is always because the accountID is not set
 	if err != nil {
-		s := httperrors.ErrAccountIDParameter.Error()
+		s := errAccountIDParameter.Error()
 		c.JSON(http.StatusBadRequest, ImportPreviewList{
 			Error: &s,
 		})
 		return
 	}
 
-	f, e := getUploadedFile(c, ".csv")
-	if !e.Nil() {
-		s := e.Error()
-		c.JSON(e.Status, ImportPreviewList{
+	f, err := getUploadedFile(c, ".csv")
+	if err != nil {
+		s := err.Error()
+		c.JSON(status(err), ImportPreviewList{
 			Error: &s,
 		})
 		return
 	}
 
-	accountID, e := httputil.UUIDFromString(query.AccountID)
-	if !e.Nil() {
-		s := e.Error()
-		c.JSON(e.Status, ImportPreviewList{
+	accountID, err := httputil.UUIDFromString(query.AccountID)
+	if err != nil {
+		s := err.Error()
+		c.JSON(status(err), ImportPreviewList{
 			Error: &s,
 		})
 		return
 	}
 
 	// Verify that the account exists
-	account, e := getModelByID[models.Account](c, accountID)
-	if !e.Nil() {
-		s := e.Error()
-		c.JSON(e.Status, ImportPreviewList{
+	var account models.Account
+	err = models.DB.First(&account, accountID).Error
+	if err != nil {
+		s := err.Error()
+		c.JSON(status(err), ImportPreviewList{
 			Error: &s,
 		})
 		return
@@ -305,9 +298,8 @@ func ImportYnabImportPreview(c *gin.Context) {
 		Order("rr.priority asc").
 		Find(&matchRules).Error
 	if err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, ImportPreviewList{
+		s := err.Error()
+		c.JSON(status(err), ImportPreviewList{
 			Error: &s,
 		})
 		return
@@ -322,9 +314,8 @@ func ImportYnabImportPreview(c *gin.Context) {
 		if transaction.Transaction.SourceAccountID == uuid.Nil || transaction.Transaction.DestinationAccountID == uuid.Nil {
 			err = findAccounts(&transaction, account.BudgetID)
 			if err != nil {
-				e := httperrors.Parse(c, err)
-				s := e.Error()
-				c.JSON(e.Status, ImportPreviewList{
+				s := err.Error()
+				c.JSON(status(err), ImportPreviewList{
 					Error: &s,
 				})
 				return
@@ -337,9 +328,8 @@ func ImportYnabImportPreview(c *gin.Context) {
 		if transaction.Transaction.DestinationAccountID != uuid.Nil {
 			err = recommendEnvelope(&transaction, transaction.Transaction.DestinationAccountID)
 			if err != nil {
-				e := httperrors.Parse(c, err)
-				s := e.Error()
-				c.JSON(e.Status, ImportPreviewList{
+				s := err.Error()
+				c.JSON(status(err), ImportPreviewList{
 					Error: &s,
 				})
 				return
@@ -372,7 +362,7 @@ func ImportYnabImportPreview(c *gin.Context) {
 func ImportYnab4(c *gin.Context) {
 	var query ImportQuery
 	if err := c.BindQuery(&query); err != nil {
-		httperrors.New(c, http.StatusBadRequest, "The budgetName parameter must be set")
+		c.JSON(http.StatusBadRequest, httpError{Error: errBudgetNameNotSet.Error()})
 		return
 	}
 
@@ -384,21 +374,22 @@ func ImportYnab4(c *gin.Context) {
 	}).First(&budget).Error
 
 	if err == nil {
-		httperrors.New(c, http.StatusBadRequest, "This budget name is already in use. Imports from YNAB 4 create a new budget, therefore the name needs to be unique.")
+		c.JSON(http.StatusBadRequest, httpError{
+			Error: errBudgetNameInUse.Error(),
+		})
 		return
-	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, BudgetResponse{
+	} else if err != nil && !errors.Is(err, models.ErrResourceNotFound) {
+		s := err.Error()
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	f, e := getUploadedFile(c, ".yfull")
-	if !e.Nil() {
-		s := e.Error()
-		c.JSON(e.Status, BudgetResponse{
+	f, err := getUploadedFile(c, ".yfull")
+	if err != nil {
+		s := err.Error()
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
@@ -407,7 +398,7 @@ func ImportYnab4(c *gin.Context) {
 	// Parse the Budget.yfull
 	resources, err := ynab4.Parse(f)
 	if err != nil {
-		httperrors.New(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, httpError{Error: err.Error()})
 		return
 	}
 
@@ -417,7 +408,10 @@ func ImportYnab4(c *gin.Context) {
 
 	budget, err = importer.Create(models.DB, resources)
 	if err != nil {
-		httperrors.Handler(c, err)
+		s := err.Error()
+		c.JSON(status(err), BudgetResponse{
+			Error: &s,
+		})
 		return
 	}
 

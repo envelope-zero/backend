@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/models"
-	"github.com/envelope-zero/backend/v4/test"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -115,14 +115,14 @@ func (suite *TestSuiteStandard) TestImportYnab4Fails() {
 		file          string
 		preTest       func()
 	}{
-		{"No budget name", "", "The budgetName parameter must be set", http.StatusBadRequest, "", func() {}},
+		{"No budget name", "", "the budgetName parameter must be set", http.StatusBadRequest, "", func() {}},
 		{"No file sent", "same", "you must send a file to this endpoint", http.StatusBadRequest, "", func() {}},
-		{"Wrong file name", "same", "this endpoint only supports .yfull files", http.StatusBadRequest, "importer/wrong-name.json", func() {}},
+		{"Wrong file name", "same", "this endpoint only supports files of the following types: .yfull", http.StatusBadRequest, "importer/wrong-name.json", func() {}},
 		{"Empty file", "same", "not a valid YNAB4 Budget.yfull file: unexpected end of JSON input", http.StatusBadRequest, "importer/EmptyFile.yfull", func() {}},
-		{"Duplicate budget name", "Import Test", "This budget name is already in use", http.StatusBadRequest, "", func() {
+		{"Duplicate budget name", "Import Test", "this budget name is already in use", http.StatusBadRequest, "", func() {
 			_ = createTestBudget(suite.T(), v4.BudgetEditable{Name: "Import Test"})
 		}},
-		{"Database error. This test must be the last one.", "Nope. DB is closed.", "there is a problem with the database connection", http.StatusInternalServerError, "", func() {
+		{"Database error. This test must be the last one.", "Nope. DB is closed.", models.ErrGeneral.Error(), http.StatusInternalServerError, "", func() {
 			suite.CloseDB()
 		}},
 	}
@@ -144,7 +144,9 @@ func (suite *TestSuiteStandard) TestImportYnab4Fails() {
 			}
 
 			test.AssertHTTPStatus(t, &recorder, tt.status)
-			assert.Contains(t, test.DecodeError(t, recorder.Body.Bytes()), tt.expectedError)
+			var response v4.BudgetResponse
+			test.DecodeResponse(t, &recorder, &response)
+			assert.Contains(t, *response.Error, tt.expectedError)
 		})
 	}
 }
@@ -162,9 +164,9 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFails() {
 	}{
 		{"No account ID", "", http.StatusBadRequest, "the accountId parameter must be set", ""},
 		{"Broken ID", "NotAUUID", http.StatusBadRequest, "the specified resource ID is not a valid UUID", "importer/ynab-import/empty.csv"},
-		{"No account with ID", "d2525c4f-2f45-49ba-9c5d-75d6b1c26f56", http.StatusNotFound, "there is no Account with this ID", "importer/ynab-import/empty.csv"},
+		{"No account with ID", "d2525c4f-2f45-49ba-9c5d-75d6b1c26f56", http.StatusNotFound, "there is no account matching your query", "importer/ynab-import/empty.csv"},
 		{"No file sent", accountID, http.StatusBadRequest, "you must send a file to this endpoint", ""},
-		{"Wrong file name", accountID, http.StatusBadRequest, "this endpoint only supports .csv files", "importer/ynab-import/wrong-suffix.json"},
+		{"Wrong file name", accountID, http.StatusBadRequest, "this endpoint only supports files of the following types: .csv", "importer/ynab-import/wrong-suffix.json"},
 		{"Broken upload", accountID, http.StatusBadRequest, "error in line 4 of the CSV: could not parse time: parsing time \"03.23.2020\" as \"01/02/2006\": cannot parse \".23.2020\" as \"/\"", "importer/ynab-import/error-date.csv"},
 	}
 
@@ -183,7 +185,9 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFails() {
 			}
 
 			test.AssertHTTPStatus(t, &recorder, tt.status)
-			assert.Contains(t, test.DecodeError(t, recorder.Body.Bytes()), tt.expectedError)
+			var response v4.ImportPreviewList
+			test.DecodeResponse(t, &recorder, &response)
+			assert.Equal(t, tt.expectedError, *response.Error)
 		})
 	}
 }

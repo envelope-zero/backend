@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v5/internal/types"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -6,8 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/test"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -54,7 +55,10 @@ func (suite *TestSuiteStandard) TestBudgetsDBClosed() {
 			func(t *testing.T) {
 				recorder := test.Request(t, http.MethodGet, "http://example.com/v4/budgets", "")
 				test.AssertHTTPStatus(t, &recorder, http.StatusInternalServerError)
-				assert.Contains(t, test.DecodeError(t, recorder.Body.Bytes()), "there is a problem with the database connection")
+
+				var response v4.BudgetListResponse
+				test.DecodeResponse(t, &recorder, &response)
+				assert.Contains(t, *response.Error, models.ErrGeneral.Error())
 			},
 		},
 	}
@@ -105,7 +109,7 @@ func (suite *TestSuiteStandard) TestBudgetsGetSingle() {
 		method string
 	}{
 		{"GET Existing budget", budget.Data.ID.String(), http.StatusOK, http.MethodGet},
-		{"GET ID nil", uuid.Nil.String(), http.StatusBadRequest, http.MethodGet},
+		{"GET ID nil", uuid.Nil.String(), http.StatusNotFound, http.MethodGet},
 		{"GET No budget with this ID", uuid.New().String(), http.StatusNotFound, http.MethodGet},
 		{"GET Invalid ID (negative number)", "-56", http.StatusBadRequest, http.MethodGet},
 		{"GET Invalid ID (positive number)", "23", http.StatusBadRequest, http.MethodGet},

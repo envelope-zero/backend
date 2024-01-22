@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/importer"
-	"github.com/envelope-zero/backend/v4/pkg/importer/helpers"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/importer"
+	"github.com/envelope-zero/backend/v5/pkg/importer/helpers"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/shopspring/decimal"
 )
 
@@ -60,7 +60,6 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 				AvailableFrom: types.NewMonth(date.Year(), date.Month()),
 				ImportHash:    helpers.Sha256String(strings.Join(record, ",")),
 				Note:          record[headers["Memo"]],
-				BudgetID:      account.BudgetID,
 			},
 		}
 

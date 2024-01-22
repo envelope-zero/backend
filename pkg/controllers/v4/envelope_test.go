@@ -6,8 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/test"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -62,7 +63,10 @@ func (suite *TestSuiteStandard) TestEnvelopesDBClosed() {
 			func(t *testing.T) {
 				recorder := test.Request(t, http.MethodGet, "http://example.com/v4/envelopes", "")
 				test.AssertHTTPStatus(t, &recorder, http.StatusInternalServerError)
-				assert.Contains(t, test.DecodeError(t, recorder.Body.Bytes()), "there is a problem with the database connection")
+
+				var response v4.EnvelopeListResponse
+				test.DecodeResponse(t, &recorder, &response)
+				assert.Contains(t, *response.Error, models.ErrGeneral.Error())
 			},
 		},
 	}
@@ -113,7 +117,7 @@ func (suite *TestSuiteStandard) TestEnvelopesGetSingle() {
 		method string
 	}{
 		{"GET Existing Envelope", e.Data.ID.String(), http.StatusOK, http.MethodGet},
-		{"GET ID nil", uuid.Nil.String(), http.StatusBadRequest, http.MethodGet},
+		{"GET ID nil", uuid.Nil.String(), http.StatusNotFound, http.MethodGet},
 		{"GET No Envelope with this ID", uuid.New().String(), http.StatusNotFound, http.MethodGet},
 		{"GET Invalid ID (negative number)", "-56", http.StatusBadRequest, http.MethodGet},
 		{"GET Invalid ID (positive number)", "23", http.StatusBadRequest, http.MethodGet},
@@ -228,16 +232,16 @@ func (suite *TestSuiteStandard) TestEnvelopesCreateFails() {
 		}},
 		{
 			"No Category",
-			`[{ "note": "Some text" }]`, http.StatusBadRequest,
+			`[{ "note": "Some text" }]`, http.StatusNotFound,
 			func(t *testing.T, e v4.EnvelopeCreateResponse) {
-				assert.Equal(t, "no Category ID specified", *e.Data[0].Error)
+				assert.Equal(t, "there is no category matching your query", *e.Data[0].Error)
 			},
 		},
 		{
 			"Non-existing Category",
 			`[{ "categoryId": "ea85ad1a-3679-4ced-b83b-89566c12ece9" }]`, http.StatusNotFound,
 			func(t *testing.T, e v4.EnvelopeCreateResponse) {
-				assert.Equal(t, "there is no Category with this ID", *e.Data[0].Error)
+				assert.Equal(t, "there is no category matching your query", *e.Data[0].Error)
 			},
 		},
 		{
@@ -326,7 +330,7 @@ func (suite *TestSuiteStandard) TestEnvelopesUpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing Envelope", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set Category to uuid.Nil", "", v4.EnvelopeEditable{}, http.StatusBadRequest},
+		{"Set Category to uuid.Nil", "", v4.EnvelopeEditable{}, http.StatusNotFound},
 	}
 
 	for _, tt := range tests {

@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/test"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -91,23 +92,28 @@ func (suite *TestSuiteStandard) TestGoalsDatabaseError() {
 		name   string // Name of the test
 		path   string // Path to send request to
 		method string // HTTP method to use
-		body   string // The request body
 	}{
-		{"GET Collection", "", http.MethodGet, ""},
+		{"GET Collection", "", http.MethodGet},
 		// Skipping POST Collection here since we need to check the indivdual transactions for that one
-		{"OPTIONS Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodOptions, ""},
-		{"GET Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodGet, ""},
-		{"PATCH Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodPatch, ""},
-		{"DELETE Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodDelete, ""},
+		{"OPTIONS Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodOptions},
+		{"GET Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodGet},
+		{"PATCH Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodPatch},
+		{"DELETE Single", fmt.Sprintf("/%s", uuid.New().String()), http.MethodDelete},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			suite.CloseDB()
 
-			recorder := test.Request(t, tt.method, fmt.Sprintf("http://example.com/v4/goals%s", tt.path), tt.body)
+			recorder := test.Request(t, tt.method, fmt.Sprintf("http://example.com/v4/goals%s", tt.path), "")
 			test.AssertHTTPStatus(t, &recorder, http.StatusInternalServerError)
-			assert.Equal(t, httperrors.ErrDatabaseClosed.Error(), test.DecodeError(t, recorder.Body.Bytes()))
+
+			var response struct {
+				Error string `json:"error"`
+			}
+			test.DecodeResponse(t, &recorder, &response)
+
+			assert.Equal(t, models.ErrGeneral.Error(), response.Error)
 		})
 	}
 }
@@ -260,7 +266,7 @@ func (suite *TestSuiteStandard) TestGoalsCreateInvalidBody() {
 	var response v4.GoalCreateResponse
 	test.DecodeResponse(suite.T(), &r, &response)
 
-	assert.Equal(suite.T(), httperrors.ErrInvalidBody.Error(), *response.Error)
+	assert.Equal(suite.T(), httputil.ErrInvalidBody.Error(), *response.Error)
 	assert.Nil(suite.T(), response.Data)
 }
 
@@ -292,7 +298,7 @@ func (suite *TestSuiteStandard) TestGoalsCreate() {
 			http.StatusNotFound,
 			nil,
 			[]string{
-				"there is no Envelope with this ID",
+				"there is no envelope matching your query",
 				"",
 			},
 		},
@@ -373,8 +379,8 @@ func (suite *TestSuiteStandard) TestGoalsGetSingle() {
 				p = fmt.Sprintf("%s/%s", "http://example.com/v4/goals", tt.id)
 			}
 
-			r := test.Request(suite.T(), http.MethodGet, p, "")
-			test.AssertHTTPStatus(suite.T(), &r, tt.status)
+			r := test.Request(t, http.MethodGet, p, "")
+			test.AssertHTTPStatus(t, &r, tt.status)
 		})
 	}
 }
@@ -399,7 +405,7 @@ func (suite *TestSuiteStandard) TestGoalsDelete() {
 		},
 		{
 			"Null transaction",
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			"00000000-0000-0000-0000-000000000000",
 		},
 		{
@@ -452,7 +458,7 @@ func (suite *TestSuiteStandard) TestGoalsUpdateFail() {
 		{
 			"Invalid envelope ID",
 			goal.Data.ID.String(),
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			v4.GoalEditable{}, // Sets the EnvelopeID to uuid.Nil
 		},
 		{

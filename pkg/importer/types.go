@@ -1,8 +1,8 @@
 package importer
 
 import (
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/google/uuid"
 )
 

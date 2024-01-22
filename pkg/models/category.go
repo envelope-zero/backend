@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/google/uuid"
@@ -17,8 +18,13 @@ type Category struct {
 	Archived bool
 }
 
-func (c Category) Self() string {
-	return "Category"
+var ErrCategoryNameNotUnique = errors.New("the category name must be unique for the budget")
+
+func (c *Category) BeforeCreate(tx *gorm.DB) error {
+	_ = c.DefaultModel.BeforeCreate(tx)
+
+	toSave := tx.Statement.Dest.(*Category)
+	return c.checkIntegrity(tx, *toSave)
 }
 
 func (c *Category) BeforeSave(_ *gorm.DB) error {
@@ -30,7 +36,15 @@ func (c *Category) BeforeSave(_ *gorm.DB) error {
 
 // BeforeUpdate archives all envelopes when the category is archived.
 func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
-	if tx.Statement.Changed("Archived") && !c.Archived {
+	toSave := tx.Statement.Dest.(Category)
+	if tx.Statement.Changed("BudgetID") {
+		err := c.checkIntegrity(tx, toSave)
+		if err != nil {
+			return err
+		}
+	}
+
+	if tx.Statement.Changed("Archived") && toSave.Archived {
 		var envelopes []Envelope
 		err = tx.Where(&Envelope{
 			CategoryID: c.ID,
@@ -41,8 +55,7 @@ func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 		}
 
 		for _, e := range envelopes {
-			e.Archived = true
-			err = tx.Model(&e).Updates(&e).Error
+			err = tx.Model(&e).Select("Archived").Updates(Envelope{Archived: true}).Error
 			if err != nil {
 				return
 			}
@@ -50,6 +63,11 @@ func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 	}
 
 	return nil
+}
+
+// checkIntegrity verifies references to other resources
+func (c *Category) checkIntegrity(tx *gorm.DB, toSave Category) error {
+	return tx.First(&Budget{}, toSave.BudgetID).Error
 }
 
 func (c *Category) Envelopes(tx *gorm.DB) ([]Envelope, error) {

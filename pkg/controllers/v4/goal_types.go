@@ -2,12 +2,10 @@ package v4
 
 import (
 	"fmt"
-	"net/http"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -77,16 +75,17 @@ type GoalCreateResponse struct {
 	Data  []GoalResponse `json:"data"`                                                          // List of created resources
 }
 
-func (t *GoalCreateResponse) appendError(err httperrors.Error, status int) int {
+func (t *GoalCreateResponse) appendError(err error, currentStatus int) int {
 	s := err.Error()
 	t.Data = append(t.Data, GoalResponse{Error: &s})
 
 	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
+	newStatus := status(err)
+	if newStatus > currentStatus {
+		return newStatus
 	}
 
-	return status
+	return currentStatus
 }
 
 type GoalResponse struct {
@@ -110,20 +109,17 @@ type GoalQueryFilter struct {
 	Limit             int             `form:"limit" filterField:"false"`             // Maximum number of goals to return. Defaults to 50.
 }
 
-func (f GoalQueryFilter) model() (models.Goal, httperrors.Error) {
+func (f GoalQueryFilter) model() (models.Goal, error) {
 	envelopeID, err := httputil.UUIDFromString(f.EnvelopeID)
-	if !err.Nil() {
+	if err != nil {
 		return models.Goal{}, err
 	}
 
 	var month types.Month
 	if f.Month != "" {
-		m, e := types.ParseMonth(f.Month)
-		if e != nil {
-			return models.Goal{}, httperrors.Error{
-				Err:    e,
-				Status: http.StatusBadRequest,
-			}
+		m, err := types.ParseMonth(f.Month)
+		if err != nil {
+			return models.Goal{}, err
 		}
 
 		month = m
@@ -136,5 +132,5 @@ func (f GoalQueryFilter) model() (models.Goal, httperrors.Error) {
 		Amount:     f.Amount,
 		Month:      month,
 		Archived:   f.Archived,
-	}.model(), httperrors.Error{}
+	}.model(), nil
 }

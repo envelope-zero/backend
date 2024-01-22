@@ -1,11 +1,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v5/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -26,38 +27,10 @@ type Account struct {
 	ImportHash         string // A SHA256 hash of a unique combination of values to use in duplicate detection for imports
 }
 
-func (Account) Self() string {
-	return "Account"
-}
-
-// BeforeUpdate verifies the state of the account before
-// committing an update to the database.
-func (a Account) BeforeUpdate(tx *gorm.DB) (err error) {
-	// Account is being set to be on budget, verify that no transactions
-	// with this account as destination has an envelope set
-	if tx.Statement.Changed("OnBudget") && !a.OnBudget {
-		var transactions []Transaction
-		err = tx.Model(&Transaction{}).
-			Joins("JOIN accounts ON transactions.source_account_id = accounts.id").
-			Where("destination_account_id = ? AND accounts.on_budget AND envelope_id not null", a.ID).
-			Find(&transactions).Error
-		if err != nil {
-			return
-		}
-
-		if len(transactions) > 0 {
-			strs := make([]string, len(transactions))
-			for i, t := range transactions {
-				strs[i] = t.ID.String()
-			}
-
-			ids := strings.Join(strs, ",")
-			return fmt.Errorf("the account cannot be set to on budget because the following transactions have an envelope set: %s", ids)
-		}
-	}
-
-	return nil
-}
+var (
+	ErrAccountNameNotUnique    = errors.New("the account name must be unique for the budget")
+	ErrAccountCannotBeOnBudget = errors.New("the account cannot be set to on budget")
+)
 
 // BeforeSave ensures consistency for the account
 //
@@ -77,6 +50,55 @@ func (a *Account) BeforeSave(_ *gorm.DB) error {
 	return nil
 }
 
+func (a *Account) BeforeCreate(tx *gorm.DB) error {
+	_ = a.DefaultModel.BeforeCreate(tx)
+
+	toSave := tx.Statement.Dest.(*Account)
+	return a.checkIntegrity(tx, *toSave)
+}
+
+// BeforeUpdate verifies the state of the account before
+// committing an update to the database.
+func (a *Account) BeforeUpdate(tx *gorm.DB) error {
+	toSave := tx.Statement.Dest.(Account)
+	if tx.Statement.Changed("BudgetID") {
+		err := a.checkIntegrity(tx, toSave)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Account is being set to be on budget, verify that no transactions
+	// with this account as destination has an envelope set
+	if tx.Statement.Changed("OnBudget") && toSave.OnBudget {
+		var transactions []Transaction
+		err := tx.Model(&Transaction{}).
+			Joins("JOIN accounts ON transactions.source_account_id = accounts.id").
+			Where("destination_account_id = ? AND accounts.on_budget AND envelope_id not null", a.ID).
+			Find(&transactions).Error
+		if err != nil {
+			return err
+		}
+
+		if len(transactions) > 0 {
+			strs := make([]string, len(transactions))
+			for i, t := range transactions {
+				strs[i] = t.ID.String()
+			}
+
+			ids := strings.Join(strs, ",")
+			return fmt.Errorf("%w because the following transactions have an envelope set: %s", ErrAccountCannotBeOnBudget, ids)
+		}
+	}
+
+	return nil
+}
+
+// checkIntegrity verifies references to other resources
+func (a *Account) checkIntegrity(tx *gorm.DB, toSave Account) error {
+	return tx.First(&Budget{}, toSave.BudgetID).Error
+}
+
 // Transactions returns all transactions for this account.
 func (a Account) Transactions(db *gorm.DB) []Transaction {
 	var transactions []Transaction
@@ -84,37 +106,6 @@ func (a Account) Transactions(db *gorm.DB) []Transaction {
 	// Get all transactions where the account is either the source or the destination
 	db.Where(Transaction{SourceAccountID: a.ID}).Or(Transaction{DestinationAccountID: a.ID}).Find(&transactions)
 	return transactions
-}
-
-// Transactions returns all transactions for this account.
-// TODO: Remove in favor of ReconciledBalance
-func (a Account) SumReconciled(db *gorm.DB) (balance decimal.Decimal, err error) {
-	var transactions []Transaction
-
-	err = db.
-		Preload("DestinationAccount").
-		Preload("SourceAccount").
-		Where(
-			db.Where(Transaction{DestinationAccountID: a.ID, ReconciledDestination: true}).
-				Or(db.Where(Transaction{SourceAccountID: a.ID, ReconciledSource: true}))).
-		Find(&transactions).Error
-
-	if err != nil {
-		return decimal.Zero, err
-	}
-
-	balance = a.InitialBalance
-
-	// Add incoming transactions, subtract outgoing transactions
-	for _, t := range transactions {
-		if t.DestinationAccountID == a.ID {
-			balance = balance.Add(t.Amount)
-		} else {
-			balance = balance.Sub(t.Amount)
-		}
-	}
-
-	return
 }
 
 // GetBalanceMonth calculates the balance and available sums for a specific month.
@@ -213,7 +204,6 @@ func (a Account) ReconciledBalance(db *gorm.DB, time time.Time) (balance decimal
 				Or(db.Where(Transaction{SourceAccountID: a.ID, ReconciledSource: true}))).
 		Where("datetime(transactions.date) < datetime(?)", time).
 		Find(&transactions).Error
-
 	if err != nil {
 		return decimal.Zero, err
 	}

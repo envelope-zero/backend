@@ -3,13 +3,9 @@ package models_test
 import (
 	"strings"
 
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/stretchr/testify/assert"
 )
-
-func (suite *TestSuiteStandard) TestMonthConfigSelf() {
-	assert.Equal(suite.T(), "Month Config", models.MonthConfig{}.Self())
-}
 
 func (suite *TestSuiteStandard) TestMonthConfigTrimWhitespace() {
 	note := " Some more whitespace in the notes    "

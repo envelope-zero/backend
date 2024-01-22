@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/test"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +16,7 @@ func TestGet(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
-	r.GET("/v4", func(ctx *gin.Context) {
+	r.GET("/v4", func(_ *gin.Context) {
 		v4.Get(c)
 	})
 

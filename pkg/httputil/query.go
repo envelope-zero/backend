@@ -3,14 +3,10 @@ package httputil
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"reflect"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
@@ -57,15 +53,13 @@ func GetURLFields(url *url.URL, filter any) ([]any, []string) {
 	return queryFields, setFields
 }
 
-// GetBodyFieldsHandleErrors returns a slice of strings with the field names
+// GetBodyFields returns a slice of strings with the field names
 // of the resource passed in. Only names of fields which are set
 // in the body are contained in that slice.
 //
 // This function reads and copies the request body, it must always
 // be called before any of gin's c.*Bind methods.
-//
-// This function is deprecated, use GetBodyFields(*gin.Context, any).
-func GetBodyFieldsHandleErrors(c *gin.Context, resource any) ([]any, error) {
+func GetBodyFields(c *gin.Context, resource any) ([]any, error) {
 	// Copy the body to be able to use it multiple times
 	body, _ := io.ReadAll(c.Request.Body)
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
@@ -74,10 +68,10 @@ func GetBodyFieldsHandleErrors(c *gin.Context, resource any) ([]any, error) {
 	var mapBody map[string]any
 
 	if err := json.Unmarshal(body, &mapBody); err != nil {
-		log.Error().Str("request-id", requestid.Get(c)).Msgf("%T: %v", err, err.Error())
-		e := errors.New("the body of your request contains invalid or un-parseable data. Please check and try again")
-		httperrors.New(c, http.StatusBadRequest, e.Error())
-		return []any{}, e
+		requestID := requestid.Get(c)
+
+		log.Error().Str("request-id", requestID).Msgf("%T: %v", err, err.Error())
+		return []any{}, ErrInvalidBody
 	}
 
 	var bodyFields []any
@@ -94,44 +88,4 @@ func GetBodyFieldsHandleErrors(c *gin.Context, resource any) ([]any, error) {
 		}
 	}
 	return bodyFields, nil
-}
-
-// GetBodyFields returns a slice of strings with the field names
-// of the resource passed in. Only names of fields which are set
-// in the body are contained in that slice.
-//
-// This function reads and copies the request body, it must always
-// be called before any of gin's c.*Bind methods.
-func GetBodyFields(c *gin.Context, resource any) ([]any, httperrors.Error) {
-	// Copy the body to be able to use it multiple times
-	body, _ := io.ReadAll(c.Request.Body)
-	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-
-	// Parse the body into a map to have all fields available
-	var mapBody map[string]any
-
-	if err := json.Unmarshal(body, &mapBody); err != nil {
-		requestID := requestid.Get(c)
-
-		log.Error().Str("request-id", requestID).Msgf("%T: %v", err, err.Error())
-		return []any{}, httperrors.Error{
-			Status: http.StatusBadRequest,
-			Err:    fmt.Errorf("%w (request ID: %s)", httperrors.ErrInvalidBody, requestID),
-		}
-	}
-
-	var bodyFields []any
-	// Add all parameters set in the body to the bodyFields
-	// This is used to determine which fields are updated in the database
-	val := reflect.Indirect(reflect.ValueOf(resource))
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Type().Field(i).Name
-		param := val.Type().Field(i).Tag.Get("json")
-
-		// If the request Body has the field, add it to the return value
-		if _, ok := mapBody[param]; ok {
-			bodyFields = append(bodyFields, field)
-		}
-	}
-	return bodyFields, httperrors.Error{}
 }

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
@@ -49,7 +49,7 @@ func (suite *TestSuiteStandard) CloseDB() {
 }
 
 func (suite *TestSuiteStandard) createTestBudget(budget models.Budget) models.Budget {
-	err := models.DB.Save(&budget).Error
+	err := models.DB.Create(&budget).Error
 	if err != nil {
 		suite.Assert().FailNow("Budget could not be saved", "Error: %s, Budget: %#v", err, budget)
 	}
@@ -58,7 +58,7 @@ func (suite *TestSuiteStandard) createTestBudget(budget models.Budget) models.Bu
 }
 
 func (suite *TestSuiteStandard) createTestCategory(category models.Category) models.Category {
-	err := models.DB.Save(&category).Error
+	err := models.DB.Create(&category).Error
 	if err != nil {
 		suite.Assert().FailNow("category could not be saved", "Error: %s, Budget: %#v", err, category)
 	}
@@ -67,7 +67,7 @@ func (suite *TestSuiteStandard) createTestCategory(category models.Category) mod
 }
 
 func (suite *TestSuiteStandard) createTestEnvelope(envelope models.Envelope) models.Envelope {
-	err := models.DB.Save(&envelope).Error
+	err := models.DB.Create(&envelope).Error
 	if err != nil {
 		suite.Assert().FailNow("Envelope could not be saved", "Error: %s, Envelope: %#v", err, envelope)
 	}
@@ -80,7 +80,7 @@ func (suite *TestSuiteStandard) createTestAccount(account models.Account) models
 		account.Name = uuid.New().String()
 	}
 
-	err := models.DB.Save(&account).Error
+	err := models.DB.Create(&account).Error
 	if err != nil {
 		suite.Assert().FailNow("Account could not be saved", "Error: %s, Account: %#v", err, account)
 	}
@@ -88,8 +88,17 @@ func (suite *TestSuiteStandard) createTestAccount(account models.Account) models
 	return account
 }
 
+func (suite *TestSuiteStandard) createTestMatchRule(matchRule models.MatchRule) models.MatchRule {
+	err := models.DB.Create(&matchRule).Error
+	if err != nil {
+		suite.Assert().FailNow("MatchRule could not be saved", "Error: %s, MatchRule: %#v", err, matchRule)
+	}
+
+	return matchRule
+}
+
 func (suite *TestSuiteStandard) createTestTransaction(transaction models.Transaction) models.Transaction {
-	err := models.DB.Save(&transaction).Error
+	err := models.DB.Create(&transaction).Error
 	if err != nil {
 		suite.Assert().FailNow("Transaction could not be saved", "Error: %s, Transaction: %#v", err, transaction)
 	}
@@ -98,7 +107,7 @@ func (suite *TestSuiteStandard) createTestTransaction(transaction models.Transac
 }
 
 func (suite *TestSuiteStandard) createTestMonthConfig(monthConfig models.MonthConfig) models.MonthConfig {
-	err := models.DB.Save(&monthConfig).Error
+	err := models.DB.Create(&monthConfig).Error
 	if err != nil {
 		suite.Assert().FailNow("MonthConfig could not be saved", "Error: %s, Transaction: %#v", err, monthConfig)
 	}
@@ -107,7 +116,7 @@ func (suite *TestSuiteStandard) createTestMonthConfig(monthConfig models.MonthCo
 }
 
 func (suite *TestSuiteStandard) createTestGoal(goal models.Goal) models.Goal {
-	err := models.DB.Save(&goal).Error
+	err := models.DB.Create(&goal).Error
 	if err != nil {
 		suite.Assert().FailNow("Goal could not be saved", "Error: %s, Goal: %#v", err, goal)
 	}

@@ -10,16 +10,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/router"
+	"github.com/envelope-zero/backend/v5/pkg/router"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-type APIResponse struct {
-	Links map[string]string
-	Error string
-}
 
 // Request is a helper method to simplify making a HTTP request for tests.
 func Request(t *testing.T, method, reqURL string, body any, headers ...map[string]string) httptest.ResponseRecorder {
@@ -70,15 +64,6 @@ func Request(t *testing.T, method, reqURL string, body any, headers ...map[strin
 	r.ServeHTTP(recorder, req)
 
 	return *recorder
-}
-
-func DecodeError(t *testing.T, s []byte) string {
-	var r httperrors.HTTPError
-	if err := json.Unmarshal(s, &r); err != nil {
-		assert.Fail(t, "Not valid JSON!", "%s", s)
-	}
-
-	return r.Error
 }
 
 // DecodeResponse decodes an HTTP response into a target struct.

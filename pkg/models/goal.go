@@ -1,9 +1,10 @@
 package models
 
 import (
+	"errors"
 	"strings"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v5/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -20,8 +21,30 @@ type Goal struct {
 	Archived   bool
 }
 
-func (g Goal) Self() string {
-	return "Goal"
+var ErrGoalAmountNotPositive = errors.New("goal amounts must be larger than zero")
+
+func (g *Goal) BeforeCreate(tx *gorm.DB) error {
+	_ = g.DefaultModel.BeforeCreate(tx)
+
+	toSave := tx.Statement.Dest.(*Goal)
+	return g.checkIntegrity(tx, *toSave)
+}
+
+func (g *Goal) BeforeUpdate(tx *gorm.DB) (err error) {
+	toSave := tx.Statement.Dest.(Goal)
+
+	if tx.Statement.Changed("EnvelopeID") {
+		err := g.checkIntegrity(tx, toSave)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (g *Goal) checkIntegrity(tx *gorm.DB, toSave Goal) error {
+	return tx.First(&Envelope{}, toSave.EnvelopeID).Error
 }
 
 func (g *Goal) BeforeSave(_ *gorm.DB) error {

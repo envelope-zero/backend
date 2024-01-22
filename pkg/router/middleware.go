@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 )

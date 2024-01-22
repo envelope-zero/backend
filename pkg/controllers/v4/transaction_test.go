@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/models"
-	"github.com/envelope-zero/backend/v4/test"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -117,7 +117,10 @@ func (suite *TestSuiteStandard) TestTransactionsDatabaseError() {
 
 			recorder := test.Request(t, tt.method, fmt.Sprintf("http://example.com/v4/transactions%s", tt.path), tt.body)
 			test.AssertHTTPStatus(t, &recorder, http.StatusInternalServerError)
-			assert.Equal(t, httperrors.ErrDatabaseClosed.Error(), test.DecodeError(t, recorder.Body.Bytes()))
+
+			var response v4.TransactionListResponse
+			test.DecodeResponse(t, &recorder, &response)
+			assert.Equal(t, models.ErrGeneral.Error(), *response.Error)
 		})
 	}
 }
@@ -307,7 +310,7 @@ func (suite *TestSuiteStandard) TestTransactionsCreateInvalidBody() {
 	var tr v4.TransactionCreateResponse
 	test.DecodeResponse(suite.T(), &r, &tr)
 
-	assert.Equal(suite.T(), httperrors.ErrInvalidBody.Error(), *tr.Error)
+	assert.Equal(suite.T(), httputil.ErrInvalidBody.Error(), *tr.Error)
 	assert.Nil(suite.T(), tr.Data)
 }
 
@@ -341,7 +344,7 @@ func (suite *TestSuiteStandard) TestTransactionsCreate() {
 			http.StatusNotFound,
 			nil,
 			[]string{
-				"there is no Account with this ID",
+				"invalid source account: there is no account matching your query",
 				"",
 			},
 		},
@@ -422,8 +425,8 @@ func (suite *TestSuiteStandard) TestTransactionsGetSingle() {
 				p = fmt.Sprintf("%s/%s", "http://example.com/v4/transactions", tt.id)
 			}
 
-			r := test.Request(suite.T(), http.MethodGet, p, "")
-			test.AssertHTTPStatus(suite.T(), &r, tt.status)
+			r := test.Request(t, http.MethodGet, p, "")
+			test.AssertHTTPStatus(t, &r, tt.status)
 		})
 	}
 }
@@ -448,7 +451,7 @@ func (suite *TestSuiteStandard) TestTransactionsDelete() {
 		},
 		{
 			"Null transaction",
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			"00000000-0000-0000-0000-000000000000",
 		},
 	}
@@ -499,12 +502,16 @@ func (suite *TestSuiteStandard) TestTransactionsUpdateFail() {
 		{
 			"Empty source account",
 			http.StatusNotFound,
-			models.Transaction{SourceAccountID: uuid.New()},
+			map[string]any{
+				"sourceAccountId": uuid.New(),
+			},
 		},
 		{
 			"Empty destination account",
 			http.StatusNotFound,
-			models.Transaction{DestinationAccountID: uuid.New()},
+			map[string]any{
+				"destinationAccountId": uuid.New(),
+			},
 		},
 		{
 			"Non-existing envelope",

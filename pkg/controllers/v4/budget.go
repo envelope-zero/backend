@@ -3,9 +3,8 @@ package v4
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
@@ -42,23 +41,23 @@ func OptionsBudgetList(c *gin.Context) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			Budgets
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/budgets/{id} [options]
 func OptionsBudgetDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	_, err = getModelByID[models.Budget](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.First(&models.Budget{}, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -82,9 +81,9 @@ func CreateBudgets(c *gin.Context) {
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &budgets)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, BudgetCreateResponse{
+		c.JSON(status(err), BudgetCreateResponse{
 			Error: &e,
 		})
 		return
@@ -97,9 +96,8 @@ func CreateBudgets(c *gin.Context) {
 	for _, editable := range budgets {
 		budget := editable.model()
 
-		dbErr := models.DB.Create(&budget).Error
-		if dbErr != nil {
-			err := httperrors.GenericDBError[models.Budget](budget, c, dbErr)
+		err := models.DB.Create(&budget).Error
+		if err != nil {
 			status = r.appendError(err, status)
 			continue
 		}
@@ -152,20 +150,20 @@ func GetBudgets(c *gin.Context) {
 	}
 	q = q.Limit(limit)
 
-	err := query(c, q.Find(&budgets))
-	if !err.Nil() {
+	err := q.Find(&budgets).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetListResponse{
+		c.JSON(status(err), BudgetListResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	var count int64
-	err = query(c, q.Limit(-1).Offset(-1).Count(&count))
-	if !err.Nil() {
+	err = q.Limit(-1).Offset(-1).Count(&count).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, BudgetListResponse{
+		c.JSON(status(err), BudgetListResponse{
 			Error: &e,
 		})
 		return
@@ -199,24 +197,25 @@ func GetBudgets(c *gin.Context) {
 // @Router			/v4/budgets/{id} [get]
 func GetBudget(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	m, err := getModelByID[models.Budget](c, id)
-	if !err.Nil() {
+	var budget models.Budget
+	err = models.DB.First(&budget, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	apiResource := newBudget(c, m)
+	apiResource := newBudget(c, budget)
 	c.JSON(http.StatusOK, BudgetResponse{Data: &apiResource})
 }
 
@@ -234,27 +233,28 @@ func GetBudget(c *gin.Context) {
 // @Router			/v4/budgets/{id} [patch]
 func UpdateBudget(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	budget, err := getModelByID[models.Budget](c, id)
-	if !err.Nil() {
+	var budget models.Budget
+	err = models.DB.First(&budget, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	updateFields, err := httputil.GetBodyFields(c, BudgetEditable{})
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
@@ -262,18 +262,18 @@ func UpdateBudget(c *gin.Context) {
 
 	var data BudgetEditable
 	err = httputil.BindData(c, &data)
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	err = query(c, models.DB.Model(&budget).Select("", updateFields...).Updates(data))
-	if !err.Nil() {
+	err = models.DB.Model(&budget).Select("", updateFields...).Updates(data).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, BudgetResponse{
+		c.JSON(status(err), BudgetResponse{
 			Error: &s,
 		})
 		return
@@ -287,31 +287,32 @@ func UpdateBudget(c *gin.Context) {
 // @Description	Deletes a budget
 // @Tags			Budgets
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/budgets/{id} [delete]
 func DeleteBudget(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	budget, err := getModelByID[models.Budget](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	var budget models.Budget
+	err = models.DB.First(&budget, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	err = query(c, models.DB.Delete(&budget))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.Delete(&budget).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return

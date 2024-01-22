@@ -3,9 +3,8 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -73,19 +72,18 @@ func newMonthConfig(c *gin.Context, model models.MonthConfig) MonthConfig {
 // getMonthConfigModel returns the month config for a specific envelope and month
 //
 // It is the month config equivalent for getModelByID
-func getMonthConfigModel(c *gin.Context, id uuid.UUID, month types.Month) (models.MonthConfig, httperrors.Error) {
+func getMonthConfigModel(id uuid.UUID, month types.Month) (models.MonthConfig, error) {
 	var m models.MonthConfig
 
-	err := query(c, models.DB.First(&m, &models.MonthConfig{
+	err := models.DB.First(&m, &models.MonthConfig{
 		EnvelopeID: id,
 		Month:      month,
-	}))
-
-	if !err.Nil() {
+	}).Error
+	if err != nil {
 		return models.MonthConfig{}, err
 	}
 
-	return m, httperrors.Error{}
+	return m, nil
 }
 
 type MonthConfigResponse struct {

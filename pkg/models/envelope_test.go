@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
@@ -56,7 +56,6 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 
 	spent := decimal.NewFromFloat(17.32)
 	transaction := suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               spent,
 		SourceAccountID:      internalAccount.ID,
@@ -65,7 +64,6 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthSum() {
 	})
 
 	_ = suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               spent,
 		SourceAccountID:      externalAccount.ID,
@@ -111,7 +109,6 @@ func (suite *TestSuiteStandard) TestCreateTransactionNoEnvelope() {
 
 	// Transactions must be able to be created without an envelope (to enable internal transfers without an Envelope and income transactions)
 	_ = suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		Amount:               decimal.NewFromFloat(17.32),
 		SourceAccountID:      internalAccount.ID,
 		DestinationAccountID: externalAccount.ID,
@@ -169,7 +166,6 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 
 	// Transaction in January
 	_ = suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               decimal.NewFromFloat(15),
 		SourceAccountID:      internalAccount.ID,
@@ -179,7 +175,6 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 
 	// Transaction in February
 	_ = suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               decimal.NewFromFloat(30),
 		SourceAccountID:      internalAccount.ID,
@@ -189,7 +184,6 @@ func (suite *TestSuiteStandard) TestEnvelopeMonthBalance() {
 
 	// Deleted transaction to verify that deleted transactions are not used in the calculation
 	deletedTransaction := suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		Amount:               decimal.NewFromFloat(30),
 		SourceAccountID:      internalAccount.ID,
@@ -243,6 +237,24 @@ func (suite *TestSuiteStandard) TestEnvelopeUnarchiveUnarchivesCategory() {
 	assert.False(suite.T(), category.Archived, "Category should be unarchived when child envelope is unarchived")
 }
 
-func (suite *TestSuiteStandard) TestEnvelopeSelf() {
-	assert.Equal(suite.T(), "Envelope", models.Envelope{}.Self())
+func (suite *TestSuiteStandard) TestEnvelopeUpdateCategory() {
+	budget := suite.createTestBudget(models.Budget{})
+	category := suite.createTestCategory(models.Category{
+		BudgetID: budget.ID,
+		Name:     "TestEnvelopeUpdateCategory",
+	})
+
+	envelope := suite.createTestEnvelope(models.Envelope{
+		CategoryID: category.ID,
+		Name:       "TestEnvelopeUnarchiveUnarchivesCategory",
+		Archived:   true,
+	})
+
+	update := models.Envelope{
+		CategoryID: suite.createTestCategory(models.Category{
+			BudgetID: budget.ID,
+		}).ID,
+	}
+	err := models.DB.Model(&envelope).Select("Archived").Updates(update).Error
+	assert.Nil(suite.T(), err)
 }

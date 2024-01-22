@@ -6,9 +6,8 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,20 +43,20 @@ func OptionsMatchRuleList(c *gin.Context) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			MatchRules
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/match-rules/{id} [options]
 func OptionsMatchRuleDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+	if err != nil {
+		c.JSON(status(err), httpError{Error: err.Error()})
 	}
 
-	_, err = getModelByID[models.MatchRule](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+	err = models.DB.First(&models.MatchRule{}, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{Error: err.Error()})
 		return
 	}
 
@@ -78,9 +77,9 @@ func CreateMatchRules(c *gin.Context) {
 	var matchRules []MatchRuleEditable
 
 	err := httputil.BindData(c, &matchRules)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleCreateResponse{
+		c.JSON(status(err), MatchRuleCreateResponse{
 			Error: &e,
 		})
 		return
@@ -91,15 +90,16 @@ func CreateMatchRules(c *gin.Context) {
 	r := MatchRuleCreateResponse{}
 
 	for _, editable := range matchRules {
-		model, err := createMatchRule(c, editable.model())
+		matchRule := editable.model()
 
-		// Append the error or the successfully created transaction to the response list
-		if !err.Nil() {
+		// Create the resource
+		err = models.DB.Create(&matchRule).Error
+		if err != nil {
 			status = r.appendError(err, status)
 			continue
 		}
 
-		data := newMatchRule(c, model)
+		data := newMatchRule(c, matchRule)
 		r.Data = append(r.Data, MatchRuleResponse{Data: &data})
 	}
 
@@ -122,7 +122,7 @@ func CreateMatchRules(c *gin.Context) {
 func GetMatchRules(c *gin.Context) {
 	var filter MatchRuleQueryFilter
 	if err := c.Bind(&filter); err != nil {
-		s := httperrors.ErrInvalidQueryString.Error()
+		s := err.Error()
 		c.JSON(http.StatusBadRequest, MatchRuleListResponse{
 			Error: &s,
 		})
@@ -134,9 +134,9 @@ func GetMatchRules(c *gin.Context) {
 
 	// Convert the QueryFilter to a Create struct
 	model, err := filter.model()
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleListResponse{Error: &e})
+		c.JSON(status(err), MatchRuleListResponse{Error: &e})
 		return
 	}
 
@@ -163,19 +163,18 @@ func GetMatchRules(c *gin.Context) {
 
 	// Execute the query
 	var matchRules []models.MatchRule
-	err = query(c, q.Find(&matchRules))
-
-	if !err.Nil() {
+	err = q.Find(&matchRules).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleListResponse{Error: &e})
+		c.JSON(status(err), MatchRuleListResponse{Error: &e})
 		return
 	}
 
 	var count int64
-	err = query(c, q.Limit(-1).Offset(-1).Count(&count))
-	if !err.Nil() {
+	err = q.Limit(-1).Offset(-1).Count(&count).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleListResponse{
+		c.JSON(status(err), MatchRuleListResponse{
 			Error: &e,
 		})
 		return
@@ -209,21 +208,22 @@ func GetMatchRules(c *gin.Context) {
 // @Router			/v4/match-rules/{id} [get]
 func GetMatchRule(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleResponse{
+		c.JSON(status(err), MatchRuleResponse{
 			Error: &e,
 		})
 		return
 	}
 
-	model, err := getModelByID[models.MatchRule](c, id)
-	if !err.Nil() {
+	var matchRule models.MatchRule
+	err = models.DB.First(&matchRule, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MatchRuleResponse{Error: &s})
+		c.JSON(status(err), MatchRuleResponse{Error: &s})
 		return
 	}
-	data := newMatchRule(c, model)
+	data := newMatchRule(c, matchRule)
 
 	c.JSON(http.StatusOK, MatchRuleResponse{
 		Data: &data,
@@ -244,27 +244,28 @@ func GetMatchRule(c *gin.Context) {
 // @Router			/v4/match-rules/{id} [patch]
 func UpdateMatchRule(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleResponse{
+		c.JSON(status(err), MatchRuleResponse{
 			Error: &e,
 		})
 		return
 	}
 
-	matchRule, err := getModelByID[models.MatchRule](c, id)
-	if !err.Nil() {
+	var matchRule models.MatchRule
+	err = models.DB.First(&matchRule, id).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleResponse{
+		c.JSON(status(err), MatchRuleResponse{
 			Error: &e,
 		})
 		return
 	}
 
 	updateFields, err := httputil.GetBodyFields(c, MatchRuleEditable{})
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleResponse{
+		c.JSON(status(err), MatchRuleResponse{
 			Error: &e,
 		})
 		return
@@ -272,30 +273,18 @@ func UpdateMatchRule(c *gin.Context) {
 
 	var data MatchRuleEditable
 	err = httputil.BindData(c, &data)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleResponse{
+		c.JSON(status(err), MatchRuleResponse{
 			Error: &e,
 		})
 		return
 	}
 
-	// Check that the referenced account exists
-	if slices.Contains(updateFields, "AccountID") {
-		_, err = getModelByID[models.Account](c, data.AccountID)
-		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, MatchRuleResponse{
-				Error: &e,
-			})
-			return
-		}
-	}
-
-	err = query(c, models.DB.Model(&matchRule).Select("", updateFields...).Updates(data.model()))
-	if !err.Nil() {
+	err = models.DB.Model(&matchRule).Select("", updateFields...).Updates(data.model()).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, MatchRuleResponse{
+		c.JSON(status(err), MatchRuleResponse{
 			Error: &e,
 		})
 		return
@@ -311,45 +300,30 @@ func UpdateMatchRule(c *gin.Context) {
 // @Description	Deletes an matchRule
 // @Tags			MatchRules
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/match-rules/{id} [delete]
 func DeleteMatchRule(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
-		return
-	}
-	matchRule, err := getModelByID[models.MatchRule](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+	if err != nil {
+		c.JSON(status(err), httpError{Error: err.Error()})
 		return
 	}
 
-	err = query(c, models.DB.Delete(&matchRule))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{Error: err.Error()})
+	var matchRule models.MatchRule
+	err = models.DB.First(&matchRule, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{Error: err.Error()})
+		return
+	}
+
+	err = models.DB.Delete(&matchRule).Error
+	if err != nil {
+		c.JSON(status(err), httpError{Error: err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusNoContent, gin.H{})
-}
-
-// createMatchRule creates a single matchRule after verifying it is a valid matchRule.
-func createMatchRule(c *gin.Context, matchRule models.MatchRule) (models.MatchRule, httperrors.Error) {
-	// Check that the referenced account exists
-	_, err := getModelByID[models.Account](c, matchRule.AccountID)
-	if !err.Nil() {
-		return matchRule, err
-	}
-
-	// Create the resource
-	dbErr := models.DB.Create(&matchRule).Error
-	if dbErr != nil {
-		return models.MatchRule{}, httperrors.GenericDBError[models.MatchRule](matchRule, c, dbErr)
-	}
-
-	return matchRule, httperrors.Error{}
 }

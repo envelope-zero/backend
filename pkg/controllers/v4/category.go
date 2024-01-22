@@ -3,9 +3,8 @@ package v4
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
@@ -42,23 +41,23 @@ func OptionsCategoryList(c *gin.Context) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			Categories
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/categories/{id} [options]
 func OptionsCategoryDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	_, err = getModelByID[models.Category](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.First(&models.Category{}, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -82,9 +81,9 @@ func CreateCategories(c *gin.Context) {
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &editables)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, CategoryCreateResponse{
+		c.JSON(status(err), CategoryCreateResponse{
 			Error: &e,
 		})
 		return
@@ -97,23 +96,14 @@ func CreateCategories(c *gin.Context) {
 	for _, editable := range editables {
 		category := editable.model()
 
-		// Verify that the budget exists. If not, append the error
-		// and move to the next one.
-		_, err := getModelByID[models.Budget](c, editable.BudgetID)
-		if !err.Nil() {
-			status = r.appendError(err, status)
-			continue
-		}
-
-		dbErr := models.DB.Create(&category).Error
-		if dbErr != nil {
-			err := httperrors.Parse(c, dbErr)
+		err = models.DB.Create(&category).Error
+		if err != nil {
 			status = r.appendError(err, status)
 			continue
 		}
 
 		data, err := newCategory(c, models.DB, category)
-		if !err.Nil() {
+		if err != nil {
 			status = r.appendError(err, status)
 			continue
 		}
@@ -149,9 +139,9 @@ func GetCategories(c *gin.Context) {
 
 	// Convert the QueryFilter to a Create struct
 	filterModel, err := filter.model()
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryListResponse{
+		c.JSON(status(err), CategoryListResponse{
 			Error: &s,
 		})
 		return
@@ -174,20 +164,20 @@ func GetCategories(c *gin.Context) {
 	q = q.Limit(limit)
 
 	var categories []models.Category
-	err = query(c, q.Find(&categories))
-	if !err.Nil() {
+	err = q.Find(&categories).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryListResponse{
+		c.JSON(status(err), CategoryListResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	var count int64
-	err = query(c, q.Limit(-1).Offset(-1).Count(&count))
-	if !err.Nil() {
+	err = q.Limit(-1).Offset(-1).Count(&count).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, CategoryListResponse{
+		c.JSON(status(err), CategoryListResponse{
 			Error: &e,
 		})
 		return
@@ -196,9 +186,9 @@ func GetCategories(c *gin.Context) {
 	data := make([]Category, 0)
 	for _, category := range categories {
 		apiResource, err := newCategory(c, models.DB, category)
-		if !err.Nil() {
+		if err != nil {
 			s := err.Error()
-			c.JSON(err.Status, CategoryListResponse{
+			c.JSON(status(err), CategoryListResponse{
 				Error: &s,
 			})
 			return
@@ -229,27 +219,28 @@ func GetCategories(c *gin.Context) {
 // @Router			/v4/categories/{id} [get]
 func GetCategory(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	category, err := getModelByID[models.Category](c, id)
-	if !err.Nil() {
+	var category models.Category
+	err = models.DB.First(&category, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	data, err := newCategory(c, models.DB, category)
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
@@ -272,27 +263,28 @@ func GetCategory(c *gin.Context) {
 // @Router			/v4/categories/{id} [patch]
 func UpdateCategory(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	category, err := getModelByID[models.Category](c, id)
-	if !err.Nil() {
+	var category models.Category
+	err = models.DB.First(&category, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	updateFields, err := httputil.GetBodyFields(c, CategoryEditable{})
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
@@ -300,27 +292,27 @@ func UpdateCategory(c *gin.Context) {
 
 	var data CategoryEditable
 	err = httputil.BindData(c, &data)
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	err = query(c, models.DB.Model(&category).Select("", updateFields...).Updates(data.model()))
-	if !err.Nil() {
+	err = models.DB.Model(&category).Select("", updateFields...).Updates(data.model()).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	r, err := newCategory(c, models.DB, category)
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, CategoryResponse{
+		c.JSON(status(err), CategoryResponse{
 			Error: &s,
 		})
 		return
@@ -333,31 +325,32 @@ func UpdateCategory(c *gin.Context) {
 // @Description	Deletes a category
 // @Tags			Categories
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/categories/{id} [delete]
 func DeleteCategory(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	category, err := getModelByID[models.Category](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	var category models.Category
+	err = models.DB.First(&category, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	err = query(c, models.DB.Delete(&category))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.Delete(&category).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return

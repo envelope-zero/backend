@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/stretchr/testify/suite"
 )
 

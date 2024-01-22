@@ -3,7 +3,7 @@ package models
 import (
 	"strings"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v5/internal/types"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
@@ -17,10 +17,6 @@ type Budget struct {
 	Name     string
 	Note     string
 	Currency string
-}
-
-func (b Budget) Self() string {
-	return "Budget"
 }
 
 func (b *Budget) BeforeSave(_ *gorm.DB) error {
@@ -60,13 +56,12 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, 
 	err = db.
 		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
 		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+		Joins("JOIN budgets ON source_account.budget_id = budgets.id").
 		Where("source_account.external = 1").
 		Where("destination_account.external = 0").
 		Where("transactions.envelope_id IS NULL").
 		Where("transactions.available_from >= date(?) AND transactions.available_from < date(?)", month, month.AddDate(0, 1)).
-		Where(&Transaction{
-			BudgetID: b.ID,
-		}).
+		Where("budgets.id = ?", b.ID).
 		Find(&transactions).
 		Error
 	if err != nil {

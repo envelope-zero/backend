@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"golang.org/x/exp/slices"
@@ -83,7 +83,6 @@ func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 		}
 
 		transaction := r.Model
-		transaction.BudgetID = budget.ID
 
 		// Find the source account and set it
 		idx := slices.IndexFunc(resources.Accounts, func(a models.Account) bool {

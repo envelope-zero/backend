@@ -5,11 +5,139 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
+
+func (suite *TestSuiteStandard) TestTransactionCreate() {
+	budgetID := suite.createTestBudget(models.Budget{}).ID
+	envelopeID := uuid.New()
+
+	tests := []struct {
+		name                 string
+		amount               float64
+		sourceAccountID      uuid.UUID
+		destinationAccountID uuid.UUID
+		envelopeID           *uuid.UUID
+		err                  error
+	}{
+		{
+			"Valid",
+			17,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			nil,
+			nil,
+		},
+		{
+			"Invalid source",
+			17,
+			uuid.New(),
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			nil,
+			models.ErrTransactionInvalidSourceAccount,
+		},
+		{
+			"Invalid destination",
+			17,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			uuid.New(),
+			nil,
+			models.ErrTransactionInvalidDestinationAccount,
+		},
+		{
+			"Invalid amount",
+			0,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			nil,
+			models.ErrTransactionAmountNotPositive,
+		},
+		{
+			"No internal accounts",
+			100,
+			suite.createTestAccount(models.Account{BudgetID: budgetID, External: true}).ID,
+			suite.createTestAccount(models.Account{BudgetID: budgetID, External: true}).ID,
+			nil,
+			models.ErrTransactionNoInternalAccounts,
+		},
+		{
+			"Transfer with Envelope Set",
+			100,
+			suite.createTestAccount(models.Account{BudgetID: budgetID, OnBudget: true}).ID,
+			suite.createTestAccount(models.Account{BudgetID: budgetID, OnBudget: true}).ID,
+			&envelopeID,
+			models.ErrTransactionTransferBetweenOnBudgetWithEnvelope,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			transaction := models.Transaction{
+				Amount:               decimal.NewFromFloat(tt.amount),
+				SourceAccountID:      tt.sourceAccountID,
+				DestinationAccountID: tt.destinationAccountID,
+				EnvelopeID:           tt.envelopeID,
+			}
+			err := models.DB.Create(&transaction).Error
+			assert.ErrorIs(t, err, tt.err, "Error is: %s", err)
+		})
+	}
+}
+
+func (suite *TestSuiteStandard) TestTransactionUpdate() {
+	budgetID := suite.createTestBudget(models.Budget{}).ID
+	transaction := suite.createTestTransaction(models.Transaction{
+		Amount:               decimal.NewFromFloat(17),
+		SourceAccountID:      suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+		DestinationAccountID: suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+	})
+
+	tests := []struct {
+		name                 string
+		amount               float64
+		sourceAccountID      uuid.UUID
+		destinationAccountID uuid.UUID
+		err                  error
+	}{
+		{
+			"Invalid source",
+			17,
+			uuid.New(),
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			models.ErrTransactionInvalidSourceAccount,
+		},
+		{
+			"Invalid destination",
+			17,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			uuid.New(),
+			models.ErrTransactionInvalidDestinationAccount,
+		},
+		{
+			"Invalid amount",
+			0,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
+			models.ErrTransactionAmountNotPositive,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.T().Run(tt.name, func(t *testing.T) {
+			update := models.Transaction{
+				Amount:               decimal.NewFromFloat(tt.amount),
+				SourceAccountID:      tt.sourceAccountID,
+				DestinationAccountID: tt.destinationAccountID,
+			}
+			err := models.DB.Model(&transaction).Updates(update).Error
+			assert.ErrorIs(t, err, tt.err, "Error is: %s", err)
+		})
+	}
+}
 
 func (suite *TestSuiteStandard) TestTransactionTrimWhitespace() {
 	note := " Some more whitespace in the notes    "
@@ -18,9 +146,9 @@ func (suite *TestSuiteStandard) TestTransactionTrimWhitespace() {
 	budgetID := suite.createTestBudget(models.Budget{}).ID
 
 	transaction := suite.createTestTransaction(models.Transaction{
+		Amount:               decimal.NewFromFloat(17),
 		Note:                 note,
 		ImportHash:           importHash,
-		BudgetID:             budgetID,
 		SourceAccountID:      suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
 		DestinationAccountID: suite.createTestAccount(models.Account{BudgetID: budgetID}).ID,
 	})
@@ -73,8 +201,8 @@ func (suite *TestSuiteStandard) TestTransactionReconciled() {
 		{"ReconciledSource enforced false for external", externalAccount.ID, models.Account{}, true, false, internalAccount.ID, models.Account{}, true, true, ""},
 		{"ReconciledDestination enforced false for external, SourceAccount & DestinationAccount set", internalAccount.ID, internalAccount, true, true, externalAccount.ID, externalAccount, true, false, ""},
 		{"ReconciledSource enforced false for external, SourceAccount & DestinationAccount set", externalAccount.ID, externalAccount, true, false, internalAccount.ID, internalAccount, true, true, ""},
-		{"SourceAccount does not exist", uuid.New(), models.Account{}, true, false, internalAccount.ID, models.Account{}, false, false, "no existing account with specified SourceAccountID: record not found"},
-		{"DestinationAccount does not exist", externalAccount.ID, externalAccount, false, false, uuid.New(), models.Account{}, true, false, "no existing account with specified DestinationAccountID: record not found"},
+		{"SourceAccount does not exist", uuid.New(), models.Account{}, true, false, internalAccount.ID, models.Account{}, false, false, "no existing account with specified SourceAccountID: there is no account matching your query"},
+		{"DestinationAccount does not exist", externalAccount.ID, externalAccount, false, false, uuid.New(), models.Account{}, true, false, "no existing account with specified DestinationAccountID: there is no account matching your query"},
 	}
 
 	for _, tt := range tests {
@@ -109,10 +237,6 @@ func (suite *TestSuiteStandard) TestTransactionReconciled() {
 	}
 }
 
-func (suite *TestSuiteStandard) TestTransactionSelf() {
-	assert.Equal(suite.T(), "Transaction", models.Transaction{}.Self())
-}
-
 // Regression test for https://github.com/envelope-zero/backend/issues/768
 func (suite *TestSuiteStandard) TestTransactionAvailableFromDate() {
 	budget := suite.createTestBudget(models.Budget{})
@@ -145,7 +269,7 @@ func (suite *TestSuiteStandard) TestTransactionEnvelopeNilUUID() {
 	eID := uuid.Nil
 
 	transaction := models.Transaction{
-		BudgetID:             budget.ID,
+		Amount:               decimal.NewFromFloat(42),
 		SourceAccountID:      externalAccount.ID,
 		DestinationAccountID: internalAccount.ID,
 		EnvelopeID:           &eID,

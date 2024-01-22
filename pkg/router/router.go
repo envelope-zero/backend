@@ -6,13 +6,11 @@ import (
 	"os"
 	"strings"
 
-	docs "github.com/envelope-zero/backend/v4/api"
-	"github.com/envelope-zero/backend/v4/pkg/controllers/healthz"
-	"github.com/envelope-zero/backend/v4/pkg/controllers/root"
-	v3 "github.com/envelope-zero/backend/v4/pkg/controllers/v3"
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	version_controller "github.com/envelope-zero/backend/v4/pkg/controllers/version"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
+	docs "github.com/envelope-zero/backend/v5/api"
+	"github.com/envelope-zero/backend/v5/pkg/controllers/healthz"
+	"github.com/envelope-zero/backend/v5/pkg/controllers/root"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	version_controller "github.com/envelope-zero/backend/v5/pkg/controllers/version"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/pprof"
@@ -55,7 +53,9 @@ func Config(url *url.URL) (*gin.Engine, func(), error) {
 	r.Use(URLMiddleware(url))
 	r.Use(MetricsMiddleware())
 	r.NoMethod(func(c *gin.Context) {
-		httperrors.New(c, http.StatusMethodNotAllowed, "This HTTP method is not allowed for the endpoint you called")
+		c.JSON(http.StatusMethodNotAllowed, gin.H{
+			"error": "This HTTP method is not allowed for the endpoint you called",
+		})
 	})
 	r.Use(logger.SetLogger(
 		logger.WithDefaultLevel(zerolog.InfoLevel),
@@ -86,7 +86,7 @@ func Config(url *url.URL) (*gin.Engine, func(), error) {
 	}
 
 	// Disable the gin debug route printing as it clutters logs (and test logs)
-	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, numHandlers int) {}
+	gin.DebugPrintRouteFunc = func(_, _, _ string, _ int) {}
 
 	// Don’t trust any proxy. We do not process any client IPs,
 	// therefore we don’t need to trust anyone here.
@@ -125,21 +125,6 @@ func AttachRoutes(group *gin.RouterGroup) {
 		root.RegisterRoutes(group.Group(""))
 		healthz.RegisterRoutes(group.Group("/healthz"))
 		version_controller.RegisterRoutes(group.Group("/version"), version)
-	}
-
-	{
-		v3Group := group.Group("/v3")
-		v3.RegisterRootRoutes(v3Group.Group(""))
-		v3.RegisterAccountRoutes(v3Group.Group("/accounts"))
-		v3.RegisterBudgetRoutes(v3Group.Group("/budgets"))
-		v3.RegisterCategoryRoutes(v3Group.Group("/categories"))
-		v3.RegisterEnvelopeRoutes(v3Group.Group("/envelopes"))
-		v3.RegisterGoalRoutes(v3Group.Group("/goals"))
-		v3.RegisterImportRoutes(v3Group.Group("/import"))
-		v3.RegisterMatchRuleRoutes(v3Group.Group("/match-rules"))
-		v3.RegisterMonthConfigRoutes(v3Group.Group("/envelopes"))
-		v3.RegisterMonthRoutes(v3Group.Group("/months"))
-		v3.RegisterTransactionRoutes(v3Group.Group("/transactions"))
 	}
 
 	{
