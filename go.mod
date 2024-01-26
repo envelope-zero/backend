@@ -20,7 +20,7 @@ require (
 	github.com/swaggo/swag v1.16.2
 	github.com/wei840222/gorm-zerolog v0.0.0-20210303025759-235c42bb33fa
 	golang.org/x/text v0.14.0
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.6
 )
 
 require (
