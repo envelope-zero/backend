@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -57,7 +57,6 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	})
 
 	incomingTransaction := suite.createTestTransaction(models.Transaction{
-		BudgetID:              budget.ID,
 		EnvelopeID:            &envelope.ID,
 		SourceAccountID:       externalAccount.ID,
 		DestinationAccountID:  account.ID,
@@ -66,7 +65,6 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	})
 
 	outgoingTransaction := suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		SourceAccountID:      account.ID,
 		DestinationAccountID: externalAccount.ID,
@@ -74,7 +72,6 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	})
 
 	_ = suite.createTestTransaction(models.Transaction{
-		BudgetID:             budget.ID,
 		SourceAccountID:      externalAccount.ID,
 		DestinationAccountID: account.ID,
 		Amount:               decimal.NewFromFloat(100),
@@ -86,7 +83,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	balance, _, err := account.GetBalanceMonth(models.DB, types.Month{})
 	assert.Nil(suite.T(), err)
 
-	reconciled, err := account.SumReconciled(models.DB)
+	reconciled, err := account.ReconciledBalance(models.DB, time.Now().AddDate(1, 0, 0))
 	assert.Nil(suite.T(), err)
 
 	expected := incomingTransaction.Amount.Sub(outgoingTransaction.Amount).Add(account.InitialBalance).Add(decimal.NewFromFloat(100)) // Add 100 for futureIncomeTransaction
@@ -112,7 +109,7 @@ func (suite *TestSuiteStandard) TestAccountCalculations() {
 	balance, _, err = account.GetBalanceMonth(models.DB, types.Month{})
 	assert.Nil(suite.T(), err)
 
-	reconciled, err = account.SumReconciled(models.DB)
+	reconciled, err = account.ReconciledBalance(models.DB, time.Now().AddDate(1, 0, 0))
 	assert.Nil(suite.T(), err)
 
 	balanceOnly, err := account.Balance(models.DB, time.Now().AddDate(1, 0, 0)) // Adding a year so that we cover all transactions
@@ -169,8 +166,7 @@ func (suite *TestSuiteStandard) TestAccountGetBalanceMonthDBFail() {
 	suite.CloseDB()
 
 	_, _, err := account.GetBalanceMonth(models.DB, types.NewMonth(2017, 7))
-	suite.Assert().NotNil(err)
-	suite.Assert().Equal("sql: database is closed", err.Error())
+	suite.Assert().ErrorIs(err, models.ErrGeneral)
 }
 
 // TestAccountDuplicateNames ensures that two accounts cannot have the same name.
@@ -193,7 +189,7 @@ func (suite *TestSuiteStandard) TestAccountDuplicateNames() {
 		return
 	}
 
-	suite.Assert().Contains(err.Error(), "UNIQUE constraint failed: accounts.budget_id, accounts.name", "Error message for account creation fail does not match expected message")
+	suite.Assert().ErrorIs(err, models.ErrAccountNameNotUnique)
 }
 
 func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvelopes() {
@@ -225,7 +221,6 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 
 	t := suite.createTestTransaction(models.Transaction{
 		Amount:               decimal.NewFromFloat(17.23),
-		BudgetID:             budget.ID,
 		SourceAccountID:      account.ID,
 		DestinationAccountID: transferTargetAccount.ID,
 		EnvelopeID:           &envelope.ID,
@@ -240,11 +235,11 @@ func (suite *TestSuiteStandard) TestAccountOnBudgetToOnBudgetTransactionsNoEnvel
 
 	// Update the envelope for the transaction
 	t.EnvelopeID = nil
-	err = models.DB.Model(&t).Updates(&t).Error
+	err = models.DB.Model(&t).Updates(t).Error
 	assert.Nil(suite.T(), err, "Transaction could not be updated")
 
 	// Save again
-	err = models.DB.Model(&transferTargetAccount).Updates(&transferTargetAccount).Error
+	err = models.DB.Model(&transferTargetAccount).Updates(transferTargetAccount).Error
 	assert.Nil(suite.T(), err, "Target account could not be updated despite transaction having its envelope removed")
 }
 
@@ -277,7 +272,6 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 
 	_ = suite.createTestTransaction(models.Transaction{
 		Amount:               decimal.NewFromFloat(17.23),
-		BudgetID:             budget.ID,
 		SourceAccountID:      account.ID,
 		DestinationAccountID: transferTargetAccount.ID,
 		EnvelopeID:           &envelope.ID,
@@ -288,10 +282,6 @@ func (suite *TestSuiteStandard) TestAccountOffBudgetToOnBudgetTransactionsNoEnve
 	err := models.DB.Model(&transferTargetAccount).Select("OnBudget").Updates(data).Error
 
 	assert.Nil(suite.T(), err, "Target account could not be updated to be on budget, but it does not have transactions with envelopes being set")
-}
-
-func (suite *TestSuiteStandard) TestAccountSelf() {
-	assert.Equal(suite.T(), "Account", models.Account{}.Self())
 }
 
 func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
@@ -340,7 +330,6 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 			eIndex = 2
 		}
 		_ = suite.createTestTransaction(models.Transaction{
-			BudgetID:             budget.ID,
 			EnvelopeID:           envelopeIDs[eIndex%3],
 			SourceAccountID:      externalAccount.ID,
 			DestinationAccountID: account.ID,
@@ -359,7 +348,6 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	// envelope, verifying the fix
 	for i := 0; i < 3; i++ {
 		_ = suite.createTestTransaction(models.Transaction{
-			BudgetID:             budget.ID,
 			EnvelopeID:           nil,
 			SourceAccountID:      externalAccount.ID,
 			DestinationAccountID: account.ID,

@@ -3,7 +3,7 @@ package models_test
 import (
 	"strings"
 
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -89,10 +89,5 @@ func (suite *TestSuiteStandard) TestCategorySetEnvelopesDBFail() {
 	suite.CloseDB()
 
 	_, err := category.Envelopes(models.DB)
-	assert.NotNil(suite.T(), err)
-	assert.Contains(suite.T(), err.Error(), "database is closed")
-}
-
-func (suite *TestSuiteStandard) TestCategorySelf() {
-	assert.Equal(suite.T(), "Category", models.Category{}.Self())
+	suite.Assert().ErrorIs(err, models.ErrGeneral)
 }

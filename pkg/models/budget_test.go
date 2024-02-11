@@ -4,8 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
@@ -99,7 +99,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
-		BudgetID:             budget.ID,
 		EnvelopeID:           nil,
 		SourceAccountID:      employerAccount.ID,
 		DestinationAccountID: bankAccount.ID,
@@ -108,7 +107,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
-		BudgetID:             budget.ID,
 		EnvelopeID:           nil,
 		SourceAccountID:      employerAccount.ID,
 		DestinationAccountID: bankAccount.ID,
@@ -117,7 +115,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo.AddDate(0, 1)),
-		BudgetID:             budget.ID,
 		EnvelopeID:           nil,
 		SourceAccountID:      employerAccount.ID,
 		DestinationAccountID: bankAccount.ID,
@@ -126,7 +123,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		SourceAccountID:      bankAccount.ID,
 		DestinationAccountID: groceryAccount.ID,
@@ -135,7 +131,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
-		BudgetID:             budget.ID,
 		EnvelopeID:           &envelope.ID,
 		SourceAccountID:      cashAccount.ID,
 		DestinationAccountID: groceryAccount.ID,
@@ -144,7 +139,6 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 
 	_ = suite.createTestTransaction(models.Transaction{
 		Date:                 time.Time(marchTwentyTwentyTwo),
-		BudgetID:             budget.ID,
 		SourceAccountID:      cashAccount.ID,
 		DestinationAccountID: groceryAccount.ID,
 		Amount:               decimal.NewFromFloat(20),
@@ -193,8 +187,7 @@ func (suite *TestSuiteStandard) TestBudgetIncomeDBFail() {
 	suite.CloseDB()
 
 	_, err := budget.Income(models.DB, types.NewMonth(1995, 2))
-	suite.Assert().NotNil(err)
-	suite.Assert().Equal("sql: database is closed", err.Error())
+	suite.Assert().ErrorIs(err, models.ErrGeneral)
 }
 
 func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
@@ -203,10 +196,5 @@ func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
 	suite.CloseDB()
 
 	_, err := budget.Allocated(models.DB, types.NewMonth(200, 2))
-	suite.Assert().NotNil(err)
-	suite.Assert().Equal("sql: database is closed", err.Error())
-}
-
-func (suite *TestSuiteStandard) TestBudgetSelf() {
-	assert.Equal(suite.T(), "Budget", models.Budget{}.Self())
+	suite.Assert().ErrorIs(err, models.ErrGeneral)
 }

@@ -3,9 +3,8 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -35,16 +34,17 @@ type MatchRuleCreateResponse struct {
 	Data  []MatchRuleResponse `json:"data"`                                                          // List of created Match Rules
 }
 
-func (m *MatchRuleCreateResponse) appendError(err httperrors.Error, status int) int {
+func (m *MatchRuleCreateResponse) appendError(err error, currentStatus int) int {
 	s := err.Error()
 	m.Data = append(m.Data, MatchRuleResponse{Error: &s})
 
 	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
+	newStatus := status(err)
+	if newStatus > currentStatus {
+		return newStatus
 	}
 
-	return status
+	return currentStatus
 }
 
 type MatchRuleResponse struct {
@@ -89,14 +89,14 @@ type MatchRuleQueryFilter struct {
 }
 
 // Parse returns a models.MatchRuleCreate struct that represents the MatchRuleQueryFilter.
-func (f MatchRuleQueryFilter) model() (models.MatchRule, httperrors.Error) {
+func (f MatchRuleQueryFilter) model() (models.MatchRule, error) {
 	envelopeID, err := httputil.UUIDFromString(f.AccountID)
-	if !err.Nil() {
+	if err != nil {
 		return models.MatchRule{}, err
 	}
 
 	return models.MatchRule{
 		Priority:  f.Priority,
 		AccountID: envelopeID,
-	}, httperrors.Error{}
+	}, nil
 }

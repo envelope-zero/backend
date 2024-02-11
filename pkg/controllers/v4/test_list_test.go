@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/test"
+	"github.com/envelope-zero/backend/v5/test"
 )
 
 // TestMethodNotAllowed tests some endpoints with disallowed HTTP methods
@@ -25,9 +25,9 @@ func (suite *TestSuiteStandard) TestMethodNotAllowed() {
 
 	for _, tt := range tests {
 		suite.T().Run(fmt.Sprintf("%s - %s", tt.path, tt.method), func(t *testing.T) {
-			recorder := test.Request(suite.T(), tt.method, tt.path, "")
+			recorder := test.Request(t, tt.method, tt.path, "")
 
-			test.AssertHTTPStatus(suite.T(), &recorder, http.StatusMethodNotAllowed)
+			test.AssertHTTPStatus(t, &recorder, http.StatusMethodNotAllowed)
 		})
 	}
 }

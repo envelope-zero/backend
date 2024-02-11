@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/controllers/root"
-	"github.com/envelope-zero/backend/v4/test"
+	"github.com/envelope-zero/backend/v5/pkg/controllers/root"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +16,7 @@ func TestOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
-	r.OPTIONS("/", func(ctx *gin.Context) {
+	r.OPTIONS("/", func(_ *gin.Context) {
 		root.Options(c)
 	})
 
@@ -32,7 +32,7 @@ func TestGet(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(recorder)
 
-	r.GET("/", func(ctx *gin.Context) {
+	r.GET("/", func(_ *gin.Context) {
 		root.Get(c)
 	})
 

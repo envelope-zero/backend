@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/models"
-	"github.com/envelope-zero/backend/v4/pkg/router"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/router"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +18,7 @@ func TestURLMiddleware(t *testing.T) {
 
 	url, _ := url.Parse("https://ez.example.com:8081/api")
 
-	r.GET("/", func(ctx *gin.Context) {
+	r.GET("/", func(_ *gin.Context) {
 		router.URLMiddleware(url)(c)
 		c.String(http.StatusOK, c.GetString(string(models.DBContextURL)))
 	})

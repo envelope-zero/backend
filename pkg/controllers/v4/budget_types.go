@@ -3,8 +3,7 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -66,20 +65,22 @@ type BudgetListResponse struct {
 }
 
 type BudgetCreateResponse struct {
+	// FIMXE: make this *error for ALL responses
 	Error *string          `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 	Data  []BudgetResponse `json:"data"`                                                          // List of created Budgets
 }
 
-func (b *BudgetCreateResponse) appendError(err httperrors.Error, status int) int {
+func (b *BudgetCreateResponse) appendError(err error, currentStatus int) int {
 	s := err.Error()
 	b.Data = append(b.Data, BudgetResponse{Error: &s})
 
 	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
+	newStatus := status(err)
+	if newStatus > currentStatus {
+		return newStatus
 	}
 
-	return status
+	return currentStatus
 }
 
 type BudgetResponse struct {

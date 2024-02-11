@@ -1,11 +1,12 @@
 package models
 
 import (
+	"errors"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
+	"github.com/envelope-zero/backend/v5/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -21,8 +22,13 @@ type Envelope struct {
 	Archived   bool
 }
 
-func (e Envelope) Self() string {
-	return "Envelope"
+var ErrEnvelopeNameNotUnique = errors.New("the envelope name must be unique for the category")
+
+func (e *Envelope) BeforeCreate(tx *gorm.DB) error {
+	_ = e.DefaultModel.BeforeCreate(tx)
+
+	toSave := tx.Statement.Dest.(*Envelope)
+	return e.checkIntegrity(tx, *toSave)
 }
 
 func (e *Envelope) BeforeSave(_ *gorm.DB) error {
@@ -35,9 +41,17 @@ func (e *Envelope) BeforeSave(_ *gorm.DB) error {
 // BeforeUpdate verifies the state of the envelope before
 // committing an update to the database.
 func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
+	toSave := tx.Statement.Dest.(Envelope)
+	if tx.Statement.Changed("CategoryID") {
+		err := e.checkIntegrity(tx, toSave)
+		if err != nil {
+			return err
+		}
+	}
+
 	// If the archival state is updated from archived to unarchived and the category is
 	// archived, unarchive the category, too.
-	if tx.Statement.Changed("Archived") && e.Archived {
+	if tx.Statement.Changed("Archived") && !toSave.Archived {
 		var category Category
 		err = tx.First(&category, e.CategoryID).Error
 		if err != nil {
@@ -45,11 +59,16 @@ func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
 		}
 
 		if category.Archived {
-			tx.Model(&category).Updates(map[string]any{"archived": false})
+			tx.Model(&category).Select("Archived").Updates(Category{Archived: false})
 		}
 	}
 
 	return
+}
+
+// checkIntegrity verifies references to other resources
+func (e *Envelope) checkIntegrity(tx *gorm.DB, toSave Envelope) error {
+	return tx.First(&Category{}, toSave.CategoryID).Error
 }
 
 // Spent returns the amount spent for the month the time.Time instance is in.

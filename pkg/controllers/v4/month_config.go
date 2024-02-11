@@ -4,10 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,14 +22,14 @@ func RegisterMonthConfigRoutes(r *gin.RouterGroup) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			Envelopes
 // @Success		204
-// @Failure		400		{object}	httperrors.HTTPError
+// @Failure		400		{object}	httpError
 // @Param			id		path		string	true	"ID of the Envelope"
 // @Param			month	path		string	true	"The month in YYYY-MM format"
 // @Router			/v4/envelopes/{id}/{month} [options]
 func OptionsMonthConfigDetail(c *gin.Context) {
 	_, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -38,9 +37,8 @@ func OptionsMonthConfigDetail(c *gin.Context) {
 
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
-		e := httperrors.Parse(c, err)
-		c.JSON(e.Status, httperrors.HTTPError{
-			Error: e.Error(),
+		c.JSON(status(err), httpError{
+			Error: err.Error(),
 		})
 		return
 	}
@@ -61,9 +59,9 @@ func OptionsMonthConfigDetail(c *gin.Context) {
 // @Router			/v4/envelopes/{id}/{month} [get]
 func GetMonthConfig(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
@@ -71,28 +69,27 @@ func GetMonthConfig(c *gin.Context) {
 
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, MonthConfigResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	_, err = getModelByID[models.Envelope](c, id)
-	if !err.Nil() {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	mConfig, err := getMonthConfigModel(c, id, types.MonthOf(month.Month))
+	err = models.DB.First(&models.Envelope{}, id).Error
+	if err != nil {
+		s := err.Error()
+		c.JSON(status(err), MonthConfigResponse{
+			Error: &s,
+		})
+		return
+	}
+
+	mConfig, err := getMonthConfigModel(id, types.MonthOf(month.Month))
 	var data MonthConfig
-	if !err.Nil() {
+	if err != nil {
 		// If there is no MonthConfig in the database, return one with the zero values
-		if errors.Is(err.Err, httperrors.ErrNoResource) {
+		if errors.Is(err, models.ErrResourceNotFound) {
 			data = newMonthConfig(c, models.MonthConfig{
 				EnvelopeID: id,
 				Month:      types.MonthOf(month.Month),
@@ -102,7 +99,7 @@ func GetMonthConfig(c *gin.Context) {
 		}
 
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
@@ -126,9 +123,9 @@ func GetMonthConfig(c *gin.Context) {
 // @Router			/v4/envelopes/{id}/{month} [patch]
 func UpdateMonthConfig(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
@@ -136,27 +133,26 @@ func UpdateMonthConfig(c *gin.Context) {
 
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, MonthConfigResponse{
+		s := err.Error()
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	_, err = getModelByID[models.Envelope](c, id)
-	if !err.Nil() {
+	err = models.DB.First(&models.Envelope{}, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	updateFields, err := httputil.GetBodyFields(c, MonthConfigEditable{})
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
@@ -164,18 +160,18 @@ func UpdateMonthConfig(c *gin.Context) {
 
 	var data MonthConfigEditable
 	err = httputil.BindData(c, &data)
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	m, err := getMonthConfigModel(c, id, types.MonthOf(month.Month))
+	m, err := getMonthConfigModel(id, types.MonthOf(month.Month))
 
 	// If no Month Config exists yet, create one
-	if !err.Nil() && errors.Is(err.Err, httperrors.ErrNoResource) {
+	if err != nil && errors.Is(err, models.ErrResourceNotFound) {
 		data.EnvelopeID = id
 		data.Month = types.Month(month.Month)
 
@@ -183,9 +179,8 @@ func UpdateMonthConfig(c *gin.Context) {
 		e := models.DB.Create(&model).Error
 
 		if e != nil {
-			err = httperrors.Parse(c, err)
-			s := e.Error()
-			c.JSON(err.Status, MonthConfigResponse{
+			s := err.Error()
+			c.JSON(status(err), MonthConfigResponse{
 				Error: &s,
 			})
 		}
@@ -198,19 +193,19 @@ func UpdateMonthConfig(c *gin.Context) {
 	}
 
 	// Handle all other errors
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	// Perform the actual update
-	err = query(c, models.DB.Model(&m).Select("", updateFields...).Updates(data.model()))
-	if !err.Nil() {
+	err = models.DB.Model(&m).Select("", updateFields...).Updates(data.model()).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, MonthConfigResponse{
+		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
 		})
 		return

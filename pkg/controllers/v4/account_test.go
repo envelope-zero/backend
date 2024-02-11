@@ -9,8 +9,9 @@ import (
 	"testing"
 	"time"
 
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/test"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -64,7 +65,10 @@ func (suite *TestSuiteStandard) TestAccountsDBClosed() {
 			func(t *testing.T) {
 				recorder := test.Request(t, http.MethodGet, "http://example.com/v4/accounts", "")
 				test.AssertHTTPStatus(t, &recorder, http.StatusInternalServerError)
-				assert.Contains(t, test.DecodeError(t, recorder.Body.Bytes()), "there is a problem with the database connection")
+
+				var response v4.AccountListResponse
+				test.DecodeResponse(t, &recorder, &response)
+				assert.Contains(t, *response.Error, models.ErrGeneral.Error())
 			},
 		},
 	}
@@ -351,9 +355,9 @@ func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 		{
 			"No Budget",
 			`[{ "note": "Some text" }]`,
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			func(t *testing.T, a v4.AccountCreateResponse) {
-				assert.Equal(t, "no Budget ID specified", *a.Data[0].Error)
+				assert.Equal(t, "there is no budget matching your query", *a.Data[0].Error)
 			},
 		},
 		{
@@ -361,7 +365,7 @@ func (suite *TestSuiteStandard) TestAccountsCreateFails() {
 			`[{ "budgetId": "ea85ad1a-3679-4ced-b83b-89566c12ece9" }]`,
 			http.StatusNotFound,
 			func(t *testing.T, a v4.AccountCreateResponse) {
-				assert.Equal(t, "there is no Budget with this ID", *a.Data[0].Error)
+				assert.Equal(t, "there is no budget matching your query", *a.Data[0].Error)
 			},
 		},
 		{
@@ -464,7 +468,7 @@ func (suite *TestSuiteStandard) TestAccountsUpdateFails() {
 		{"Invalid type", "", `{"name": 2}`, http.StatusBadRequest},
 		{"Broken JSON", "", `{ "name": 2" }`, http.StatusBadRequest},
 		{"Non-existing account", uuid.New().String(), `{"name": 2}`, http.StatusNotFound},
-		{"Set budget to uuid.Nil", "", `{ "budgetId": "00000000-0000-0000-0000-000000000000" }`, http.StatusBadRequest},
+		{"Set budget to uuid.Nil", "", `{ "budgetId": "00000000-0000-0000-0000-000000000000" }`, http.StatusNotFound},
 	}
 
 	for _, tt := range tests {

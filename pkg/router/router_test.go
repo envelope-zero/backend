@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/router"
+	"github.com/envelope-zero/backend/v5/pkg/router"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,8 +27,26 @@ func TestGinMode(t *testing.T) {
 	os.Unsetenv("GIN_MODE")
 }
 
+func TestPprofOn(t *testing.T) {
+	os.Setenv("ENABLE_PPROF", "true")
+	url, _ := url.Parse("http://example.com")
+
+	r, teardown, err := router.Config(url)
+	defer teardown()
+	assert.Nil(t, err, "Error on router initialization")
+
+	router.AttachRoutes(r.Group("/"))
+
+	var routes []string
+	for _, r := range r.Routes() {
+		routes = append(routes, r.Path)
+	}
+	assert.Contains(t, routes, "/debug/pprof/")
+
+	os.Unsetenv("ENABLE_PPROF")
+}
+
 func TestPprofOff(t *testing.T) {
-	os.Setenv("ENABLE_PPROF", "false")
 	url, _ := url.Parse("http://example.com")
 
 	r, teardown, err := router.Config(url)
@@ -40,8 +58,6 @@ func TestPprofOff(t *testing.T) {
 	for _, r := range r.Routes() {
 		assert.NotContains(t, r.Path, "pprof", "pprof routes are registered erroneously! Route: %s", r)
 	}
-
-	os.Unsetenv("ENABLE_PPROF")
 }
 
 // TestCorsSetting checks that setting of CORS works.

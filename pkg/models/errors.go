@@ -1,8 +1,10 @@
 package models
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
-	ErrAllocationZero        = errors.New("allocation amounts must be non-zero. Instead of setting to zero, delete the Allocation")
-	ErrGoalAmountNotPositive = errors.New("goal amounts must be larger than zero")
+	ErrGeneral          = errors.New("an error occurred on the server during your request")
+	ErrResourceNotFound = errors.New("there is no")
 )

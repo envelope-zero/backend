@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -89,16 +88,17 @@ type AccountCreateResponse struct {
 	Data  []AccountResponse `json:"data"`                                                          // List of created Accounts
 }
 
-func (a *AccountCreateResponse) appendError(err httperrors.Error, status int) int {
+func (a *AccountCreateResponse) appendError(err error, currentStatus int) int {
 	s := err.Error()
 	a.Data = append(a.Data, AccountResponse{Error: &s})
 
 	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
+	newStatus := status(err)
+	if newStatus > currentStatus {
+		return newStatus
 	}
 
-	return status
+	return currentStatus
 }
 
 type AccountResponse struct {
@@ -118,9 +118,9 @@ type AccountQueryFilter struct {
 	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Accounts to return. Defaults to 50.
 }
 
-func (f AccountQueryFilter) model() (models.Account, httperrors.Error) {
+func (f AccountQueryFilter) model() (models.Account, error) {
 	budgetID, err := httputil.UUIDFromString(f.BudgetID)
-	if !err.Nil() {
+	if err != nil {
 		return models.Account{}, err
 	}
 
@@ -129,7 +129,7 @@ func (f AccountQueryFilter) model() (models.Account, httperrors.Error) {
 		OnBudget: f.OnBudget,
 		External: f.External,
 		Archived: f.Archived,
-	}, httperrors.Error{}
+	}, nil
 }
 
 type RecentEnvelopesResponse struct {

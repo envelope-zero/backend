@@ -3,8 +3,7 @@ package v4
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,8 +11,8 @@ import (
 // @Description	Permanently deletes all resources
 // @Tags			v4
 // @Success		204
-// @Failure		400		{object}	httperrors.HTTPError
-// @Failure		500		{object}	httperrors.HTTPError
+// @Failure		400		{object}	httpError
+// @Failure		500		{object}	httpError
 // @Param			confirm	query		string	false	"Confirmation to delete all resources. Must have the value 'yes-please-delete-everything'"
 // @Router			/v4 [delete]
 func Cleanup(c *gin.Context) {
@@ -23,18 +22,20 @@ func Cleanup(c *gin.Context) {
 
 	err := c.Bind(&params)
 	if err != nil || params.Confirm != "yes-please-delete-everything" {
-		c.JSON(http.StatusBadRequest, httperrors.HTTPError{
-			Error: httperrors.ErrCleanupConfirmation.Error(),
+		c.JSON(http.StatusBadRequest, httpError{
+			Error: errCleanupConfirmation.Error(),
 		})
 		return
 	}
 
-	// The order is important here since there are foreign keys to consider!
-	resources := []models.Model{
-		models.MatchRule{},
-		models.Goal{},
+	// Foreign keys are checked during cleanup,
+	// add new models *before* any of the models
+	// they reference
+	resources := []any{
 		models.Transaction{},
 		models.MonthConfig{},
+		models.MatchRule{},
+		models.Goal{},
 		models.Envelope{},
 		models.Category{},
 		models.Account{},
@@ -47,7 +48,7 @@ func Cleanup(c *gin.Context) {
 	for _, model := range resources {
 		err := tx.Unscoped().Where("true").Delete(&model).Error
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, httperrors.HTTPError{
+			c.JSON(http.StatusInternalServerError, httpError{
 				Error: err.Error(),
 			})
 			tx.Rollback()

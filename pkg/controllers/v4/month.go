@@ -1,13 +1,13 @@
 package v4
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -79,10 +79,10 @@ func OptionsMonth(c *gin.Context) {
 // @Param			month	query		string	true	"The month in YYYY-MM format"
 // @Router			/v4/months [get]
 func GetMonth(c *gin.Context) {
-	qMonth, b, e := parseMonthQuery(c)
-	if !e.Nil() {
-		s := e.Error()
-		c.JSON(e.Status, MonthResponse{
+	qMonth, b, err := parseMonthQuery(c)
+	if err != nil {
+		s := err.Error()
+		c.JSON(status(err), MonthResponse{
 			Error: &s,
 		})
 		return
@@ -99,9 +99,8 @@ func GetMonth(c *gin.Context) {
 	// Add allocated sum to response
 	allocated, err := b.Allocated(models.DB, result.Month)
 	if err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, MonthResponse{
+		s := err.Error()
+		c.JSON(status(err), MonthResponse{
 			Error: &s,
 		})
 		return
@@ -111,9 +110,8 @@ func GetMonth(c *gin.Context) {
 	// Add income to response
 	income, err := b.Income(models.DB, result.Month)
 	if err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, MonthResponse{
+		s := err.Error()
+		c.JSON(status(err), MonthResponse{
 			Error: &s,
 		})
 		return
@@ -127,11 +125,9 @@ func GetMonth(c *gin.Context) {
 		Order("name ASC").
 		Find(&categories).
 		Error
-
 	if err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, MonthResponse{
+		s := err.Error()
+		c.JSON(status(err), MonthResponse{
 			Error: &s,
 		})
 		return
@@ -145,10 +141,10 @@ func GetMonth(c *gin.Context) {
 		var categoryEnvelopes CategoryEnvelopes
 
 		// Set the basic category values
-		categoryResource, e := newCategory(c, models.DB, category)
-		if !e.Nil() {
-			s := e.Error()
-			c.JSON(e.Status, MonthResponse{
+		categoryResource, err := newCategory(c, models.DB, category)
+		if err != nil {
+			s := err.Error()
+			c.JSON(status(err), MonthResponse{
 				Error: &s,
 			})
 			return
@@ -166,11 +162,9 @@ func GetMonth(c *gin.Context) {
 			Order("name asc").
 			Find(&envelopes).
 			Error
-
 		if err != nil {
-			e := httperrors.Parse(c, err)
-			s := e.Error()
-			c.JSON(e.Status, MonthResponse{
+			s := err.Error()
+			c.JSON(status(err), MonthResponse{
 				Error: &s,
 			})
 			return
@@ -179,9 +173,8 @@ func GetMonth(c *gin.Context) {
 		for _, envelope := range envelopes {
 			envelopeMonth, err := envelopeMonth(c, models.DB, envelope, result.Month)
 			if err != nil {
-				e := httperrors.Parse(c, err)
-				s := e.Error()
-				c.JSON(e.Status, MonthResponse{
+				s := err.Error()
+				c.JSON(status(err), MonthResponse{
 					Error: &s,
 				})
 				return
@@ -208,9 +201,8 @@ func GetMonth(c *gin.Context) {
 	var accounts []models.Account
 	err = models.DB.Where(&models.Account{BudgetID: b.ID, OnBudget: true}).Find(&accounts).Error
 	if err != nil {
-		e := httperrors.Parse(c, err)
-		s := e.Error()
-		c.JSON(e.Status, MonthResponse{
+		s := err.Error()
+		c.JSON(status(err), MonthResponse{
 			Error: &s,
 		})
 		return
@@ -220,9 +212,8 @@ func GetMonth(c *gin.Context) {
 	for _, a := range accounts {
 		_, available, err := a.GetBalanceMonth(models.DB, month)
 		if err != nil {
-			e := httperrors.Parse(c, err)
-			s := e.Error()
-			c.JSON(e.Status, MonthResponse{
+			s := err.Error()
+			c.JSON(status(err), MonthResponse{
 				Error: &s,
 			})
 			return
@@ -237,16 +228,16 @@ func GetMonth(c *gin.Context) {
 // @Description	Deletes all allocation for the specified month
 // @Tags			Months
 // @Success		204
-// @Failure		400		{object}	httperrors.HTTPError
-// @Failure		404		{object}	httperrors.HTTPError
-// @Failure		500		{object}	httperrors.HTTPError
+// @Failure		400		{object}	httpError
+// @Failure		404		{object}	httpError
+// @Failure		500		{object}	httpError
 // @Param			budget	query		string	true	"ID formatted as string"
 // @Param			month	query		string	true	"The month in YYYY-MM format"
 // @Router			/v4/months [delete]
 func DeleteAllocations(c *gin.Context) {
 	month, budget, err := parseMonthQuery(c)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -254,17 +245,17 @@ func DeleteAllocations(c *gin.Context) {
 
 	var monthConfigs []models.MonthConfig
 
-	err = query(c, models.DB.
+	err = models.DB.
 		Joins("JOIN envelopes ON envelopes.id = month_configs.envelope_id").
 		Joins("JOIN categories ON categories.id = envelopes.category_id").
 		Joins("JOIN budgets on budgets.id = categories.budget_id").
 		Where(models.MonthConfig{Month: month}).
 		Where("budgets.id = ?", budget.ID).
 		Where("month_configs.allocation > 0").
-		Find(&monthConfigs))
-
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+		Find(&monthConfigs).
+		Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -272,9 +263,9 @@ func DeleteAllocations(c *gin.Context) {
 
 	for _, monthConfig := range monthConfigs {
 		monthConfig.Allocation = decimal.Zero
-		err = query(c, models.DB.Updates(&monthConfig))
-		if !err.Nil() {
-			c.JSON(err.Status, httperrors.HTTPError{
+		err = models.DB.Updates(&monthConfig).Error
+		if err != nil {
+			c.JSON(status(err), httpError{
 				Error: err.Error(),
 			})
 			return
@@ -288,17 +279,17 @@ func DeleteAllocations(c *gin.Context) {
 // @Description	Sets allocations for a month for all envelopes that do not have an allocation yet
 // @Tags			Months
 // @Success		204
-// @Failure		400		{object}	httperrors.HTTPError
-// @Failure		404		{object}	httperrors.HTTPError
-// @Failure		500		{object}	httperrors.HTTPError
+// @Failure		400		{object}	httpError
+// @Failure		404		{object}	httpError
+// @Failure		500		{object}	httpError
 // @Param			budget	query		string					true	"ID formatted as string"
 // @Param			month	query		string					true	"The month in YYYY-MM format"
 // @Param			mode	body		BudgetAllocationMode	true	"Budget"
 // @Router			/v4/months [post]
 func SetAllocations(c *gin.Context) {
 	month, _, err := parseMonthQuery(c)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -307,16 +298,15 @@ func SetAllocations(c *gin.Context) {
 	// Get the mode to set new allocations in
 	var data BudgetAllocationMode
 	err = httputil.BindData(c, &data)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
 	if data.Mode != AllocateLastMonthBudget && data.Mode != AllocateLastMonthSpend {
-		httperrors.New(c, http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, httperrors.HTTPError{
+		c.JSON(http.StatusBadRequest, httpError{
 			Error: fmt.Sprintf("The mode must be %s or %s", AllocateLastMonthBudget, AllocateLastMonthSpend),
 		})
 		return
@@ -334,13 +324,14 @@ func SetAllocations(c *gin.Context) {
 
 	// Get all envelope IDs and allocation amounts where there is no allocation
 	// for the request month, but one for the last month
-	err = query(c, models.DB.
+	err = models.DB.
 		Joins("JOIN month_configs ON month_configs.envelope_id = envelopes.id AND envelopes.archived IS FALSE AND month_configs.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
 		Select("envelopes.id, month_configs.allocation").
 		Table("envelopes").
-		Find(&envelopesAmount))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+		Find(&envelopesAmount).
+		Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -356,14 +347,15 @@ func SetAllocations(c *gin.Context) {
 
 		// Find and update the correct MonthConfig.
 		// If it does not exist, create it
-		err = query(c, models.DB.Where(models.MonthConfig{
+		err = models.DB.Where(models.MonthConfig{
 			Month:      month,
 			EnvelopeID: allocation.EnvelopeID,
 		}).Assign(models.MonthConfig{
 			Allocation: amount,
-		}).FirstOrCreate(&models.MonthConfig{}))
-		if !err.Nil() {
-			c.JSON(err.Status, httperrors.HTTPError{
+		}).FirstOrCreate(&models.MonthConfig{}).
+			Error
+		if err != nil {
+			c.JSON(status(err), httpError{
 				Error: err.Error(),
 			})
 			return
@@ -391,7 +383,7 @@ func envelopeMonth(c *gin.Context, db *gorm.DB, e models.Envelope, month types.M
 	}).Error
 
 	// If an unexpected error occurs, return
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, models.ErrResourceNotFound) {
 		return EnvelopeMonth{}, err
 	}
 
@@ -408,32 +400,30 @@ func envelopeMonth(c *gin.Context, db *gorm.DB, e models.Envelope, month types.M
 //
 // It verifies that the requested budget exists and parses the ID to return
 // the budget resource itself.
-func parseMonthQuery(c *gin.Context) (types.Month, models.Budget, httperrors.Error) {
+func parseMonthQuery(c *gin.Context) (types.Month, models.Budget, error) {
 	var query struct {
 		QueryMonth
 		BudgetID string `form:"budget" example:"81b0c9ce-6fd3-4e1e-becc-106055898a2a"`
 	}
 
 	if err := c.BindQuery(&query); err != nil {
-		return types.Month{}, models.Budget{}, httperrors.Parse(c, err)
+		return types.Month{}, models.Budget{}, err
 	}
 
 	if query.Month.IsZero() {
-		return types.Month{}, models.Budget{}, httperrors.Error{
-			Status: http.StatusBadRequest,
-			Err:    httperrors.ErrMonthNotSetInQuery,
-		}
+		return types.Month{}, models.Budget{}, errMonthNotSetInQuery
 	}
 
 	budgetID, err := uuid.Parse(query.BudgetID)
 	if err != nil {
-		return types.Month{}, models.Budget{}, httperrors.Parse(c, err)
+		return types.Month{}, models.Budget{}, err
 	}
 
-	budget, e := getModelByID[models.Budget](c, budgetID)
-	if !e.Nil() {
-		return types.Month{}, models.Budget{}, e
+	var budget models.Budget
+	err = models.DB.First(&budget, budgetID).Error
+	if err != nil {
+		return types.Month{}, models.Budget{}, err
 	}
 
-	return types.MonthOf(query.Month), budget, httperrors.Error{}
+	return types.MonthOf(query.Month), budget, nil
 }

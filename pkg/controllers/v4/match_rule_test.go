@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"testing"
 
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/models"
-	"github.com/envelope-zero/backend/v4/test"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -75,7 +75,7 @@ func (suite *TestSuiteStandard) TestMatchRuleCreate() {
 			},
 			[]string{
 				"",
-				"there is no Account with this ID",
+				"there is no account matching your query",
 			},
 			http.StatusNotFound,
 		},
@@ -175,7 +175,12 @@ func (suite *TestSuiteStandard) TestMatchRulesDatabaseError() {
 
 			recorder := test.Request(t, tt.method, fmt.Sprintf("http://example.com/v4/match-rules%s", tt.path), tt.body)
 			test.AssertHTTPStatus(t, &recorder, http.StatusInternalServerError)
-			assert.Equal(t, httperrors.ErrDatabaseClosed.Error(), test.DecodeError(t, recorder.Body.Bytes()))
+
+			var response struct {
+				Error string `json:"error"`
+			}
+			test.DecodeResponse(t, &recorder, &response)
+			assert.Equal(t, models.ErrGeneral.Error(), response.Error)
 		})
 	}
 }
@@ -285,7 +290,7 @@ func (suite *TestSuiteStandard) TestMatchRulesCreateInvalidBody() {
 	var tr v4.MatchRuleCreateResponse
 	test.DecodeResponse(suite.T(), &r, &tr)
 
-	assert.Equal(suite.T(), httperrors.ErrInvalidBody.Error(), *tr.Error)
+	assert.Equal(suite.T(), httputil.ErrInvalidBody.Error(), *tr.Error)
 	assert.Nil(suite.T(), tr.Data)
 }
 
@@ -315,7 +320,7 @@ func (suite *TestSuiteStandard) TestMatchRulesCreate() {
 			nil,
 			[]string{
 				"",
-				"there is no Account with this ID",
+				"there is no account matching your query",
 			},
 		},
 		{
@@ -513,7 +518,7 @@ func (suite *TestSuiteStandard) TestMatchRulesDelete() {
 		},
 		{
 			"Null UUID",
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			"00000000-0000-0000-0000-000000000000",
 		},
 		{

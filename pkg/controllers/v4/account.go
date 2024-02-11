@@ -3,9 +3,8 @@ package v4
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
@@ -44,23 +43,23 @@ func OptionsAccountList(c *gin.Context) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			Accounts
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/accounts/{id} [options]
 func OptionsAccountDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	_, err = getModelByID[models.Account](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.First(&models.Account{}, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -84,9 +83,9 @@ func CreateAccounts(c *gin.Context) {
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &editables)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, AccountCreateResponse{
+		c.JSON(status(err), AccountCreateResponse{
 			Error: &e,
 		})
 		return
@@ -97,18 +96,8 @@ func CreateAccounts(c *gin.Context) {
 
 	for _, editable := range editables {
 		account := editable.model()
-
-		// Verify that budget exists. If not, append the error
-		// and move to the next account
-		_, err := getModelByID[models.Budget](c, editable.BudgetID)
-		if !err.Nil() {
-			status = r.appendError(err, status)
-			continue
-		}
-
-		dbErr := models.DB.Create(&account).Error
-		if dbErr != nil {
-			err := httperrors.GenericDBError[models.Account](account, c, dbErr)
+		err = models.DB.Create(&account).Error
+		if err != nil {
 			status = r.appendError(err, status)
 			continue
 		}
@@ -140,7 +129,10 @@ func CreateAccounts(c *gin.Context) {
 func GetAccounts(c *gin.Context) {
 	var filter AccountQueryFilter
 	if err := c.Bind(&filter); err != nil {
-		httperrors.InvalidQueryString(c)
+		s := err.Error()
+		c.JSON(http.StatusBadRequest, AccountListResponse{
+			Error: &s,
+		})
 		return
 	}
 
@@ -149,9 +141,9 @@ func GetAccounts(c *gin.Context) {
 
 	// Convert the QueryFilter to a Create struct
 	model, err := filter.model()
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountListResponse{
+		c.JSON(status(err), AccountListResponse{
 			Error: &s,
 		})
 		return
@@ -174,20 +166,20 @@ func GetAccounts(c *gin.Context) {
 	q = q.Limit(limit)
 
 	var accounts []models.Account
-	err = query(c, q.Find(&accounts))
-	if !err.Nil() {
+	err = q.Find(&accounts).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountListResponse{
+		c.JSON(status(err), AccountListResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	var count int64
-	err = query(c, q.Limit(-1).Offset(-1).Count(&count))
-	if !err.Nil() {
+	err = q.Limit(-1).Offset(-1).Count(&count).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, AccountListResponse{
+		c.JSON(status(err), AccountListResponse{
 			Error: &e,
 		})
 		return
@@ -224,18 +216,19 @@ func GetAccounts(c *gin.Context) {
 // @Router			/v4/accounts/{id} [get]
 func GetAccount(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(status(err), AccountResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	account, err := getModelByID[models.Account](c, id)
-	if !err.Nil() {
+	var account models.Account
+	err = models.DB.First(&account, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(status(err), AccountResponse{
 			Error: &s,
 		})
 		return
@@ -257,19 +250,20 @@ func GetAccount(c *gin.Context) {
 // @Router			/v4/accounts/{id}/recent-envelopes [get]
 func GetAccountRecentEnvelopes(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, RecentEnvelopesResponse{
+		c.JSON(status(err), RecentEnvelopesResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	account, err := getModelByID[models.Account](c, id)
-	if !err.Nil() {
+	var account models.Account
+	err = models.DB.First(&account, id).Error
+	if err != nil {
 		s := err.Error()
 
-		c.JSON(err.Status, RecentEnvelopesResponse{
+		c.JSON(status(err), RecentEnvelopesResponse{
 			Error: &s,
 		})
 		return
@@ -289,7 +283,7 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 		Limit(50)
 
 	// Group by frequency
-	dbErr := models.DB.
+	err = models.DB.
 		Table("(?)", latest).
 		// Set the nil UUID as ID if the envelope ID is NULL, since count() only counts non-null values
 		Select("IIF(e_id IS NOT NULL, e_id, NULL) as id, name").
@@ -298,10 +292,9 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 		Order("created ASC").
 		Limit(5).
 		Find(&recentEnvelopes).Error
-	if dbErr != nil {
-		err = httperrors.Parse(c, err)
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, RecentEnvelopesResponse{
+		c.JSON(status(err), RecentEnvelopesResponse{
 			Error: &s,
 		})
 		return
@@ -325,9 +318,9 @@ func GetAccountData(c *gin.Context) {
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &request)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, AccountComputedDataResponse{
+		c.JSON(status(err), AccountComputedDataResponse{
 			Error: &e,
 		})
 		return
@@ -336,40 +329,39 @@ func GetAccountData(c *gin.Context) {
 	data := make([]AccountComputedData, 0)
 	for _, idString := range request.IDs {
 		id, err := httputil.UUIDFromString(idString)
-		if !err.Nil() {
+		if err != nil {
 			s := err.Error()
-			c.JSON(err.Status, AccountComputedDataResponse{
+			c.JSON(status(err), AccountComputedDataResponse{
 				Error: &s,
 			})
 			return
 		}
 
-		account, err := getModelByID[models.Account](c, id)
-		if !err.Nil() {
+		var account models.Account
+		err = models.DB.First(&account, id).Error
+		if err != nil {
 			s := err.Error()
-			c.JSON(err.Status, AccountComputedDataResponse{
+			c.JSON(status(err), AccountComputedDataResponse{
 				Error: &s,
 			})
 			return
 		}
 
 		// Balance
-		balance, dbErr := account.Balance(models.DB, request.Time)
-		if dbErr != nil {
-			e := httperrors.Parse(c, dbErr)
-			s := e.Error()
-			c.JSON(err.Status, AccountComputedDataResponse{
+		balance, err := account.Balance(models.DB, request.Time)
+		if err != nil {
+			s := err.Error()
+			c.JSON(status(err), AccountComputedDataResponse{
 				Error: &s,
 			})
 			return
 		}
 
 		// Reconciled Balance
-		reconciledBalance, dbErr := account.ReconciledBalance(models.DB, request.Time)
-		if dbErr != nil {
-			e := httperrors.Parse(c, dbErr)
-			s := e.Error()
-			c.JSON(err.Status, AccountComputedDataResponse{
+		reconciledBalance, err := account.ReconciledBalance(models.DB, request.Time)
+		if err != nil {
+			s := err.Error()
+			c.JSON(status(err), AccountComputedDataResponse{
 				Error: &s,
 			})
 			return
@@ -398,27 +390,28 @@ func GetAccountData(c *gin.Context) {
 // @Router			/v4/accounts/{id} [patch]
 func UpdateAccount(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(status(err), AccountResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	account, err := getModelByID[models.Account](c, id)
-	if !err.Nil() {
+	var account models.Account
+	err = models.DB.First(&account, id).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(status(err), AccountResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	updateFields, err := httputil.GetBodyFields(c, AccountEditable{})
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(status(err), AccountResponse{
 			Error: &s,
 		})
 		return
@@ -426,18 +419,18 @@ func UpdateAccount(c *gin.Context) {
 
 	var data AccountEditable
 	err = httputil.BindData(c, &data)
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(status(err), AccountResponse{
 			Error: &s,
 		})
 		return
 	}
 
-	err = query(c, models.DB.Model(&account).Select("", updateFields...).Updates(data.model()))
-	if !err.Nil() {
+	err = models.DB.Model(&account).Select("", updateFields...).Updates(data.model()).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, AccountResponse{
+		c.JSON(status(err), AccountResponse{
 			Error: &s,
 		})
 		return
@@ -452,31 +445,32 @@ func UpdateAccount(c *gin.Context) {
 // @Tags			Accounts
 // @Produce		json
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/accounts/{id} [delete]
 func DeleteAccount(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	account, err := getModelByID[models.Account](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	var account models.Account
+	err = models.DB.First(&account, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	err = query(c, models.DB.Delete(&account))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.Delete(&account).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return

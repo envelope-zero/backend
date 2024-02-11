@@ -3,9 +3,8 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -71,16 +70,17 @@ type EnvelopeCreateResponse struct {
 }
 
 // appendError appends an EnvelopeResponse with the error and returns the updated HTTP status
-func (e *EnvelopeCreateResponse) appendError(err httperrors.Error, status int) int {
+func (e *EnvelopeCreateResponse) appendError(err error, currentStatus int) int {
 	s := err.Error()
 	e.Data = append(e.Data, EnvelopeResponse{Error: &s})
 
 	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
+	newStatus := status(err)
+	if newStatus > currentStatus {
+		return newStatus
 	}
 
-	return status
+	return currentStatus
 }
 
 type EnvelopeResponse struct {
@@ -98,14 +98,14 @@ type EnvelopeQueryFilter struct {
 	Limit      int    `form:"limit" filterField:"false"`  // Maximum number of Envelopes to return. Defaults to 50.
 }
 
-func (f EnvelopeQueryFilter) model() (models.Envelope, httperrors.Error) {
+func (f EnvelopeQueryFilter) model() (models.Envelope, error) {
 	categoryID, err := httputil.UUIDFromString(f.CategoryID)
-	if !err.Nil() {
+	if err != nil {
 		return models.Envelope{}, err
 	}
 
 	return models.Envelope{
 		CategoryID: categoryID,
 		Archived:   f.Archived,
-	}, httperrors.Error{}
+	}, nil
 }

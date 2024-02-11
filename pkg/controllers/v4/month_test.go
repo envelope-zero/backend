@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	v4 "github.com/envelope-zero/backend/v4/pkg/controllers/v4"
-	"github.com/envelope-zero/backend/v4/test"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
@@ -79,10 +79,14 @@ func (suite *TestSuiteStandard) TestMonthsGetInvalidRequest() {
 		{"Invalid month", "http://example.com/v4/months?month=-56", nil, http.StatusBadRequest},
 		{"Invalid UUID", "http://example.com/v4/months?budget=noUUID", nil, http.StatusBadRequest},
 		{"Month query parameter not set", strings.Replace(budget.Data.Links.Month, "YYYY-MM", "0001-01", 1), func(t *testing.T, r httptest.ResponseRecorder) {
-			assert.Equal(t, "the month query parameter must be set", test.DecodeError(suite.T(), r.Body.Bytes()))
+			var response v4.MonthResponse
+			test.DecodeResponse(t, &r, &response)
+			assert.Equal(t, "the month query parameter must be set", *response.Error)
 		}, http.StatusBadRequest},
 		{"No budget with ID", "http://example.com/v4/months?budget=6a463cc8-1938-474a-8aeb-0482b82ffb6f&month=2000-12", func(t *testing.T, r httptest.ResponseRecorder) {
-			assert.Equal(t, "there is no Budget with this ID", test.DecodeError(suite.T(), r.Body.Bytes()))
+			var response v4.MonthResponse
+			test.DecodeResponse(t, &r, &response)
+			assert.Equal(t, "there is no budget matching your query", *response.Error)
 		}, http.StatusNotFound},
 	}
 

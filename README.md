@@ -112,3 +112,4 @@ The public API is defined as:
 Not part of the public API is:
 
 - The go module itself, meaning that exported function signatures or behaviors can change at any point in time
+- The exact error messages. All error messages are intended to be displayed to users and can change with every release to improve them.

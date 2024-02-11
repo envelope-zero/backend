@@ -7,10 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Model interface {
-	Self() string
-}
-
 // DefaultModel is the base model for most models in Envelope Zero.
 // As EnvelopeMonth uses the Envelope ID and the Month as primary key,
 // the timestamps are managed in the Timestamps struct.
@@ -28,7 +24,7 @@ type Timestamps struct {
 }
 
 // BeforeCreate is set to generate a UUID for the resource.
-func (m *DefaultModel) BeforeCreate(_ *gorm.DB) (err error) {
+func (m *DefaultModel) BeforeCreate(_ *gorm.DB) error {
 	m.ID = uuid.New()
 	return nil
 }

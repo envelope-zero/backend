@@ -3,9 +3,8 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -42,7 +41,7 @@ type Category struct {
 	Envelopes []Envelope `json:"envelopes"` // Envelopes for the category
 }
 
-func newCategory(c *gin.Context, db *gorm.DB, model models.Category) (Category, httperrors.Error) {
+func newCategory(c *gin.Context, db *gorm.DB, model models.Category) (Category, error) {
 	url := c.GetString(string(models.DBContextURL))
 
 	category := Category{
@@ -61,15 +60,14 @@ func newCategory(c *gin.Context, db *gorm.DB, model models.Category) (Category, 
 
 	envelopes, err := model.Envelopes(db)
 	if err != nil {
-		e := httperrors.Parse(c, err)
-		return Category{}, e
+		return Category{}, err
 	}
 
 	for _, envelope := range envelopes {
 		category.Envelopes = append(category.Envelopes, newEnvelope(c, envelope))
 	}
 
-	return category, httperrors.Error{}
+	return category, nil
 }
 
 type CategoryListResponse struct {
@@ -83,16 +81,17 @@ type CategoryCreateResponse struct {
 	Error *string            `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 }
 
-func (c *CategoryCreateResponse) appendError(err httperrors.Error, status int) int {
+func (c *CategoryCreateResponse) appendError(err error, currentStatus int) int {
 	s := err.Error()
 	c.Data = append(c.Data, CategoryResponse{Error: &s})
 
 	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
+	newStatus := status(err)
+	if newStatus > currentStatus {
+		return newStatus
 	}
 
-	return status
+	return currentStatus
 }
 
 type CategoryResponse struct {
@@ -110,14 +109,14 @@ type CategoryQueryFilter struct {
 	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Categories to return. Defaults to 50.
 }
 
-func (f CategoryQueryFilter) model() (models.Category, httperrors.Error) {
+func (f CategoryQueryFilter) model() (models.Category, error) {
 	budgetID, err := httputil.UUIDFromString(f.BudgetID)
-	if !err.Nil() {
-		return models.Category{}, httperrors.Error{}
+	if err != nil {
+		return models.Category{}, err
 	}
 
 	return models.Category{
 		BudgetID: budgetID,
 		Archived: f.Archived,
-	}, httperrors.Error{}
+	}, nil
 }

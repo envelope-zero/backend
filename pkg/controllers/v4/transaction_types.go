@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -93,16 +92,17 @@ type TransactionCreateResponse struct {
 	Data  []TransactionResponse `json:"data"`                                                          // List of created Transactions
 }
 
-func (t *TransactionCreateResponse) appendError(err httperrors.Error, status int) int {
+func (t *TransactionCreateResponse) appendError(err error, currentStatus int) int {
 	s := err.Error()
 	t.Data = append(t.Data, TransactionResponse{Error: &s})
 
 	// The final status code is the highest HTTP status code number
-	if err.Status > status {
-		status = err.Status
+	newStatus := status(err)
+	if newStatus > currentStatus {
+		return newStatus
 	}
 
-	return status
+	return currentStatus
 }
 
 type TransactionResponse struct {
@@ -129,19 +129,19 @@ type TransactionQueryFilter struct {
 	Limit                 int             `form:"limit" filterField:"false"`             // Maximum number of transactions to return. Defaults to 50.
 }
 
-func (f TransactionQueryFilter) model() (models.Transaction, httperrors.Error) {
+func (f TransactionQueryFilter) model() (models.Transaction, error) {
 	sourceAccountID, err := httputil.UUIDFromString(f.SourceAccountID)
-	if !err.Nil() {
+	if err != nil {
 		return models.Transaction{}, err
 	}
 
 	destinationAccountID, err := httputil.UUIDFromString(f.DestinationAccountID)
-	if !err.Nil() {
+	if err != nil {
 		return models.Transaction{}, err
 	}
 
 	envelopeID, err := httputil.UUIDFromString(f.EnvelopeID)
-	if !err.Nil() {
+	if err != nil {
 		return models.Transaction{}, err
 	}
 
@@ -160,5 +160,5 @@ func (f TransactionQueryFilter) model() (models.Transaction, httperrors.Error) {
 		EnvelopeID:            eID,
 		ReconciledSource:      f.ReconciledSource,
 		ReconciledDestination: f.ReconciledDestination,
-	}.model(), httperrors.Error{}
+	}.model(), nil
 }

@@ -1,13 +1,16 @@
 package models
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
+	"regexp"
+	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
+	go_sqlite "github.com/glebarez/go-sqlite"
 	"github.com/glebarez/sqlite"
-	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
+	"github.com/rs/zerolog/log"
 	gorm_zerolog "github.com/wei840222/gorm-zerolog"
 	"gorm.io/gorm"
 )
@@ -49,38 +52,136 @@ func Connect(dsn string) error {
 		return err
 	}
 
+	// Query callbacks
+	err = db.Callback().Query().After("*").Register("envelope_zero:after_query", queryCallback)
+	if err != nil {
+		return err
+	}
+
+	err = db.Callback().Query().After("*").Register("envelope_zero:after_query_general", generalCallback)
+	if err != nil {
+		return err
+	}
+
+	// Create callbacks
+	err = db.Callback().Create().After("*").Register("envelope_zero:after_create", createUpdateCallback)
+	if err != nil {
+		return err
+	}
+
+	err = db.Callback().Create().After("*").Register("envelope_zero:after_create_general", generalCallback)
+	if err != nil {
+		return err
+	}
+
+	// Update callbacks
+	err = db.Callback().Update().After("*").Register("envelope_zero:after_update", createUpdateCallback)
+	if err != nil {
+		return err
+	}
+
+	err = db.Callback().Update().After("*").Register("envelope_zero:after_update_general", generalCallback)
+	if err != nil {
+		return err
+	}
+
+	// Delete callbacks
+	err = db.Callback().Delete().After("*").Register("envelope_zero:after_delete_general", generalCallback)
+	if err != nil {
+		return err
+	}
+
 	// Set the exported variable
 	DB = db
 
 	return nil
 }
 
+// queryCallback replaces the generic "no record" error with a more user
+// friendly one
+func queryCallback(db *gorm.DB) {
+	if errors.Is(db.Error, gorm.ErrRecordNotFound) {
+		// Use the table name as information about the type of resource
+		// and replace "_" with "[space]"
+		name := strings.ReplaceAll(db.Statement.Table, "_", " ")
+
+		// Replace pluralized "ies" with "y"
+		match := regexp.MustCompile("ies$")
+		name = match.ReplaceAllString(name, "y")
+
+		// Remove plural "s"
+		name = strings.TrimRight(name, "s")
+
+		db.Error = fmt.Errorf("%w %s matching your query", ErrResourceNotFound, name)
+	}
+}
+
+// createUpdateCallback inspects errors returned by the database for create
+// and update calls and replaces them with user friendly ones
+func createUpdateCallback(db *gorm.DB) {
+	if db.Error == nil {
+		return
+	}
+
+	// Account name must be unique per Budget
+	if strings.Contains(db.Error.Error(), "UNIQUE constraint failed: accounts.budget_id, accounts.name") {
+		db.Error = ErrAccountNameNotUnique
+	}
+
+	// Category names need to be unique per budget
+	if strings.Contains(db.Error.Error(), "UNIQUE constraint failed: categories.budget_id, categories.name") {
+		db.Error = ErrCategoryNameNotUnique
+	}
+
+	// Unique envelope names per category
+	if strings.Contains(db.Error.Error(), "UNIQUE constraint failed: envelopes.category_id, envelopes.name") {
+		db.Error = ErrEnvelopeNameNotUnique
+	}
+
+	if strings.Contains(db.Error.Error(), "UNIQUE constraint failed: month_configs.envelope_id, month_configs.month") {
+		db.Error = ErrMonthConfigMonthNotUnique
+	}
+
+	// Source and destination accounts need to be different
+	if strings.Contains(db.Error.Error(), "CHECK constraint failed: source_destination_different") {
+		db.Error = ErrSourceDoesNotEqualDestination
+	}
+}
+
+// generalCallback handles unspecified errors.
+//
+// For these errors, we cannot provide the user with a helpful message.
+// Instead, the error is logged and we return a general message to users.
+func generalCallback(db *gorm.DB) {
+	if db.Error == nil {
+		return
+	}
+
+	// "sql: database is closed" is hard-coded in the sql module, see
+	// https://cs.opensource.google/go/go/+/master:src/database/sql/sql.go;l=1298;drc=0d018b49e33b1383dc0ae5cc968e800dffeeaf7d
+	if db.Error.Error() == "sql: database is closed" || reflect.TypeOf(db.Error) == reflect.TypeOf(&go_sqlite.Error{}) {
+		// A general error where we cannot provide more useful information to the end user
+		// We log the error and provide a general error message so that server admins can debug
+		log.Error().Msgf("%T: %v", db.Error, db.Error.Error())
+		db.Error = ErrGeneral
+
+		return
+	}
+}
+
 // migrate migrates all models to the schema defined in the code.
 func migrate(db *gorm.DB) (err error) {
-	// https://github.com/envelope-zero/backend/issues/871
-	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Account{}, "hidden") {
-		err = db.Migrator().RenameColumn(&Account{}, "Hidden", "Archived")
+	// https://github.com/envelope-zero/backend/issues/874
+	// Remove with 6.0.0
+	if db.Migrator().HasColumn(&Transaction{}, "budget_id") {
+		err := db.Migrator().DropConstraint(&Transaction{}, "fk_transactions_budget")
 		if err != nil {
-			return fmt.Errorf("error when renaming Hidden -> Archived for Account: %w", err)
+			return fmt.Errorf("error when dropping BudgetID column for Transaction: %w", err)
 		}
-	}
 
-	// https://github.com/envelope-zero/backend/issues/871
-	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Category{}, "hidden") {
-		err = db.Migrator().RenameColumn(&Category{}, "Hidden", "Archived")
+		err = db.Migrator().DropColumn(&Transaction{}, "budget_id")
 		if err != nil {
-			return fmt.Errorf("error when renaming Hidden -> Archived for Category: %w", err)
-		}
-	}
-
-	// https://github.com/envelope-zero/backend/issues/871
-	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Envelope{}, "hidden") {
-		err = db.Migrator().RenameColumn(&Envelope{}, "Hidden", "Archived")
-		if err != nil {
-			return fmt.Errorf("error when renaming Hidden -> Archived for Envelope: %w", err)
+			return fmt.Errorf("error when dropping BudgetID column for Transaction: %w", err)
 		}
 	}
 
@@ -89,148 +190,5 @@ func migrate(db *gorm.DB) (err error) {
 		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
-	// https://github.com/envelope-zero/backend/issues/440
-	// Remove with 5.0.0
-	//
-	// This migration has to be executed before the overspend handling migration
-	// so that the allocation values are correct when updated by the overspend
-	// handling migration
-	if db.Migrator().HasTable("allocations") {
-		err = migrateAllocationToMonthConfig(db)
-		if err != nil {
-			return fmt.Errorf("error during migrateAllocationToMonthConfig: %w", err)
-		}
-	}
-
-	// https://github.com/envelope-zero/backend/issues/856
-	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&MonthConfig{}, "overspend_mode") {
-		err = migrateOverspendHandling(db)
-		if err != nil {
-			return fmt.Errorf("error during overspend handling migration: %w", err)
-		}
-	}
-
-	// https://github.com/envelope-zero/backend/issues/359
-	// Remove with 5.0.0
-	if db.Migrator().HasColumn(&Transaction{}, "reconciled") {
-		err = db.Migrator().DropColumn(&Transaction{}, "Reconciled")
-		if err != nil {
-			return fmt.Errorf("error when dropping reconciled column for transactions: %w", err)
-		}
-	}
-
 	return nil
-}
-
-func migrateAllocationToMonthConfig(db *gorm.DB) (err error) {
-	type allocation struct {
-		EnvelopeID string          `gorm:"column:envelope_id"`
-		Month      types.Month     `gorm:"column:month"`
-		Amount     decimal.Decimal `gorm:"column:amount"`
-	}
-
-	var allocations []allocation
-	err = db.Raw("select envelope_id, month, amount from allocations").Scan(&allocations).Error
-	if err != nil {
-		return err
-	}
-
-	// Execute all updates in a transaction
-	tx := db.Begin()
-
-	// For each allocation, read the values and update the MonthConfig with it
-	for _, allocation := range allocations {
-		id, err := uuid.Parse(allocation.EnvelopeID)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		err = tx.Where(MonthConfig{
-			Month:      allocation.Month,
-			EnvelopeID: id,
-		}).Assign(MonthConfig{
-			Allocation: allocation.Amount,
-		}).FirstOrCreate(&MonthConfig{}).Error
-
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-
-	err = tx.Raw("DROP TABLE allocations").Scan(nil).Error
-	if err != nil {
-		return err
-	}
-
-	tx.Commit()
-	return nil
-}
-
-func migrateOverspendHandling(db *gorm.DB) (err error) {
-	type overspend struct {
-		EnvelopeID    string // `gorm:"column:envelope_id"`
-		Month         types.Month
-		OverspendMode string
-	}
-
-	var overspends []overspend
-	err = db.Raw("select envelope_id, month, overspend_mode from month_configs WHERE overspend_mode = 'AFFECT_ENVELOPE'").Scan(&overspends).Error
-	if err != nil {
-		return err
-	}
-
-	// Execute all updates in a transaction
-	tx := db.Begin()
-
-	// For each overspend configuration, migrate the config as needed
-	for _, overspend := range overspends {
-		envelopeID, err := uuid.Parse(overspend.EnvelopeID)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		var envelope Envelope
-		err = tx.First(&envelope, envelopeID).Error
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		balance, err := envelope.Balance(tx, overspend.Month)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		// If the envelope is not overspent (i.e. balance is >= 0), we don't need to do anything
-		if balance.GreaterThanOrEqual(decimal.Zero) {
-			continue
-		}
-
-		var monthConfig MonthConfig
-		err = tx.Where(MonthConfig{
-			Month:      overspend.Month.AddDate(0, 1),
-			EnvelopeID: envelopeID,
-		}).FirstOrCreate(&monthConfig).Error
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		// Add the balance
-		// We need to subtract the overspent amount, since the balance is negative the overspent amount, we add it
-		monthConfig.Allocation = monthConfig.Allocation.Add(balance)
-		err = tx.Save(&monthConfig).Error
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	tx.Commit()
-
-	return db.Migrator().DropColumn(&MonthConfig{}, "overspend_mode")
 }

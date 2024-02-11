@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/envelope-zero/backend/v4/pkg/controllers/healthz"
-	"github.com/envelope-zero/backend/v4/pkg/models"
-	"github.com/envelope-zero/backend/v4/test"
+	"github.com/envelope-zero/backend/v5/pkg/controllers/healthz"
+	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,7 +19,7 @@ func TestOptions(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(w)
 
-	r.OPTIONS("/healthz", func(ctx *gin.Context) {
+	r.OPTIONS("/healthz", func(_ *gin.Context) {
 		healthz.Options(c)
 	})
 
@@ -37,7 +37,7 @@ func TestGet(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	c, r := gin.CreateTestContext(recorder)
 
-	r.GET("/", func(ctx *gin.Context) {
+	r.GET("/", func(_ *gin.Context) {
 		healthz.Get(c)
 	})
 

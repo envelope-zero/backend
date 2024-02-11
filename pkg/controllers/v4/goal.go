@@ -3,10 +3,9 @@ package v4
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v4/internal/types"
-	"github.com/envelope-zero/backend/v4/pkg/httperrors"
-	"github.com/envelope-zero/backend/v4/pkg/httputil"
-	"github.com/envelope-zero/backend/v4/pkg/models"
+	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
@@ -38,23 +37,23 @@ func OptionsGoals(c *gin.Context) {
 // @Description	Returns an empty response with the HTTP Header "allow" set to the allowed HTTP verbs
 // @Tags			Goals
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/goals/{id} [options]
 func OptionsGoalDetail(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	_, err = getModelByID[models.Goal](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.First(&models.Goal{}, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
@@ -78,9 +77,9 @@ func CreateGoals(c *gin.Context) {
 
 	// Bind data and return error if not possible
 	err := httputil.BindData(c, &goals)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalCreateResponse{
+		c.JSON(status(err), GoalCreateResponse{
 			Error: &e,
 		})
 		return
@@ -92,17 +91,8 @@ func CreateGoals(c *gin.Context) {
 
 	for _, create := range goals {
 		goal := create.model()
-
-		// Verify that the envelope exists. If not, append the error and move to the next goal
-		_, err := getModelByID[models.Envelope](c, create.EnvelopeID)
-		if !err.Nil() {
-			status = r.appendError(err, status)
-			continue
-		}
-
-		dbErr := models.DB.Create(&goal).Error
-		if dbErr != nil {
-			err := httperrors.GenericDBError[models.Goal](goal, c, dbErr)
+		err = models.DB.Create(&goal).Error
+		if err != nil {
 			status = r.appendError(err, status)
 			continue
 		}
@@ -150,9 +140,9 @@ func GetGoals(c *gin.Context) {
 	queryFields, setFields := httputil.GetURLFields(c.Request.URL, filter)
 
 	where, err := filter.model()
-	if !err.Nil() {
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, GoalListResponse{
+		c.JSON(status(err), GoalListResponse{
 			Error: &s,
 		})
 		return
@@ -209,21 +199,20 @@ func GetGoals(c *gin.Context) {
 	}
 
 	var goals []models.Goal
-	err = query(c, q.Find(&goals))
-
-	if !err.Nil() {
+	err = q.Find(&goals).Error
+	if err != nil {
 		s := err.Error()
-		c.JSON(err.Status, GoalListResponse{
+		c.JSON(status(err), GoalListResponse{
 			Error: &s,
 		})
 		return
 	}
 
 	var count int64
-	err = query(c, q.Limit(-1).Offset(-1).Count(&count))
-	if !err.Nil() {
+	err = q.Limit(-1).Offset(-1).Count(&count).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalListResponse{
+		c.JSON(status(err), GoalListResponse{
 			Error: &e,
 		})
 		return
@@ -258,19 +247,19 @@ func GetGoals(c *gin.Context) {
 // @Router			/v4/goals/{id} [get]
 func GetGoal(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalResponse{
+		c.JSON(status(err), GoalResponse{
 			Error: &e,
 		})
 		return
 	}
 
 	var goal models.Goal
-	err = query(c, models.DB.First(&goal, id))
-	if !err.Nil() {
+	err = models.DB.First(&goal, id).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalResponse{
+		c.JSON(status(err), GoalResponse{
 			Error: &e,
 		})
 		return
@@ -294,18 +283,19 @@ func GetGoal(c *gin.Context) {
 // @Router			/v4/goals/{id} [patch]
 func UpdateGoal(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalResponse{
+		c.JSON(status(err), GoalResponse{
 			Error: &e,
 		})
 		return
 	}
 
-	goal, err := getModelByID[models.Goal](c, id)
-	if !err.Nil() {
+	var goal models.Goal
+	err = models.DB.First(&goal, id).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalResponse{
+		c.JSON(status(err), GoalResponse{
 			Error: &e,
 		})
 		return
@@ -313,9 +303,9 @@ func UpdateGoal(c *gin.Context) {
 
 	// Get the fields that are set to be updated
 	updateFields, err := httputil.GetBodyFields(c, GoalEditable{})
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalResponse{
+		c.JSON(status(err), GoalResponse{
 			Error: &e,
 		})
 		return
@@ -324,30 +314,18 @@ func UpdateGoal(c *gin.Context) {
 	// Bind the data for the patch
 	var data GoalEditable
 	err = httputil.BindData(c, &data)
-	if !err.Nil() {
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalResponse{
+		c.JSON(status(err), GoalResponse{
 			Error: &e,
 		})
 		return
 	}
 
-	// Check that the referenced envelope exists
-	if slices.Contains(updateFields, "EnvelopeID") {
-		_, err = getModelByID[models.Envelope](c, data.EnvelopeID)
-		if !err.Nil() {
-			e := err.Error()
-			c.JSON(err.Status, GoalResponse{
-				Error: &e,
-			})
-			return
-		}
-	}
-
-	err = query(c, models.DB.Model(&goal).Select("", updateFields...).Updates(data.model()))
-	if !err.Nil() {
+	err = models.DB.Model(&goal).Select("", updateFields...).Updates(data.model()).Error
+	if err != nil {
 		e := err.Error()
-		c.JSON(err.Status, GoalResponse{
+		c.JSON(status(err), GoalResponse{
 			Error: &e,
 		})
 		return
@@ -361,31 +339,32 @@ func UpdateGoal(c *gin.Context) {
 // @Description	Deletes a goal
 // @Tags			Goals
 // @Success		204
-// @Failure		400	{object}	httperrors.HTTPError
-// @Failure		404	{object}	httperrors.HTTPError
-// @Failure		500	{object}	httperrors.HTTPError
+// @Failure		400	{object}	httpError
+// @Failure		404	{object}	httpError
+// @Failure		500	{object}	httpError
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/goals/{id} [delete]
 func DeleteGoal(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	goal, err := getModelByID[models.Goal](c, id)
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	var goal models.Goal
+	err = models.DB.First(&goal, id).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
 	}
 
-	err = query(c, models.DB.Delete(&goal))
-	if !err.Nil() {
-		c.JSON(err.Status, httperrors.HTTPError{
+	err = models.DB.Delete(&goal).Error
+	if err != nil {
+		c.JSON(status(err), httpError{
 			Error: err.Error(),
 		})
 		return
