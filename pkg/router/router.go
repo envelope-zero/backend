@@ -57,20 +57,6 @@ func Config(url *url.URL) (*gin.Engine, func(), error) {
 			"error": "This HTTP method is not allowed for the endpoint you called",
 		})
 	})
-	r.Use(logger.SetLogger(
-		logger.WithDefaultLevel(zerolog.InfoLevel),
-		logger.WithClientErrorLevel(zerolog.InfoLevel),
-		logger.WithServerErrorLevel(zerolog.ErrorLevel),
-		logger.WithLogger(func(c *gin.Context, logger zerolog.Logger) zerolog.Logger {
-			return logger.With().
-				Str("request-id", requestid.Get(c)).
-				Str("method", c.Request.Method).
-				Str("path", c.Request.URL.Path).
-				Int("status", c.Writer.Status()).
-				Int("size", c.Writer.Size()).
-				Str("user-agent", c.Request.UserAgent()).
-				Logger()
-		})))
 
 	// CORS settings
 	allowOrigins, ok := os.LookupEnv("CORS_ALLOW_ORIGINS")
@@ -108,8 +94,45 @@ func Config(url *url.URL) (*gin.Engine, func(), error) {
 // Separating this from RouterConfig() allows us to attach it to different
 // paths for different use cases, e.g. the standalone version.
 func AttachRoutes(group *gin.RouterGroup) {
-	// Register metrics
-	group.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	ezLogger := logger.SetLogger(
+		logger.WithDefaultLevel(zerolog.InfoLevel),
+		logger.WithClientErrorLevel(zerolog.InfoLevel),
+		logger.WithServerErrorLevel(zerolog.ErrorLevel),
+		logger.WithLogger(func(c *gin.Context, logger zerolog.Logger) zerolog.Logger {
+			return logger.With().
+				Str("request-id", requestid.Get(c)).
+				Str("method", c.Request.Method).
+				Str("path", c.Request.URL.Path).
+				Int("status", c.Writer.Status()).
+				Int("size", c.Writer.Size()).
+				Str("user-agent", c.Request.UserAgent()).
+				Logger()
+		}),
+	)
+
+	// skipLogger returns the correct logger for the route
+	//
+	// This is either a logger that skips logging or the ezLogger
+	skipLogger := func(path, envVar string) gin.HandlerFunc {
+		disable, ok := os.LookupEnv(envVar)
+		if ok && disable == "true" {
+			return logger.SetLogger(
+				logger.WithSkipPath([]string{path}),
+			)
+		}
+
+		return ezLogger
+	}
+
+	// metrics
+	group.GET("/metrics", skipLogger("/metrics", "DISABLE_METRICS_LOGS"), gin.WrapH(promhttp.Handler()))
+
+	// healthz
+	healthzGroup := group.Group("/healthz", skipLogger("/healthz", "DISABLE_HEALTHZ_LOGS"))
+	healthz.RegisterRoutes(healthzGroup.Group(""))
+
+	// All groups that can disable logs are registered, register logger by default
+	group.Use(ezLogger)
 
 	// pprof performance profiles
 	enablePprof, ok := os.LookupEnv("ENABLE_PPROF")
@@ -120,13 +143,13 @@ func AttachRoutes(group *gin.RouterGroup) {
 	// Swagger API docs
 	group.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	// Unversioned global endpoints
 	{
-		// Unversioned global endpoints
 		root.RegisterRoutes(group.Group(""))
-		healthz.RegisterRoutes(group.Group("/healthz"))
 		version_controller.RegisterRoutes(group.Group("/version"), version)
 	}
 
+	// v4
 	{
 		v4Group := group.Group("/v4")
 		v4.RegisterRootRoutes(v4Group.Group(""))
