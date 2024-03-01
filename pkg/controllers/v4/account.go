@@ -275,7 +275,7 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 	latest := models.DB.
 		Model(&models.Transaction{}).
 		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
-		Select("envelopes.id as e_id, envelopes.name as name, datetime(envelopes.created_at) as created").
+		Select("envelopes.id as e_id, envelopes.name as name, datetime(envelopes.created_at) as created, envelopes.archived as archived").
 		Where(&models.Transaction{
 			DestinationAccountID: account.ID,
 		}).
@@ -286,7 +286,7 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 	err = models.DB.
 		Table("(?)", latest).
 		// Set the nil UUID as ID if the envelope ID is NULL, since count() only counts non-null values
-		Select("IIF(e_id IS NOT NULL, e_id, NULL) as id, name").
+		Select("IIF(e_id IS NOT NULL, e_id, NULL) as id, name, archived").
 		Group("id").
 		Order("count(IIF(e_id IS NOT NULL, e_id, '0')) DESC"). // Order with a different IIF since NULL is ignored for count
 		Order("created ASC").

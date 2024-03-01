@@ -138,8 +138,9 @@ type RecentEnvelopesResponse struct {
 }
 
 type RecentEnvelope struct {
-	Name string     `json:"name"`
-	ID   *uuid.UUID `json:"id"`
+	ID       *uuid.UUID `json:"id"`
+	Name     string     `json:"name"`
+	Archived bool       `json:"archived"`
 }
 
 type AccountComputedRequest struct {
