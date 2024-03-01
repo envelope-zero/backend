@@ -29,12 +29,36 @@ func Connect(dsn string) error {
 		Logger: gorm_zerolog.New(),
 	}
 
+	// Migration with foreign keys disabled since we're dropping tables
+	// during migration
+	//
+	// sqlite does not support ALTER COLUMN, so tables are copied to a temporary table,
+	// then the table is dropped and recreated
 	db, err := gorm.Open(sqlite.Open(dsn), config)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	err = migrate(db)
+	if err != nil {
+		return err
+	}
+
+	// Close the connection
 	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get database object: %w", err)
+	}
+	sqlDB.Close()
+
+	// Now, reconnect with foreign keys enabled
+	dsn = fmt.Sprintf("%s?_pragma=foreign_keys(1)", dsn)
+	db, err = gorm.Open(sqlite.Open(dsn), config)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	sqlDB, err = db.DB()
 	if err != nil {
 		return fmt.Errorf("failed to get database object: %w", err)
 	}
@@ -46,11 +70,6 @@ func Connect(dsn string) error {
 	// If you have ideas how to improve this, you are very welcome to open an issue or a PR. Thank you!
 	sqlDB.SetMaxIdleConns(1)
 	sqlDB.SetMaxOpenConns(1)
-
-	err = migrate(db)
-	if err != nil {
-		return err
-	}
 
 	// Query callbacks
 	err = db.Callback().Query().After("*").Register("envelope_zero:after_query", queryCallback)

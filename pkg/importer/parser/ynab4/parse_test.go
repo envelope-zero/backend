@@ -15,6 +15,7 @@ import (
 	"github.com/envelope-zero/backend/v5/pkg/importer"
 	"github.com/envelope-zero/backend/v5/pkg/importer/parser/ynab4"
 	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,9 +29,9 @@ func date(year int, month time.Month, day int) time.Time {
 }
 
 // testDB returns an in-memory test database and a function to close it.
-func testDB() (*gorm.DB, func() error) {
+func testDB(t *testing.T) (*gorm.DB, func() error) {
 	// Connect a database
-	err := models.Connect(":memory:?_pragma=foreign_keys(1)")
+	err := models.Connect(test.TmpFile(t))
 	if err != nil {
 		log.Fatalf("Database connection failed with: %#v", err)
 	}
@@ -88,7 +89,7 @@ func TestParse(t *testing.T) {
 	require.Nil(t, err, "Parsing failed", err)
 
 	// Create test database and import
-	db, closeDb := testDB()
+	db, closeDb := testDB(t)
 	defer closeDb()
 
 	b, err := importer.Create(db, r)

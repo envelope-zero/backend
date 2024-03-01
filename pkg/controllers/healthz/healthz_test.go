@@ -1,7 +1,6 @@
 package healthz_test
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,7 +30,7 @@ func TestOptions(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	require.Nil(t, models.Connect(fmt.Sprintf("%s?_pragma=foreign_keys(1)", test.TmpFile(t))))
+	require.Nil(t, models.Connect(test.TmpFile(t)))
 
 	t.Parallel()
 	recorder := httptest.NewRecorder()
