@@ -4608,6 +4608,9 @@ const docTemplate = `{
         "v4.RecentEnvelope": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },

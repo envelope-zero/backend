@@ -608,9 +608,15 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 
 	envelopeIDs := []*uuid.UUID{}
 	for i := 0; i < 3; i++ {
+		archived := false
+		if i%2 == 0 {
+			archived = true
+		}
+
 		envelope := createTestEnvelope(suite.T(), v4.EnvelopeEditable{
 			CategoryID: category.Data.ID,
 			Name:       strconv.Itoa(i),
+			Archived:   archived,
 		})
 
 		envelopeIDs = append(envelopeIDs, &envelope.Data.ID)
@@ -668,10 +674,14 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	// The last envelope needs to be the first in the sort since it
 	// has been the most common one
 	suite.Assert().Equal(envelopeIDs[2], data[0].ID)
+	suite.Assert().Equal(true, data[0].Archived)
 
 	// Income is the second one since it appears three times
 	var nilUUIDPointer *uuid.UUID
 	suite.Assert().Equal(nilUUIDPointer, data[1].ID)
+	suite.Assert().Equal(false, data[1].Archived)
 
-	// Order for envelopes with the same frequency is undefined
+	// Order for envelopes with the same frequency is undefined and therefore not tested
+	// Only one of the two is archived, but since the order is undefined we XOR them
+	suite.Assert().Equal(true, data[2].Archived != data[3].Archived)
 }

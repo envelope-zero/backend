@@ -1145,6 +1145,8 @@ definitions:
     type: object
   v4.RecentEnvelope:
     properties:
+      archived:
+        type: boolean
       id:
         type: string
       name:
