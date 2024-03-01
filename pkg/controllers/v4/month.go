@@ -287,7 +287,7 @@ func DeleteAllocations(c *gin.Context) {
 // @Param			mode	body		BudgetAllocationMode	true	"Budget"
 // @Router			/v4/months [post]
 func SetAllocations(c *gin.Context) {
-	month, _, err := parseMonthQuery(c)
+	month, budget, err := parseMonthQuery(c)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -325,9 +325,12 @@ func SetAllocations(c *gin.Context) {
 	// Get all envelope IDs and allocation amounts where there is no allocation
 	// for the request month, but one for the last month
 	err = models.DB.
+		Joins("JOIN categories ON categories.id = envelopes.category_id ").
+		Joins("JOIN budgets ON budgets.id = categories.budget_id").
 		Joins("JOIN month_configs ON month_configs.envelope_id = envelopes.id AND envelopes.archived IS FALSE AND month_configs.month = ? AND NOT EXISTS(?)", pastMonth, queryCurrentMonth).
 		Select("envelopes.id, month_configs.allocation").
 		Table("envelopes").
+		Where("budgets.id = ?", budget.ID).
 		Find(&envelopesAmount).
 		Error
 	if err != nil {
