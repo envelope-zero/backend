@@ -164,6 +164,7 @@ func (suite *TestSuiteStandard) TestMonthsDeleteFail() {
 
 func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
+
 	category := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: budget.Data.ID})
 	envelope1 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: category.Data.ID})
 	envelope2 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: category.Data.ID})
@@ -173,6 +174,12 @@ func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 	e2Amount := decimal.NewFromFloat(40)
 	eArchivedAmount := decimal.NewFromFloat(50)
 
+	// Unaffected budget
+	budgetUnaffected := createTestBudget(suite.T(), v4.BudgetEditable{Name: "Nothing should happen with this"})
+	categoryUnaffected := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: budgetUnaffected.Data.ID})
+	envelopeUnaffected := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: categoryUnaffected.Data.ID})
+
+	// Months
 	january := types.NewMonth(2022, 1)
 	february := january.AddDate(0, 1)
 
@@ -185,6 +192,7 @@ func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 		{envelope1.Data.ID, january, e1Amount},
 		{envelope2.Data.ID, january, e2Amount},
 		{archivedEnvelope.Data.ID, january, eArchivedAmount},
+		{envelopeUnaffected.Data.ID, january, decimal.NewFromFloat(100)},
 	}
 
 	for _, allocation := range allocations {
@@ -219,6 +227,14 @@ func (suite *TestSuiteStandard) TestMonthsAllocateBudgeted() {
 
 	// Quick allocations skip archived envelopes, so this should be zero
 	suite.Assert().True(archivedEnvelopeMonth.Data.Allocation.IsZero(), "Expected: 0, got %s, Request ID: %s", archivedEnvelopeMonth.Data.Allocation, recorder.Header().Get("x-request-id"))
+
+	// Verify that nothing happened for the unaffected budget
+	// Regression test for https://github.com/envelope-zero/backend/issues/972
+	recorder = test.Request(suite.T(), http.MethodGet, strings.Replace(envelopeUnaffected.Data.Links.Month, "YYYY-MM", february.String(), 1), "")
+	test.AssertHTTPStatus(suite.T(), &recorder, http.StatusOK)
+	var envelopeUnaffectedMonth v4.MonthConfigResponse
+	test.DecodeResponse(suite.T(), &recorder, &envelopeUnaffectedMonth)
+	suite.Assert().True(envelopeUnaffectedMonth.Data.Allocation.Equal(decimal.Zero), "Expected: %s, got %s, Request ID: %s", decimal.Zero, envelopeUnaffectedMonth.Data.Allocation, recorder.Header().Get("x-request-id"))
 }
 
 func (suite *TestSuiteStandard) TestMonthsAllocateSpend() {
