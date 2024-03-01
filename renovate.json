@@ -14,7 +14,7 @@
   "rebaseWhen": "behind-base-branch",
   "semanticCommits": "enabled",
   "platformAutomerge": true,
-  "postUpdateOptions": ["gomodTidy"],
+  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
   "regexManagers": [
     {
       "description": "Upgrade go version",
