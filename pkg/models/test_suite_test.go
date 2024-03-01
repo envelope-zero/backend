@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/envelope-zero/backend/v5/pkg/models"
+	"github.com/envelope-zero/backend/v5/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
@@ -32,7 +33,7 @@ func (suite *TestSuiteStandard) TearDownTest() {
 
 // SetupTest is called before each test in the suite.
 func (suite *TestSuiteStandard) SetupTest() {
-	err := models.Connect(":memory:?_pragma=foreign_keys(1)")
+	err := models.Connect(test.TmpFile(suite.T()))
 	if err != nil {
 		log.Fatalf("Database connection failed with: %#v", err)
 	}

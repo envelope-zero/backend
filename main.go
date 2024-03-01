@@ -60,7 +60,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to create database directory")
 	}
 
-	err = models.Connect("data/gorm.db?_pragma=foreign_keys(1)")
+	err = models.Connect("data/gorm.db")
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
