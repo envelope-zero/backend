@@ -11,7 +11,6 @@ import (
 	go_sqlite "github.com/glebarez/go-sqlite"
 	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog/log"
-	gorm_zerolog "github.com/wei840222/gorm-zerolog"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +25,9 @@ const (
 // Connect opens the SQLite database and configures the connection pool.
 func Connect(dsn string) error {
 	config := &gorm.Config{
-		Logger: gorm_zerolog.New(),
+		Logger: &logger{
+			Logger: log.Logger,
+		},
 	}
 
 	// Migration with foreign keys disabled since we're dropping tables
