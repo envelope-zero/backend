@@ -2733,6 +2733,17 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "INCOMING",
+                            "OUTGOING",
+                            "TRANSFER"
+                        ],
+                        "type": "string",
+                        "description": "Filter by direction of transaction",
+                        "name": "direction",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Filter by envelope ID",
                         "name": "envelope",

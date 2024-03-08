@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -305,7 +306,7 @@ func SetAllocations(c *gin.Context) {
 		return
 	}
 
-	if data.Mode != AllocateLastMonthBudget && data.Mode != AllocateLastMonthSpend {
+	if !slices.Contains([]AllocationMode{AllocateLastMonthBudget, AllocateLastMonthSpend}, data.Mode) {
 		c.JSON(http.StatusBadRequest, httpError{
 			Error: fmt.Sprintf("The mode must be %s or %s", AllocateLastMonthBudget, AllocateLastMonthSpend),
 		})
