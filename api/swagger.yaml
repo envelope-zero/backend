@@ -3219,6 +3219,14 @@ paths:
         in: query
         name: destination
         type: string
+      - description: Filter by direction of transaction
+        enum:
+        - INCOMING
+        - OUTGOING
+        - TRANSFER
+        in: query
+        name: direction
+        type: string
       - description: Filter by envelope ID
         in: query
         name: envelope

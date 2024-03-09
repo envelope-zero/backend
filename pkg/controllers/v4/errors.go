@@ -24,14 +24,14 @@ func status(err error) int {
 	return http.StatusBadRequest
 }
 
-// Cleanup errors
-var (
-	errCleanupConfirmation = errors.New("the confirmation for the cleanup API call was incorrect")
-)
-
 var (
 	errAccountIDParameter = errors.New("the accountId parameter must be set")
 	errMonthNotSetInQuery = errors.New("the month query parameter must be set")
+)
+
+// Cleanup errors
+var (
+	errCleanupConfirmation = errors.New("the confirmation for the cleanup API call was incorrect")
 )
 
 // Import errors
@@ -40,4 +40,9 @@ var (
 	errWrongFileSuffix  = errors.New("this endpoint only supports files of the following types")
 	errBudgetNameInUse  = errors.New("this budget name is already in use. Imports from YNAB 4 create a new budget, therefore the name needs to be unique")
 	errBudgetNameNotSet = errors.New("the budgetName parameter must be set")
+)
+
+// Transaction errors
+var (
+	errTransactionDirectionInvalid = errors.New("the specified transaction direction is invalid")
 )

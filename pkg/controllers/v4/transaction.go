@@ -112,22 +112,23 @@ func GetTransaction(c *gin.Context) {
 // @Failure		400	{object}	TransactionListResponse
 // @Failure		500	{object}	TransactionListResponse
 // @Router			/v4/transactions [get]
-// @Param			date					query	string	false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
-// @Param			fromDate				query	string	false	"Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
-// @Param			untilDate				query	string	false	"Transactions before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
-// @Param			amount					query	string	false	"Filter by amount"
-// @Param			amountLessOrEqual		query	string	false	"Amount less than or equal to this"
-// @Param			amountMoreOrEqual		query	string	false	"Amount more than or equal to this"
-// @Param			note					query	string	false	"Filter by note"
-// @Param			budget					query	string	false	"Filter by budget ID"
-// @Param			account					query	string	false	"Filter by ID of associated account, regardeless of source or destination"
-// @Param			source					query	string	false	"Filter by source account ID"
-// @Param			destination				query	string	false	"Filter by destination account ID"
-// @Param			envelope				query	string	false	"Filter by envelope ID"
-// @Param			reconciledSource		query	bool	false	"Reconcilication state in source account"
-// @Param			reconciledDestination	query	bool	false	"Reconcilication state in destination account"
-// @Param			offset					query	uint	false	"The offset of the first Transaction returned. Defaults to 0."
-// @Param			limit					query	int		false	"Maximum number of Transactions to return. Defaults to 50."
+// @Param			date					query	string					false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			fromDate				query	string					false	"Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			untilDate				query	string					false	"Transactions before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			amount					query	string					false	"Filter by amount"
+// @Param			amountLessOrEqual		query	string					false	"Amount less than or equal to this"
+// @Param			amountMoreOrEqual		query	string					false	"Amount more than or equal to this"
+// @Param			note					query	string					false	"Filter by note"
+// @Param			budget					query	string					false	"Filter by budget ID"
+// @Param			account					query	string					false	"Filter by ID of associated account, regardeless of source or destination"
+// @Param			source					query	string					false	"Filter by source account ID"
+// @Param			destination				query	string					false	"Filter by destination account ID"
+// @Param			direction				query	TransactionDirection	false	"Filter by direction of transaction"
+// @Param			envelope				query	string					false	"Filter by envelope ID"
+// @Param			reconciledSource		query	bool					false	"Reconcilication state in source account"
+// @Param			reconciledDestination	query	bool					false	"Reconcilication state in destination account"
+// @Param			offset					query	uint					false	"The offset of the first Transaction returned. Defaults to 0."
+// @Param			limit					query	int						false	"Maximum number of Transactions to return. Defaults to 50."
 func GetTransactions(c *gin.Context) {
 	var filter TransactionQueryFilter
 	if err := c.Bind(&filter); err != nil {
@@ -181,7 +182,7 @@ func GetTransactions(c *gin.Context) {
 		// We join on the source account ID since all resources need to belong to the
 		// same budget anyways
 		q = q.
-			Joins("JOIN accounts on accounts.id = transactions.source_account_id ").
+			Joins("JOIN accounts on accounts.id = transactions.source_account_id").
 			Joins("JOIN budgets on budgets.id = accounts.budget_id").
 			Where("budgets.id = ?", budgetID)
 	}
@@ -201,6 +202,39 @@ func GetTransactions(c *gin.Context) {
 		}).Or(&models.Transaction{
 			DestinationAccountID: accountID,
 		}))
+	}
+
+	if filter.Direction != "" {
+		if !slices.Contains([]TransactionDirection{DirectionIncoming, DirectionOutgoing, DirectionTransfer}, filter.Direction) {
+			s := errTransactionDirectionInvalid.Error()
+			c.JSON(http.StatusBadRequest, TransactionListResponse{
+				Error: &s,
+			})
+		}
+
+		if filter.Direction == DirectionTransfer {
+			// Transfers are internal account to internal account
+			q = q.
+				Joins("JOIN accounts AS accounts_source on accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS accounts_destination on accounts_destination.id = transactions.destination_account_id").
+				Where("accounts_source.external = false AND accounts_destination.external = false")
+		}
+
+		if filter.Direction == DirectionIncoming {
+			// Incoming is off-budget (external accounts are enforced to be off-budget) to on-budget accounts
+			q = q.
+				Joins("JOIN accounts AS accounts_source on accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS accounts_destination on accounts_destination.id = transactions.destination_account_id").
+				Where("accounts_source.on_budget = false AND accounts_destination.on_budget = true")
+		}
+
+		if filter.Direction == DirectionOutgoing {
+			// Outgoing is on-budget to off-budget accounts (external accounts are enforced to be off-budget)
+			q = q.
+				Joins("JOIN accounts AS accounts_source on accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS accounts_destination on accounts_destination.id = transactions.destination_account_id").
+				Where("accounts_source.on_budget = true AND accounts_destination.on_budget = false")
+		}
 	}
 
 	if !filter.AmountLessOrEqual.IsZero() {

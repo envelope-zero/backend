@@ -169,9 +169,9 @@ func (suite *TestSuiteStandard) TestTransactionsGet() {
 func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 	b := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	a1 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 1"})
-	a2 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 2"})
-	a3 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 3"})
+	a1 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 1", OnBudget: true})
+	a2 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 2", External: true})
+	a3 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestTransactionsGetFilter 3", OnBudget: true})
 
 	c := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b.Data.ID})
 
@@ -199,7 +199,7 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		EnvelopeID:            e2ID,
 		SourceAccountID:       a2.Data.ID,
 		DestinationAccountID:  a1.Data.ID,
-		ReconciledSource:      true,
+		ReconciledSource:      false,
 		ReconciledDestination: true,
 	})
 
@@ -211,7 +211,7 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		SourceAccountID:       a3.Data.ID,
 		DestinationAccountID:  a2.Data.ID,
 		ReconciledSource:      false,
-		ReconciledDestination: true,
+		ReconciledDestination: false,
 	})
 
 	tests := []struct {
@@ -236,6 +236,9 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 3},
 		{"Budget and Note", fmt.Sprintf("budget=%s&note=Not", b.Data.ID), 1},
 		{"Destination Account", fmt.Sprintf("destination=%s", a2.Data.ID), 2},
+		{"Direction=TRANSFER and Budget ID", fmt.Sprintf("budget=%s&direction=TRANSFER", b.Data.ID), 0},
+		{"Direction=INCOMING", "direction=INCOMING", 1},
+		{"Direction=OUTGOING", "direction=OUTGOING", 2},
 		{"Envelope 2", fmt.Sprintf("envelope=%s", e2.Data.ID), 1},
 		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(2.718).String()), 2},
 		{"Exact Time", fmt.Sprintf("date=%s", time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC).Format(time.RFC3339Nano)), 1},
@@ -252,15 +255,15 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		{"No note", "note=", 1},
 		{"Non-existing Account", "account=534a3562-c5e8-46d1-a2e2-e96c00e7efec", 0},
 		{"Non-existing Source Account", "source=3340a084-acf8-4cb4-8f86-9e7f88a86190", 0},
-		{"Not reconciled in destination account", "reconciledDestination=false", 1},
-		{"Not reconciled in source account", "reconciledSource=false", 1},
+		{"Not reconciled in destination account", "reconciledDestination=false", 2},
+		{"Not reconciled in source account", "reconciledSource=false", 2},
 		{"Note", "note=Not important", 1},
 		{"Offset and Fuzzy Note", "offset=2&note=important", 0},
 		{"Offset higher than number", "offset=5", 0},
 		{"Offset positive", "offset=2", 1},
 		{"Offset zero", "offset=0", 3},
-		{"Reconciled in destination account", "reconciledDestination=true", 2},
-		{"Reconciled in source account", "reconciledSource=true", 2},
+		{"Reconciled in destination account", "reconciledDestination=true", 1},
+		{"Reconciled in source account", "reconciledSource=true", 1},
 		{"Regression - For 'account', query needs to be ORed between the accounts and ANDed with all other conditions", fmt.Sprintf("note=&account=%s", a2.Data.ID), 1},
 		{"Regression #749", fmt.Sprintf("untilDate=%s", time.Date(2021, 2, 6, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 3},
 		{"Same date", fmt.Sprintf("date=%s", time.Date(2021, 2, 6, 7, 0, 0, 700, time.UTC).Format(time.RFC3339Nano)), 1},
@@ -289,8 +292,9 @@ func (suite *TestSuiteStandard) TestTransactionsGetInvalidQuery() {
 		"amount=Seventeen Cents",
 		"reconciledSource=I don't think so",
 		"account=ItIsAHippo!",
-		"offset=-1",  // offset is a uint
-		"limit=name", // limit is an int
+		"offset=-1",         // offset is a uint
+		"limit=name",        // limit is an int
+		"direction=reverse", // direction needs to be a TransactionDirection
 	}
 
 	for _, tt := range tests {
