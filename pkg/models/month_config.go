@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -23,4 +24,19 @@ var ErrMonthConfigMonthNotUnique = errors.New("you can not create multiple month
 func (m *MonthConfig) BeforeSave(_ *gorm.DB) error {
 	m.Note = strings.TrimSpace(m.Note)
 	return nil
+}
+
+// Returns all match rules on this instance for export
+func (MonthConfig) Export() (json.RawMessage, error) {
+	var monthConfigs []MonthConfig
+	err := DB.Unscoped().Where(&MonthConfig{}).Find(&monthConfigs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	j, err := json.Marshal(&monthConfigs)
+	if err != nil {
+		return json.RawMessage{}, err
+	}
+	return json.RawMessage(j), nil
 }

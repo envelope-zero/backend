@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"sort"
 	"strings"
@@ -15,7 +16,7 @@ import (
 // Envelope represents an envelope in your budget.
 type Envelope struct {
 	DefaultModel
-	Category   Category
+	Category   Category  `json:"-"`
 	CategoryID uuid.UUID `gorm:"uniqueIndex:envelope_category_name"`
 	Name       string    `gorm:"uniqueIndex:envelope_category_name"`
 	Note       string
@@ -291,4 +292,19 @@ func (e Envelope) Month(db *gorm.DB, month types.Month) (EnvelopeMonth, error) {
 
 	envelopeMonth.Allocation = monthConfig.Allocation
 	return envelopeMonth, nil
+}
+
+// Returns all envelopes on this instance for export
+func (Envelope) Export() (json.RawMessage, error) {
+	var envelopes []Envelope
+	err := DB.Unscoped().Where(&Envelope{}).Find(&envelopes).Error
+	if err != nil {
+		return nil, err
+	}
+
+	j, err := json.Marshal(&envelopes)
+	if err != nil {
+		return json.RawMessage{}, err
+	}
+	return json.RawMessage(j), nil
 }

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/envelope-zero/backend/v5/internal/types"
@@ -14,9 +15,9 @@ import (
 // resources reference it directly or transitively.
 type Budget struct {
 	DefaultModel
-	Name     string
-	Note     string
-	Currency string
+	Name     string `json:"name"`
+	Note     string `json:"note"`
+	Currency string `json:"currency"`
 }
 
 func (b *Budget) BeforeSave(_ *gorm.DB) error {
@@ -96,4 +97,19 @@ func (b Budget) Allocated(db *gorm.DB, month types.Month) (allocated decimal.Dec
 	}
 
 	return
+}
+
+// Returns all budgets on this instance for export
+func (Budget) Export() (json.RawMessage, error) {
+	var budgets []Budget
+	err := DB.Unscoped().Where(&Budget{}).Find(&budgets).Error
+	if err != nil {
+		return nil, err
+	}
+
+	j, err := json.Marshal(&budgets)
+	if err != nil {
+		return json.RawMessage{}, err
+	}
+	return json.RawMessage(j), nil
 }

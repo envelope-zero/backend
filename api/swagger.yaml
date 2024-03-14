@@ -293,7 +293,7 @@ definitions:
           $ref: '#/definitions/v4.BudgetResponse'
         type: array
       error:
-        description: 'FIMXE: make this *error for ALL responses'
+        description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
         type: string
     type: object
@@ -699,6 +699,25 @@ definitions:
       error:
         description: The error, if any occurred
         example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v4.ExportResponse:
+    properties:
+      clacks:
+        description: This will always have the value "GNU Terry Pratchett"
+        type: string
+      creationTime:
+        description: Time the export was created
+        type: string
+      data:
+        additionalProperties:
+          items:
+            type: integer
+          type: array
+        description: The exported data
+        type: object
+      version:
+        description: The version of the backend the export was made with
         type: string
     type: object
   v4.Goal:
@@ -2493,6 +2512,32 @@ paths:
       summary: Update MonthConfig
       tags:
       - Envelopes
+  /v4/export:
+    get:
+      description: Exports all resources for the instance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v4.ExportResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v4.ExportResponse'
+      summary: Export
+      tags:
+      - Export
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Export
   /v4/goals:
     get:
       description: Returns a list of goals

@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -8,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
 
@@ -85,4 +88,29 @@ func (suite *TestSuiteStandard) TestGoalUpdate() {
 			assert.ErrorIs(t, err, tt.err, "Error is: %s", err)
 		})
 	}
+}
+
+func (suite *TestSuiteStandard) TestGoalExport() {
+	t := suite.T()
+
+	budget := suite.createTestBudget(models.Budget{})
+	category := suite.createTestCategory(models.Category{BudgetID: budget.ID})
+	envelope := suite.createTestEnvelope(models.Envelope{CategoryID: category.ID})
+
+	for i := range 2 {
+		_ = suite.createTestGoal(models.Goal{EnvelopeID: envelope.ID, Name: fmt.Sprint(i), Amount: decimal.NewFromFloat(17)})
+	}
+
+	raw, err := models.Goal{}.Export()
+	if err != nil {
+		require.Fail(t, "goal export failed", err)
+	}
+
+	var goals []models.Goal
+	err = json.Unmarshal(raw, &goals)
+	if err != nil {
+		require.Fail(t, "JSON could not be unmarshaled", err)
+	}
+
+	require.Len(t, goals, 2, "Number of goals in export is wrong")
 }

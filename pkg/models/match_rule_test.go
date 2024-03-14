@@ -1,11 +1,13 @@
 package models_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) TestMatchRuleBeforeCreate() {
@@ -48,4 +50,28 @@ func (suite *TestSuiteStandard) TestMatchRuleBeforeUpdate() {
 			assert.ErrorIs(t, err, tt.err)
 		})
 	}
+}
+
+func (suite *TestSuiteStandard) TestMatchRuleExport() {
+	t := suite.T()
+
+	budget := suite.createTestBudget(models.Budget{})
+	account := suite.createTestAccount(models.Account{BudgetID: budget.ID})
+
+	for range 2 {
+		_ = suite.createTestMatchRule(models.MatchRule{AccountID: account.ID})
+	}
+
+	raw, err := models.MatchRule{}.Export()
+	if err != nil {
+		require.Fail(t, "match rule export failed", err)
+	}
+
+	var matchRules []models.MatchRule
+	err = json.Unmarshal(raw, &matchRules)
+	if err != nil {
+		require.Fail(t, "JSON could not be unmarshaled", err)
+	}
+
+	require.Len(t, matchRules, 2, "number of match rules in export is wrong")
 }

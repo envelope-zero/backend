@@ -65,7 +65,6 @@ type BudgetListResponse struct {
 }
 
 type BudgetCreateResponse struct {
-	// FIMXE: make this *error for ALL responses
 	Error *string          `json:"error" example:"the specified resource ID is not a valid UUID"` // The error, if any occurred
 	Data  []BudgetResponse `json:"data"`                                                          // List of created Budgets
 }

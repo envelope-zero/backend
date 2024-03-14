@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -16,11 +17,11 @@ import (
 type Transaction struct {
 	DefaultModel
 	SourceAccountID       uuid.UUID `gorm:"check:source_destination_different,source_account_id != destination_account_id"`
-	SourceAccount         Account
+	SourceAccount         Account   `json:"-"`
 	DestinationAccountID  uuid.UUID
-	DestinationAccount    Account
+	DestinationAccount    Account `json:"-"`
 	EnvelopeID            *uuid.UUID
-	Envelope              Envelope
+	Envelope              Envelope        `json:"-"`
 	Date                  time.Time       // Time of day is currently only used for sorting
 	Amount                decimal.Decimal `gorm:"type:DECIMAL(20,8)"`
 	Note                  string
@@ -178,4 +179,19 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 	}
 
 	return
+}
+
+// Returns all transactions on this instance for export
+func (Transaction) Export() (json.RawMessage, error) {
+	var transactions []Transaction
+	err := DB.Unscoped().Where(&Transaction{}).Find(&transactions).Error
+	if err != nil {
+		return nil, err
+	}
+
+	j, err := json.Marshal(&transactions)
+	if err != nil {
+		return json.RawMessage{}, err
+	}
+	return json.RawMessage(j), nil
 }

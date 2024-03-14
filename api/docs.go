@@ -1665,6 +1665,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/v4/export": {
+            "get": {
+                "description": "Exports all resources for the instance",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Export"
+                ],
+                "summary": "Export",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v4.ExportResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v4.ExportResponse"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "description": "Returns an empty response with the HTTP Header \"allow\" set to the allowed HTTP verbs",
+                "tags": [
+                    "Export"
+                ],
+                "summary": "Allowed HTTP verbs",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/v4/goals": {
             "get": {
                 "description": "Returns a list of goals",
@@ -3460,7 +3498,7 @@ const docTemplate = `{
                     }
                 },
                 "error": {
-                    "description": "FIMXE: make this *error for ALL responses",
+                    "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
                 }
@@ -4018,6 +4056,33 @@ const docTemplate = `{
                     "description": "The error, if any occurred",
                     "type": "string",
                     "example": "the specified resource ID is not a valid UUID"
+                }
+            }
+        },
+        "v4.ExportResponse": {
+            "type": "object",
+            "properties": {
+                "clacks": {
+                    "description": "This will always have the value \"GNU Terry Pratchett\"",
+                    "type": "string"
+                },
+                "creationTime": {
+                    "description": "Time the export was created",
+                    "type": "string"
+                },
+                "data": {
+                    "description": "The exported data",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "version": {
+                    "description": "The version of the backend the export was made with",
+                    "type": "string"
                 }
             }
         },

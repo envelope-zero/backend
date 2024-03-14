@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -15,7 +16,7 @@ import (
 // Account represents an asset account, e.g. a bank account.
 type Account struct {
 	DefaultModel
-	Budget             Budget
+	Budget             Budget    `json:"-"`
 	BudgetID           uuid.UUID `gorm:"uniqueIndex:account_name_budget_id"`
 	Name               string    `gorm:"uniqueIndex:account_name_budget_id"`
 	Note               string
@@ -272,4 +273,19 @@ func (a Account) RecentEnvelopes(db *gorm.DB) ([]*uuid.UUID, error) {
 	}
 
 	return ids, nil
+}
+
+// Returns all accounts on this instance for export
+func (Account) Export() (json.RawMessage, error) {
+	var accounts []Account
+	err := DB.Unscoped().Where(&Account{}).Find(&accounts).Error
+	if err != nil {
+		return nil, err
+	}
+
+	j, err := json.Marshal(&accounts)
+	if err != nil {
+		return json.RawMessage{}, err
+	}
+	return json.RawMessage(j), nil
 }

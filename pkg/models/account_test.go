@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 	"time"
@@ -371,4 +372,29 @@ func (suite *TestSuiteStandard) TestAccountRecentEnvelopes() {
 	suite.Assert().Equal(nilUUIDPointer, ids[1])
 
 	// Order for envelopes with the same frequency is undefined
+}
+
+func (suite *TestSuiteStandard) TestAccountExport() {
+	t := suite.T()
+
+	budget := suite.createTestBudget(models.Budget{
+		Name: "TestAccountExport",
+	})
+
+	for range 2 {
+		_ = suite.createTestAccount(models.Account{BudgetID: budget.ID})
+	}
+
+	raw, err := models.Account{}.Export()
+	if err != nil {
+		require.Fail(t, "account export failed", err)
+	}
+
+	var accounts []models.Account
+	err = json.Unmarshal(raw, &accounts)
+	if err != nil {
+		require.Fail(t, "JSON could not be unmarshaled", err)
+	}
+
+	require.Len(t, accounts, 2, "Number of accounts in export is wrong")
 }
