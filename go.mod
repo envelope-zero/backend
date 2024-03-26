@@ -6,7 +6,7 @@ require (
 	github.com/gin-contrib/cors v1.7.1
 	github.com/gin-contrib/logger v1.1.1
 	github.com/gin-contrib/pprof v1.4.0
-	github.com/gin-contrib/requestid v0.0.6
+	github.com/gin-contrib/requestid v1.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/glebarez/sqlite v1.11.0
