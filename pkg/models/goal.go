@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -14,7 +15,7 @@ type Goal struct {
 	DefaultModel
 	Name       string `gorm:"uniqueIndex:goal_name_envelope"`
 	Note       string
-	Envelope   Envelope
+	Envelope   Envelope        `json:"-"`
 	EnvelopeID uuid.UUID       `gorm:"uniqueIndex:goal_name_envelope"`
 	Amount     decimal.Decimal `gorm:"type:DECIMAL(20,8)"` // The target for the goal
 	Month      types.Month
@@ -60,4 +61,19 @@ func (g *Goal) AfterSave(_ *gorm.DB) error {
 	}
 
 	return nil
+}
+
+// Returns all goals on this instance for export
+func (Goal) Export() (json.RawMessage, error) {
+	var goals []Goal
+	err := DB.Unscoped().Where(&Goal{}).Find(&goals).Error
+	if err != nil {
+		return nil, err
+	}
+
+	j, err := json.Marshal(&goals)
+	if err != nil {
+		return json.RawMessage{}, err
+	}
+	return json.RawMessage(j), nil
 }

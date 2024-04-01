@@ -157,6 +157,7 @@ func AttachRoutes(group *gin.RouterGroup) {
 		v4.RegisterBudgetRoutes(v4Group.Group("/budgets"))
 		v4.RegisterCategoryRoutes(v4Group.Group("/categories"))
 		v4.RegisterEnvelopeRoutes(v4Group.Group("/envelopes"))
+		v4.RegisterExportRoutes(v4Group.Group("/export"), version)
 		v4.RegisterGoalRoutes(v4Group.Group("/goals"))
 		v4.RegisterImportRoutes(v4Group.Group("/import"))
 		v4.RegisterMatchRuleRoutes(v4Group.Group("/match-rules"))

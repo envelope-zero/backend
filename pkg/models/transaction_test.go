@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) TestTransactionCreate() {
@@ -278,4 +280,29 @@ func (suite *TestSuiteStandard) TestTransactionEnvelopeNilUUID() {
 
 	err := models.DB.Save(&transaction).Error
 	suite.Assert().Nil(err, "Saving a transaction with a nil UUID for the Envelope ID should not result in an error")
+}
+
+func (suite *TestSuiteStandard) TestTransactionExport() {
+	t := suite.T()
+
+	budget := suite.createTestBudget(models.Budget{})
+	internalAccount := suite.createTestAccount(models.Account{External: false, BudgetID: budget.ID})
+	externalAccount := suite.createTestAccount(models.Account{External: true, BudgetID: budget.ID})
+
+	for range 2 {
+		_ = suite.createTestTransaction(models.Transaction{SourceAccountID: internalAccount.ID, DestinationAccountID: externalAccount.ID, Amount: decimal.NewFromFloat(10)})
+	}
+
+	raw, err := models.Transaction{}.Export()
+	if err != nil {
+		require.Fail(t, "transaction export failed", err)
+	}
+
+	var transactions []models.Transaction
+	err = json.Unmarshal(raw, &transactions)
+	if err != nil {
+		require.Fail(t, "JSON could not be unmarshaled", err)
+	}
+
+	require.Len(t, transactions, 2, "number of transactions in export is wrong")
 }

@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) TestEnvelopeTrimWhitespace() {
@@ -257,4 +259,28 @@ func (suite *TestSuiteStandard) TestEnvelopeUpdateCategory() {
 	}
 	err := models.DB.Model(&envelope).Select("Archived").Updates(update).Error
 	assert.Nil(suite.T(), err)
+}
+
+func (suite *TestSuiteStandard) TestEnvelopeExport() {
+	t := suite.T()
+
+	budget := suite.createTestBudget(models.Budget{})
+	category := suite.createTestCategory(models.Category{BudgetID: budget.ID})
+
+	for i := range 2 {
+		_ = suite.createTestEnvelope(models.Envelope{CategoryID: category.ID, Name: fmt.Sprint(i)})
+	}
+
+	raw, err := models.Envelope{}.Export()
+	if err != nil {
+		require.Fail(t, "envelope export failed", err)
+	}
+
+	var envelopes []models.Envelope
+	err = json.Unmarshal(raw, &envelopes)
+	if err != nil {
+		require.Fail(t, "JSON could not be unmarshaled", err)
+	}
+
+	require.Len(t, envelopes, 2, "Number of envelopes in export is wrong")
 }

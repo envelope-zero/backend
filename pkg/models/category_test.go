@@ -1,10 +1,13 @@
 package models_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) TestCategoryTrimWhitespace() {
@@ -90,4 +93,27 @@ func (suite *TestSuiteStandard) TestCategorySetEnvelopesDBFail() {
 
 	_, err := category.Envelopes(models.DB)
 	suite.Assert().ErrorIs(err, models.ErrGeneral)
+}
+
+func (suite *TestSuiteStandard) TestCategoryExport() {
+	t := suite.T()
+
+	budget := suite.createTestBudget(models.Budget{})
+
+	for i := range 2 {
+		_ = suite.createTestCategory(models.Category{BudgetID: budget.ID, Name: fmt.Sprint(i)})
+	}
+
+	raw, err := models.Category{}.Export()
+	if err != nil {
+		require.Fail(t, "category export failed", err)
+	}
+
+	var categories []models.Category
+	err = json.Unmarshal(raw, &categories)
+	if err != nil {
+		require.Fail(t, "JSON could not be unmarshaled", err)
+	}
+
+	require.Len(t, categories, 2, "Number of categories in export is wrong")
 }

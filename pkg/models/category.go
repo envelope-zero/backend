@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -11,7 +12,7 @@ import (
 // Category represents a category of envelopes.
 type Category struct {
 	DefaultModel
-	Budget   Budget
+	Budget   Budget    `json:"-"`
 	BudgetID uuid.UUID `gorm:"uniqueIndex:category_budget_name"`
 	Name     string    `gorm:"uniqueIndex:category_budget_name"`
 	Note     string
@@ -78,4 +79,19 @@ func (c *Category) Envelopes(tx *gorm.DB) ([]Envelope, error) {
 	}
 
 	return envelopes, nil
+}
+
+// Returns all categories on this instance for export
+func (Category) Export() (json.RawMessage, error) {
+	var categories []Category
+	err := DB.Unscoped().Where(&Category{}).Find(&categories).Error
+	if err != nil {
+		return nil, err
+	}
+
+	j, err := json.Marshal(&categories)
+	if err != nil {
+		return json.RawMessage{}, err
+	}
+	return json.RawMessage(j), nil
 }

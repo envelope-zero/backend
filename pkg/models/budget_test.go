@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func (suite *TestSuiteStandard) TestBudgetTrimWhitespace() {
@@ -197,4 +199,25 @@ func (suite *TestSuiteStandard) TestBudgetBudgetedDBFail() {
 
 	_, err := budget.Allocated(models.DB, types.NewMonth(200, 2))
 	suite.Assert().ErrorIs(err, models.ErrGeneral)
+}
+
+func (suite *TestSuiteStandard) TestBudgetExport() {
+	t := suite.T()
+
+	_ = suite.createTestBudget(models.Budget{
+		Name: "TestBudgetExport",
+	})
+
+	raw, err := models.Budget{}.Export()
+	if err != nil {
+		require.Fail(t, "budget export failed", err)
+	}
+
+	var budgets []models.Budget
+	err = json.Unmarshal(raw, &budgets)
+	if err != nil {
+		require.Fail(t, "JSON could not be unmarshaled", err)
+	}
+
+	require.Len(t, budgets, 1, "Number of budgets in export is wrong")
 }
