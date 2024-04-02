@@ -115,6 +115,9 @@ func GetTransaction(c *gin.Context) {
 // @Param			date					query	string					false	"Date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
 // @Param			fromDate				query	string					false	"Transactions at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
 // @Param			untilDate				query	string					false	"Transactions before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			availableFromDate		query	string					false	"Availability date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			availableFromFromDate	query	string					false	"Transactions available at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
+// @Param			availableFromUntilDate	query	string					false	"Transactions available before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided."
 // @Param			amount					query	string					false	"Filter by amount"
 // @Param			amountLessOrEqual		query	string					false	"Amount less than or equal to this"
 // @Param			amountMoreOrEqual		query	string					false	"Amount more than or equal to this"
@@ -167,6 +170,20 @@ func GetTransactions(c *gin.Context) {
 
 	if !filter.UntilDate.IsZero() {
 		q = q.Where("transactions.date < date(?)", time.Date(filter.UntilDate.Year(), filter.UntilDate.Month(), filter.UntilDate.Day()+1, 0, 0, 0, 0, time.UTC))
+	}
+
+	// Filter for the transaction being available at the same date
+	if !filter.AvailableFromDate.IsZero() {
+		date := time.Date(filter.AvailableFromDate.Year(), filter.AvailableFromDate.Month(), filter.AvailableFromDate.Day(), 0, 0, 0, 0, time.UTC)
+		q = q.Where("transactions.available_from >= date(?)", date).Where("transactions.available_from < date(?)", date.AddDate(0, 0, 1))
+	}
+
+	if !filter.AvailableFromFromDate.IsZero() {
+		q = q.Where("transactions.available_from >= date(?)", time.Date(filter.AvailableFromFromDate.Year(), filter.AvailableFromFromDate.Month(), filter.AvailableFromFromDate.Day(), 0, 0, 0, 0, time.UTC))
+	}
+
+	if !filter.AvailableFromUntilDate.IsZero() {
+		q = q.Where("transactions.available_from < date(?)", time.Date(filter.AvailableFromUntilDate.Year(), filter.AvailableFromUntilDate.Month(), filter.AvailableFromUntilDate.Day()+1, 0, 0, 0, 0, time.UTC))
 	}
 
 	if filter.BudgetID != "" {

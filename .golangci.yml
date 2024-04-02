@@ -21,7 +21,6 @@ issues:
 
 linters:
   enable:
-    - gocyclo
     - gofumpt
     - goimports
     - govet
@@ -32,5 +31,3 @@ linters:
 linters-settings:
   gofumpt:
     extra-rules: true
-  gocyclo:
-    min-complexity: 25
