@@ -2713,6 +2713,24 @@
                     },
                     {
                         "type": "string",
+                        "description": "Availability date of the transaction. Ignores exact time, matches on the day of the RFC3339 timestamp provided.",
+                        "name": "availableFromDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transactions available at and after this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided.",
+                        "name": "availableFromFromDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transactions available before and at this date. Ignores exact time, matches on the day of the RFC3339 timestamp provided.",
+                        "name": "availableFromUntilDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Filter by amount",
                         "name": "amount",
                         "in": "query"

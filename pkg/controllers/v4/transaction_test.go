@@ -192,6 +192,8 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		ReconciledDestination: false,
 	})
 
+	// Note that this transaction will be available from 2016-05-01 because it's also at
+	// that date, but by default, "available from" is set to the first of the month
 	_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                  time.Date(2016, 5, 1, 14, 13, 25, 584575, time.UTC),
 		Amount:                decimal.NewFromFloat(11235.813),
@@ -230,18 +232,24 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		{"Amount more or equal to 100", "amountMoreOrEqual=100", 1},
 		{"Amount more or equal to 11235.813", "amountMoreOrEqual=11235.813", 1},
 		{"Amount more or equal to 99999", "amountMoreOrEqual=99999", 0},
+		{"Available after - no transactions", fmt.Sprintf("availableFromFromDate=%s", time.Date(2020, 7, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 1},       // Available from is only relevant for income, but set for all transactions
+		{"Available after - returns transactions", fmt.Sprintf("availableFromFromDate=%s", time.Date(2000, 12, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 3}, // Available from is only relevant for income, but set for all transactions
+		{"Available at date - no transactions", fmt.Sprintf("availableFromDate=%s", time.Date(2016, 5, 2, 11, 17, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},
+		{"Available at month - with transaction", fmt.Sprintf("availableFromDate=%s", time.Date(2016, 5, 1, 12, 53, 15, 148041, time.UTC).Format(time.RFC3339Nano)), 1},
+		{"Available before - no transactions", fmt.Sprintf("availableFromUntilDate=%s", time.Date(2016, 4, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},       // Needs to be before 2016-05-01T00:00:00Z since that's what the transaction defaults to when created
+		{"Available before - returns transactions", fmt.Sprintf("availableFromUntilDate=%s", time.Date(2024, 12, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 3}, // Available from is only relevant for income, but set for all transactions
 		{"Before all dates", fmt.Sprintf("untilDate=%s", time.Date(2010, 8, 17, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},
 		{"Before date", fmt.Sprintf("untilDate=%s", time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 1},
 		{"Between two dates", fmt.Sprintf("untilDate=%s&fromDate=%s", time.Date(2019, 8, 17, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano), time.Date(2015, 12, 24, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 2},
-		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 3},
 		{"Budget and Note", fmt.Sprintf("budget=%s&note=Not", b.Data.ID), 1},
+		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 3},
 		{"Destination Account", fmt.Sprintf("destination=%s", a2.Data.ID), 2},
-		{"Direction=TRANSFER and Budget ID", fmt.Sprintf("budget=%s&direction=TRANSFER", b.Data.ID), 0},
 		{"Direction=INCOMING", "direction=INCOMING", 1},
 		{"Direction=OUTGOING", "direction=OUTGOING", 2},
+		{"Direction=TRANSFER and Budget ID", fmt.Sprintf("budget=%s&direction=TRANSFER", b.Data.ID), 0},
 		{"Envelope 2", fmt.Sprintf("envelope=%s", e2.Data.ID), 1},
 		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(2.718).String()), 2},
-		{"Exact Time", fmt.Sprintf("date=%s", time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC).Format(time.RFC3339Nano)), 1},
+		{"Exact Date", fmt.Sprintf("date=%s", time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC).Format(time.RFC3339Nano)), 1},
 		{"Existing Account 1", fmt.Sprintf("account=%s", a1.Data.ID), 2},
 		{"Existing Account 2", fmt.Sprintf("account=%s", a2.Data.ID), 3},
 		{"Fuzzy note", "note=important", 2},

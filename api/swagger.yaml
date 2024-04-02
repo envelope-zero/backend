@@ -3231,6 +3231,21 @@ paths:
         in: query
         name: untilDate
         type: string
+      - description: Availability date of the transaction. Ignores exact time, matches
+          on the day of the RFC3339 timestamp provided.
+        in: query
+        name: availableFromDate
+        type: string
+      - description: Transactions available at and after this date. Ignores exact
+          time, matches on the day of the RFC3339 timestamp provided.
+        in: query
+        name: availableFromFromDate
+        type: string
+      - description: Transactions available before and at this date. Ignores exact
+          time, matches on the day of the RFC3339 timestamp provided.
+        in: query
+        name: availableFromUntilDate
+        type: string
       - description: Filter by amount
         in: query
         name: amount
