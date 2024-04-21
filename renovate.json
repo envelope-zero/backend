@@ -77,7 +77,7 @@
       "description": "Group go upgrades",
       "matchPackageNames": ["go", "golang"],
       "groupName": "go",
-      "prHeader": ":warning: Only upgrade the go version once you verified locally that the new go version works with the current swagger version. To do so, upgrade your machine to the new go version and run `pre-commit run --all-files`.",
+      "prHeader": ":warning: Only upgrade the go version once you verified locally that the new go version works with the current swagger version. To do so, upgrade your machine to the new go version and run `make setup && pre-commit run --all-files`.",
       "automerge": false
     }
   ]
