@@ -1,6 +1,7 @@
 package v4
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
@@ -142,10 +143,26 @@ func GetEnvelopes(c *gin.Context) {
 	}
 
 	q := models.DB.
-		Order("name ASC").
+		Order("envelopes.name ASC").
 		Where(&model, queryFields...)
 
 	q = stringFilters(models.DB, q, setFields, filter.Name, filter.Note, filter.Search)
+
+	if filter.BudgetID != "" {
+		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
+		if err != nil {
+			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
+			c.JSON(status(err), EnvelopeListResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		q = q.
+			Joins("JOIN categories on categories.id = envelopes.category_id").
+			Joins("JOIN budgets on budgets.id = categories.budget_id").
+			Where("budgets.id = ?", budgetID)
+	}
 
 	// Set the offset. Does not need checking since the default is 0
 	q = q.Offset(int(filter.Offset))

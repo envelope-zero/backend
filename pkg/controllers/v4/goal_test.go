@@ -158,10 +158,11 @@ func (suite *TestSuiteStandard) TestGoalsGet() {
 func (suite *TestSuiteStandard) TestGoalsGetFilter() {
 	b := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	c := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b.Data.ID})
+	c1 := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b.Data.ID})
+	c2 := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b.Data.ID})
 
-	e1 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c.Data.ID})
-	e2 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c.Data.ID})
+	e1 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c1.Data.ID})
+	e2 := createTestEnvelope(suite.T(), v4.EnvelopeEditable{CategoryID: c2.Data.ID})
 
 	_ = createTestGoal(suite.T(), v4.GoalEditable{
 		Name:       "Test Goal",
@@ -194,33 +195,39 @@ func (suite *TestSuiteStandard) TestGoalsGetFilter() {
 		query string
 		len   int
 	}{
-		{"Same month", fmt.Sprintf("month=%s", types.NewMonth(2024, 1)), 2},
-		{"After month", fmt.Sprintf("fromMonth=%s", types.NewMonth(2024, 2)), 1},
-		{"Before month", fmt.Sprintf("untilMonth=%s", types.NewMonth(2024, 2)), 3},
 		{"After all months", fmt.Sprintf("fromMonth=%s", types.NewMonth(2024, 6)), 0},
-		{"Before all months", fmt.Sprintf("untilMonth=%s", types.NewMonth(2023, 6)), 0},
-		{"Impossible between two months", fmt.Sprintf("fromMonth=%s&untilMonth=%s", types.NewMonth(2024, 11), types.NewMonth(2024, 10)), 0},
-		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(200).String()), 1},
-		{"Note", "note=can", 1},
-		{"No note", "note=", 1},
-		{"Fuzzy note", "note=so", 2},
+		{"After month", fmt.Sprintf("fromMonth=%s", types.NewMonth(2024, 2)), 1},
 		{"Amount less or equal to 99", "amountLessOrEqual=99", 0},
 		{"Amount less or equal to 200", "amountLessOrEqual=200", 2},
 		{"Amount more or equal to 3", "amountMoreOrEqual=3", 3},
+		{"Amount more or equal to 50 and less than 500", "amountMoreOrEqual=50&amountLessOrEqual=500", 2},
+		{"Amount more or equal to 100 and less than 10", "amountMoreOrEqual=100&amountLessOrEqual=10", 0},
 		{"Amount more or equal to 500.813", "amountMoreOrEqual=500.813", 1},
 		{"Amount more or equal to 99999", "amountMoreOrEqual=99999", 0},
-		{"Amount more or equal to 100 and less than 10", "amountMoreOrEqual=100&amountLessOrEqual=10", 0},
-		{"Amount more or equal to 50 and less than 500", "amountMoreOrEqual=50&amountLessOrEqual=500", 2},
-		{"Limit positive", "limit=2", 2},
-		{"Limit zero", "limit=0", 0},
-		{"Limit unset", "limit=-1", 3},
-		{"Limit negative", "limit=-123", 3},
-		{"Offset zero", "offset=0", 3},
-		{"Offset positive", "offset=2", 1},
-		{"Offset higher than number", "offset=5", 0},
-		{"Limit and Offset", "limit=1&offset=1", 1},
+		{"Before all months", fmt.Sprintf("untilMonth=%s", types.NewMonth(2023, 6)), 0},
+		{"Before month", fmt.Sprintf("untilMonth=%s", types.NewMonth(2024, 2)), 3},
+		{"Budget matches", fmt.Sprintf("budget=%s", b.Data.ID), 3},
+		{"Budget does not match", fmt.Sprintf("budget=%s", uuid.New()), 0},
+		{"Category 1", fmt.Sprintf("category=%s", c1.Data.ID), 2},
+		{"Category 1, but budget does not match", fmt.Sprintf("category=%s&budget=%s", c1.Data.ID, uuid.New()), 0},
+		{"Category 2", fmt.Sprintf("category=%s", c2.Data.ID), 1},
+		{"Category does not match", fmt.Sprintf("category=%s", uuid.New()), 0},
+		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(200).String()), 1},
+		{"Fuzzy note", "note=so", 2},
+		{"Impossible between two months", fmt.Sprintf("fromMonth=%s&untilMonth=%s", types.NewMonth(2024, 11), types.NewMonth(2024, 10)), 0},
 		{"Limit and Fuzzy Note", "limit=1&note=so", 1},
+		{"Limit and Offset", "limit=1&offset=1", 1},
+		{"Limit negative", "limit=-123", 3},
+		{"Limit positive", "limit=2", 2},
+		{"Limit unset", "limit=-1", 3},
+		{"Limit zero", "limit=0", 0},
+		{"No note", "note=", 1},
+		{"Note", "note=can", 1},
 		{"Offset and Fuzzy Note", "offset=2&note=they", 0},
+		{"Offset higher than number", "offset=5", 0},
+		{"Offset positive", "offset=2", 1},
+		{"Offset zero", "offset=0", 3},
+		{"Same month", fmt.Sprintf("month=%s", types.NewMonth(2024, 1)), 2},
 	}
 
 	for _, tt := range tests {

@@ -94,6 +94,8 @@ type GoalResponse struct {
 }
 
 type GoalQueryFilter struct {
+	BudgetID          string          `form:"budget" filterField:"false"`            // By budget ID
+	CategoryID        string          `form:"category" filterField:"false"`          // By category ID
 	Name              string          `form:"name" filterField:"false"`              // By name
 	Note              string          `form:"note" filterField:"false"`              // By the note
 	Search            string          `form:"search" filterField:"false"`            // By string in name or note

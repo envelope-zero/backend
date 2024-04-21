@@ -142,8 +142,11 @@ func (suite *TestSuiteStandard) TestEnvelopesGetSingle() {
 }
 
 func (suite *TestSuiteStandard) TestEnvelopesGetFilter() {
-	c1 := createTestCategory(suite.T(), v4.CategoryEditable{})
-	c2 := createTestCategory(suite.T(), v4.CategoryEditable{})
+	b1 := createTestBudget(suite.T(), v4.BudgetEditable{})
+	b2 := createTestBudget(suite.T(), v4.BudgetEditable{})
+
+	c1 := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b1.Data.ID})
+	c2 := createTestCategory(suite.T(), v4.CategoryEditable{BudgetID: b2.Data.ID})
 
 	_ = createTestEnvelope(suite.T(), v4.EnvelopeEditable{
 		Name:       "Groceries",
@@ -170,38 +173,41 @@ func (suite *TestSuiteStandard) TestEnvelopesGetFilter() {
 		len       int
 		checkFunc func(t *testing.T, envelopes []v4.Envelope)
 	}{
-		{"Category 2", fmt.Sprintf("category=%s", c2.Data.ID), 2, nil},
-		{"Category Not Existing", "category=e0f9ff7a-9f07-463c-bbd2-0d72d09d3cc6", 0, nil},
-		{"Empty Note", "note=", 0, nil},
-		{"Empty Name", "name=", 0, nil},
-		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1, nil},
-		{"Fuzzy name", "name=es", 2, nil},
-		{"Fuzzy note", "note=Because", 2, nil},
-		{"Not archived", "archived=false", 2, func(t *testing.T, envelopes []v4.Envelope) {
-			for _, e := range envelopes {
-				assert.False(t, e.Archived)
-			}
-		}},
 		{"Archived", "archived=true", 1, func(t *testing.T, envelopes []v4.Envelope) {
 			for _, e := range envelopes {
 				assert.True(t, e.Archived)
 			}
 		}},
+		{"Budget 1", fmt.Sprintf("budget=%s", b1.Data.ID), 1, nil},
+		{"Budget 2", fmt.Sprintf("budget=%s", b2.Data.ID), 2, nil},
+		{"Category 2", fmt.Sprintf("category=%s", c2.Data.ID), 2, nil},
+		{"Category Not Existing", "category=e0f9ff7a-9f07-463c-bbd2-0d72d09d3cc6", 0, nil},
+		{"Empty Name", "name=", 0, nil},
+		{"Empty Note", "note=", 0, nil},
+		{"Fuzzy name", "name=es", 2, nil},
+		{"Fuzzy note", "note=Because", 2, nil},
+		{"Limit -1", "limit=-1", 3, nil},
+		{"Limit 0", "limit=0", 0, nil},
+		{"Limit 4", "limit=4", 3, nil},
+		{"Offset 0, limit 2", "offset=0&limit=2", 2, nil},
+		{"Name & Note", "name=Groceries&note=For the stuff bought in supermarkets", 1, nil},
+		{"Non-matching budget", fmt.Sprintf("budget=%s", uuid.New()), 0, nil},
+		{"Not archived", "archived=false", 2, func(t *testing.T, envelopes []v4.Envelope) {
+			for _, e := range envelopes {
+				assert.False(t, e.Archived)
+			}
+		}},
+		{"Offset 2", "offset=2", 1, nil},
 		{"Search for 'hair'", "search=hair", 2, nil},
 		{"Search for 'st'", "search=st", 2, nil},
 		{"Search for 'STUFF'", "search=STUFF", 1, nil},
-		{"Offset 2", "offset=2", 1, nil},
-		{"Offset 0, limit 2", "offset=0&limit=2", 2, nil},
-		{"Limit 4", "limit=4", 3, nil},
-		{"Limit 0", "limit=0", 0, nil},
-		{"Limit -1", "limit=-1", 3, nil},
 	}
 
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			var re v4.EnvelopeListResponse
 			r := test.Request(t, http.MethodGet, fmt.Sprintf("/v4/envelopes?%s", tt.query), "")
-			test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
+			test.AssertHTTPStatus(t, &r, http.StatusOK)
 			test.DecodeResponse(t, &r, &re)
 
 			assert.Equal(t, tt.len, len(re.Data), "Request ID: %s", r.Result().Header.Get("x-request-id"))

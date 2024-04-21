@@ -187,10 +187,11 @@ func (suite *TestSuiteStandard) TestMatchRulesDatabaseError() {
 
 // TestMatchRulesGetFilter verifies that filtering Match Rules works as expected.
 func (suite *TestSuiteStandard) TestMatchRulesGetFilter() {
-	b := createTestBudget(suite.T(), v4.BudgetEditable{})
+	b1 := createTestBudget(suite.T(), v4.BudgetEditable{})
+	b2 := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	a1 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 1"})
-	a2 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b.Data.ID, Name: "TestMatchRulesGetFilter 2"})
+	a1 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b1.Data.ID, Name: "TestMatchRulesGetFilter 1"})
+	a2 := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: b2.Data.ID, Name: "TestMatchRulesGetFilter 2"})
 
 	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
 		Priority:  1,
@@ -215,6 +216,9 @@ func (suite *TestSuiteStandard) TestMatchRulesGetFilter() {
 		query string
 		len   int
 	}{
+		{"Budget 1", fmt.Sprintf("budget=%s", b1.Data.ID), 1},
+		{"Budget 2", fmt.Sprintf("budget=%s", b2.Data.ID), 2},
+		{"Budget does not match", fmt.Sprintf("budget=%s", uuid.New()), 0},
 		{"Limit over count", "limit=5", 3},
 		{"Limit under count", "limit=2", 2},
 		{"Offset", "offset=2", 1},

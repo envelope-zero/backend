@@ -81,6 +81,7 @@ func newMatchRule(c *gin.Context, model models.MatchRule) MatchRule {
 
 // MatchRuleQueryFilter contains the fields that Match Rules can be filtered with.
 type MatchRuleQueryFilter struct {
+	BudgetID  string `form:"budget" filterField:"false"` // By budget ID
 	Priority  uint   `form:"priority"`                   // By priority
 	Match     string `form:"match" filterField:"false"`  // By match
 	AccountID string `form:"account"`                    // By ID of the Account they map to
