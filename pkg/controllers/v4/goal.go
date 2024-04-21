@@ -1,6 +1,7 @@
 package v4
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v5/internal/types"
@@ -149,7 +150,7 @@ func GetGoals(c *gin.Context) {
 	}
 
 	q := models.DB.
-		Order("date(month) ASC, name ASC").
+		Order("date(goals.month) ASC, goals.name ASC").
 		Where(&where, queryFields...)
 
 	q = stringFilters(models.DB, q, setFields, filter.Name, filter.Note, filter.Search)
@@ -196,6 +197,39 @@ func GetGoals(c *gin.Context) {
 
 	if !filter.AmountMoreOrEqual.IsZero() {
 		q = q.Where("goals.amount >= ?", filter.AmountMoreOrEqual)
+	}
+
+	if filter.CategoryID != "" {
+		categoryID, err := httputil.UUIDFromString(filter.CategoryID)
+		if err != nil {
+			s := fmt.Sprintf("Error parsing category ID for filtering: %s", err.Error())
+			c.JSON(status(err), GoalListResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		q = q.
+			Joins("JOIN envelopes AS category_filter_envelopes on category_filter_envelopes.id = goals.envelope_id").
+			Joins("JOIN categories AS category_filter_categories on category_filter_categories.id = category_filter_envelopes.category_id").
+			Where("category_filter_categories.id = ?", categoryID)
+	}
+
+	if filter.BudgetID != "" {
+		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
+		if err != nil {
+			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
+			c.JSON(status(err), GoalListResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		q = q.
+			Joins("JOIN envelopes on envelopes.id = goals.envelope_id").
+			Joins("JOIN categories on categories.id = envelopes.category_id").
+			Joins("JOIN budgets on budgets.id = categories.budget_id").
+			Where("budgets.id = ?", budgetID)
 	}
 
 	var goals []models.Goal

@@ -89,6 +89,7 @@ type EnvelopeResponse struct {
 }
 
 type EnvelopeQueryFilter struct {
+	BudgetID   string `form:"budget" filterField:"false"` // By budget ID
 	CategoryID string `form:"category"`                   // By the ID of the category
 	Name       string `form:"name" filterField:"false"`   // By name
 	Note       string `form:"note" filterField:"false"`   // By the note
