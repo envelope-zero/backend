@@ -56,6 +56,14 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		Name:     "TestBudgetCalculations Cash Account",
 	})
 
+	// Regression test for https://github.com/envelope-zero/backend/issues/1007
+	offBudgetAccount := suite.createTestAccount(models.Account{
+		BudgetID: budget.ID,
+		OnBudget: false,
+		External: false,
+		Name:     "TestBudgetCalculations Off Budget AccountAccount",
+	})
+
 	employerAccount := suite.createTestAccount(models.Account{
 		BudgetID: budget.ID,
 		External: true,
@@ -146,15 +154,23 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 		Amount:               decimal.NewFromFloat(20),
 	})
 
-	shouldBalance := decimal.NewFromFloat(7269.38)
+	// Regression test for https://github.com/envelope-zero/backend/issues/1007
+	_ = suite.createTestTransaction(models.Transaction{
+		Date:                 time.Time(marchTwentyTwentyTwo),
+		SourceAccountID:      offBudgetAccount.ID,
+		DestinationAccountID: cashAccount.ID,
+		Amount:               decimal.NewFromFloat(20),
+	})
+
+	shouldBalance := decimal.NewFromFloat(7289.38)
 	isBalance, err := budget.Balance(models.DB)
 	if err != nil {
 		assert.FailNow(suite.T(), "Balance for budget could not be calculated")
 	}
-	assert.True(suite.T(), isBalance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, budget.Balance)
+	assert.True(suite.T(), isBalance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, isBalance)
 
 	// Verify income for used budget in March
-	shouldIncome := decimal.NewFromFloat(4600)
+	shouldIncome := decimal.NewFromFloat(4620) // Income transaction from employer + income from off budget account
 	income, err := budget.Income(models.DB, marchTwentyTwentyTwo)
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncome), "Income is %s, should be %s", income, shouldIncome)

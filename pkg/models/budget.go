@@ -58,7 +58,7 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, 
 		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
 		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
 		Joins("JOIN budgets ON source_account.budget_id = budgets.id").
-		Where("source_account.external = 1").
+		Where("source_account.on_budget = false AND destination_account.on_budget = true").
 		Where("destination_account.external = 0").
 		Where("transactions.envelope_id IS NULL").
 		Where("transactions.available_from >= date(?) AND transactions.available_from < date(?)", month, month.AddDate(0, 1)).
