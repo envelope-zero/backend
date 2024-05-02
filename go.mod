@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/gin-contrib/cors v1.7.2
-	github.com/gin-contrib/logger v1.1.1
+	github.com/gin-contrib/logger v1.1.2
 	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-contrib/requestid v1.0.0
 	github.com/gin-gonic/gin v1.9.1
