@@ -309,6 +309,12 @@ func (suite *TestSuiteStandard) TestTransactionsGetInvalidQuery() {
 		suite.T().Run(tt, func(t *testing.T) {
 			recorder := test.Request(t, http.MethodGet, fmt.Sprintf("http://example.com/v4/transactions?%s", tt), "")
 			test.AssertHTTPStatus(t, &recorder, http.StatusBadRequest)
+
+			var body v4.TransactionListResponse
+			test.DecodeResponse(t, &recorder, &body)
+
+			assert.Len(t, body.Data, 0)
+			assert.NotEmpty(t, body.Error)
 		})
 	}
 }
