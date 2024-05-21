@@ -227,6 +227,7 @@ func GetTransactions(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, TransactionListResponse{
 				Error: &s,
 			})
+			return
 		}
 
 		if filter.Direction == DirectionTransfer {

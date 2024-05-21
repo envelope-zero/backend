@@ -68,7 +68,7 @@ func Request(t *testing.T, method, reqURL string, body any, headers ...map[strin
 
 // DecodeResponse decodes an HTTP response into a target struct.
 func DecodeResponse(t *testing.T, r *httptest.ResponseRecorder, target any) {
-	err := json.NewDecoder(r.Body).Decode(target)
+	err := json.Unmarshal(r.Body.Bytes(), &target)
 	if err != nil {
 		assert.FailNow(t, "Parsing error", "Unable to parse response from server %q into %v, '%v', Request ID: %s", r.Body, reflect.TypeOf(target), err, r.Result().Header.Get("x-request-id"))
 	}
