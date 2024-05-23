@@ -11,7 +11,7 @@ require (
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/uuid v1.6.0
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 	github.com/ryanuber/go-glob v1.0.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.9.0
