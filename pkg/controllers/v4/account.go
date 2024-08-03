@@ -248,6 +248,11 @@ func GetAccount(c *gin.Context) {
 // @Failure		500	{object}	RecentEnvelopesResponse
 // @Param			id	path		string	true	"ID formatted as string"
 // @Router			/v4/accounts/{id}/recent-envelopes [get]
+//
+// GetAccountRecentEnvelopes returns recent envelopes for an account.
+//
+// Income is returned as a RecentEnvelope with the nil ID.
+// Clients must be able to handle this.
 func GetAccountRecentEnvelopes(c *gin.Context) {
 	id, err := httputil.UUIDFromString(c.Param("id"))
 	if err != nil {
