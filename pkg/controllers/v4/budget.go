@@ -44,10 +44,11 @@ func OptionsBudgetList(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/budgets/{id} [options]
 func OptionsBudgetDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -55,7 +56,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 		return
 	}
 
-	err = models.DB.First(&models.Budget{}, id).Error
+	err = models.DB.First(&models.Budget{}, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -74,7 +75,7 @@ func OptionsBudgetDetail(c *gin.Context) {
 // @Success		201		{object}	BudgetCreateResponse
 // @Failure		400		{object}	BudgetCreateResponse
 // @Failure		500		{object}	BudgetCreateResponse
-// @Param			budget	body		[]BudgetEditable	true	"Budget"
+// @Param			budgets	body		[]BudgetEditable	true	"Budgets"
 // @Router			/v4/budgets [post]
 func CreateBudgets(c *gin.Context) {
 	var budgets []BudgetEditable
@@ -193,10 +194,11 @@ func GetBudgets(c *gin.Context) {
 // @Failure		400	{object}	BudgetResponse
 // @Failure		404	{object}	BudgetResponse
 // @Failure		500	{object}	BudgetResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/budgets/{id} [get]
 func GetBudget(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), BudgetResponse{
@@ -206,7 +208,7 @@ func GetBudget(c *gin.Context) {
 	}
 
 	var budget models.Budget
-	err = models.DB.First(&budget, id).Error
+	err = models.DB.First(&budget, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), BudgetResponse{
@@ -228,11 +230,12 @@ func GetBudget(c *gin.Context) {
 // @Failure		400		{object}	BudgetResponse
 // @Failure		404		{object}	BudgetResponse
 // @Failure		500		{object}	BudgetResponse
-// @Param			id		path		string			true	"ID formatted as string"
+// @Param			id		path		URIID			true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			budget	body		BudgetEditable	true	"Budget"
 // @Router			/v4/budgets/{id} [patch]
 func UpdateBudget(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), BudgetResponse{
@@ -242,7 +245,7 @@ func UpdateBudget(c *gin.Context) {
 	}
 
 	var budget models.Budget
-	err = models.DB.First(&budget, id).Error
+	err = models.DB.First(&budget, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), BudgetResponse{
@@ -290,10 +293,11 @@ func UpdateBudget(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/budgets/{id} [delete]
 func DeleteBudget(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -302,7 +306,7 @@ func DeleteBudget(c *gin.Context) {
 	}
 
 	var budget models.Budget
-	err = models.DB.First(&budget, id).Error
+	err = models.DB.First(&budget, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),

@@ -1831,9 +1831,9 @@ paths:
       - application/json
       description: Creates a new budget
       parameters:
-      - description: Budget
+      - description: Budgets
         in: body
-        name: budget
+        name: budgets
         required: true
         schema:
           items:
@@ -1861,7 +1861,7 @@ paths:
     delete:
       description: Deletes a budget
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -1887,7 +1887,7 @@ paths:
     get:
       description: Returns a specific budget
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -1918,7 +1918,7 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -1947,7 +1947,7 @@ paths:
       description: Update an existing budget. Only values to be updated need to be
         specified.
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true

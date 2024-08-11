@@ -637,8 +637,8 @@
                 "summary": "Create budget",
                 "parameters": [
                     {
-                        "description": "Budget",
-                        "name": "budget",
+                        "description": "Budgets",
+                        "name": "budgets",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -696,7 +696,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -738,7 +738,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -777,7 +777,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -822,7 +822,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
