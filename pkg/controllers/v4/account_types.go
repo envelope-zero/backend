@@ -11,6 +11,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// AccountEditable represents the user editable properties of an account
 type AccountEditable struct {
 	Name               string          `json:"name" example:"Cash" default:""`                                                                                           // Name of the account
 	Note               string          `json:"note" example:"Money in my wallet" default:""`                                                                             // A longer description for the account
@@ -144,7 +145,7 @@ type AccountComputedRequest struct {
 }
 
 type AccountComputedData struct {
-	ID                uuid.UUID       `json:"id" example:"95018a69-758b-46c6-8bab-db70d9614f9d"` // ID of the account
+	ID                ez_uuid.UUID    `json:"id" example:"95018a69-758b-46c6-8bab-db70d9614f9d"` // ID of the account
 	Balance           decimal.Decimal `json:"balance" example:"2735.17"`                         // Balance of the account, including all transactions referencing it
 	ReconciledBalance decimal.Decimal `json:"reconciledBalance" example:"2539.57"`               // Balance of the account, including all reconciled transactions referencing it
 }

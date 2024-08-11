@@ -3,6 +3,7 @@ package v4
 import (
 	"net/http"
 
+	"github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -46,10 +47,11 @@ func OptionsAccountList(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/accounts/{id} [options]
 func OptionsAccountDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -57,7 +59,7 @@ func OptionsAccountDetail(c *gin.Context) {
 		return
 	}
 
-	err = models.DB.First(&models.Account{}, id).Error
+	err = models.DB.First(&models.Account{}, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -212,10 +214,11 @@ func GetAccounts(c *gin.Context) {
 // @Failure		400	{object}	AccountResponse
 // @Failure		404	{object}	AccountResponse
 // @Failure		500	{object}	AccountResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/accounts/{id} [get]
 func GetAccount(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), AccountResponse{
@@ -225,7 +228,7 @@ func GetAccount(c *gin.Context) {
 	}
 
 	var account models.Account
-	err = models.DB.First(&account, id).Error
+	err = models.DB.First(&account, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), AccountResponse{
@@ -238,23 +241,24 @@ func GetAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, AccountResponse{Data: &data})
 }
 
-// @Summary		Get recent envelopes
-// @Description	Returns a list of objects representing recent envelopes
-// @Tags			Accounts
-// @Produce		json
-// @Success		200	{object}	RecentEnvelopesResponse
-// @Failure		400	{object}	RecentEnvelopesResponse
-// @Failure		404	{object}	RecentEnvelopesResponse
-// @Failure		500	{object}	RecentEnvelopesResponse
-// @Param			id	path		string	true	"ID formatted as string"
-// @Router			/v4/accounts/{id}/recent-envelopes [get]
+//	@Summary		Get recent envelopes
+//	@Description	Returns a list of objects representing recent envelopes
+//	@Tags			Accounts
+//	@Produce		json
+//	@Success		200	{object}	RecentEnvelopesResponse
+//	@Failure		400	{object}	RecentEnvelopesResponse
+//	@Failure		404	{object}	RecentEnvelopesResponse
+//	@Failure		500	{object}	RecentEnvelopesResponse
+//	@Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
+//	@Router			/v4/accounts/{id}/recent-envelopes [get]
 //
 // GetAccountRecentEnvelopes returns recent envelopes for an account.
 //
 // Income is returned as a RecentEnvelope with the nil ID.
 // Clients must be able to handle this.
 func GetAccountRecentEnvelopes(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), RecentEnvelopesResponse{
@@ -264,7 +268,7 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 	}
 
 	var account models.Account
-	err = models.DB.First(&account, id).Error
+	err = models.DB.First(&account, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 
@@ -333,7 +337,8 @@ func GetAccountData(c *gin.Context) {
 
 	data := make([]AccountComputedData, 0)
 	for _, idString := range request.IDs {
-		id, err := httputil.UUIDFromString(idString)
+		var id uuid.UUID
+		err := id.UnmarshalParam(idString)
 		if err != nil {
 			s := err.Error()
 			c.JSON(status(err), AccountComputedDataResponse{
@@ -390,11 +395,12 @@ func GetAccountData(c *gin.Context) {
 // @Failure		400		{object}	AccountResponse
 // @Failure		404		{object}	AccountResponse
 // @Failure		500		{object}	AccountResponse
-// @Param			id		path		string			true	"ID formatted as string"
+// @Param			id		path		URIID			true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			account	body		AccountEditable	true	"Account"
 // @Router			/v4/accounts/{id} [patch]
 func UpdateAccount(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), AccountResponse{
@@ -404,7 +410,7 @@ func UpdateAccount(c *gin.Context) {
 	}
 
 	var account models.Account
-	err = models.DB.First(&account, id).Error
+	err = models.DB.First(&account, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), AccountResponse{
@@ -453,10 +459,11 @@ func UpdateAccount(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/accounts/{id} [delete]
 func DeleteAccount(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -465,7 +472,7 @@ func DeleteAccount(c *gin.Context) {
 	}
 
 	var account models.Account
-	err = models.DB.First(&account, id).Error
+	err = models.DB.First(&account, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),

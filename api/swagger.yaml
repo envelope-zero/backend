@@ -1594,7 +1594,7 @@ paths:
     delete:
       description: Deletes an account
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -1622,7 +1622,7 @@ paths:
     get:
       description: Returns a specific account
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -1653,7 +1653,7 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -1679,7 +1679,7 @@ paths:
     patch:
       description: Updates an account. Only values to be updated need to be specified.
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -1716,7 +1716,7 @@ paths:
     get:
       description: Returns a list of objects representing recent envelopes
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
