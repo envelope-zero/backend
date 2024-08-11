@@ -3,7 +3,7 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -89,24 +89,19 @@ type EnvelopeResponse struct {
 }
 
 type EnvelopeQueryFilter struct {
-	BudgetID   string `form:"budget" filterField:"false"` // By budget ID
-	CategoryID string `form:"category"`                   // By the ID of the category
-	Name       string `form:"name" filterField:"false"`   // By name
-	Note       string `form:"note" filterField:"false"`   // By the note
-	Archived   bool   `form:"archived"`                   // Is the envelope archived?
-	Search     string `form:"search" filterField:"false"` // By string in name or note
-	Offset     uint   `form:"offset" filterField:"false"` // The offset of the first Envelope returned. Defaults to 0.
-	Limit      int    `form:"limit" filterField:"false"`  // Maximum number of Envelopes to return. Defaults to 50.
+	BudgetID   ez_uuid.UUID `form:"budget" filterField:"false"` // By budget ID
+	CategoryID ez_uuid.UUID `form:"category"`                   // By the ID of the category
+	Name       string       `form:"name" filterField:"false"`   // By name
+	Note       string       `form:"note" filterField:"false"`   // By the note
+	Archived   bool         `form:"archived"`                   // Is the envelope archived?
+	Search     string       `form:"search" filterField:"false"` // By string in name or note
+	Offset     uint         `form:"offset" filterField:"false"` // The offset of the first Envelope returned. Defaults to 0.
+	Limit      int          `form:"limit" filterField:"false"`  // Maximum number of Envelopes to return. Defaults to 50.
 }
 
 func (f EnvelopeQueryFilter) model() (models.Envelope, error) {
-	categoryID, err := httputil.UUIDFromString(f.CategoryID)
-	if err != nil {
-		return models.Envelope{}, err
-	}
-
 	return models.Envelope{
-		CategoryID: categoryID,
+		CategoryID: f.CategoryID.UUID,
 		Archived:   f.Archived,
 	}, nil
 }

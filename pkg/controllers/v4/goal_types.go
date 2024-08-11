@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/envelope-zero/backend/v5/internal/types"
-	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -94,13 +94,13 @@ type GoalResponse struct {
 }
 
 type GoalQueryFilter struct {
-	BudgetID          string          `form:"budget" filterField:"false"`            // By budget ID
-	CategoryID        string          `form:"category" filterField:"false"`          // By category ID
+	BudgetID          ez_uuid.UUID    `form:"budget" filterField:"false"`            // By budget ID
+	CategoryID        ez_uuid.UUID    `form:"category" filterField:"false"`          // By category ID
 	Name              string          `form:"name" filterField:"false"`              // By name
 	Note              string          `form:"note" filterField:"false"`              // By the note
 	Search            string          `form:"search" filterField:"false"`            // By string in name or note
 	Archived          bool            `form:"archived"`                              // Is the goal archived?
-	EnvelopeID        string          `form:"envelope"`                              // ID of the envelope
+	EnvelopeID        ez_uuid.UUID    `form:"envelope"`                              // ID of the envelope
 	Month             string          `form:"month"`                                 // Exact month
 	FromMonth         string          `form:"fromMonth" filterField:"false"`         // From this month
 	UntilMonth        string          `form:"untilMonth" filterField:"false"`        // Until this month
@@ -112,11 +112,6 @@ type GoalQueryFilter struct {
 }
 
 func (f GoalQueryFilter) model() (models.Goal, error) {
-	envelopeID, err := httputil.UUIDFromString(f.EnvelopeID)
-	if err != nil {
-		return models.Goal{}, err
-	}
-
 	var month types.Month
 	if f.Month != "" {
 		m, err := types.ParseMonth(f.Month)
@@ -130,7 +125,7 @@ func (f GoalQueryFilter) model() (models.Goal, error) {
 	// This does not set the string fields since they are
 	// handled in the controller function
 	return GoalEditable{
-		EnvelopeID: envelopeID,
+		EnvelopeID: f.EnvelopeID.UUID,
 		Amount:     f.Amount,
 		Month:      month,
 		Archived:   f.Archived,

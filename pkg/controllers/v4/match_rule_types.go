@@ -3,7 +3,7 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -81,23 +81,18 @@ func newMatchRule(c *gin.Context, model models.MatchRule) MatchRule {
 
 // MatchRuleQueryFilter contains the fields that Match Rules can be filtered with.
 type MatchRuleQueryFilter struct {
-	BudgetID  string `form:"budget" filterField:"false"` // By budget ID
-	Priority  uint   `form:"priority"`                   // By priority
-	Match     string `form:"match" filterField:"false"`  // By match
-	AccountID string `form:"account"`                    // By ID of the Account they map to
-	Offset    uint   `form:"offset" filterField:"false"` // The offset of the first Match Rule returned. Defaults to 0.
-	Limit     int    `form:"limit" filterField:"false"`  // Maximum number of Match Rules to return. Defaults to 50.
+	BudgetID  ez_uuid.UUID `form:"budget" filterField:"false"` // By budget ID
+	Priority  uint         `form:"priority"`                   // By priority
+	Match     string       `form:"match" filterField:"false"`  // By match
+	AccountID ez_uuid.UUID `form:"account"`                    // By ID of the Account they map to
+	Offset    uint         `form:"offset" filterField:"false"` // The offset of the first Match Rule returned. Defaults to 0.
+	Limit     int          `form:"limit" filterField:"false"`  // Maximum number of Match Rules to return. Defaults to 50.
 }
 
 // Parse returns a models.MatchRuleCreate struct that represents the MatchRuleQueryFilter.
 func (f MatchRuleQueryFilter) model() (models.MatchRule, error) {
-	envelopeID, err := httputil.UUIDFromString(f.AccountID)
-	if err != nil {
-		return models.MatchRule{}, err
-	}
-
 	return models.MatchRule{
 		Priority:  f.Priority,
-		AccountID: envelopeID,
+		AccountID: f.AccountID.UUID,
 	}, nil
 }

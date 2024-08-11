@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -151,20 +152,11 @@ func GetMatchRules(c *gin.Context) {
 		q = q.Where("match = ''")
 	}
 
-	if filter.BudgetID != "" {
-		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
-		if err != nil {
-			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
-			c.JSON(status(err), MatchRuleListResponse{
-				Error: &s,
-			})
-			return
-		}
-
+	if filter.BudgetID != ez_uuid.Nil {
 		q = q.
 			Joins("JOIN accounts on accounts.id = match_rules.account_id").
 			Joins("JOIN budgets on budgets.id = accounts.budget_id").
-			Where("budgets.id = ?", budgetID)
+			Where("budgets.id = ?", filter.BudgetID.UUID)
 	}
 
 	// Set the offset. Does not need checking since the default is 0
