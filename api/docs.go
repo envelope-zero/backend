@@ -1283,7 +1283,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Envelopes",
-                        "name": "envelope",
+                        "name": "envelopes",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -1347,7 +1347,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1389,7 +1389,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1428,7 +1428,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1473,7 +1473,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
