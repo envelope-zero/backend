@@ -2076,7 +2076,7 @@ paths:
     delete:
       description: Deletes a category
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -2102,7 +2102,7 @@ paths:
     get:
       description: Returns a specific category
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -2133,7 +2133,7 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
@@ -2162,7 +2162,7 @@ paths:
       description: Update an existing category. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID formatted as string
+      - description: The ID of the resource
         in: path
         name: id
         required: true
