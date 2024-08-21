@@ -41,10 +41,11 @@ func OptionsGoals(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [options]
 func OptionsGoalDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -52,7 +53,7 @@ func OptionsGoalDetail(c *gin.Context) {
 		return
 	}
 
-	err = models.DB.First(&models.Goal{}, id).Error
+	err = models.DB.First(&models.Goal{}, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -259,10 +260,11 @@ func GetGoals(c *gin.Context) {
 // @Failure		400	{object}	GoalResponse
 // @Failure		404	{object}	GoalResponse
 // @Failure		500	{object}	GoalResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [get]
 func GetGoal(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -272,7 +274,7 @@ func GetGoal(c *gin.Context) {
 	}
 
 	var goal models.Goal
-	err = models.DB.First(&goal, id).Error
+	err = models.DB.First(&goal, uri.ID).Error
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -294,11 +296,12 @@ func GetGoal(c *gin.Context) {
 // @Failure		400		{object}	GoalResponse
 // @Failure		404		{object}	GoalResponse
 // @Failure		500		{object}	GoalResponse
-// @Param			id		path		string			true	"ID formatted as string"
+// @Param			id		path		URIID			true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			goal	body		GoalEditable	true	"Goal"
 // @Router			/v4/goals/{id} [patch]
 func UpdateGoal(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -308,7 +311,7 @@ func UpdateGoal(c *gin.Context) {
 	}
 
 	var goal models.Goal
-	err = models.DB.First(&goal, id).Error
+	err = models.DB.First(&goal, uri.ID).Error
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -358,10 +361,11 @@ func UpdateGoal(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [delete]
 func DeleteGoal(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -370,7 +374,7 @@ func DeleteGoal(c *gin.Context) {
 	}
 
 	var goal models.Goal
-	err = models.DB.First(&goal, id).Error
+	err = models.DB.First(&goal, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
