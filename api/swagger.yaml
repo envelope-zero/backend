@@ -2821,9 +2821,10 @@ paths:
         name: file
         required: true
         type: file
-      - description: ID of the account to import transactions for
+      - description: ID of the account to import the transactions for
         in: query
         name: accountId
+        required: true
         type: string
       produces:
       - application/json
@@ -2867,9 +2868,10 @@ paths:
         name: file
         required: true
         type: file
-      - description: Name of the Budget to create
+      - description: Name for the new budget
         in: query
         name: budgetName
+        required: true
         type: string
       produces:
       - application/json

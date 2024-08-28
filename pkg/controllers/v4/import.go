@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/importer"
 	ynabimport "github.com/envelope-zero/backend/v5/pkg/importer/parser/ynab-import"
@@ -22,7 +23,7 @@ type ImportQuery struct {
 }
 
 type ImportPreviewQuery struct {
-	AccountID string `form:"accountId" binding:"required"` // ID of the account to import the transactions for
+	AccountID ez_uuid.UUID `form:"accountId" binding:"required"` // ID of the account to import the transactions for
 }
 
 // getUploadedFile returns the form file and handles potential errors.
@@ -236,14 +237,21 @@ func OptionsImportYnabImportPreview(c *gin.Context) {
 // @Failure		400			{object}	ImportPreviewList
 // @Failure		404			{object}	ImportPreviewList
 // @Failure		500			{object}	ImportPreviewList
-// @Param			file		formData	file	true	"File to import"
-// @Param			accountId	query		string	false	"ID of the account to import transactions for"
+// @Param			file		formData	file				true	"File to import"
+// @Param			accountId	query		ImportPreviewQuery	false	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/import/ynab-import-preview [post]
 func ImportYnabImportPreview(c *gin.Context) {
 	var query ImportPreviewQuery
 	err := c.BindQuery(&query)
-	// When the binding fails, it is always because the accountID is not set
 	if err != nil {
+		s := fmt.Errorf("accountId: %w", err).Error()
+		c.JSON(http.StatusBadRequest, ImportPreviewList{
+			Error: &s,
+		})
+		return
+	}
+
+	if query.AccountID == ez_uuid.Nil {
 		s := errAccountIDParameter.Error()
 		c.JSON(http.StatusBadRequest, ImportPreviewList{
 			Error: &s,
@@ -260,18 +268,9 @@ func ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	accountID, err := httputil.UUIDFromString(query.AccountID)
-	if err != nil {
-		s := err.Error()
-		c.JSON(status(err), ImportPreviewList{
-			Error: &s,
-		})
-		return
-	}
-
 	// Verify that the account exists
 	var account models.Account
-	err = models.DB.First(&account, accountID).Error
+	err = models.DB.First(&account, query.AccountID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), ImportPreviewList{
@@ -356,8 +355,8 @@ func ImportYnabImportPreview(c *gin.Context) {
 // @Success		201			{object}	BudgetResponse
 // @Failure		400			{object}	BudgetResponse
 // @Failure		500			{object}	BudgetResponse
-// @Param			file		formData	file	true	"File to import"
-// @Param			budgetName	query		string	false	"Name of the Budget to create"
+// @Param			file		formData	file		true	"File to import"
+// @Param			budgetName	query		ImportQuery	false	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/import/ynab4 [post]
 func ImportYnab4(c *gin.Context) {
 	var query ImportQuery

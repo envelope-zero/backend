@@ -163,7 +163,7 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFails() {
 		file          string
 	}{
 		{"No account ID", "", http.StatusBadRequest, "the accountId parameter must be set", ""},
-		{"Broken ID", "NotAUUID", http.StatusBadRequest, "the specified resource ID is not a valid UUID", "importer/ynab-import/empty.csv"},
+		{"Broken ID", "NotAUUID", http.StatusBadRequest, "accountId: invalid UUID length: 8", "importer/ynab-import/empty.csv"},
 		{"No account with ID", "d2525c4f-2f45-49ba-9c5d-75d6b1c26f56", http.StatusNotFound, "there is no account matching your query", "importer/ynab-import/empty.csv"},
 		{"No file sent", accountID, http.StatusBadRequest, "you must send a file to this endpoint", ""},
 		{"Wrong file name", accountID, http.StatusBadRequest, "this endpoint only supports files of the following types: .csv", "importer/ynab-import/wrong-suffix.json"},

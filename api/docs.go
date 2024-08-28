@@ -2111,9 +2111,10 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "ID of the account to import transactions for",
+                        "description": "ID of the account to import the transactions for",
                         "name": "accountId",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2179,9 +2180,10 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Name of the Budget to create",
+                        "description": "Name for the new budget",
                         "name": "budgetName",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
