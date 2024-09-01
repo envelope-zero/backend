@@ -3143,7 +3143,8 @@ paths:
         name: budget
         required: true
         type: string
-      - description: The month in YYYY-MM format
+      - description: Year and month in YYYY-MM format
+        example: 2022-07
         in: query
         name: month
         type: string

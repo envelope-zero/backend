@@ -2551,7 +2551,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "The month in YYYY-MM format",
+                        "example": "2022-07",
+                        "description": "Year and month in YYYY-MM format",
                         "name": "month",
                         "in": "query"
                     }
