@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/envelope-zero/backend/v5/internal/types"
-	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -130,46 +130,31 @@ type TransactionQueryFilter struct {
 	AmountLessOrEqual      decimal.Decimal      `form:"amountLessOrEqual" filterField:"false"`      // Amount less than or equal to this
 	AmountMoreOrEqual      decimal.Decimal      `form:"amountMoreOrEqual" filterField:"false"`      // Amount more than or equal to this
 	Note                   string               `form:"note" filterField:"false"`                   // Note contains this string
-	BudgetID               string               `form:"budget" filterField:"false"`                 // ID of the budget
-	SourceAccountID        string               `form:"source"`                                     // ID of the source account
-	DestinationAccountID   string               `form:"destination"`                                // ID of the destination account
+	BudgetID               ez_uuid.UUID         `form:"budget" filterField:"false"`                 // ID of the budget
+	SourceAccountID        ez_uuid.UUID         `form:"source"`                                     // ID of the source account
+	DestinationAccountID   ez_uuid.UUID         `form:"destination"`                                // ID of the destination account
 	Direction              TransactionDirection `form:"direction" filterField:"false"`              // Direction of the transaction
-	EnvelopeID             string               `form:"envelope"`                                   // ID of the envelope
+	EnvelopeID             ez_uuid.UUID         `form:"envelope"`                                   // ID of the envelope
 	ReconciledSource       bool                 `form:"reconciledSource"`                           // Is the transaction reconciled in the source account?
 	ReconciledDestination  bool                 `form:"reconciledDestination"`                      // Is the transaction reconciled in the destination account?
-	AccountID              string               `form:"account" filterField:"false"`                // ID of either source or destination account
+	AccountID              ez_uuid.UUID         `form:"account" filterField:"false"`                // ID of either source or destination account
 	Offset                 uint                 `form:"offset" filterField:"false"`                 // The offset of the first Transaction returned. Defaults to 0.
 	Limit                  int                  `form:"limit" filterField:"false"`                  // Maximum number of transactions to return. Defaults to 50.
 }
 
 func (f TransactionQueryFilter) model() (models.Transaction, error) {
-	sourceAccountID, err := httputil.UUIDFromString(f.SourceAccountID)
-	if err != nil {
-		return models.Transaction{}, err
-	}
-
-	destinationAccountID, err := httputil.UUIDFromString(f.DestinationAccountID)
-	if err != nil {
-		return models.Transaction{}, err
-	}
-
-	envelopeID, err := httputil.UUIDFromString(f.EnvelopeID)
-	if err != nil {
-		return models.Transaction{}, err
-	}
-
 	// If the envelopeID is nil, use an actual nil, not uuid.Nil
 	var eID *uuid.UUID
-	if envelopeID != uuid.Nil {
-		eID = &envelopeID
+	if f.EnvelopeID != ez_uuid.Nil {
+		eID = &f.EnvelopeID.UUID
 	}
 
 	// This does not set the string or date fields since they are
 	// handled in the controller function
 	return TransactionEditable{
 		Amount:                f.Amount,
-		SourceAccountID:       sourceAccountID,
-		DestinationAccountID:  destinationAccountID,
+		SourceAccountID:       f.SourceAccountID.UUID,
+		DestinationAccountID:  f.DestinationAccountID.UUID,
 		EnvelopeID:            eID,
 		ReconciledSource:      f.ReconciledSource,
 		ReconciledDestination: f.ReconciledDestination,

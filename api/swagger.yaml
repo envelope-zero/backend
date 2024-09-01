@@ -3379,7 +3379,7 @@ paths:
     delete:
       description: Deletes a transaction
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
         in: path
         name: id
         required: true
@@ -3405,7 +3405,7 @@ paths:
     get:
       description: Returns a specific transaction
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
         in: path
         name: id
         required: true
@@ -3436,7 +3436,7 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
         in: path
         name: id
         required: true
@@ -3465,7 +3465,7 @@ paths:
       description: Updates an existing transaction. Only values to be updated need
         to be specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
         in: path
         name: id
         required: true
