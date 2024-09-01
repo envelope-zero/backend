@@ -17,7 +17,7 @@ type Links struct {
 	Healthz string `json:"healthz" example:"https://example.com/api/healtzh"`      // Healthz endpoint
 	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
 	Metrics string `json:"metrics" example:"https://example.com/api/metrics"`      // Endpoint returning Prometheus metrics
-	V3      string `json:"v3" example:"https://example.com/api/v3"`                // List endpoint for all v3 endpoints
+	V4      string `json:"v4" example:"https://example.com/api/v4"`                // List endpoint for all v4 endpoints
 }
 
 func RegisterRoutes(r *gin.RouterGroup) {
@@ -39,7 +39,7 @@ func Get(c *gin.Context) {
 			Healthz: url + "/healthz",
 			Version: url + "/version",
 			Metrics: url + "/metrics",
-			V3:      url + "/v3",
+			V4:      url + "/v4",
 		},
 	})
 }

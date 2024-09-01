@@ -13,9 +13,9 @@ definitions:
         description: Endpoint returning Prometheus metrics
         example: https://example.com/api/metrics
         type: string
-      v3:
-        description: List endpoint for all v3 endpoints
-        example: https://example.com/api/v3
+      v4:
+        description: List endpoint for all v4 endpoints
+        example: https://example.com/api/v4
         type: string
       version:
         description: Endpoint returning the version of the backend

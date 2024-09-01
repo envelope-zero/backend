@@ -44,7 +44,7 @@ func TestGet(t *testing.T) {
 			Healthz: "/healthz",
 			Version: "/version",
 			Metrics: "/metrics",
-			V3:      "/v3",
+			V4:      "/v4",
 		},
 	}
 
