@@ -1595,6 +1595,7 @@ paths:
       description: Deletes an account
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1623,6 +1624,7 @@ paths:
       description: Returns a specific account
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1654,6 +1656,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1680,6 +1683,7 @@ paths:
       description: Updates an account. Only values to be updated need to be specified.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1717,6 +1721,7 @@ paths:
       description: Returns a list of objects representing recent envelopes
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1862,6 +1867,7 @@ paths:
       description: Deletes a budget
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1888,6 +1894,7 @@ paths:
       description: Returns a specific budget
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1919,6 +1926,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1948,6 +1956,7 @@ paths:
         specified.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2077,6 +2086,7 @@ paths:
       description: Deletes a category
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2103,6 +2113,7 @@ paths:
       description: Returns a specific category
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2134,6 +2145,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2163,6 +2175,7 @@ paths:
         be specified.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2292,6 +2305,7 @@ paths:
       description: Deletes an envelope
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2318,6 +2332,7 @@ paths:
       description: Returns a specific Envelope
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2349,6 +2364,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2378,6 +2394,7 @@ paths:
         be specified.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2415,6 +2432,7 @@ paths:
       description: Returns configuration for a specific month
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2452,6 +2470,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2477,6 +2496,7 @@ paths:
         for the month yet, this endpoint transparently creates a configuration resource.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2665,6 +2685,7 @@ paths:
       description: Deletes a goal
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2691,6 +2712,7 @@ paths:
       description: Returns a specific goal
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2722,6 +2744,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2751,6 +2774,7 @@ paths:
         specified.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2986,6 +3010,7 @@ paths:
       description: Deletes an matchRule
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3012,6 +3037,7 @@ paths:
       description: Returns a specific matchRule
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3043,6 +3069,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3071,6 +3098,7 @@ paths:
       description: Update a matchRule. Only values to be updated need to be specified.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3380,6 +3408,7 @@ paths:
       description: Deletes a transaction
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3406,6 +3435,7 @@ paths:
       description: Returns a specific transaction
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3437,6 +3467,7 @@ paths:
         allowed HTTP verbs
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3466,6 +3497,7 @@ paths:
         to be specified.
       parameters:
       - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true

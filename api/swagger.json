@@ -344,6 +344,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -389,6 +390,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -428,6 +430,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -470,6 +473,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -526,6 +530,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -696,6 +701,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -738,6 +744,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -777,6 +784,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -822,6 +830,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1016,6 +1025,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1058,6 +1068,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1097,6 +1108,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1142,6 +1154,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1336,6 +1349,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1378,6 +1392,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1417,6 +1432,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1462,6 +1478,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1518,6 +1535,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1568,6 +1586,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1606,6 +1625,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1882,6 +1902,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1924,6 +1945,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -1963,6 +1985,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -2008,6 +2031,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -2351,6 +2375,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -2393,6 +2418,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -2432,6 +2458,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -2477,6 +2504,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -2921,6 +2949,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -2963,6 +2992,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -3002,6 +3032,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
@@ -3047,6 +3078,7 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "UUID",
                         "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
