@@ -3145,10 +3145,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/api/metrics"
                 },
-                "v3": {
-                    "description": "List endpoint for all v3 endpoints",
+                "v4": {
+                    "description": "List endpoint for all v4 endpoints",
                     "type": "string",
-                    "example": "https://example.com/api/v3"
+                    "example": "https://example.com/api/v4"
                 },
                 "version": {
                     "description": "Endpoint returning the version of the backend",
