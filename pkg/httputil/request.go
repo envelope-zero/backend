@@ -14,7 +14,7 @@ import (
 // BindData binds the data from the request to the struct passed in the interface.
 func BindData(c *gin.Context, data interface{}) error {
 	if err := c.ShouldBindJSON(&data); err != nil {
-		if errors.Is(io.EOF, err) {
+		if errors.Is(err, io.EOF) {
 			return ErrRequestBodyEmpty
 		}
 
