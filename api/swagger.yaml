@@ -1,4 +1,10 @@
 definitions:
+  httperror.Error:
+    properties:
+      error:
+        example: You must specify a transaction ID
+        type: string
+    type: object
   root.Links:
     properties:
       docs:
@@ -1434,9 +1440,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/httperror.Error'
       summary: Get health
       tags:
       - General

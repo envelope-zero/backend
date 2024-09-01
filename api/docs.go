@@ -61,10 +61,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/httperror.Error"
                         }
                     }
                 }
@@ -3212,6 +3209,15 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "httperror.Error": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "You must specify a transaction ID"
+                }
+            }
+        },
         "root.Links": {
             "type": "object",
             "properties": {

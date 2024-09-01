@@ -3,6 +3,7 @@ package healthz
 import (
 	"net/http"
 
+	"github.com/envelope-zero/backend/v5/internal/httperror"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -27,18 +28,18 @@ func Options(c *gin.Context) {
 // @Tags			General
 // @Produce		json
 // @Success		204
-// @Failure		500	{object} map[string]string
+// @Failure		500	{object} httperror.Error
 // @Router			/healthz [get]
 func Get(c *gin.Context) {
 	sqlDB, err := models.DB.DB()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, httperror.New(err))
 		return
 	}
 
 	err = sqlDB.Ping()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, httperror.New(err))
 		return
 	}
 
