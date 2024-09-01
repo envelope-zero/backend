@@ -355,7 +355,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -400,7 +400,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -439,7 +439,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -481,7 +481,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -537,7 +537,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -707,7 +707,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -749,7 +749,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -788,7 +788,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -833,7 +833,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1027,7 +1027,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1069,7 +1069,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1108,7 +1108,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1153,7 +1153,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1347,7 +1347,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1389,7 +1389,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1428,7 +1428,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1473,7 +1473,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1529,14 +1529,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID of the Envelope",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "The month in YYYY-MM format",
+                        "example": "2013-11",
+                        "description": "Year and month in YYYY-MM format",
                         "name": "month",
                         "in": "path",
                         "required": true
@@ -1578,14 +1579,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID of the Envelope",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "The month in YYYY-MM format",
+                        "example": "2013-11",
+                        "description": "Year and month in YYYY-MM format",
                         "name": "month",
                         "in": "path",
                         "required": true
@@ -1615,14 +1617,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID of the Envelope",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "The month in YYYY-MM format",
+                        "example": "2013-11",
+                        "description": "Year and month in YYYY-MM format",
                         "name": "month",
                         "in": "path",
                         "required": true
@@ -1890,7 +1893,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1932,7 +1935,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1971,7 +1974,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2016,7 +2019,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2359,7 +2362,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2401,7 +2404,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2440,7 +2443,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2485,7 +2488,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "The ID of the resource",
+                        "description": "ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2550,8 +2553,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "The month in YYYY-MM format",
                         "name": "month",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
