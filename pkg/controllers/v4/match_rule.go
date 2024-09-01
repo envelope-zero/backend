@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -46,15 +47,16 @@ func OptionsMatchRuleList(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/match-rules/{id} [options]
 func OptionsMatchRuleDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{Error: err.Error()})
 	}
 
-	err = models.DB.First(&models.MatchRule{}, id).Error
+	err = models.DB.First(&models.MatchRule{}, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{Error: err.Error()})
 		return
@@ -151,20 +153,11 @@ func GetMatchRules(c *gin.Context) {
 		q = q.Where("match = ''")
 	}
 
-	if filter.BudgetID != "" {
-		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
-		if err != nil {
-			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
-			c.JSON(status(err), MatchRuleListResponse{
-				Error: &s,
-			})
-			return
-		}
-
+	if filter.BudgetID != ez_uuid.Nil {
 		q = q.
 			Joins("JOIN accounts on accounts.id = match_rules.account_id").
 			Joins("JOIN budgets on budgets.id = accounts.budget_id").
-			Where("budgets.id = ?", budgetID)
+			Where("budgets.id = ?", filter.BudgetID.UUID)
 	}
 
 	// Set the offset. Does not need checking since the default is 0
@@ -220,10 +213,11 @@ func GetMatchRules(c *gin.Context) {
 // @Failure		400	{object}	MatchRuleResponse
 // @Failure		404	{object}	MatchRuleResponse
 // @Failure		500	{object}	MatchRuleResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/match-rules/{id} [get]
 func GetMatchRule(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), MatchRuleResponse{
@@ -233,7 +227,7 @@ func GetMatchRule(c *gin.Context) {
 	}
 
 	var matchRule models.MatchRule
-	err = models.DB.First(&matchRule, id).Error
+	err = models.DB.First(&matchRule, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), MatchRuleResponse{Error: &s})
@@ -255,11 +249,12 @@ func GetMatchRule(c *gin.Context) {
 // @Failure		400			{object}	MatchRuleResponse
 // @Failure		404			{object}	MatchRuleResponse
 // @Failure		500			{object}	MatchRuleResponse
-// @Param			id			path		string				true	"ID formatted as string"
+// @Param			id			path		URIID				true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			matchRule	body		MatchRuleEditable	true	"MatchRule"
 // @Router			/v4/match-rules/{id} [patch]
 func UpdateMatchRule(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), MatchRuleResponse{
@@ -269,7 +264,7 @@ func UpdateMatchRule(c *gin.Context) {
 	}
 
 	var matchRule models.MatchRule
-	err = models.DB.First(&matchRule, id).Error
+	err = models.DB.First(&matchRule, uri.ID).Error
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), MatchRuleResponse{
@@ -319,17 +314,18 @@ func UpdateMatchRule(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/match-rules/{id} [delete]
 func DeleteMatchRule(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{Error: err.Error()})
 		return
 	}
 
 	var matchRule models.MatchRule
-	err = models.DB.First(&matchRule, id).Error
+	err = models.DB.First(&matchRule, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{Error: err.Error()})
 		return

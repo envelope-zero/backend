@@ -3,7 +3,7 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -100,23 +100,18 @@ type CategoryResponse struct {
 }
 
 type CategoryQueryFilter struct {
-	BudgetID string `form:"budget"`                     // By ID of the Budget
-	Name     string `form:"name" filterField:"false"`   // By name
-	Note     string `form:"note" filterField:"false"`   // By note
-	Archived bool   `form:"archived"`                   // Is the Category archived?
-	Search   string `form:"search" filterField:"false"` // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Category returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Categories to return. Defaults to 50.
+	BudgetID ez_uuid.UUID `form:"budget"`                     // By ID of the Budget
+	Name     string       `form:"name" filterField:"false"`   // By name
+	Note     string       `form:"note" filterField:"false"`   // By note
+	Archived bool         `form:"archived"`                   // Is the Category archived?
+	Search   string       `form:"search" filterField:"false"` // By string in name or note
+	Offset   uint         `form:"offset" filterField:"false"` // The offset of the first Category returned. Defaults to 0.
+	Limit    int          `form:"limit" filterField:"false"`  // Maximum number of Categories to return. Defaults to 50.
 }
 
 func (f CategoryQueryFilter) model() (models.Category, error) {
-	budgetID, err := httputil.UUIDFromString(f.BudgetID)
-	if err != nil {
-		return models.Category{}, err
-	}
-
 	return models.Category{
-		BudgetID: budgetID,
+		BudgetID: f.BudgetID.UUID,
 		Archived: f.Archived,
 	}, nil
 }

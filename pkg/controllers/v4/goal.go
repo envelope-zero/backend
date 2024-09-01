@@ -1,10 +1,10 @@
 package v4
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/envelope-zero/backend/v5/internal/types"
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -41,10 +41,11 @@ func OptionsGoals(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [options]
 func OptionsGoalDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -52,7 +53,7 @@ func OptionsGoalDetail(c *gin.Context) {
 		return
 	}
 
-	err = models.DB.First(&models.Goal{}, id).Error
+	err = models.DB.First(&models.Goal{}, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -199,37 +200,19 @@ func GetGoals(c *gin.Context) {
 		q = q.Where("goals.amount >= ?", filter.AmountMoreOrEqual)
 	}
 
-	if filter.CategoryID != "" {
-		categoryID, err := httputil.UUIDFromString(filter.CategoryID)
-		if err != nil {
-			s := fmt.Sprintf("Error parsing category ID for filtering: %s", err.Error())
-			c.JSON(status(err), GoalListResponse{
-				Error: &s,
-			})
-			return
-		}
-
+	if filter.CategoryID != ez_uuid.Nil {
 		q = q.
 			Joins("JOIN envelopes AS category_filter_envelopes on category_filter_envelopes.id = goals.envelope_id").
 			Joins("JOIN categories AS category_filter_categories on category_filter_categories.id = category_filter_envelopes.category_id").
-			Where("category_filter_categories.id = ?", categoryID)
+			Where("category_filter_categories.id = ?", filter.CategoryID.UUID)
 	}
 
-	if filter.BudgetID != "" {
-		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
-		if err != nil {
-			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
-			c.JSON(status(err), GoalListResponse{
-				Error: &s,
-			})
-			return
-		}
-
+	if filter.BudgetID != ez_uuid.Nil {
 		q = q.
 			Joins("JOIN envelopes on envelopes.id = goals.envelope_id").
 			Joins("JOIN categories on categories.id = envelopes.category_id").
 			Joins("JOIN budgets on budgets.id = categories.budget_id").
-			Where("budgets.id = ?", budgetID)
+			Where("budgets.id = ?", filter.BudgetID.UUID)
 	}
 
 	var goals []models.Goal
@@ -277,10 +260,11 @@ func GetGoals(c *gin.Context) {
 // @Failure		400	{object}	GoalResponse
 // @Failure		404	{object}	GoalResponse
 // @Failure		500	{object}	GoalResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [get]
 func GetGoal(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -290,7 +274,7 @@ func GetGoal(c *gin.Context) {
 	}
 
 	var goal models.Goal
-	err = models.DB.First(&goal, id).Error
+	err = models.DB.First(&goal, uri.ID).Error
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -312,11 +296,12 @@ func GetGoal(c *gin.Context) {
 // @Failure		400		{object}	GoalResponse
 // @Failure		404		{object}	GoalResponse
 // @Failure		500		{object}	GoalResponse
-// @Param			id		path		string			true	"ID formatted as string"
+// @Param			id		path		URIID			true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			goal	body		GoalEditable	true	"Goal"
 // @Router			/v4/goals/{id} [patch]
 func UpdateGoal(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -326,7 +311,7 @@ func UpdateGoal(c *gin.Context) {
 	}
 
 	var goal models.Goal
-	err = models.DB.First(&goal, id).Error
+	err = models.DB.First(&goal, uri.ID).Error
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), GoalResponse{
@@ -376,10 +361,11 @@ func UpdateGoal(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [delete]
 func DeleteGoal(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -388,7 +374,7 @@ func DeleteGoal(c *gin.Context) {
 	}
 
 	var goal models.Goal
-	err = models.DB.First(&goal, id).Error
+	err = models.DB.First(&goal, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),

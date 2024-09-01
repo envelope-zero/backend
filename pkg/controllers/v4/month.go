@@ -76,8 +76,8 @@ func OptionsMonth(c *gin.Context) {
 // @Failure		400		{object}	MonthResponse
 // @Failure		404		{object}	MonthResponse
 // @Failure		500		{object}	MonthResponse
-// @Param			budget	query		string	true	"ID formatted as string"
-// @Param			month	query		string	true	"The month in YYYY-MM format"
+// @Param			budget	query		string		true	"ID formatted as string"
+// @Param			month	query		QueryMonth	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/months [get]
 func GetMonth(c *gin.Context) {
 	qMonth, b, err := parseMonthQuery(c)

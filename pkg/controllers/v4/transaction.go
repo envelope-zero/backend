@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -47,10 +48,11 @@ func OptionsTransactions(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/transactions/{id} [options]
 func OptionsTransactionDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -59,7 +61,7 @@ func OptionsTransactionDetail(c *gin.Context) {
 	}
 
 	var t models.Transaction
-	err = models.DB.First(&t, id).Error
+	err = models.DB.First(&t, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -78,10 +80,11 @@ func OptionsTransactionDetail(c *gin.Context) {
 // @Failure		400	{object}	TransactionResponse
 // @Failure		404	{object}	TransactionResponse
 // @Failure		500	{object}	TransactionResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/transactions/{id} [get]
 func GetTransaction(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), TransactionResponse{
@@ -91,7 +94,7 @@ func GetTransaction(c *gin.Context) {
 	}
 
 	var transaction models.Transaction
-	err = models.DB.First(&transaction, id).Error
+	err = models.DB.First(&transaction, uri.ID).Error
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), TransactionResponse{
@@ -186,38 +189,20 @@ func GetTransactions(c *gin.Context) {
 		q = q.Where("transactions.available_from < date(?)", time.Date(filter.AvailableFromUntilDate.Year(), filter.AvailableFromUntilDate.Month(), filter.AvailableFromUntilDate.Day()+1, 0, 0, 0, 0, time.UTC))
 	}
 
-	if filter.BudgetID != "" {
-		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
-		if err != nil {
-			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
-			c.JSON(status(err), TransactionListResponse{
-				Error: &s,
-			})
-			return
-		}
-
+	if filter.BudgetID != ez_uuid.Nil {
 		// We join on the source account ID since all resources need to belong to the
 		// same budget anyways
 		q = q.
 			Joins("JOIN accounts on accounts.id = transactions.source_account_id").
 			Joins("JOIN budgets on budgets.id = accounts.budget_id").
-			Where("budgets.id = ?", budgetID)
+			Where("budgets.id = ?", filter.BudgetID)
 	}
 
-	if filter.AccountID != "" {
-		accountID, err := httputil.UUIDFromString(filter.AccountID)
-		if err != nil {
-			s := fmt.Sprintf("Error parsing Account ID for filtering: %s", err.Error())
-			c.JSON(status(err), TransactionListResponse{
-				Error: &s,
-			})
-			return
-		}
-
+	if filter.AccountID != ez_uuid.Nil {
 		q = q.Where(models.DB.Where(&models.Transaction{
-			SourceAccountID: accountID,
+			SourceAccountID: filter.AccountID.UUID,
 		}).Or(&models.Transaction{
-			DestinationAccountID: accountID,
+			DestinationAccountID: filter.AccountID.UUID,
 		}))
 	}
 
@@ -367,12 +352,12 @@ func CreateTransactions(c *gin.Context) {
 // @Failure		400			{object}	TransactionResponse
 // @Failure		404			{object}	TransactionResponse
 // @Failure		500			{object}	TransactionResponse
-// @Param			id			path		string				true	"ID formatted as string"
+// @Param			id			path		URIID				true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			transaction	body		TransactionEditable	true	"Transaction"
 // @Router			/v4/transactions/{id} [patch]
 func UpdateTransaction(c *gin.Context) {
-	// Get the resource ID
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), TransactionResponse{
@@ -383,7 +368,7 @@ func UpdateTransaction(c *gin.Context) {
 
 	// Get the transaction resource
 	var transaction models.Transaction
-	err = models.DB.First(&transaction, id).Error
+	err = models.DB.First(&transaction, uri.ID).Error
 	if err != nil {
 		e := err.Error()
 		c.JSON(status(err), TransactionResponse{
@@ -439,10 +424,11 @@ func UpdateTransaction(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/transactions/{id} [delete]
 func DeleteTransaction(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -451,7 +437,7 @@ func DeleteTransaction(c *gin.Context) {
 	}
 
 	var transaction models.Transaction
-	err = models.DB.First(&transaction, id).Error
+	err = models.DB.First(&transaction, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),

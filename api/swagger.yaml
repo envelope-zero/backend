@@ -1594,7 +1594,8 @@ paths:
     delete:
       description: Deletes an account
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1622,7 +1623,8 @@ paths:
     get:
       description: Returns a specific account
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1653,7 +1655,8 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1679,7 +1682,8 @@ paths:
     patch:
       description: Updates an account. Only values to be updated need to be specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1716,7 +1720,8 @@ paths:
     get:
       description: Returns a list of objects representing recent envelopes
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1831,9 +1836,9 @@ paths:
       - application/json
       description: Creates a new budget
       parameters:
-      - description: Budget
+      - description: Budgets
         in: body
-        name: budget
+        name: budgets
         required: true
         schema:
           items:
@@ -1861,7 +1866,8 @@ paths:
     delete:
       description: Deletes a budget
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1887,7 +1893,8 @@ paths:
     get:
       description: Returns a specific budget
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1918,7 +1925,8 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -1947,7 +1955,8 @@ paths:
       description: Update an existing budget. Only values to be updated need to be
         specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2076,7 +2085,8 @@ paths:
     delete:
       description: Deletes a category
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2102,7 +2112,8 @@ paths:
     get:
       description: Returns a specific category
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2133,7 +2144,8 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2162,7 +2174,8 @@ paths:
       description: Update an existing category. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2259,7 +2272,7 @@ paths:
       parameters:
       - description: Envelopes
         in: body
-        name: envelope
+        name: envelopes
         required: true
         schema:
           items:
@@ -2291,7 +2304,8 @@ paths:
     delete:
       description: Deletes an envelope
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2317,7 +2331,8 @@ paths:
     get:
       description: Returns a specific Envelope
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2348,7 +2363,8 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2377,7 +2393,8 @@ paths:
       description: Updates an existing envelope. Only values to be updated need to
         be specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2414,12 +2431,26 @@ paths:
     get:
       description: Returns configuration for a specific month
       parameters:
-      - description: ID of the Envelope
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
         type: string
-      - description: The month in YYYY-MM format
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
+        in: path
+        name: month
+        required: true
+        type: string
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
         in: path
         name: month
         required: true
@@ -2450,12 +2481,26 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID of the Envelope
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
         type: string
-      - description: The month in YYYY-MM format
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
+        in: path
+        name: month
+        required: true
+        type: string
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
         in: path
         name: month
         required: true
@@ -2474,12 +2519,26 @@ paths:
       description: Changes configuration for a Month. If there is no configuration
         for the month yet, this endpoint transparently creates a configuration resource.
       parameters:
-      - description: ID of the Envelope
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
         type: string
-      - description: The month in YYYY-MM format
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
+        in: path
+        name: month
+        required: true
+        type: string
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
         in: path
         name: month
         required: true
@@ -2661,7 +2720,8 @@ paths:
     delete:
       description: Deletes a goal
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2687,7 +2747,8 @@ paths:
     get:
       description: Returns a specific goal
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2718,7 +2779,8 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2747,7 +2809,8 @@ paths:
       description: Updates an existing goal. Only values to be updated need to be
         specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -2821,9 +2884,10 @@ paths:
         name: file
         required: true
         type: file
-      - description: ID of the account to import transactions for
+      - description: ID of the account to import the transactions for
         in: query
         name: accountId
+        required: true
         type: string
       produces:
       - application/json
@@ -2867,9 +2931,10 @@ paths:
         name: file
         required: true
         type: file
-      - description: Name of the Budget to create
+      - description: Name for the new budget
         in: query
         name: budgetName
+        required: true
         type: string
       produces:
       - application/json
@@ -2980,7 +3045,8 @@ paths:
     delete:
       description: Deletes an matchRule
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3006,7 +3072,8 @@ paths:
     get:
       description: Returns a specific matchRule
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3037,7 +3104,8 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3065,7 +3133,8 @@ paths:
       - application/json
       description: Update a matchRule. Only values to be updated need to be specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3138,10 +3207,10 @@ paths:
         name: budget
         required: true
         type: string
-      - description: The month in YYYY-MM format
+      - description: Year and month in YYYY-MM format
+        example: 2022-07
         in: query
         name: month
-        required: true
         type: string
       produces:
       - application/json
@@ -3374,7 +3443,8 @@ paths:
     delete:
       description: Deletes a transaction
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3400,7 +3470,8 @@ paths:
     get:
       description: Returns a specific transaction
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3431,7 +3502,8 @@ paths:
       description: Returns an empty response with the HTTP Header "allow" set to the
         allowed HTTP verbs
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true
@@ -3460,7 +3532,8 @@ paths:
       description: Updates an existing transaction. Only values to be updated need
         to be specified.
       parameters:
-      - description: ID formatted as string
+      - description: ID of the resource
+        format: UUID
         in: path
         name: id
         required: true

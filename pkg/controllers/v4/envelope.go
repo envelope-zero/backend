@@ -1,9 +1,9 @@
 package v4
 
 import (
-	"fmt"
 	"net/http"
 
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -45,10 +45,11 @@ func OptionsEnvelopeList(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/envelopes/{id} [options]
 func OptionsEnvelopeDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -56,7 +57,7 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 		return
 	}
 
-	err = models.DB.First(&models.Envelope{}, id).Error
+	err = models.DB.First(&models.Envelope{}, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -75,7 +76,7 @@ func OptionsEnvelopeDetail(c *gin.Context) {
 // @Failure		400			{object}	EnvelopeCreateResponse
 // @Failure		404			{object}	EnvelopeCreateResponse
 // @Failure		500			{object}	EnvelopeCreateResponse
-// @Param			envelope	body		[]v4.EnvelopeEditable	true	"Envelopes"
+// @Param			envelopes	body		[]v4.EnvelopeEditable	true	"Envelopes"
 // @Router			/v4/envelopes [post]
 func CreateEnvelopes(c *gin.Context) {
 	var envelopes []EnvelopeEditable
@@ -148,20 +149,11 @@ func GetEnvelopes(c *gin.Context) {
 
 	q = stringFilters(models.DB, q, setFields, filter.Name, filter.Note, filter.Search)
 
-	if filter.BudgetID != "" {
-		budgetID, err := httputil.UUIDFromString(filter.BudgetID)
-		if err != nil {
-			s := fmt.Sprintf("Error parsing budget ID for filtering: %s", err.Error())
-			c.JSON(status(err), EnvelopeListResponse{
-				Error: &s,
-			})
-			return
-		}
-
+	if filter.BudgetID != ez_uuid.Nil {
 		q = q.
 			Joins("JOIN categories on categories.id = envelopes.category_id").
 			Joins("JOIN budgets on budgets.id = categories.budget_id").
-			Where("budgets.id = ?", budgetID)
+			Where("budgets.id = ?", filter.BudgetID.UUID)
 	}
 
 	// Set the offset. Does not need checking since the default is 0
@@ -218,10 +210,11 @@ func GetEnvelopes(c *gin.Context) {
 // @Failure		400	{object}	EnvelopeResponse
 // @Failure		404	{object}	EnvelopeResponse
 // @Failure		500	{object}	EnvelopeResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/envelopes/{id} [get]
 func GetEnvelope(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), EnvelopeResponse{
@@ -231,7 +224,7 @@ func GetEnvelope(c *gin.Context) {
 	}
 
 	var envelope models.Envelope
-	err = models.DB.First(&envelope, id).Error
+	err = models.DB.First(&envelope, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), EnvelopeResponse{
@@ -253,11 +246,12 @@ func GetEnvelope(c *gin.Context) {
 // @Failure		400			{object}	EnvelopeResponse
 // @Failure		404			{object}	EnvelopeResponse
 // @Failure		500			{object}	EnvelopeResponse
-// @Param			id			path		string				true	"ID formatted as string"
+// @Param			id			path		URIID				true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			envelope	body		v4.EnvelopeEditable	true	"Envelope"
 // @Router			/v4/envelopes/{id} [patch]
 func UpdateEnvelope(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), EnvelopeResponse{
@@ -267,7 +261,7 @@ func UpdateEnvelope(c *gin.Context) {
 	}
 
 	var envelope models.Envelope
-	err = models.DB.First(&envelope, id).Error
+	err = models.DB.First(&envelope, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), EnvelopeResponse{
@@ -315,10 +309,11 @@ func UpdateEnvelope(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/envelopes/{id} [delete]
 func DeleteEnvelope(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -327,7 +322,7 @@ func DeleteEnvelope(c *gin.Context) {
 	}
 
 	var envelope models.Envelope
-	err = models.DB.First(&envelope, id).Error
+	err = models.DB.First(&envelope, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),

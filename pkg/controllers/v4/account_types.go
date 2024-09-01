@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/envelope-zero/backend/v5/pkg/httputil"
+	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
 	"github.com/envelope-zero/backend/v5/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
+// AccountEditable represents the user editable properties of an account
 type AccountEditable struct {
 	Name               string          `json:"name" example:"Cash" default:""`                                                                                           // Name of the account
 	Note               string          `json:"note" example:"Money in my wallet" default:""`                                                                             // A longer description for the account
@@ -107,25 +108,20 @@ type AccountResponse struct {
 }
 
 type AccountQueryFilter struct {
-	Name     string `form:"name" filterField:"false"`   // Fuzzy filter for the account name
-	Note     string `form:"note" filterField:"false"`   // Fuzzy filter for the note
-	BudgetID string `form:"budget"`                     // By budget ID
-	OnBudget bool   `form:"onBudget"`                   // Is the account on-budget?
-	External bool   `form:"external"`                   // Is the account external?
-	Archived bool   `form:"archived"`                   // Is the account archived?
-	Search   string `form:"search" filterField:"false"` // By string in name or note
-	Offset   uint   `form:"offset" filterField:"false"` // The offset of the first Account returned. Defaults to 0.
-	Limit    int    `form:"limit" filterField:"false"`  // Maximum number of Accounts to return. Defaults to 50.
+	Name     string       `form:"name" filterField:"false"`   // Fuzzy filter for the account name
+	Note     string       `form:"note" filterField:"false"`   // Fuzzy filter for the note
+	BudgetID ez_uuid.UUID `form:"budget"`                     // By budget ID
+	OnBudget bool         `form:"onBudget"`                   // Is the account on-budget?
+	External bool         `form:"external"`                   // Is the account external?
+	Archived bool         `form:"archived"`                   // Is the account archived?
+	Search   string       `form:"search" filterField:"false"` // By string in name or note
+	Offset   uint         `form:"offset" filterField:"false"` // The offset of the first Account returned. Defaults to 0.
+	Limit    int          `form:"limit" filterField:"false"`  // Maximum number of Accounts to return. Defaults to 50.
 }
 
 func (f AccountQueryFilter) model() (models.Account, error) {
-	budgetID, err := httputil.UUIDFromString(f.BudgetID)
-	if err != nil {
-		return models.Account{}, err
-	}
-
 	return models.Account{
-		BudgetID: budgetID,
+		BudgetID: f.BudgetID.UUID,
 		OnBudget: f.OnBudget,
 		External: f.External,
 		Archived: f.Archived,
@@ -149,7 +145,7 @@ type AccountComputedRequest struct {
 }
 
 type AccountComputedData struct {
-	ID                uuid.UUID       `json:"id" example:"95018a69-758b-46c6-8bab-db70d9614f9d"` // ID of the account
+	ID                ez_uuid.UUID    `json:"id" example:"95018a69-758b-46c6-8bab-db70d9614f9d"` // ID of the account
 	Balance           decimal.Decimal `json:"balance" example:"2735.17"`                         // Balance of the account, including all transactions referencing it
 	ReconciledBalance decimal.Decimal `json:"reconciledBalance" example:"2539.57"`               // Balance of the account, including all reconciled transactions referencing it
 }

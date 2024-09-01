@@ -44,10 +44,11 @@ func OptionsCategoryList(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/categories/{id} [options]
 func OptionsCategoryDetail(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -55,7 +56,7 @@ func OptionsCategoryDetail(c *gin.Context) {
 		return
 	}
 
-	err = models.DB.First(&models.Category{}, id).Error
+	err = models.DB.First(&models.Category{}, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -215,10 +216,11 @@ func GetCategories(c *gin.Context) {
 // @Failure		400	{object}	CategoryResponse
 // @Failure		404	{object}	CategoryResponse
 // @Failure		500	{object}	CategoryResponse
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/categories/{id} [get]
 func GetCategory(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), CategoryResponse{
@@ -228,7 +230,7 @@ func GetCategory(c *gin.Context) {
 	}
 
 	var category models.Category
-	err = models.DB.First(&category, id).Error
+	err = models.DB.First(&category, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), CategoryResponse{
@@ -258,11 +260,12 @@ func GetCategory(c *gin.Context) {
 // @Failure		400			{object}	CategoryResponse
 // @Failure		404			{object}	CategoryResponse
 // @Failure		500			{object}	CategoryResponse
-// @Param			id			path		string				true	"ID formatted as string"
+// @Param			id			path		URIID				true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			category	body		CategoryEditable	true	"Category"
 // @Router			/v4/categories/{id} [patch]
 func UpdateCategory(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), CategoryResponse{
@@ -272,7 +275,7 @@ func UpdateCategory(c *gin.Context) {
 	}
 
 	var category models.Category
-	err = models.DB.First(&category, id).Error
+	err = models.DB.First(&category, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), CategoryResponse{
@@ -328,10 +331,11 @@ func UpdateCategory(c *gin.Context) {
 // @Failure		400	{object}	httpError
 // @Failure		404	{object}	httpError
 // @Failure		500	{object}	httpError
-// @Param			id	path		string	true	"ID formatted as string"
+// @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/categories/{id} [delete]
 func DeleteCategory(c *gin.Context) {
-	id, err := httputil.UUIDFromString(c.Param("id"))
+	var uri URIID
+	err := c.ShouldBindUri(&uri)
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
@@ -340,7 +344,7 @@ func DeleteCategory(c *gin.Context) {
 	}
 
 	var category models.Category
-	err = models.DB.First(&category, id).Error
+	err = models.DB.First(&category, uri.ID).Error
 	if err != nil {
 		c.JSON(status(err), httpError{
 			Error: err.Error(),
