@@ -1559,6 +1559,22 @@ const docTemplate = `{
                         "name": "month",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "UUID",
+                        "description": "ID of the resource",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "2013-11",
+                        "description": "Year and month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1610,6 +1626,22 @@ const docTemplate = `{
                         "name": "month",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "UUID",
+                        "description": "ID of the resource",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "2013-11",
+                        "description": "Year and month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1634,6 +1666,22 @@ const docTemplate = `{
                 ],
                 "summary": "Update MonthConfig",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "format": "UUID",
+                        "description": "ID of the resource",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "2013-11",
+                        "description": "Year and month in YYYY-MM format",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "format": "UUID",

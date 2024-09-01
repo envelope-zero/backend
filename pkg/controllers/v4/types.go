@@ -7,6 +7,7 @@ import (
 )
 
 type URIMonth struct {
+	URIID
 	Month time.Time `uri:"month" time_format:"2006-01" time_utc:"1" example:"2013-11" binding:"required"` // Year and month in YYYY-MM format
 }
 

@@ -2443,6 +2443,18 @@ paths:
         name: month
         required: true
         type: string
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
+        in: path
+        name: month
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2481,6 +2493,18 @@ paths:
         name: month
         required: true
         type: string
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
+        in: path
+        name: month
+        required: true
+        type: string
       responses:
         "204":
           description: No Content
@@ -2495,6 +2519,18 @@ paths:
       description: Changes configuration for a Month. If there is no configuration
         for the month yet, this endpoint transparently creates a configuration resource.
       parameters:
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Year and month in YYYY-MM format
+        example: 2013-11
+        in: path
+        name: month
+        required: true
+        type: string
       - description: ID of the resource
         format: UUID
         in: path

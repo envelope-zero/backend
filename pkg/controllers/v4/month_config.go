@@ -23,19 +23,10 @@ func RegisterMonthConfigRoutes(r *gin.RouterGroup) {
 // @Tags			Envelopes
 // @Success		204
 // @Failure		400		{object}	httpError
-// @Param			id		path		URIID		true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
+// @Param			id		path		URIMonth	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			month	path		URIMonth	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/envelopes/{id}/{month} [options]
 func OptionsMonthConfigDetail(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
 	var month URIMonth
 	if err := c.BindUri(&month); err != nil {
 		c.JSON(status(err), httpError{
@@ -55,12 +46,20 @@ func OptionsMonthConfigDetail(c *gin.Context) {
 // @Failure		400		{object}	MonthConfigResponse
 // @Failure		404		{object}	MonthConfigResponse
 // @Failure		500		{object}	MonthConfigResponse
-// @Param			id		path		URIID		true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
+// @Param			id		path		URIMonth	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			month	path		URIMonth	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/envelopes/{id}/{month} [get]
 func GetMonthConfig(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
+	var uri URIMonth
+	if err := c.BindUri(&uri); err != nil {
+		s := err.Error()
+		c.JSON(status(err), MonthConfigResponse{
+			Error: &s,
+		})
+		return
+	}
+
+	err := models.DB.First(&models.Envelope{}, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), MonthConfigResponse{
@@ -69,32 +68,14 @@ func GetMonthConfig(c *gin.Context) {
 		return
 	}
 
-	var month URIMonth
-	if err := c.BindUri(&month); err != nil {
-		s := err.Error()
-		c.JSON(status(err), MonthConfigResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	err = models.DB.First(&models.Envelope{}, uri.ID).Error
-	if err != nil {
-		s := err.Error()
-		c.JSON(status(err), MonthConfigResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	mConfig, err := getMonthConfigModel(uri.ID.UUID, types.MonthOf(month.Month))
+	mConfig, err := getMonthConfigModel(uri.ID.UUID, types.MonthOf(uri.Month))
 	var data MonthConfig
 	if err != nil {
 		// If there is no MonthConfig in the database, return one with the zero values
 		if errors.Is(err, models.ErrResourceNotFound) {
 			data = newMonthConfig(c, models.MonthConfig{
 				EnvelopeID: uri.ID.UUID,
-				Month:      types.MonthOf(month.Month),
+				Month:      types.MonthOf(uri.Month),
 			})
 			c.JSON(http.StatusOK, MonthConfigResponse{Data: &data})
 			return
@@ -119,14 +100,13 @@ func GetMonthConfig(c *gin.Context) {
 // @Failure		400			{object}	MonthConfigResponse
 // @Failure		404			{object}	MonthConfigResponse
 // @Failure		500			{object}	MonthConfigResponse
-// @Param			id			path		URIID				true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
+// @Param			id			path		URIMonth			true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			month		path		URIMonth			true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Param			monthConfig	body		MonthConfigEditable	true	"MonthConfig"
 // @Router			/v4/envelopes/{id}/{month} [patch]
 func UpdateMonthConfig(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
+	var uri URIMonth
+	if err := c.BindUri(&uri); err != nil {
 		s := err.Error()
 		c.JSON(status(err), MonthConfigResponse{
 			Error: &s,
@@ -134,16 +114,7 @@ func UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	var month URIMonth
-	if err := c.BindUri(&month); err != nil {
-		s := err.Error()
-		c.JSON(status(err), MonthConfigResponse{
-			Error: &s,
-		})
-		return
-	}
-
-	err = models.DB.First(&models.Envelope{}, uri.ID).Error
+	err := models.DB.First(&models.Envelope{}, uri.ID).Error
 	if err != nil {
 		s := err.Error()
 		c.JSON(status(err), MonthConfigResponse{
@@ -171,12 +142,12 @@ func UpdateMonthConfig(c *gin.Context) {
 		return
 	}
 
-	m, err := getMonthConfigModel(uri.ID.UUID, types.MonthOf(month.Month))
+	m, err := getMonthConfigModel(uri.ID.UUID, types.MonthOf(uri.Month))
 
 	// If no Month Config exists yet, create one
 	if err != nil && errors.Is(err, models.ErrResourceNotFound) {
 		data.EnvelopeID = uri.ID.UUID
-		data.Month = types.Month(month.Month)
+		data.Month = types.Month(uri.Month)
 
 		model := data.model()
 		e := models.DB.Create(&model).Error
