@@ -2359,7 +2359,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2401,7 +2401,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2440,7 +2440,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2485,7 +2485,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID formatted as string",
+                        "description": "The ID of the resource",
                         "name": "id",
                         "in": "path",
                         "required": true
