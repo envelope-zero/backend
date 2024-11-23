@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/envelope-zero/backend/v5/internal/types"
 	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
 	"github.com/envelope-zero/backend/v5/pkg/httputil"
 	"github.com/envelope-zero/backend/v5/pkg/models"
@@ -192,10 +193,9 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		ReconciledDestination: false,
 	})
 
-	// Note that this transaction will be available from 2016-05-01 because it's also at
-	// that date, but by default, "available from" is set to the first of the month
 	_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                  time.Date(2016, 5, 1, 14, 13, 25, 584575, time.UTC),
+		AvailableFrom:         types.NewMonth(2016, 5),
 		Amount:                decimal.NewFromFloat(11235.813),
 		Note:                  "Not important",
 		EnvelopeID:            e2ID,

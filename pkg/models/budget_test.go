@@ -169,14 +169,14 @@ func (suite *TestSuiteStandard) TestBudgetCalculations() {
 	}
 	assert.True(suite.T(), isBalance.Equal(shouldBalance), "Balance for budget is not correct. Should be %s, is %s", shouldBalance, isBalance)
 
-	// Verify income for used budget in March
+	// Verify income for used budget in March. AvailableFrom defaults to next month, so we check for April
 	shouldIncome := decimal.NewFromFloat(4620) // Income transaction from employer + income from off budget account
-	income, err := budget.Income(models.DB, marchTwentyTwentyTwo)
+	income, err := budget.Income(models.DB, marchTwentyTwentyTwo.AddDate(0, 1))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.Equal(shouldIncome), "Income is %s, should be %s", income, shouldIncome)
 
-	// Verify income for empty budget in March
-	income, err = emptyBudget.Income(models.DB, marchTwentyTwentyTwo)
+	// Verify income for empty budget in March. AvailableFrom defaults to next month, so we check for April
+	income, err = emptyBudget.Income(models.DB, marchTwentyTwentyTwo.AddDate(0, 1))
 	assert.Nil(suite.T(), err)
 	assert.True(suite.T(), income.IsZero(), "Income is %s, should be 0", income)
 
