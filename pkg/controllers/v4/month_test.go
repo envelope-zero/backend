@@ -396,6 +396,7 @@ func (suite *TestSuiteStandard) TestMonths() {
 
 	_ = createTestTransaction(suite.T(), v4.TransactionEditable{
 		Date:                 time.Date(2022, 3, 1, 7, 38, 17, 0, time.UTC),
+		AvailableFrom:        types.NewMonth(2022, 3),
 		Amount:               decimal.NewFromFloat(1500),
 		Note:                 "Income for march",
 		SourceAccountID:      externalAccount.Data.ID,

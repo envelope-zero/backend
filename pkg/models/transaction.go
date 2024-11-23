@@ -135,7 +135,7 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 
 	// Default the AvailableForBudget date to the transaction date
 	if t.AvailableFrom.IsZero() {
-		t.AvailableFrom = types.MonthOf(t.Date)
+		t.AvailableFrom = types.MonthOf(t.Date).AddDate(0, 1)
 	} else if t.AvailableFrom.Before(types.MonthOf(t.Date)) {
 		return fmt.Errorf("%w, transaction date: %s, available month %s", ErrAvailabilityMonthTooEarly, t.Date.Format("2006-01-02"), t.AvailableFrom)
 	}
