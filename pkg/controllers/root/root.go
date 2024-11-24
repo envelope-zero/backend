@@ -18,6 +18,7 @@ type Links struct {
 	Version string `json:"version" example:"https://example.com/api/version"`      // Endpoint returning the version of the backend
 	Metrics string `json:"metrics" example:"https://example.com/api/metrics"`      // Endpoint returning Prometheus metrics
 	V4      string `json:"v4" example:"https://example.com/api/v4"`                // List endpoint for all v4 endpoints
+	V5      string `json:"v5" example:"https://example.com/api/v5"`                // List endpoint for all v5 endpoints
 }
 
 func RegisterRoutes(r *gin.RouterGroup) {
@@ -40,6 +41,7 @@ func Get(c *gin.Context) {
 			Version: url + "/version",
 			Metrics: url + "/metrics",
 			V4:      url + "/v4",
+			V5:      url + "/v5",
 		},
 	})
 }

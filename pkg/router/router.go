@@ -10,6 +10,7 @@ import (
 	"github.com/envelope-zero/backend/v5/pkg/controllers/healthz"
 	"github.com/envelope-zero/backend/v5/pkg/controllers/root"
 	v4 "github.com/envelope-zero/backend/v5/pkg/controllers/v4"
+	v5 "github.com/envelope-zero/backend/v5/pkg/controllers/v5"
 	version_controller "github.com/envelope-zero/backend/v5/pkg/controllers/version"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
@@ -52,6 +53,7 @@ func Config(url *url.URL) (*gin.Engine, func(), error) {
 	r.Use(requestid.New())
 	r.Use(URLMiddleware(url))
 	r.Use(MetricsMiddleware())
+	r.Use(ErrorsMiddleware())
 	r.NoMethod(func(c *gin.Context) {
 		c.JSON(http.StatusMethodNotAllowed, gin.H{
 			"error": "This HTTP method is not allowed for the endpoint you called",
@@ -164,5 +166,12 @@ func AttachRoutes(group *gin.RouterGroup) {
 		v4.RegisterMonthConfigRoutes(v4Group.Group("/envelopes"))
 		v4.RegisterMonthRoutes(v4Group.Group("/months"))
 		v4.RegisterTransactionRoutes(v4Group.Group("/transactions"))
+	}
+
+	// v5
+	{
+		v5Group := group.Group("/v5")
+		v5.RegisterRootRoutes(v5Group.Group(""))
+		v5.RegisterBudgetRoutes(v5Group.Group("/budgets"))
 	}
 }

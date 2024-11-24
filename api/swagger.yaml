@@ -23,6 +23,10 @@ definitions:
         description: List endpoint for all v4 endpoints
         example: https://example.com/api/v4
         type: string
+      v5:
+        description: List endpoint for all v5 endpoints
+        example: https://example.com/api/v5
+        type: string
       version:
         description: Endpoint returning the version of the backend
         example: https://example.com/api/version
@@ -1391,6 +1395,154 @@ definitions:
       error:
         example: An ID specified in the query string was not a valid UUID
         type: string
+    type: object
+  v5.Budget:
+    properties:
+      createdAt:
+        description: Time the resource was created
+        example: "2022-04-02T19:28:44.491514Z"
+        type: string
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      deletedAt:
+        description: Time the resource was marked as deleted
+        example: "2022-04-22T21:01:05.058161Z"
+        type: string
+      id:
+        description: UUID for the resource
+        example: 65392deb-5e92-4268-b114-297faad6cdce
+        type: string
+      links:
+        $ref: '#/definitions/v5.BudgetLinks'
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+      updatedAt:
+        description: Last time the resource was updated
+        example: "2022-04-17T20:14:01.048145Z"
+        type: string
+    type: object
+  v5.BudgetCreateResponse:
+    properties:
+      data:
+        description: List of created Budgets
+        items:
+          $ref: '#/definitions/v5.BudgetCreatedResponse'
+        type: array
+    type: object
+  v5.BudgetCreatedResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v5.Budget'
+        description: Data for the budget
+      error:
+        description: The error, if any occurred
+        example: the specified resource ID is not a valid UUID
+        type: string
+    type: object
+  v5.BudgetEditable:
+    properties:
+      currency:
+        description: The currency for the budget
+        example: €
+        type: string
+      name:
+        description: Name of the budget
+        example: Morre's Budget
+        type: string
+      note:
+        description: A longer description of the budget
+        example: My personal expenses
+        type: string
+    type: object
+  v5.BudgetLinks:
+    properties:
+      accounts:
+        description: Accounts for this budget
+        example: https://example.com/api/v5/accounts?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      categories:
+        description: Categories for this budget
+        example: https://example.com/api/v5/categories?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      envelopes:
+        description: Envelopes for this budget
+        example: https://example.com/api/v5/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      month:
+        description: This uses 'YYYY-MM' for clients to replace with the actual year
+          and month.
+        example: https://example.com/api/v5/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM
+        type: string
+      self:
+        description: The budget itself
+        example: https://example.com/api/v5/budgets/550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+      transactions:
+        description: Transactions for this budget
+        example: https://example.com/api/v5/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf
+        type: string
+    type: object
+  v5.BudgetListResponse:
+    properties:
+      data:
+        description: List of budgets
+        items:
+          $ref: '#/definitions/v5.Budget'
+        type: array
+      pagination:
+        allOf:
+        - $ref: '#/definitions/v5.Pagination'
+        description: Pagination information
+    type: object
+  v5.BudgetResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/v5.Budget'
+        description: Data for the budget
+    type: object
+  v5.Links:
+    properties:
+      budgets:
+        description: Accounts     string `json:"accounts" example:"https://example.com/api/v5/accounts"`         //
+          URL of Account collection endpoint
+        example: https://example.com/api/v5/budgets
+        type: string
+    type: object
+  v5.Pagination:
+    properties:
+      count:
+        description: The amount of records returned in this response
+        example: 25
+        type: integer
+      limit:
+        description: The maximum amount of resources to return for this request
+        example: 25
+        type: integer
+      offset:
+        description: The offset for the first record returned
+        example: 50
+        type: integer
+      total:
+        description: The total number of resources matching the query
+        example: 827
+        type: integer
+    type: object
+  v5.Response:
+    properties:
+      links:
+        allOf:
+        - $ref: '#/definitions/v5.Links'
+        description: Links for the v5 API
     type: object
   version.Object:
     properties:
@@ -3570,6 +3722,235 @@ paths:
       summary: Update transaction
       tags:
       - Transactions
+  /v5:
+    get:
+      description: Returns general information about the v5 API
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v5.Response'
+      summary: v5 API
+      tags:
+      - v5
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - v5
+  /v5/budgets:
+    get:
+      description: Returns a list of budgets
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by note
+        in: query
+        name: note
+        type: string
+      - description: Filter by currency
+        in: query
+        name: currency
+        type: string
+      - description: Search for this text in name and note
+        in: query
+        name: search
+        type: string
+      - description: The offset of the first Budget returned. Defaults to 0.
+        in: query
+        name: offset
+        type: integer
+      - description: Maximum number of Budgets to return. Defaults to 50.
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v5.BudgetListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.Error'
+      summary: List budgets
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      responses:
+        "204":
+          description: No Content
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    post:
+      consumes:
+      - application/json
+      description: Creates a new budget
+      parameters:
+      - description: Budgets
+        in: body
+        name: budgets
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/v5.BudgetEditable'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v5.BudgetCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.Error'
+      summary: Create budget
+      tags:
+      - Budgets
+  /v5/budgets/{id}:
+    delete:
+      description: Deletes a budget
+      parameters:
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.Error'
+      summary: Delete budget
+      tags:
+      - Budgets
+    get:
+      description: Returns a specific budget
+      parameters:
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v5.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.Error'
+      summary: Get budget
+      tags:
+      - Budgets
+    options:
+      description: Returns an empty response with the HTTP Header "allow" set to the
+        allowed HTTP verbs
+      parameters:
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.Error'
+      summary: Allowed HTTP verbs
+      tags:
+      - Budgets
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing budget. Only values to be updated need to be
+        specified.
+      parameters:
+      - description: ID of the resource
+        format: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Budget
+        in: body
+        name: budget
+        required: true
+        schema:
+          $ref: '#/definitions/v5.BudgetEditable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v5.BudgetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperror.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.Error'
+      summary: Update budget
+      tags:
+      - Budgets
   /version:
     get:
       description: Returns the software version of the API
