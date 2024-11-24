@@ -114,9 +114,18 @@ type TransactionResponse struct {
 type TransactionDirection string
 
 const (
-	DirectionIncoming TransactionDirection = "INCOMING"
-	DirectionOutgoing TransactionDirection = "OUTGOING"
-	DirectionTransfer TransactionDirection = "TRANSFER"
+	DirectionIn       TransactionDirection = "IN"
+	DirectionOut      TransactionDirection = "OUT"
+	DirectionInternal TransactionDirection = "INTERNAL"
+)
+
+// swagger:enum TransactionType
+type TransactionType string
+
+const (
+	TypeIncome   TransactionType = "INCOME"
+	TypeSpend    TransactionType = "SPEND"
+	TypeTransfer TransactionType = "TRANSFER"
 )
 
 type TransactionQueryFilter struct {
@@ -133,7 +142,8 @@ type TransactionQueryFilter struct {
 	BudgetID               ez_uuid.UUID         `form:"budget" filterField:"false"`                 // ID of the budget
 	SourceAccountID        ez_uuid.UUID         `form:"source"`                                     // ID of the source account
 	DestinationAccountID   ez_uuid.UUID         `form:"destination"`                                // ID of the destination account
-	Direction              TransactionDirection `form:"direction" filterField:"false"`              // Direction of the transaction
+	Direction              TransactionDirection `form:"direction" filterField:"false"`              // Direction of the transaction - are involved accounts internal or external?
+	Type                   TransactionType      `form:"type" filterField:"false"`                   // Type of the transaction - the effect the transaction has on the budget
 	EnvelopeID             ez_uuid.UUID         `form:"envelope"`                                   // ID of the envelope
 	ReconciledSource       bool                 `form:"reconciledSource"`                           // Is the transaction reconciled in the source account?
 	ReconciledDestination  bool                 `form:"reconciledDestination"`                      // Is the transaction reconciled in the destination account?

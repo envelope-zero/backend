@@ -207,7 +207,7 @@ func GetTransactions(c *gin.Context) {
 	}
 
 	if filter.Direction != "" {
-		if !slices.Contains([]TransactionDirection{DirectionIncoming, DirectionOutgoing, DirectionTransfer}, filter.Direction) {
+		if !slices.Contains([]TransactionDirection{DirectionIn, DirectionOut, DirectionInternal}, filter.Direction) {
 			s := errTransactionDirectionInvalid.Error()
 			c.JSON(http.StatusBadRequest, TransactionListResponse{
 				Error: &s,
@@ -215,28 +215,62 @@ func GetTransactions(c *gin.Context) {
 			return
 		}
 
-		if filter.Direction == DirectionTransfer {
-			// Transfers are internal account to internal account
+		// Internal transactions are internal account to internal account
+		if filter.Direction == DirectionInternal {
 			q = q.
-				Joins("JOIN accounts AS accounts_source on accounts_source.id = transactions.source_account_id").
-				Joins("JOIN accounts AS accounts_destination on accounts_destination.id = transactions.destination_account_id").
-				Where("accounts_source.external = false AND accounts_destination.external = false")
+				Joins("JOIN accounts AS direction_accounts_source on direction_accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS direction_accounts_destination on direction_accounts_destination.id = transactions.destination_account_id").
+				Where("direction_accounts_source.external = false AND direction_accounts_destination.external = false")
 		}
 
-		if filter.Direction == DirectionIncoming {
-			// Incoming is off-budget (external accounts are enforced to be off-budget) to on-budget accounts
+		// Transactions going in are external account to internal account
+		if filter.Direction == DirectionIn {
 			q = q.
-				Joins("JOIN accounts AS accounts_source on accounts_source.id = transactions.source_account_id").
-				Joins("JOIN accounts AS accounts_destination on accounts_destination.id = transactions.destination_account_id").
-				Where("accounts_source.on_budget = false AND accounts_destination.on_budget = true")
+				Joins("JOIN accounts AS direction_accounts_source on direction_accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS direction_accounts_destination on direction_accounts_destination.id = transactions.destination_account_id").
+				Where("direction_accounts_source.external = true AND direction_accounts_destination.external = false")
 		}
 
-		if filter.Direction == DirectionOutgoing {
-			// Outgoing is on-budget to off-budget accounts (external accounts are enforced to be off-budget)
+		// Transactions going out are internal account to external account
+		if filter.Direction == DirectionOut {
 			q = q.
-				Joins("JOIN accounts AS accounts_source on accounts_source.id = transactions.source_account_id").
-				Joins("JOIN accounts AS accounts_destination on accounts_destination.id = transactions.destination_account_id").
-				Where("accounts_source.on_budget = true AND accounts_destination.on_budget = false")
+				Joins("JOIN accounts AS direction_accounts_source on direction_accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS direction_accounts_destination on direction_accounts_destination.id = transactions.destination_account_id").
+				Where("direction_accounts_source.external = false AND direction_accounts_destination.external = true")
+		}
+	}
+
+	if filter.Type != "" {
+		if !slices.Contains([]TransactionType{TypeIncome, TypeSpend, TypeTransfer}, filter.Type) {
+			s := errTransactionTypeInvalid.Error()
+			c.JSON(http.StatusBadRequest, TransactionListResponse{
+				Error: &s,
+			})
+			return
+		}
+
+		// Income is coming from an off-budget to an on-budget account
+		if filter.Type == TypeIncome {
+			q = q.
+				Joins("JOIN accounts AS type_accounts_source on type_accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS type_accounts_destination on type_accounts_destination.id = transactions.destination_account_id").
+				Where("type_accounts_source.on_budget = false AND type_accounts_destination.on_budget = true")
+		}
+
+		// Spend is going from an on-budget to an off-budget account
+		if filter.Type == TypeSpend {
+			q = q.
+				Joins("JOIN accounts AS type_accounts_source on type_accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS type_accounts_destination on type_accounts_destination.id = transactions.destination_account_id").
+				Where("type_accounts_source.on_budget = true AND type_accounts_destination.on_budget = false")
+		}
+
+		// Transfers are going from an on-budget to an on-budget account
+		if filter.Type == TypeTransfer {
+			q = q.
+				Joins("JOIN accounts AS type_accounts_source on type_accounts_source.id = transactions.source_account_id").
+				Joins("JOIN accounts AS type_accounts_destination on type_accounts_destination.id = transactions.destination_account_id").
+				Where("type_accounts_source.on_budget = true AND type_accounts_destination.on_budget = true")
 		}
 	}
 

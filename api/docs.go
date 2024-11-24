@@ -2871,9 +2871,9 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "INCOMING",
-                            "OUTGOING",
-                            "TRANSFER"
+                            "IN",
+                            "OUT",
+                            "INTERNAL"
                         ],
                         "type": "string",
                         "description": "Filter by direction of transaction",
