@@ -216,60 +216,75 @@ func (suite *TestSuiteStandard) TestTransactionsGetFilter() {
 		ReconciledDestination: false,
 	})
 
+	_ = createTestTransaction(suite.T(), v4.TransactionEditable{
+		Date:                  time.Date(2024, 11, 24, 0, 0, 0, 0, time.UTC),
+		Amount:                decimal.NewFromFloat(1),
+		Note:                  "This is a transfer",
+		EnvelopeID:            nil,
+		SourceAccountID:       a1.Data.ID,
+		DestinationAccountID:  a3.Data.ID,
+		ReconciledSource:      false,
+		ReconciledDestination: false,
+	})
+
 	tests := []struct {
 		name  string
 		query string
 		len   int
 	}{
-		{"After all dates", fmt.Sprintf("fromDate=%s", time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},
-		{"After date", fmt.Sprintf("fromDate=%s", time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 2},
-		{"Amount less or equal to 2.71", "amountLessOrEqual=2.71", 0},
-		{"Amount less or equal to 2.718", "amountLessOrEqual=2.718", 2},
-		{"Amount less or equal to 1000", "amountLessOrEqual=1000", 2},
-		{"Amount more or equal to 1 and less than 3", "amountMoreOrEqual=1&amountLessOrEqual=3", 2},
+		{"After all dates", fmt.Sprintf("fromDate=%s", time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 1},
+		{"After date", fmt.Sprintf("fromDate=%s", time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 3},
+		{"Amount less or equal to 2.71", "amountLessOrEqual=2.71", 1},
+		{"Amount less or equal to 2.718", "amountLessOrEqual=2.718", 3},
+		{"Amount less or equal to 1000", "amountLessOrEqual=1000", 3},
+		{"Amount more or equal to 1 and less than 3", "amountMoreOrEqual=1&amountLessOrEqual=3", 3},
 		{"Amount more or equal to 2.718", "amountMoreOrEqual=2.718", 3},
 		{"Amount more or equal to 100 and less than 10", "amountMoreOrEqual=100&amountLessOrEqual=10", 0},
 		{"Amount more or equal to 100", "amountMoreOrEqual=100", 1},
 		{"Amount more or equal to 11235.813", "amountMoreOrEqual=11235.813", 1},
 		{"Amount more or equal to 99999", "amountMoreOrEqual=99999", 0},
-		{"Available after - no transactions", fmt.Sprintf("availableFromFromDate=%s", time.Date(2020, 7, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 1},       // Available from is only relevant for income, but set for all transactions
-		{"Available after - returns transactions", fmt.Sprintf("availableFromFromDate=%s", time.Date(2000, 12, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 3}, // Available from is only relevant for income, but set for all transactions
+		{"Available after - no transactions", fmt.Sprintf("availableFromFromDate=%s", time.Date(2020, 7, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 2},       // Available from is only relevant for income, but set for all transactions
+		{"Available after - returns transactions", fmt.Sprintf("availableFromFromDate=%s", time.Date(2000, 12, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 4}, // Available from is only relevant for income, but set for all transactions
 		{"Available at date - no transactions", fmt.Sprintf("availableFromDate=%s", time.Date(2016, 5, 2, 11, 17, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},
 		{"Available at month - with transaction", fmt.Sprintf("availableFromDate=%s", time.Date(2016, 5, 1, 12, 53, 15, 148041, time.UTC).Format(time.RFC3339Nano)), 1},
 		{"Available before - no transactions", fmt.Sprintf("availableFromUntilDate=%s", time.Date(2016, 4, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},       // Needs to be before 2016-05-01T00:00:00Z since that's what the transaction defaults to when created
-		{"Available before - returns transactions", fmt.Sprintf("availableFromUntilDate=%s", time.Date(2024, 12, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 3}, // Available from is only relevant for income, but set for all transactions
+		{"Available before - returns transactions", fmt.Sprintf("availableFromUntilDate=%s", time.Date(2024, 12, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 4}, // Available from is only relevant for income, but set for all transactions
 		{"Before all dates", fmt.Sprintf("untilDate=%s", time.Date(2010, 8, 17, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},
 		{"Before date", fmt.Sprintf("untilDate=%s", time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 1},
 		{"Between two dates", fmt.Sprintf("untilDate=%s&fromDate=%s", time.Date(2019, 8, 17, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano), time.Date(2015, 12, 24, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 2},
 		{"Budget and Note", fmt.Sprintf("budget=%s&note=Not", b.Data.ID), 1},
-		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 3},
+		{"Budget Match", fmt.Sprintf("budget=%s", b.Data.ID), 4},
 		{"Destination Account", fmt.Sprintf("destination=%s", a2.Data.ID), 2},
-		{"Direction=INCOMING", "direction=INCOMING", 1},
-		{"Direction=OUTGOING", "direction=OUTGOING", 2},
-		{"Direction=TRANSFER and Budget ID", fmt.Sprintf("budget=%s&direction=TRANSFER", b.Data.ID), 0},
+		{"Type=INCOME", "type=INCOME", 1},
+		{"Type=SPEND", "type=SPEND", 2},
+		{"Type=TRANSFER", "type=TRANSFER", 1},
+		{"Direction=IN", "direction=IN", 1},
+		{"Direction=OUT", "direction=OUT", 2},
+		{"Direction=INTERNAL and Budget ID", fmt.Sprintf("budget=%s&direction=INTERNAL", b.Data.ID), 1},
+		{"Direction=INTERNAL and TYPE=TRANSFER", "direction=INTERNAL&type=TRANSFER", 1}, // Testing both at the same time to ensure functioning SQL
 		{"Envelope 2", fmt.Sprintf("envelope=%s", e2.Data.ID), 1},
 		{"Exact Amount", fmt.Sprintf("amount=%s", decimal.NewFromFloat(2.718).String()), 2},
 		{"Exact Date", fmt.Sprintf("date=%s", time.Date(2021, 2, 6, 5, 1, 0, 585, time.UTC).Format(time.RFC3339Nano)), 1},
-		{"Existing Account 1", fmt.Sprintf("account=%s", a1.Data.ID), 2},
+		{"Existing Account 1", fmt.Sprintf("account=%s", a1.Data.ID), 3},
 		{"Existing Account 2", fmt.Sprintf("account=%s", a2.Data.ID), 3},
 		{"Fuzzy note", "note=important", 2},
 		{"Impossible between two dates", fmt.Sprintf("fromDate=%s&untilDate=%s", time.Date(2019, 8, 17, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano), time.Date(2015, 12, 24, 0, 0, 0, 0, time.UTC).Format(time.RFC3339Nano)), 0},
 		{"Limit and Fuzzy Note", "limit=1&note=important", 1},
 		{"Limit and Offset", "limit=1&offset=1", 1},
-		{"Limit negative", "limit=-123", 3},
+		{"Limit negative", "limit=-123", 4},
 		{"Limit positive", "limit=2", 2},
-		{"Limit unset", "limit=-1", 3},
+		{"Limit unset", "limit=-1", 4},
 		{"Limit zero", "limit=0", 0},
 		{"No note", "note=", 1},
 		{"Non-existing Account", "account=534a3562-c5e8-46d1-a2e2-e96c00e7efec", 0},
 		{"Non-existing Source Account", "source=3340a084-acf8-4cb4-8f86-9e7f88a86190", 0},
-		{"Not reconciled in destination account", "reconciledDestination=false", 2},
-		{"Not reconciled in source account", "reconciledSource=false", 2},
+		{"Not reconciled in destination account", "reconciledDestination=false", 3},
+		{"Not reconciled in source account", "reconciledSource=false", 3},
 		{"Note", "note=Not important", 1},
 		{"Offset and Fuzzy Note", "offset=2&note=important", 0},
 		{"Offset higher than number", "offset=5", 0},
-		{"Offset positive", "offset=2", 1},
-		{"Offset zero", "offset=0", 3},
+		{"Offset positive", "offset=2", 2},
+		{"Offset zero", "offset=0", 4},
 		{"Reconciled in destination account", "reconciledDestination=true", 1},
 		{"Reconciled in source account", "reconciledSource=true", 1},
 		{"Regression - For 'account', query needs to be ORed between the accounts and ANDed with all other conditions", fmt.Sprintf("note=&account=%s", a2.Data.ID), 1},
@@ -300,9 +315,10 @@ func (suite *TestSuiteStandard) TestTransactionsGetInvalidQuery() {
 		"amount=Seventeen Cents",
 		"reconciledSource=I don't think so",
 		"account=ItIsAHippo!",
-		"offset=-1",         // offset is a uint
-		"limit=name",        // limit is an int
-		"direction=reverse", // direction needs to be a TransactionDirection
+		"offset=-1",          // offset is a uint
+		"limit=name",         // limit is an int
+		"direction=external", // direction needs to be a TransactionDirection, external does not exist
+		"type=winnings",      // type needs to be a TransactionType, winnings don't exist (would be nice though, right?)
 	}
 
 	for _, tt := range tests {

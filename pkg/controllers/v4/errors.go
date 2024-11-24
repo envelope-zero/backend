@@ -45,4 +45,5 @@ var (
 // Transaction errors
 var (
 	errTransactionDirectionInvalid = errors.New("the specified transaction direction is invalid")
+	errTransactionTypeInvalid      = errors.New("the specified transaction type is invalid")
 )

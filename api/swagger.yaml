@@ -3350,9 +3350,9 @@ paths:
         type: string
       - description: Filter by direction of transaction
         enum:
-        - INCOMING
-        - OUTGOING
-        - TRANSFER
+        - IN
+        - OUT
+        - INTERNAL
         in: query
         name: direction
         type: string
