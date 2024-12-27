@@ -3,7 +3,7 @@ module github.com/envelope-zero/backend/v5
 go 1.22
 
 require (
-	github.com/gin-contrib/cors v1.7.2
+	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-contrib/logger v1.2.2
 	github.com/gin-contrib/pprof v1.5.2
 	github.com/gin-contrib/requestid v1.0.3
