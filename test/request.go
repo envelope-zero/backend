@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/pkg/router"
+	"github.com/envelope-zero/backend/v5/internal/router"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

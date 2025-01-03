@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/envelope-zero/backend/v5/pkg/models"
-	"github.com/envelope-zero/backend/v5/pkg/router"
+	"github.com/envelope-zero/backend/v5/internal/models"
+	"github.com/envelope-zero/backend/v5/internal/router"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
