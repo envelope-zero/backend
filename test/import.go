@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// LoadTestFile loads a test file from the testdata directory
+// LoadTestFile loads a test file from the test/data directory
 //
 // File contents are returned as a buffer and a map for the HTTP request headers
 func LoadTestFile(t *testing.T, filePath string) (*bytes.Buffer, map[string]string) {
-	path := path.Join("../../../testdata", filePath)
+	path := path.Join("../../../test/data", filePath)
 	body := new(bytes.Buffer)
 
 	mw := multipart.NewWriter(body)
