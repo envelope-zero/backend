@@ -223,9 +223,9 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewAvailableFrom() {
 	preview := suite.parseCSV(suite.T(), account.Data.ID, "available-from-test.csv")
 
 	dates := []types.Month{
-		types.NewMonth(2019, 2),
-		types.NewMonth(2019, 4),
+		types.NewMonth(2019, 3),
 		types.NewMonth(2019, 5),
+		types.NewMonth(2019, 6),
 	}
 
 	for i, transaction := range preview.Data {
