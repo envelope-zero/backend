@@ -56,10 +56,13 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 
 		t := importer.TransactionPreview{
 			Transaction: models.Transaction{
-				Date:          date,
-				AvailableFrom: types.NewMonth(date.Year(), date.Month()),
-				ImportHash:    helpers.Sha256String(strings.Join(record, ",")),
-				Note:          record[headers["Memo"]],
+				Date:       date,
+				ImportHash: helpers.Sha256String(strings.Join(record, ",")),
+				Note:       record[headers["Memo"]],
+
+				// AvailableFrom is only used for income transactions, for which it defaults to the month after the transaction.
+				// Since it is only used for income transactions, we can safely set it here.
+				AvailableFrom: types.NewMonth(date.Year(), date.Month()).AddDate(0, 1),
 			},
 		}
 
