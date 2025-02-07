@@ -2325,6 +2325,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Filter by budget ID",
+                        "name": "budget",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "The offset of the first Match Rule returned. Defaults to 0.",
                         "name": "offset",
@@ -3644,6 +3650,10 @@ const docTemplate = `{
                     "description": "Envelopes for this budget",
                     "type": "string",
                     "example": "https://example.com/api/v4/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
+                },
+                "matchRules": {
+                    "type": "string",
+                    "example": "https://example.com/api/v4/match-rules?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"
                 },
                 "month": {
                     "description": "This uses 'YYYY-MM' for clients to replace with the actual year and month.",
