@@ -28,6 +28,7 @@ type BudgetLinks struct {
 	Envelopes    string `json:"envelopes" example:"https://example.com/api/v4/envelopes?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`        // Envelopes for this budget
 	Transactions string `json:"transactions" example:"https://example.com/api/v4/transactions?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`  // Transactions for this budget
 	Month        string `json:"month" example:"https://example.com/api/v4/months?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf&month=YYYY-MM"` // This uses 'YYYY-MM' for clients to replace with the actual year and month.
+	MatchRules   string `json:"matchRules" example:"https://example.com/api/v4/match-rules?budget=550dc009-cea6-4c12-b2a5-03446eb7b7cf"`
 }
 
 // Budget is the API v4 representation of a Budget.
@@ -54,6 +55,7 @@ func newBudget(c *gin.Context, model models.Budget) Budget {
 			Envelopes:    fmt.Sprintf("%s/v4/envelopes?budget=%s", url, model.ID),
 			Transactions: fmt.Sprintf("%s/v4/transactions?budget=%s", url, model.ID),
 			Month:        fmt.Sprintf("%s/v4/months?budget=%s&month=YYYY-MM", url, model.ID),
+			MatchRules:   fmt.Sprintf("%s/v4/match-rules?budget=%s", url, model.ID),
 		},
 	}
 }

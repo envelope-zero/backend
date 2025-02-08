@@ -118,6 +118,7 @@ func CreateMatchRules(c *gin.Context) {
 // @Param			priority	query		uint	false	"Filter by priority"
 // @Param			match		query		string	false	"Filter by match"
 // @Param			account		query		string	false	"Filter by account ID"
+// @Param			budget		query		string	false	"Filter by budget ID"
 // @Param			offset		query		uint	false	"The offset of the first Match Rule returned. Defaults to 0."
 // @Param			limit		query		int		false	"Maximum number of Match Rules to return. Defaults to 50.".
 // @Router			/v4/match-rules [get]
