@@ -289,10 +289,10 @@ func ImportYnabImportPreview(c *gin.Context) {
 		return
 	}
 
-	// Get all match rules for the budget that the import target account is part of
+	// Get all match rules for the budget for which the account is not archived
 	var matchRules []models.MatchRule
 	err = models.DB.
-		Joins("JOIN accounts ON accounts.budget_id = ?", account.BudgetID).
+		Joins("JOIN accounts ON accounts.budget_id = ? AND NOT accounts.archived", account.BudgetID).
 		Joins("JOIN match_rules rr ON rr.account_id = accounts.id").
 		Order("rr.priority asc").
 		Find(&matchRules).Error
