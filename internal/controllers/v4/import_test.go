@@ -293,6 +293,26 @@ func (suite *TestSuiteStandard) TestImportYnabImportPreviewFindAccounts() {
 	}
 }
 
+// TestImportMatchingNoArchivedAccounts verifies that during an import, match rules for archived accounts
+// are not used
+func (suite *TestSuiteStandard) TestImportMatchingNoArchivedAccounts() {
+	// Create a budget and two existing accounts to use
+	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
+
+	// Account we import to
+	internalAccount := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, Name: "Envelope Zero Account"})
+
+	edeka := createTestAccount(suite.T(), v4.AccountEditable{BudgetID: budget.Data.ID, Name: "Edeka", External: true, Archived: true})
+	_ = createTestMatchRule(suite.T(), v4.MatchRuleEditable{
+		Match:     "Supermarket*",
+		AccountID: edeka.Data.ID,
+	})
+
+	preview := suite.parseCSV(suite.T(), internalAccount.Data.ID, "match-rule-archived-account.csv")
+
+	assert.Equal(suite.T(), uuid.Nil, preview.Data[0].Transaction.DestinationAccountID)
+}
+
 func (suite *TestSuiteStandard) TestImportYnabImportPreviewMatch() {
 	// Create a budget and two existing accounts to use
 	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
