@@ -283,7 +283,7 @@ func GetAccountRecentEnvelopes(c *gin.Context) {
 	// Get the Envelope IDs for the 50 latest transactions
 	latest := models.DB.
 		Model(&models.Transaction{}).
-		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
+		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id").
 		Select("envelopes.id as e_id, envelopes.name as name, datetime(envelopes.created_at) as created, envelopes.archived as archived").
 		Where(&models.Transaction{
 			DestinationAccountID: account.ID,

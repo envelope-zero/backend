@@ -42,10 +42,6 @@ definitions:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
       external:
         default: false
         description: Does the account belong to the budget owner or not?
@@ -254,10 +250,6 @@ definitions:
         description: The currency for the budget
         example: €
         type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
       id:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
@@ -385,10 +377,6 @@ definitions:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
       envelopes:
         description: These fields are computed
         items:
@@ -467,10 +455,6 @@ definitions:
       createdAt:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopes:
         description: Slice of all envelopes
@@ -552,10 +536,6 @@ definitions:
       createdAt:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
         type: string
       id:
         description: UUID for the resource
@@ -664,10 +644,6 @@ definitions:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
         type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
-        type: string
       id:
         description: UUID for the resource
         example: 65392deb-5e92-4268-b114-297faad6cdce
@@ -741,10 +717,6 @@ definitions:
       createdAt:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
         type: string
       envelopeId:
         description: The ID of the envelope this goal is for
@@ -933,10 +905,6 @@ definitions:
       createdAt:
         description: Time the resource was created
         example: "2022-04-02T19:28:44.491514Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
         type: string
       id:
         description: UUID for the resource
@@ -1216,10 +1184,6 @@ definitions:
       date:
         description: Date of the transaction. Time is currently only used for sorting
         example: "1815-12-10T18:43:00.271152Z"
-        type: string
-      deletedAt:
-        description: Time the resource was marked as deleted
-        example: "2022-04-22T21:01:05.058161Z"
         type: string
       destinationAccountId:
         description: ID of the destination account

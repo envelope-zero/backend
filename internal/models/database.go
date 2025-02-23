@@ -191,23 +191,180 @@ func generalCallback(db *gorm.DB) {
 
 // migrate migrates all models to the schema defined in the code.
 func migrate(db *gorm.DB) (err error) {
-	// https://github.com/envelope-zero/backend/issues/874
-	// Remove with 6.0.0
-	if db.Migrator().HasColumn(&Transaction{}, "budget_id") {
-		err := db.Migrator().DropConstraint(&Transaction{}, "fk_transactions_budget")
-		if err != nil {
-			return fmt.Errorf("error when dropping BudgetID column for Transaction: %w", err)
-		}
-
-		err = db.Migrator().DropColumn(&Transaction{}, "budget_id")
-		if err != nil {
-			return fmt.Errorf("error when dropping BudgetID column for Transaction: %w", err)
-		}
+	err = removeDeletedAt(db)
+	if err != nil {
+		return fmt.Errorf("error during DB migration: %w", err)
 	}
 
 	err = db.AutoMigrate(Budget{}, Account{}, Category{}, Envelope{}, Transaction{}, MonthConfig{}, MatchRule{}, Goal{})
 	if err != nil {
 		return fmt.Errorf("error during DB migration: %w", err)
+	}
+
+	return nil
+}
+
+// removeDeletedAt removes the DeletedAt column from all models, removing all deleted resources in the process
+func removeDeletedAt(db *gorm.DB) (err error) {
+	if db.Migrator().HasColumn(&Account{}, "deleted_at") {
+		var accounts []Account
+		err = db.Model(&Account{}).
+			Where("deleted_at != ''").
+			Find(&accounts).Error
+		if err != nil {
+			return fmt.Errorf("error when getting soft-deleted accounts: %w", err)
+		}
+
+		if len(accounts) > 0 {
+			log.Info().Msgf("Migration: Deleting %d previously soft-deleted accounts", len(accounts))
+			err = db.Delete(&accounts).Error
+			if err != nil {
+				return fmt.Errorf("error when deleting soft-deleted accounts: %w", err)
+			}
+		}
+
+		err = db.Migrator().DropColumn(&Account{}, "deleted_at")
+		if err != nil {
+			return fmt.Errorf("error when dropping DeletedAt column for accounts: %w", err)
+		}
+	}
+
+	if db.Migrator().HasColumn(&Budget{}, "deleted_at") {
+		var budgets []Budget
+		err = db.Model(&Budget{}).
+			Where("deleted_at != ''").
+			Find(&budgets).Error
+		if err != nil {
+			return fmt.Errorf("error when getting soft-deleted budgets: %w", err)
+		}
+
+		if len(budgets) > 0 {
+			log.Info().Msgf("Migration: Deleting %d previously soft-deleted budgets", len(budgets))
+			err = db.Delete(&budgets).Error
+			if err != nil {
+				return fmt.Errorf("error when deleting soft-deleted budgets: %w", err)
+			}
+		}
+
+		err = db.Migrator().DropColumn(&Budget{}, "deleted_at")
+		if err != nil {
+			return fmt.Errorf("error when dropping DeletedAt column for budgets: %w", err)
+		}
+	}
+
+	if db.Migrator().HasColumn(&Category{}, "deleted_at") {
+		var categories []Category
+		err = db.Model(&Category{}).
+			Where("deleted_at != ''").
+			Find(&categories).Error
+		if err != nil {
+			return fmt.Errorf("error when getting soft-deleted categories: %w", err)
+		}
+
+		if len(categories) > 0 {
+			log.Info().Msgf("Migration: Deleting %d previously soft-deleted categories", len(categories))
+			err = db.Delete(&categories).Error
+			if err != nil {
+				return fmt.Errorf("error when deleting soft-deleted categories: %w", err)
+			}
+		}
+
+		err = db.Migrator().DropColumn(&Category{}, "deleted_at")
+		if err != nil {
+			return fmt.Errorf("error when dropping DeletedAt column for categories: %w", err)
+		}
+	}
+
+	if db.Migrator().HasColumn(&Envelope{}, "deleted_at") {
+		var envelopes []Envelope
+		err = db.Model(&Envelope{}).
+			Where("deleted_at != ''").
+			Find(&envelopes).Error
+		if err != nil {
+			return fmt.Errorf("error when getting soft-deleted envelopes: %w", err)
+		}
+
+		if len(envelopes) > 0 {
+			log.Info().Msgf("Migration: Deleting %d previously soft-deleted envelopes", len(envelopes))
+			err = db.Delete(&envelopes).Error
+			if err != nil {
+				return fmt.Errorf("error when deleting soft-deleted envelopes: %w", err)
+			}
+		}
+
+		err = db.Migrator().DropColumn(&Envelope{}, "deleted_at")
+		if err != nil {
+			return fmt.Errorf("error when dropping DeletedAt column for envelopes: %w", err)
+		}
+	}
+
+	if db.Migrator().HasColumn(&Goal{}, "deleted_at") {
+		var goals []Goal
+		err = db.Model(&Goal{}).
+			Where("deleted_at != ''").
+			Find(&goals).Error
+		if err != nil {
+			return fmt.Errorf("error when getting soft-deleted goals: %w", err)
+		}
+
+		if len(goals) > 0 {
+			log.Info().Msgf("Migration: Deleting %d previously soft-deleted goals", len(goals))
+			err = db.Delete(&goals).Error
+			if err != nil {
+				return fmt.Errorf("error when deleting soft-deleted goals: %w", err)
+			}
+		}
+
+		err = db.Migrator().DropColumn(&Goal{}, "deleted_at")
+		if err != nil {
+			return fmt.Errorf("error when dropping DeletedAt column for goals: %w", err)
+		}
+	}
+
+	if db.Migrator().HasColumn(&MatchRule{}, "deleted_at") {
+		var matchRules []MatchRule
+		err = db.Model(&MatchRule{}).
+			Where("deleted_at != ''").
+			Find(&matchRules).Error
+		if err != nil {
+			return fmt.Errorf("error when getting soft-deleted matchRules: %w", err)
+		}
+
+		if len(matchRules) > 0 {
+			log.Info().Msgf("Migration: Deleting %d previously soft-deleted matchRules", len(matchRules))
+			err = db.Delete(&matchRules).Error
+			if err != nil {
+				return fmt.Errorf("error when deleting soft-deleted matchRules: %w", err)
+			}
+		}
+
+		err = db.Migrator().DropColumn(&MatchRule{}, "deleted_at")
+		if err != nil {
+			return fmt.Errorf("error when dropping DeletedAt column for match rules: %w", err)
+		}
+	}
+
+	if db.Migrator().HasColumn(&Transaction{}, "deleted_at") {
+		var transactions []Transaction
+		err = db.Model(&Transaction{}).
+			Where("deleted_at != ''").
+			Find(&transactions).Error
+		if err != nil {
+			return fmt.Errorf("error when getting soft-deleted transactions: %w", err)
+		}
+
+		if len(transactions) > 0 {
+			log.Info().Msgf("Migration: Deleting %d previously soft-deleted transactions", len(transactions))
+			err = db.Delete(&transactions).Error
+			if err != nil {
+				return fmt.Errorf("error when deleting soft-deleted transactions: %w", err)
+			}
+		}
+
+		err = db.Migrator().DropColumn(&Transaction{}, "deleted_at")
+		if err != nil {
+			return fmt.Errorf("error when dropping DeletedAt column for Transaction: %w", err)
+		}
 	}
 
 	return nil

@@ -3275,11 +3275,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
                 "external": {
                     "description": "Does the account belong to the budget owner or not?",
                     "type": "boolean",
@@ -3552,11 +3547,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "€"
                 },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
                 "id": {
                     "description": "UUID for the resource",
                     "type": "string",
@@ -3734,11 +3724,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
                 "envelopes": {
                     "description": "These fields are computed",
                     "type": "array",
@@ -3842,11 +3827,6 @@ const docTemplate = `{
                     "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "envelopes": {
                     "description": "Slice of all envelopes",
@@ -3961,11 +3941,6 @@ const docTemplate = `{
                     "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -4114,11 +4089,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
                 },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
-                },
                 "id": {
                     "description": "UUID for the resource",
                     "type": "string",
@@ -4221,11 +4191,6 @@ const docTemplate = `{
                     "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "envelopeId": {
                     "description": "The ID of the envelope this goal is for",
@@ -4484,11 +4449,6 @@ const docTemplate = `{
                     "description": "Time the resource was created",
                     "type": "string",
                     "example": "2022-04-02T19:28:44.491514Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "id": {
                     "description": "UUID for the resource",
@@ -4863,11 +4823,6 @@ const docTemplate = `{
                     "description": "Date of the transaction. Time is currently only used for sorting",
                     "type": "string",
                     "example": "1815-12-10T18:43:00.271152Z"
-                },
-                "deletedAt": {
-                    "description": "Time the resource was marked as deleted",
-                    "type": "string",
-                    "example": "2022-04-22T21:01:05.058161Z"
                 },
                 "destinationAccountId": {
                     "description": "ID of the destination account",
