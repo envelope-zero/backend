@@ -18,9 +18,8 @@ type DefaultModel struct {
 // Timestamps only contains the timestamps that gorm sets automatically to enable other
 // primary keys than ID.
 type Timestamps struct {
-	CreatedAt time.Time       `json:"createdAt" example:"2022-04-02T19:28:44.491514Z"`                                             // Time the resource was created
-	UpdatedAt time.Time       `json:"updatedAt" example:"2022-04-17T20:14:01.048145Z"`                                             // Last time the resource was updated
-	DeletedAt *gorm.DeletedAt `json:"deletedAt" gorm:"index" example:"2022-04-22T21:01:05.058161Z" swaggertype:"primitive,string"` // Time the resource was marked as deleted
+	CreatedAt time.Time `json:"createdAt" example:"2022-04-02T19:28:44.491514Z"` // Time the resource was created
+	UpdatedAt time.Time `json:"updatedAt" example:"2022-04-17T20:14:01.048145Z"` // Last time the resource was updated
 }
 
 // BeforeCreate is set to generate a UUID for the resource.

@@ -55,8 +55,8 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, 
 	var transactions []Transaction
 
 	err = db.
-		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id AND source_account.deleted_at IS NULL").
-		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id AND destination_account.deleted_at IS NULL").
+		Joins("JOIN accounts source_account ON transactions.source_account_id = source_account.id").
+		Joins("JOIN accounts destination_account ON transactions.destination_account_id = destination_account.id").
 		Joins("JOIN budgets ON source_account.budget_id = budgets.id").
 		Where("source_account.on_budget = false AND destination_account.on_budget = true").
 		Where("destination_account.external = 0").
@@ -80,9 +80,9 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, 
 func (b Budget) Allocated(db *gorm.DB, month types.Month) (allocated decimal.Decimal, err error) {
 	var monthConfigs []MonthConfig
 	err = db.
-		Joins("JOIN envelopes ON month_configs.envelope_id = envelopes.id AND envelopes.deleted_at IS NULL").
-		Joins("JOIN categories ON envelopes.category_id = categories.id AND categories.deleted_at IS NULL").
-		Joins("JOIN budgets ON categories.budget_id = budgets.id AND budgets.deleted_at IS NULL").
+		Joins("JOIN envelopes ON month_configs.envelope_id = envelopes.id").
+		Joins("JOIN categories ON envelopes.category_id = categories.id").
+		Joins("JOIN budgets ON categories.budget_id = budgets.id").
 		Where("budgets.id = ?", b.ID).
 		Where("month_configs.month >= date(?)", month).
 		Where("month_configs.month < date(?)", month.AddDate(0, 1)).

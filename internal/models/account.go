@@ -239,7 +239,7 @@ func (a Account) RecentEnvelopes(db *gorm.DB) ([]*uuid.UUID, error) {
 	// Get the Envelope IDs for the 50 latest transactions
 	latest := db.
 		Model(&Transaction{}).
-		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id AND envelopes.deleted_at IS NULL").
+		Joins("LEFT JOIN envelopes ON envelopes.id = transactions.envelope_id").
 		Select("envelopes.id as e_id, datetime(envelopes.created_at) as created").
 		Where(&Transaction{
 			DestinationAccountID: a.ID,
