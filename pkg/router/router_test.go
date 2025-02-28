@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/pkg/router"
+	"github.com/envelope-zero/backend/v7/pkg/router"
 	"github.com/stretchr/testify/assert"
 )
 

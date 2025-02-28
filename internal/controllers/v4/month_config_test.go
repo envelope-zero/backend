@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	v4 "github.com/envelope-zero/backend/v5/internal/controllers/v4"
-	"github.com/envelope-zero/backend/v5/internal/models"
-	"github.com/envelope-zero/backend/v5/internal/types"
-	"github.com/envelope-zero/backend/v5/test"
+	v4 "github.com/envelope-zero/backend/v7/internal/controllers/v4"
+	"github.com/envelope-zero/backend/v7/internal/models"
+	"github.com/envelope-zero/backend/v7/internal/types"
+	"github.com/envelope-zero/backend/v7/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )

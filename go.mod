@@ -1,4 +1,4 @@
-module github.com/envelope-zero/backend/v5
+module github.com/envelope-zero/backend/v7
 
 go 1.22
 

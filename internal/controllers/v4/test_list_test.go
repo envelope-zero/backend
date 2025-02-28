@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/test"
+	"github.com/envelope-zero/backend/v7/test"
 )
 
 // TestMethodNotAllowed tests some endpoints with disallowed HTTP methods

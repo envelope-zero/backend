@@ -3,8 +3,8 @@ package db_test
 import (
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/pkg/db"
-	"github.com/envelope-zero/backend/v5/test"
+	"github.com/envelope-zero/backend/v7/pkg/db"
+	"github.com/envelope-zero/backend/v7/test"
 	"github.com/stretchr/testify/require"
 )
 

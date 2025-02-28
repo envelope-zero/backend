@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/envelope-zero/backend/v5/internal/models"
-	"github.com/envelope-zero/backend/v5/internal/types"
-	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
+	"github.com/envelope-zero/backend/v7/internal/models"
+	"github.com/envelope-zero/backend/v7/internal/types"
+	ez_uuid "github.com/envelope-zero/backend/v7/internal/uuid"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"

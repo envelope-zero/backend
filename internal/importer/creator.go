@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/envelope-zero/backend/v5/internal/models"
+	"github.com/envelope-zero/backend/v7/internal/models"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"golang.org/x/exp/slices"

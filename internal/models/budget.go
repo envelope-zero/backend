@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v7/internal/types"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )

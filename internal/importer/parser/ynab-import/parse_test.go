@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/internal/models"
+	"github.com/envelope-zero/backend/v7/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

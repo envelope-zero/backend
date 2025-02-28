@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	v4 "github.com/envelope-zero/backend/v5/internal/controllers/v4"
-	"github.com/envelope-zero/backend/v5/internal/models"
-	"github.com/envelope-zero/backend/v5/test"
+	v4 "github.com/envelope-zero/backend/v7/internal/controllers/v4"
+	"github.com/envelope-zero/backend/v7/internal/models"
+	"github.com/envelope-zero/backend/v7/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

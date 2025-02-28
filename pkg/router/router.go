@@ -3,7 +3,7 @@ package router
 import (
 	"net/url"
 
-	"github.com/envelope-zero/backend/v5/internal/router"
+	"github.com/envelope-zero/backend/v7/internal/router"
 	"github.com/gin-gonic/gin"
 )
 
