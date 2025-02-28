@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v4 "github.com/envelope-zero/backend/v5/internal/controllers/v4"
-	"github.com/envelope-zero/backend/v5/test"
+	v4 "github.com/envelope-zero/backend/v7/internal/controllers/v4"
+	"github.com/envelope-zero/backend/v7/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

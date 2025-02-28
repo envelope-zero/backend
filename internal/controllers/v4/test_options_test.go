@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/test"
+	"github.com/envelope-zero/backend/v7/test"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/internal/controllers/healthz"
-	"github.com/envelope-zero/backend/v5/internal/models"
-	"github.com/envelope-zero/backend/v5/test"
+	"github.com/envelope-zero/backend/v7/internal/controllers/healthz"
+	"github.com/envelope-zero/backend/v7/internal/models"
+	"github.com/envelope-zero/backend/v7/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

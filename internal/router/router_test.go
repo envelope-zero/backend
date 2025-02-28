@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/internal/router"
+	"github.com/envelope-zero/backend/v7/internal/router"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

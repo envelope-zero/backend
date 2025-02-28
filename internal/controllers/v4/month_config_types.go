@@ -3,8 +3,8 @@ package v4
 import (
 	"fmt"
 
-	"github.com/envelope-zero/backend/v5/internal/models"
-	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v7/internal/models"
+	"github.com/envelope-zero/backend/v7/internal/types"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"

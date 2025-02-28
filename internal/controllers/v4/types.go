@@ -3,7 +3,7 @@ package v4
 import (
 	"time"
 
-	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
+	ez_uuid "github.com/envelope-zero/backend/v7/internal/uuid"
 )
 
 type URIMonth struct {

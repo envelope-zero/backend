@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/envelope-zero/backend/v5/internal/models"
+	"github.com/envelope-zero/backend/v7/internal/models"
 )
 
 type httpError struct {

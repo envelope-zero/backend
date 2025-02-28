@@ -3,7 +3,7 @@ package helpers_test
 import (
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/internal/importer/helpers"
+	"github.com/envelope-zero/backend/v7/internal/importer/helpers"
 	"github.com/stretchr/testify/assert"
 )
 

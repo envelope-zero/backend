@@ -3,7 +3,7 @@ package uuid_test
 import (
 	"testing"
 
-	"github.com/envelope-zero/backend/v5/internal/uuid"
+	"github.com/envelope-zero/backend/v7/internal/uuid"
 	"github.com/stretchr/testify/assert"
 )
 

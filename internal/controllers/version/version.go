@@ -3,7 +3,7 @@ package version
 import (
 	"net/http"
 
-	"github.com/envelope-zero/backend/v5/internal/httputil"
+	"github.com/envelope-zero/backend/v7/internal/httputil"
 	"github.com/gin-gonic/gin"
 )
 

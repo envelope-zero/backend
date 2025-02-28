@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envelope-zero/backend/v5/internal/types"
+	"github.com/envelope-zero/backend/v7/internal/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"

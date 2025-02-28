@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/envelope-zero/backend/v5/internal/httputil"
-	"github.com/envelope-zero/backend/v5/internal/models"
-	ez_uuid "github.com/envelope-zero/backend/v5/internal/uuid"
+	"github.com/envelope-zero/backend/v7/internal/httputil"
+	"github.com/envelope-zero/backend/v7/internal/models"
+	ez_uuid "github.com/envelope-zero/backend/v7/internal/uuid"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
