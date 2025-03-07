@@ -1,6 +1,8 @@
 module github.com/envelope-zero/backend/v7
 
-go 1.22
+go 1.23.0
+
+toolchain go1.24.1
 
 require (
 	github.com/gin-contrib/cors v1.7.3
@@ -18,7 +20,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
-	golang.org/x/text v0.22.0
+	golang.org/x/text v0.23.0
 	gorm.io/gorm v1.25.12
 )
 
