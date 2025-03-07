@@ -50,19 +50,7 @@ func OptionsMatchRuleList(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/match-rules/{id} [options]
 func OptionsMatchRuleDetail(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{Error: err.Error()})
-	}
-
-	err = models.DB.First(&models.MatchRule{}, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{Error: err.Error()})
-		return
-	}
-
-	httputil.OptionsGetPatchDelete(c)
+	resourceOptionsDetail(c, models.MatchRule{})
 }
 
 // @Summary		Create matchRules

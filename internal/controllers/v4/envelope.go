@@ -48,24 +48,7 @@ func OptionsEnvelopeList(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/envelopes/{id} [options]
 func OptionsEnvelopeDetail(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = models.DB.First(&models.Envelope{}, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	httputil.OptionsGetPatchDelete(c)
+	resourceOptionsDetail(c, models.Envelope{})
 }
 
 // @Summary		Create envelope

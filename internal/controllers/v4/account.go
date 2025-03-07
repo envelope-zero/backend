@@ -50,24 +50,7 @@ func OptionsAccountList(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/accounts/{id} [options]
 func OptionsAccountDetail(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = models.DB.First(&models.Account{}, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	httputil.OptionsGetPatchDelete(c)
+	resourceOptionsDetail(c, models.Account{})
 }
 
 // @Summary		Creates accounts
