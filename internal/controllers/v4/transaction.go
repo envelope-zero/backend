@@ -51,25 +51,7 @@ func OptionsTransactions(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/transactions/{id} [options]
 func OptionsTransactionDetail(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	var t models.Transaction
-	err = models.DB.First(&t, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	httputil.OptionsGetPatchDelete(c)
+	resourceOptionsDetail(c, models.Transaction{})
 }
 
 // @Summary		Get transaction
