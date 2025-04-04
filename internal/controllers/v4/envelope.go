@@ -295,31 +295,5 @@ func UpdateEnvelope(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/envelopes/{id} [delete]
 func DeleteEnvelope(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	var envelope models.Envelope
-	err = models.DB.First(&envelope, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = models.DB.Delete(&envelope).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusNoContent, nil)
+	deleteResource[models.Envelope](c)
 }

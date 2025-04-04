@@ -306,25 +306,5 @@ func UpdateMatchRule(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/match-rules/{id} [delete]
 func DeleteMatchRule(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{Error: err.Error()})
-		return
-	}
-
-	var matchRule models.MatchRule
-	err = models.DB.First(&matchRule, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{Error: err.Error()})
-		return
-	}
-
-	err = models.DB.Delete(&matchRule).Error
-	if err != nil {
-		c.JSON(status(err), httpError{Error: err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusNoContent, gin.H{})
+	deleteResource[models.MatchRule](c)
 }
