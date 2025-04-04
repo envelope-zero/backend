@@ -44,24 +44,7 @@ func OptionsGoals(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [options]
 func OptionsGoalDetail(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = models.DB.First(&models.Goal{}, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	httputil.OptionsGetPatchDelete(c)
+	resourceOptionsDetail(c, models.Goal{})
 }
 
 // @Summary		Create goals
@@ -364,31 +347,5 @@ func UpdateGoal(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/goals/{id} [delete]
 func DeleteGoal(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	var goal models.Goal
-	err = models.DB.First(&goal, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = models.DB.Delete(&goal).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusNoContent, nil)
+	deleteResource[models.Goal](c)
 }

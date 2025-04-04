@@ -47,24 +47,7 @@ func OptionsBudgetList(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/budgets/{id} [options]
 func OptionsBudgetDetail(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = models.DB.First(&models.Budget{}, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	httputil.OptionsGetPatchDelete(c)
+	resourceOptionsDetail(c, models.Budget{})
 }
 
 // @Summary		Create budget
@@ -296,31 +279,5 @@ func UpdateBudget(c *gin.Context) {
 // @Param			id	path		URIID	true	"ignored, but needed: https://github.com/swaggo/swag/issues/1014"
 // @Router			/v4/budgets/{id} [delete]
 func DeleteBudget(c *gin.Context) {
-	var uri URIID
-	err := c.ShouldBindUri(&uri)
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	var budget models.Budget
-	err = models.DB.First(&budget, uri.ID).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	err = models.DB.Delete(&budget).Error
-	if err != nil {
-		c.JSON(status(err), httpError{
-			Error: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusNoContent, nil)
+	deleteResource[models.Budget](c)
 }
