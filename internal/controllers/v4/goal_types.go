@@ -18,6 +18,7 @@ type GoalEditable struct {
 	Amount     decimal.Decimal `json:"amount" example:"750" minimum:"0.00000001" maximum:"999999999999.99999999" multipleOf:"0.00000001" default:"0"` // How much money should be saved for this goal?
 	Month      types.Month     `json:"month" example:"2024-07-01T00:00:00.000000Z"`                                                                   // The month the goal should be reached
 	Archived   bool            `json:"archived" example:"true" default:"false"`                                                                       // If this goal is still in use or not
+	Period     uint            `json:"period" example:"6" default:"0"`                                                                                // The period in months for when this goal should repeat. "0" means no repetition
 }
 
 // model returns the database resource for the API representation of the editable fields
@@ -29,6 +30,7 @@ func (editable GoalEditable) model() models.Goal {
 		Amount:     editable.Amount,
 		Month:      editable.Month,
 		Archived:   editable.Archived,
+		Period:     editable.Period,
 	}
 }
 
@@ -56,6 +58,7 @@ func newGoal(c *gin.Context, model models.Goal) Goal {
 			Amount:     model.Amount,
 			Month:      model.Month,
 			Archived:   model.Archived,
+			Period:     model.Period,
 		},
 		Links: GoalLinks{
 			Self:     fmt.Sprintf("%s/v4/goals/%s", url, model.ID),
@@ -107,6 +110,9 @@ type GoalQueryFilter struct {
 	Amount            decimal.Decimal `form:"amount"`                                // Exact amount
 	AmountLessOrEqual decimal.Decimal `form:"amountLessOrEqual" filterField:"false"` // Amount less than or equal to this
 	AmountMoreOrEqual decimal.Decimal `form:"amountMoreOrEqual" filterField:"false"` // Amount more than or equal to this
+	Period            uint            `form:"period"`                                // Period is exactly this
+	PeriodLessOrEqual uint            `form:"periodLessOrEqual" filterField:"false"` // Period is less or equal to this. Non-recurring goals are not returned.
+	PeriodMoreOrEqual uint            `form:"periodMoreOrEqual" filterField:"false"` // Period is more or equal to this. Non-recurring goals are not returned.
 	Offset            uint            `form:"offset" filterField:"false"`            // The offset of the first goal returned. Defaults to 0.
 	Limit             int             `form:"limit" filterField:"false"`             // Maximum number of goals to return. Defaults to 50.
 }
@@ -129,5 +135,6 @@ func (f GoalQueryFilter) model() (models.Goal, error) {
 		Amount:     f.Amount,
 		Month:      month,
 		Archived:   f.Archived,
+		Period:     f.Period,
 	}.model(), nil
 }

@@ -20,6 +20,7 @@ type Goal struct {
 	Amount     decimal.Decimal `gorm:"type:DECIMAL(20,8)"` // The target for the goal
 	Month      types.Month
 	Archived   bool
+	Period     uint
 }
 
 var ErrGoalAmountNotPositive = errors.New("goal amounts must be larger than zero")

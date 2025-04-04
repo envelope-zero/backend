@@ -740,6 +740,12 @@ definitions:
         description: Note about the goal
         example: We want to replace the old CRT TV soon-ish
         type: string
+      period:
+        default: 0
+        description: The period in months for when this goal should repeat. "0" means
+          no repetition
+        example: 6
+        type: integer
       updatedAt:
         description: Last time the resource was updated
         example: "2022-04-17T20:14:01.048145Z"
@@ -788,6 +794,12 @@ definitions:
         description: Note about the goal
         example: We want to replace the old CRT TV soon-ish
         type: string
+      period:
+        default: 0
+        description: The period in months for when this goal should repeat. "0" means
+          no repetition
+        example: 6
+        type: integer
     type: object
   v4.GoalLinks:
     properties:
@@ -2622,6 +2634,20 @@ paths:
       - description: Maximum number of goal to return. Defaults to 50.
         in: query
         name: limit
+        type: integer
+      - description: Period is exactly this
+        in: query
+        name: period
+        type: integer
+      - description: Period is less or equal to this. Non-recurring goals are not
+          returned.
+        in: query
+        name: periodLessOrEqual
+        type: integer
+      - description: Period is more or equal to this. Non-recurring goals are not
+          returned.
+        in: query
+        name: periodMoreOrEqual
         type: integer
       produces:
       - application/json

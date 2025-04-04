@@ -111,6 +111,9 @@ func CreateGoals(c *gin.Context) {
 // @Param			amountMoreOrEqual	query	string	false	"Amount more than or equal to this"
 // @Param			offset				query	uint	false	"The offset of the first goal returned. Defaults to 0."
 // @Param			limit				query	int		false	"Maximum number of goal to return. Defaults to 50."
+// @Param			period				query	uint	false	"Period is exactly this"
+// @Param			periodLessOrEqual	query	uint	false	"Period is less or equal to this. Non-recurring goals are not returned."
+// @Param			periodMoreOrEqual	query	uint	false	"Period is more or equal to this. Non-recurring goals are not returned."
 func GetGoals(c *gin.Context) {
 	var filter GoalQueryFilter
 
@@ -196,6 +199,20 @@ func GetGoals(c *gin.Context) {
 			Joins("JOIN categories on categories.id = envelopes.category_id").
 			Joins("JOIN budgets on budgets.id = categories.budget_id").
 			Where("budgets.id = ?", filter.BudgetID.UUID)
+	}
+
+	if filter.PeriodLessOrEqual != 0 {
+		q = q.
+			Where("goals.period <= ?", filter.PeriodLessOrEqual).
+			// Explicitly filter non-recurring goals
+			Where("goals.period != 0")
+	}
+
+	if filter.PeriodMoreOrEqual != 0 {
+		q = q.
+			Where("goals.period >= ?", filter.PeriodMoreOrEqual).
+			// Explicitly filter non-recurring goals
+			Where("goals.period != 0")
 	}
 
 	var goals []models.Goal

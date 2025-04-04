@@ -171,6 +171,7 @@ func (suite *TestSuiteStandard) TestGoalsGetFilter() {
 		Amount:     decimal.NewFromFloat(100),
 		Month:      types.NewMonth(2024, 1),
 		Archived:   false,
+		Period:     3,
 	})
 
 	_ = createTestGoal(suite.T(), v4.GoalEditable{
@@ -179,6 +180,7 @@ func (suite *TestSuiteStandard) TestGoalsGetFilter() {
 		Amount:     decimal.NewFromFloat(200),
 		Month:      types.NewMonth(2024, 2),
 		Archived:   true,
+		Period:     12,
 	})
 
 	_ = createTestGoal(suite.T(), v4.GoalEditable{
@@ -228,6 +230,9 @@ func (suite *TestSuiteStandard) TestGoalsGetFilter() {
 		{"Offset positive", "offset=2", 1},
 		{"Offset zero", "offset=0", 3},
 		{"Same month", fmt.Sprintf("month=%s", types.NewMonth(2024, 1)), 2},
+		{"Period Exact", "period=12", 1},
+		{"Period more or equal", "periodMoreOrEqual=3", 2},
+		{"Period less or equal", "periodLessOrEqual=3", 1},
 	}
 
 	for _, tt := range tests {

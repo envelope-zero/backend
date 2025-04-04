@@ -1862,6 +1862,24 @@ const docTemplate = `{
                         "description": "Maximum number of goal to return. Defaults to 50.",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Period is exactly this",
+                        "name": "period",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Period is less or equal to this. Non-recurring goals are not returned.",
+                        "name": "periodLessOrEqual",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Period is more or equal to this. Non-recurring goals are not returned.",
+                        "name": "periodMoreOrEqual",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4220,6 +4238,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "We want to replace the old CRT TV soon-ish"
                 },
+                "period": {
+                    "description": "The period in months for when this goal should repeat. \"0\" means no repetition",
+                    "type": "integer",
+                    "default": 0,
+                    "example": 6
+                },
                 "updatedAt": {
                     "description": "Last time the resource was updated",
                     "type": "string",
@@ -4281,6 +4305,12 @@ const docTemplate = `{
                     "description": "Note about the goal",
                     "type": "string",
                     "example": "We want to replace the old CRT TV soon-ish"
+                },
+                "period": {
+                    "description": "The period in months for when this goal should repeat. \"0\" means no repetition",
+                    "type": "integer",
+                    "default": 0,
+                    "example": 6
                 }
             }
         },
