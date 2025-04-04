@@ -72,7 +72,7 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 		} else if record[headers["Outflow"]] == "" && record[headers["Inflow"]] == "" {
 			return csvReadError(reader, errors.New("no amount is set for the transaction"))
 		} else if record[headers["Outflow"]] != "" {
-			t.Transaction.SourceAccountID = account.DefaultModel.ID
+			t.Transaction.SourceAccountID = account.ID
 			t.DestinationAccountName = record[headers["Payee"]]
 
 			amount, err := decimal.NewFromString(record[headers["Outflow"]])
@@ -82,7 +82,7 @@ func Parse(f io.Reader, account models.Account) ([]importer.TransactionPreview, 
 
 			t.Transaction.Amount = amount
 		} else {
-			t.Transaction.DestinationAccountID = account.DefaultModel.ID
+			t.Transaction.DestinationAccountID = account.ID
 			t.SourceAccountName = record[headers["Payee"]]
 
 			amount, err := decimal.NewFromString(record[headers["Inflow"]])

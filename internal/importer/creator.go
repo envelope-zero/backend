@@ -44,7 +44,7 @@ func Create(db *gorm.DB, resources ParsedResources) (models.Budget, error) {
 			return models.Budget{}, fmt.Errorf("the account '%s' specified in the Match Rule matching '%s' could not be found in the list of Accounts", matchRule.Account, matchRule.Match)
 		}
 
-		matchRule.MatchRule.AccountID = resources.Accounts[aIdx].ID
+		matchRule.AccountID = resources.Accounts[aIdx].ID
 
 		err := tx.Create(&matchRule.MatchRule).Error
 		if err != nil {

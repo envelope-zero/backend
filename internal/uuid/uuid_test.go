@@ -28,7 +28,7 @@ func TestUnmarshalParam(t *testing.T) {
 	// A valid UUID in a string parses
 	id := uuid.NewString()
 	assert.Nil(t, u.UnmarshalParam(id))
-	assert.Equal(t, id, u.UUID.String())
+	assert.Equal(t, id, u.String())
 
 	// Empty string parses to Nil UIID
 	id = ""

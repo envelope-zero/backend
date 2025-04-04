@@ -332,7 +332,7 @@ func testTransactions(t *testing.T, accounts []models.Account, envelopes []model
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%s: %s -> %s - %s", tt.date, tt.sourceAccount, tt.destinationAccount, tt.note), func(t *testing.T) {
 			// Get transaction
-			idx := slices.IndexFunc(transactions, func(t models.Transaction) bool { return t.Date == tt.date && t.Note == tt.note })
+			idx := slices.IndexFunc(transactions, func(t models.Transaction) bool { return t.Date.Equal(tt.date) && t.Note == tt.note })
 			require.NotEqual(t, -1, idx, "No transaction at expected date with expected note")
 			tr := transactions[idx]
 

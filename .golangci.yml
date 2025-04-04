@@ -1,33 +1,42 @@
+version: "2"
+linters:
+  enable:
+    - misspell
+    - revive
+    - whitespace
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+          - errcheck
+          - gocyclo
+        path: _test\.go
+      - linters:
+          - gocyclo
+        path: pkg/models/envelope.go
+        text: func `\(Envelope\).Balance`
+      - linters:
+          - gocyclo
+        path: pkg/importer/parser/ynab4/parse.go
+        text: func `parseTransactions`
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
   fix: true
-
-  # Relax rules for tests
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - errcheck
-        - dupl
-
-    - path: pkg/models/envelope.go
-      linters:
-        - gocyclo
-      text: "func `\\(Envelope\\).Balance`"
-
-    - path: pkg/importer/parser/ynab4/parse.go
-      linters:
-        - gocyclo
-      text: "func `parseTransactions`"
-
-linters:
+formatters:
   enable:
     - gofumpt
     - goimports
-    - govet
-    - revive
-    - whitespace
-    - misspell
-
-linters-settings:
-  gofumpt:
-    extra-rules: true
+  settings:
+    gofumpt:
+      extra-rules: true
+  exclusions:
+    generated: lax

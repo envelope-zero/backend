@@ -19,7 +19,7 @@ import (
 func (suite *TestSuiteStandard) TestMonthsGet() {
 	budget := createTestBudget(suite.T(), v4.BudgetEditable{})
 
-	r := test.Request(suite.T(), http.MethodGet, strings.Replace(budget.Data.Links.Month, "YYYY-MM", "2022-01", -1), "")
+	r := test.Request(suite.T(), http.MethodGet, strings.ReplaceAll(budget.Data.Links.Month, "YYYY-MM", "2022-01"), "")
 	test.AssertHTTPStatus(suite.T(), &r, http.StatusOK)
 }
 
