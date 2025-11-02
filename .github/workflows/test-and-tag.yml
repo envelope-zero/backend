@@ -54,7 +54,7 @@ jobs:
       - name: Install svu
         run: |
           # renovate: datasource=github-releases depName=caarlos0/svu
-          export SVU_VERSION="v3.2.4"
+          export SVU_VERSION="v3.3.0"
           curl -Lo ./svu.tar.gz "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/svu_${SVU_VERSION#v}_linux_amd64.tar.gz"
           tar -C "$HOME" -xzf svu.tar.gz
           rm svu.tar.gz
