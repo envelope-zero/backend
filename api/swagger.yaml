@@ -691,6 +691,7 @@ definitions:
       data:
         additionalProperties:
           items:
+            format: int32
             type: integer
           type: array
         description: The exported data

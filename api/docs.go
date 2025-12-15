@@ -4177,7 +4177,8 @@ const docTemplate = `{
                     "additionalProperties": {
                         "type": "array",
                         "items": {
-                            "type": "integer"
+                            "type": "integer",
+                            "format": "int32"
                         }
                     }
                 },

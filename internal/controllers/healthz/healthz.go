@@ -27,7 +27,7 @@ func Options(c *gin.Context) {
 // @Tags			General
 // @Produce		json
 // @Success		204
-// @Failure		500	{object} map[string]string
+// @Failure		500	{object}	map[string]string
 // @Router			/healthz [get]
 func Get(c *gin.Context) {
 	sqlDB, err := models.DB.DB()
