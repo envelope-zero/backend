@@ -91,7 +91,7 @@ func (m *Month) Scan(value interface{}) (err error) {
 	nullTime := &sql.NullTime{}
 	err = nullTime.Scan(value)
 	*m = Month(nullTime.Time)
-	return
+	return err
 }
 
 // Value returns the value for the SQL driver to write to the database.

@@ -157,7 +157,7 @@ func (a Account) GetBalanceMonth(db *gorm.DB, month types.Month) (balance, avail
 		}
 	}
 
-	return
+	return balance, available, err
 }
 
 // Balance calculates the balance of the account at a specific point in time, including all transactions
@@ -190,7 +190,7 @@ func (a Account) Balance(db *gorm.DB, time time.Time) (balance decimal.Decimal, 
 		}
 	}
 
-	return
+	return balance, err
 }
 
 // ReconciledBalance calculates the reconciled balance at a specific point in time
@@ -222,7 +222,7 @@ func (a Account) ReconciledBalance(db *gorm.DB, time time.Time) (balance decimal
 		}
 	}
 
-	return
+	return balance, err
 }
 
 // SetRecentEnvelopes returns the most common envelopes used in the last 50

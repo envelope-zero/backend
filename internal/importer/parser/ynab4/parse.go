@@ -80,7 +80,7 @@ func parseArchivedCategoryName(f string) (category, envelope string, err error) 
 
 	category = match[1]
 	envelope = match[2]
-	return
+	return category, envelope, err
 }
 
 func parseAccounts(resources *importer.ParsedResources, accounts []Account) IDToName {

@@ -56,7 +56,7 @@ func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
 		var category Category
 		err = tx.First(&category, e.CategoryID).Error
 		if err != nil {
-			return
+			return err
 		}
 
 		if category.Archived {
@@ -64,7 +64,7 @@ func (e *Envelope) BeforeUpdate(tx *gorm.DB) (err error) {
 		}
 	}
 
-	return
+	return err
 }
 
 // checkIntegrity verifies references to other resources
