@@ -292,9 +292,8 @@ func ImportYnabImportPreview(c *gin.Context) {
 	// Get all match rules for the budget for which the account is not archived
 	var matchRules []models.MatchRule
 	err = models.DB.
-		Joins("JOIN accounts ON accounts.budget_id = ? AND NOT accounts.archived", account.BudgetID).
-		Joins("JOIN match_rules rr ON rr.account_id = accounts.id").
-		Order("rr.priority asc").
+		Joins("JOIN accounts ON accounts.budget_id = ? AND NOT accounts.archived AND accounts.id = match_rules.account_id", account.BudgetID).
+		Order("match_rules.priority asc").
 		Find(&matchRules).Error
 	if err != nil {
 		s := err.Error()
@@ -377,7 +376,7 @@ func ImportYnab4(c *gin.Context) {
 			Error: errBudgetNameInUse.Error(),
 		})
 		return
-	} else if err != nil && !errors.Is(err, models.ErrResourceNotFound) {
+	} else if !errors.Is(err, models.ErrResourceNotFound) {
 		s := err.Error()
 		c.JSON(status(err), BudgetResponse{
 			Error: &s,
