@@ -178,7 +178,7 @@ func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 		t.ReconciledDestination = false
 	}
 
-	return
+	return err
 }
 
 // Returns all transactions on this instance for export

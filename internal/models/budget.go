@@ -73,7 +73,7 @@ func (b Budget) Income(db *gorm.DB, month types.Month) (income decimal.Decimal, 
 		income = income.Add(t.Amount)
 	}
 
-	return
+	return income, err
 }
 
 // Allocated calculates the sum that has been budgeted for a specific month.
@@ -96,7 +96,7 @@ func (b Budget) Allocated(db *gorm.DB, month types.Month) (allocated decimal.Dec
 		allocated = allocated.Add(a.Allocation)
 	}
 
-	return
+	return allocated, err
 }
 
 // Returns all budgets on this instance for export

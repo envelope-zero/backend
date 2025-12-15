@@ -52,13 +52,13 @@ func (c *Category) BeforeUpdate(tx *gorm.DB) (err error) {
 		}).
 			Find(&envelopes).Error
 		if err != nil {
-			return
+			return err
 		}
 
 		for _, e := range envelopes {
 			err = tx.Model(&e).Select("Archived").Updates(Envelope{Archived: true}).Error
 			if err != nil {
-				return
+				return err
 			}
 		}
 	}

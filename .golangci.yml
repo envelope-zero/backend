@@ -25,6 +25,10 @@ linters:
           - gocyclo
         path: pkg/importer/parser/ynab4/parse.go
         text: func `parseTransactions`
+      - linters:
+          - revive
+        path: internal/types/month.go
+        text: "var-naming: avoid meaningless package names"
     paths:
       - third_party$
       - builtin$
