@@ -1,7 +1,7 @@
 .PHONY: setup-pre-commit-ci
 setup-pre-commit-ci:
 # renovate: datasource=github-releases depName=golangci/golangci-lint
-	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.9.0
 # renovate: datasource=github-releases depName=swaggo/swag
 	go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
