@@ -7,7 +7,7 @@ toolchain go1.25.5
 require (
 	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-contrib/logger v1.2.7
-	github.com/gin-contrib/pprof v1.5.3
+	github.com/gin-contrib/pprof v1.5.4
 	github.com/gin-contrib/requestid v1.0.5
 	github.com/gin-gonic/gin v1.12.0
 	github.com/glebarez/go-sqlite v1.22.0
