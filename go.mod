@@ -6,7 +6,7 @@ toolchain go1.26.3
 
 require (
 	github.com/gin-contrib/cors v1.7.9
-	github.com/gin-contrib/logger v1.2.8
+	github.com/gin-contrib/logger v1.2.9
 	github.com/gin-contrib/pprof v1.5.6
 	github.com/gin-contrib/requestid v1.0.7
 	github.com/gin-gonic/gin v1.12.0
