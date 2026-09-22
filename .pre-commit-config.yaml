@@ -1,0 +1,68 @@
+default_stages: [pre-commit]
+repos:
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.27.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional"]
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.5
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: ^api
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: swag fmt
+        name: Format swag comments
+        language: system
+        pass_filenames: false
+        entry: swag fmt
+        files: ^(pkg|internal)/.*
+
+      - id: swag init
+        name: Create swagger docs.go
+        language: system
+        pass_filenames: false
+        entry: swag init --parseDependency --output ./api
+        files: ^(pkg|internal)/.*
+
+      - id: go mod tidy
+        name: go mod tidy
+        language: system
+        pass_filenames: false
+        entry: go mod tidy
+        files: ^go\.(mod|sum)$
+
+      - id: golangci-lint
+        name: golangci-lint
+        language: system
+        pass_filenames: false
+        entry: golangci-lint run
+        files: ^.*\.go$
+
+      # Taken from https://github.com/rstcheck/rstcheck/blob/178e8c1001aebe2dcbf006e7e6980246704d2315/.pre-commit-config.yaml#L141
+      #
+      # Find FIXME:|BUG: comments in all files
+      # Inline skip: `#i#` directly after the colon after the tag-word
+      - id: find-todos
+        name: "Find FIXME:|BUG: comments"
+        description: "Check for FIXME:|BUG: comments in all files"
+        language: pygrep
+
+        # This contains "FIMXE" because I often mistype it
+        entry: '(^|//!?|#|<!--|;|/\*(\*|!)?|\.\.)\s*(FIXME:|FIMXE:|BUG:)(?!#i#)'
+        exclude: CONTRIBUTING.md

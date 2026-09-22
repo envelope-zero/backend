@@ -1,0 +1,10 @@
+{
+  "go.useLanguageServer": true,
+  "gopls": {
+    "formatting.gofumpt": true
+  },
+  "editor.tabSize": 4,
+  "[yaml]": {
+    "editor.tabSize": 2
+  }
+}
