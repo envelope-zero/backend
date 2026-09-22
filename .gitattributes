@@ -1,3 +1,0 @@
-# Mark swagger generated docs as generated for GitHub diffs and language analysis
-api/ linguist-generated=true
-*.md linguist-documentation=true
